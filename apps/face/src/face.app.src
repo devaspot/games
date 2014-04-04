@@ -1,0 +1,9 @@
+{application, face,
+ [
+  {description, "Kakaranet Lite"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [kernel, stdlib]},
+  {mod, { web_app, []}},
+  {env, []}
+ ]}.
