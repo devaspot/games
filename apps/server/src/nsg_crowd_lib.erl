@@ -6,16 +6,29 @@
 %%% -------------------------------------------------------------------
 
 -module(nsg_crowd_lib).
+-include_lib("kvs/include/user.hrl").
 
--export([virtual_users/0,
-         random_users/2]).
+-compile(export_all).
+
+create_users(A,B) ->
+    ImagioUsers = nsm_auth:imagionary_users(),
+    [ begin U = #user{username = nsm_auth:ima_gio(N,ImagioUsers),
+                            id = nsm_auth:ima_gio(N,ImagioUsers),
+                            birth={1981,9,29}
+                           }, kvs:put(U) end || N <- lists:seq(A, B) ].
 
 virtual_users() ->
-    {_, AllUsers} = lists:unzip(nsm_auth:imagionary_users2()),
+    case kvs:get(user,"maxim@synrc.com") of
+        {aborted,_} -> kvs:join(), kvs:init_db(),
+                create_users(1,100), kvs:put(#user{id="maxim@synrc.com"});
+        {ok,_} -> skip end,
+
+    {_, AllUsers} = lists:unzip(nsm_auth:imagionary_users()),
     F = fun(UserId, Acc) ->
-                case auth_server:get_user_info_by_user_id(UserId) of
+        User = auth_server:get_user_info_by_user_id(UserId),
+        case User of
                     {ok, _} -> [UserId | Acc];
-                    {error, _} -> Acc
+                    {error,_} -> Acc
                 end
         end,
     lists:usort(lists:foldl(F, [], AllUsers)).
