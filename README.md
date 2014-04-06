@@ -1,4 +1,4 @@
-N2O: Erlang Web Framework on WebSockets
+Kakaranet
 =======================================
 
 Samples
