@@ -36,17 +36,19 @@
           role = viewer :: atom()      %% [viewer, player, ghost]
          }).
 
+% TODO: perform start_link on web socket init
+
 start_link(RPC) when is_pid(RPC) ->
     gen_server:start_link(?MODULE, [RPC], []).
 
 bot_session_attach(Pid, UserInfo) ->
     gen_server:cast(Pid, {bot_session_attach, UserInfo}).
 
+% TODO: in case of game requests from web page handle them here
+
 process_request(Pid, Source, Msg) ->
     ?INFO("API from ~p payload ~p pid ~p",[Source,Msg,Pid]),
     gen_server:call(Pid, {client_request, Msg}).
-
-%% gen_server callbacks
 
 init([RPC]) ->
     MonRef = erlang:monitor(process, RPC),
@@ -479,6 +481,7 @@ handle_relay_kick(Reason, _SubscrId, #state{rpc = RPC} = State) ->
 get_relay(GameId, GameList) ->
     lists:keyfind(GameId, #participation.game_id, GameList).
 
+% TODO: flush message to web socket process
 
 send_message_to_player(Pid, Message) ->
     ?INFO("MESSAGE to ~p ~p",[Pid,Message]),

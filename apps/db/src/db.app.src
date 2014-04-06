@@ -1,6 +1,6 @@
 {application, db,
  [
-  {description, "Distributed Persistance"},
+  {description, "KKN Tables"},
   {vsn, "1"},
   {registered, []},
   {applications, [kernel,stdlib,kvs]},
