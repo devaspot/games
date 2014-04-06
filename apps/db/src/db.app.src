@@ -1,0 +1,9 @@
+{application, db,
+ [
+  {description, "Distributed Persistance"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [kernel,stdlib,kvs]},
+  {mod, { db_app, []}},
+  {env, []}
+ ]}.

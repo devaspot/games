@@ -1,0 +1,13 @@
+{application, server,
+ [
+  {description, "Kakaranet Game Server"},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  gproc,
+                  stdlib,db
+                 ]},
+  {mod, { nsg_games_app, []}},
+  {env, []}
+ ]}.

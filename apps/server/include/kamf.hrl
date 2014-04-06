@@ -1,0 +1,3 @@
+-define(KAMF_VERSION, 1).
+-define(KAMF_MAGIC, 16#ccaaccaa0001).
+-define(AMF, kamf).
