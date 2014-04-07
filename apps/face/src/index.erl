@@ -30,12 +30,21 @@ event(join) ->
     Msg = "ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'), Bert.tuple(Bert.atom('join_game'), 1000001))));",
     wf:wire(Msg);
 
+
+
+
+%%-record(game_action, {
+%%          game      :: 'GameId'(),
+%%          action    :: string(),
+%%          args = [] :: proplist()
+%%         }).
+
 %%-record(okey_take, {
 %%          pile :: integer() %% 0 or 1
 %%         }).
 
 event(take) ->
-    Msg = "ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'), Bert.tuple(Bert.atom('okey_take'), 0))));",
+    Msg = "ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'), Bert.tuple(Bert.atom('game_action'), 1000001, 'okey_take', [Bert.tuple(Bert.atom('pile'), 0))))));",
     wf:wire(Msg);
 
 %%-record('OkeyPiece', {
