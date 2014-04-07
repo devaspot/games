@@ -89,7 +89,8 @@ info({client,Message}, Req, State) ->
 info({send_message,Message}, Req, State) ->
     wf:info("Game Message: ~p",[Message]),
     Ret = io_lib:format("~p",[Message]),
-    {reply,Ret,Req,State};
+    T = wf:js_escape(Ret),
+    {reply,io_lib:format("console.log('~s')",[T]),Req,State};
 
 info(Pro, Req, State) ->
     Render = 
