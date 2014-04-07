@@ -44,30 +44,30 @@ stream({binary,Info}, Req, State) ->
     case Pro of
         {client,M} -> info({client,M},Req,State);
         _ ->
-    Pickled = proplists:get_value(pickle,Pro),
-    Linked = proplists:get_value(linked,Pro),
-    Depickled = wf:depickle(Pickled),
-    wf:info("Depickled: ~p",[Depickled]),
-    case Depickled of
-        #ev{module=Module,name=Function,payload=Parameter,trigger=Trigger} ->
-            case Function of 
-                control_event   -> lists:map(fun({K,V})-> put(K,V) end,Linked),
-                                   Module:Function(Trigger, Parameter);
-                api_event       -> Module:Function(Parameter,Linked,State);
-                event           -> lists:map(fun({K,V})-> put(K,V) end,Linked),
-                                   Module:Function(Parameter);
-                UserCustomEvent -> Module:Function(Parameter,Trigger,State) end;
-          _Ev -> wf:error("N2O allows only #ev{} events") end,
+            Pickled = proplists:get_value(pickle,Pro),
+            Linked = proplists:get_value(linked,Pro),
+            Depickled = wf:depickle(Pickled),
+            wf:info("Depickled: ~p",[Depickled]),
+            case Depickled of
+                #ev{module=Module,name=Function,payload=Parameter,trigger=Trigger} ->
+                    case Function of 
+                        control_event   -> lists:map(fun({K,V})-> put(K,V) end,Linked),
+                                           Module:Function(Trigger, Parameter);
+                        api_event       -> Module:Function(Parameter,Linked,State);
+                        event           -> lists:map(fun({K,V})-> put(K,V) end,Linked),
+                                           Module:Function(Parameter);
+                        UserCustomEvent -> Module:Function(Parameter,Trigger,State) end;
+                _Ev -> wf:error("N2O allows only #ev{} events") end,
 
-    Actions = get(actions),
-    wf_context:clear_actions(),
-    Render = wf:render(Actions),
+            Actions = get(actions),
+            wf_context:clear_actions(),
+            Render = wf:render(Actions),
 
-    GenActions = get(actions),
-    RenderGenActions = wf:render(GenActions),
-    wf_context:clear_actions(),
+            GenActions = get(actions),
+            RenderGenActions = wf:render(GenActions),
+            wf_context:clear_actions(),
 
-    {reply, [Render,RenderGenActions], Req, State} end;
+            {reply, [Render,RenderGenActions], Req, State} end;
 stream(Data, Req, State) ->
     wf:info("Data Received ~p",[Data]),
     self() ! Data,
