@@ -68,7 +68,7 @@ handle_call(Request, From, State) ->
 
 handle_cast({bot_session_attach, UserInfo}, State = #state{user = undefined}) ->
 %    ?INFO("bot session attach", []),
-    {noreply, state#state{user = UserInfo}};
+    {noreply, State#state{user = UserInfo}};
 
 handle_cast(Msg, State) ->
     ?INFO("session: unrecognized cast: ~p", [Msg]),
