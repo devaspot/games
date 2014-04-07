@@ -1643,13 +1643,13 @@ die_to_ext(Die) -> Die.
 
 %%===================================================================
 
-get_timeout(turn, fast) -> {ok, Val}   = nsm_db:get(config,"games/okey/turn_timeout_fast", 15000), Val;
-get_timeout(turn, normal) -> {ok, Val} = nsm_db:get(config,"games/okey/turn_timeout_normal", 30000), Val;
-get_timeout(turn, slow) -> {ok, Val}   = nsm_db:get(config,"games/okey/turn_timeout_slow", 60000), Val;
+get_timeout(turn, fast) -> {ok, Val}   = kvs:get(config,"games/okey/turn_timeout_fast", 15000), Val;
+get_timeout(turn, normal) -> {ok, Val} = kvs:get(config,"games/okey/turn_timeout_normal", 30000), Val;
+get_timeout(turn, slow) -> {ok, Val}   = kvs:get(config,"games/okey/turn_timeout_slow", 60000), Val;
 
-get_timeout(ready, fast) -> {ok, Val}   = nsm_db:get(config,"games/okey/ready_timeout_fast", 15000), Val;
-get_timeout(ready, normal) -> {ok, Val} = nsm_db:get(config,"games/okey/ready_timeout_normal", 25000), Val;
-get_timeout(ready, slow) -> {ok, Val}   = nsm_db:get(config,"games/okey/ready_timeout_slow", 45000), Val.
+get_timeout(ready, fast) -> {ok, Val}   = kvs:get(config,"games/okey/ready_timeout_fast", 15000), Val;
+get_timeout(ready, normal) -> {ok, Val} = kvs:get(config,"games/okey/ready_timeout_normal", 25000), Val;
+get_timeout(ready, slow) -> {ok, Val}   = kvs:get(config,"games/okey/ready_timeout_slow", 45000), Val.
 
 %%===================================================================
 

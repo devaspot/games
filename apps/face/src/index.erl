@@ -1,6 +1,8 @@
 -module(index).
 -compile(export_all).
 -include_lib("n2o/include/wf.hrl").
+-include_lib("server/include/requests.hrl").
+-include_lib("server/include/settings.hrl").
 
 main() -> 
     case wf:user() of
@@ -18,6 +20,8 @@ body() ->
       #button{ id=send, body= <<"Chat">>, postback={chat,Pid}, source=[message] } ].
 
 event(init) ->
+    {ok,GamePid} = game_session:start_link(self()),
+    put(game_session,GamePid),
     User = wf:user(),
     wf:reg(room),
     X = wf:qs(<<"x">>),
@@ -25,6 +29,9 @@ event(init) ->
                                 #button{id=logout, body="Logout", postback=logout}, #br{} ]);
 
 event({chat,Pid}) ->
+    GamePid = get(game_session),
+    game_session:process_request(GamePid,"Web Site",#session_attach{token=?TEST_TOKEN}), 
+    game_session:process_request(GamePid,"Web Site",#join_game{game=1000002}),
     error_logger:info_msg("Chat Pid: ~p",[Pid]),
     Username = wf:user(),
     Message = wf:q(message),

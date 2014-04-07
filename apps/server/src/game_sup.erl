@@ -19,9 +19,10 @@ init([]) ->
     Restart = permanent,
     Shutdown = 2000,
     IdGen = {id_generator, {id_generator, start_link, []},  Restart, Shutdown, worker, [id_generator]},
+    AuthServer = {auth_server, {auth_server, start_link, []}, Restart, Shutdown, worker, [auth_server]},
     GameManager = {game_manager, {game_manager, start_link, []}, Restart, Shutdown, worker, [game_manager]},
     TavlaSup = {tavla_sup, {tavla_sup, start_link, []}, Restart, Shutdown, supervisor, [tavla_sup]},
     OkeySup = {okey_sup, {okey_sup, start_link, []}, Restart, Shutdown, supervisor, [okey_sup]},
     LuckySup = {lucky_sup, {lucky_sup, start_link, []}, Restart, Shutdown, supervisor, [lucky_sup]},
-    {ok, {SupFlags, [IdGen,GameManager,LuckySup,TavlaSup,OkeySup]}}.
+    {ok, {SupFlags, [IdGen,GameManager,LuckySup,TavlaSup,OkeySup,AuthServer]}}.
 
