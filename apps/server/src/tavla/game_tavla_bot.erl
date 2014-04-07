@@ -112,6 +112,8 @@ handle_info({'DOWN', Ref, process, _, Reason}, State = #state{owner_mon = OMon})
     ?INFO("relay goes down with reason ~p so does bot", [Reason]),
     {stop, Reason, State};
 handle_info({send_message,M}, State) ->
+    BPid = State#state.bot,
+    BPid ! M,
     {noreply, State};
 handle_info(Info, State) ->
     {stop, {unrecognized_info, Info}, State}.
