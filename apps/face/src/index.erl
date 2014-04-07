@@ -30,9 +30,27 @@ event(join) ->
     Msg = "ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'), Bert.tuple(Bert.atom('join_game'), 1000001))));",
     wf:wire(Msg);
 
+%%-record(okey_take, {
+%%          pile :: integer() %% 0 or 1
+%%         }).
+
 event(take) ->
-    Msg = "Bert.tuple();",
+    Msg = "ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'), Bert.tuple(Bert.atom('okey_take'), 0))));",
     wf:wire(Msg);
+
+%%-record('OkeyPiece', {
+%%          color = -1 :: integer(),           %% 1..4
+%%          value = -1 :: integer()            %% 1..13
+%%          %% color set to 1 and value set to zero mean that this is false okey
+%%         }).
+
+
+%%-record(okey_discard, {
+%%          tile :: #'OkeyPiece'{}
+%%         }).
+
+
+
 
 event(Event) -> wf:info("Event: ~p", [Event]).
 
