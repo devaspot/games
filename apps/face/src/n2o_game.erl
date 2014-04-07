@@ -35,6 +35,7 @@ stream({text,Data}, Req, State) ->
 stream({binary,Info}, Req, State) ->
     wf:info("Binary Received: ~p",[Info]),
     Pro = binary_to_term(Info,[safe]),
+
     wf:info("N2O Unknown Event: ~p",[Pro]),
     case Pro of
         {client,M} -> info({client,M},Req,State);
@@ -76,6 +77,8 @@ render_actions(InitActions) ->
     [RenderInit,RenderInitGenActions].
 
 info({client,Message}, Req, State) ->
+    GamePid = get(gamme_session),
+    game_session:process_request(GamePid, Message), 
     wf:info("Client Message: ~p",[Message]),
     {reply,[],Req,State};
 

@@ -16,9 +16,15 @@ body() ->
     {ok,Pid} = wf:comet(fun() -> chat_loop() end), 
     [ #span{ body = io_lib:format("'/index?x=' is ~p",[wf:qs(<<"x">>)]) },
       #panel{ id=history },
-      #textbox{ id=message },
-      #button{ id=send, body= <<"Chat">>, postback={chat,Pid}, source=[message] },
-      #button{ id=test, body= <<"Test">>, postback={test,Pid}}].
+      %%#textbox{ id=message },
+      %%#button{ id=send, body= <<"Chat">>, postback={chat,Pid}, source=[message] },
+      %%#button{ id=test, body= <<"Test">>, postback={test,Pid}},
+      %% session attachm, join game, take %1, discard %1
+      #button{ id = attach, body = <<"Attach">>, postback = attach},
+      #button{ id = join, body = <<"Join">>, postback = join},
+      #button{ id = take, body = <<"Take">>, postback = take},
+      #button{ id = discard, body = <<"Discard">>, postback = discard}
+    ].
 
 event(init) ->
     {ok,GamePid} = game_session:start_link(self()),
@@ -31,8 +37,8 @@ event(init) ->
 
 event({chat,Pid}) ->
     GamePid = get(game_session),
-    game_session:process_request(GamePid,"Web Site",#session_attach{token=?TEST_TOKEN}), 
-    game_session:process_request(GamePid,"Web Site",#join_game{game=1000001}),
+%%    game_session:process_request(GamePid,"Web Site",#session_attach{token=?TEST_TOKEN}), 
+%%    game_session:process_request(GamePid,"Web Site",#join_game{game=1000001}),
     error_logger:info_msg("Chat Pid: ~p",[Pid]),
     Username = wf:user(),
     Message = wf:q(message),
@@ -40,8 +46,26 @@ event({chat,Pid}) ->
     wf:update(text,[#panel{body= <<"Text">>},#panel{body= <<"OK">>}]),
     Pid ! {message, Username, Message};
 
-event({test, _Pid}) ->
-    wf:wire("ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'), Bert.atom('ok2') )));");
+%%event({Event}) ->
+%%    wf:wire("ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'), Bert.atom('ok2') )));");
+
+event(attach) ->
+    Msg = "ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'), Bert.tuple(Bert.atom('session_attach'), '" ++ ?TEST_TOKEN ++ "'))));",
+    wf:wire(Msg),
+    wf:update(text,[#panel{body= <<"Text">>},#panel{body= <<"OK">>}]);
+
+event(join) ->
+    Msg = "ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'), Bert.tuple(Bert.atom('join_game'), 1000001))));",
+    wf:wire(Msg),
+    wf:update(text,[#panel{body= <<"Text">>},#panel{body= <<"OK">>}]);
+
+%%-record(okey_take, {
+%%          pile :: integer() %% 0 or 1
+%%         }).
+
+event(take) ->
+    Message = "Bert.tuple()",
+    wf:update(text,[#panel{body= <<"Text">>},#panel{body= <<"OK">>}]);
 
 event(logout) -> 
     wf:logout(),

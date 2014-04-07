@@ -11,7 +11,7 @@
 
 -export([start_link/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--export([process_request/3]).
+-export([process_request/2, process_request/3]).
 -export([bot_session_attach/2]).
 
 -define(SERVER, ?MODULE).
@@ -46,6 +46,10 @@ bot_session_attach(Pid, UserInfo) ->
 
 % TODO: in case of game requests from web page handle them here
 
+process_request(Pid, Msg) ->
+    ?INFO("API payload ~p pid ~p",[Msg,Pid]),
+    gen_server:call(Pid, {client_request, Msg}).
+
 process_request(Pid, Source, Msg) ->
     ?INFO("API from ~p payload ~p pid ~p",[Source,Msg,Pid]),
     gen_server:call(Pid, {client_request, Msg}).
@@ -64,7 +68,7 @@ handle_call(Request, From, State) ->
 
 handle_cast({bot_session_attach, UserInfo}, State = #state{user = undefined}) ->
 %    ?INFO("bot session attach", []),
-    {noreply, State#state{user = UserInfo}};
+    {noreply, state#state{user = UserInfo}};
 
 handle_cast(Msg, State) ->
     ?INFO("session: unrecognized cast: ~p", [Msg]),
