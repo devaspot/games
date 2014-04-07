@@ -18,6 +18,11 @@ main() ->
 
 body() ->
     [ #panel{ id=history },
+      #dropdown { id=drop, value="2", postback=combo, source=[drop], options=[
+        #option { label= <<"Option 1">>, value= <<"1">> },
+        #option { label= <<"Option 2">>, value= <<"2">> },
+        #option { label= <<"Option 3">>, value= <<"3">> }
+     ]},
       #button{ id = attach, body = <<"Attach">>, postback = attach},
       #button{ id = join, body = <<"Join">>, postback = join},
       #button{ id = take, body = <<"Take">>, postback = take},
@@ -27,6 +32,9 @@ body() ->
 event(init) ->
     {ok,GamePid} = game_session:start_link(self()),
     put(game_session,GamePid);
+
+event(combo) ->
+    wf:info("Combo: ~p",[wf:q(drop)]);
 
 event(attach) ->
     Msg = "ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'), Bert.tuple(Bert.atom('session_attach'), '" ++ ?TEST_TOKEN ++ "'))));",
