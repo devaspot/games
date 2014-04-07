@@ -68,6 +68,11 @@ render_actions(InitActions) ->
     wf_context:clear_actions(),
     [RenderInit,RenderInitGenActions].
 
+info({send_message,Message}, Req, State) ->
+    wf:info("Game Message: ~p",[Message]),
+    Ret = io_lib:format("~p",[Message]),
+    {reply,Ret,Req,State};
+
 info(Pro, Req, State) ->
     Render = 
         case Pro of

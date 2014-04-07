@@ -485,4 +485,4 @@ get_relay(GameId, GameList) ->
 
 send_message_to_player(Pid, Message) ->
     ?INFO("MESSAGE to ~p ~p",[Pid,Message]),
-    gen_server:call(Pid,{send_message,Message}).
+    Pid ! {send_message,Message}, ok.

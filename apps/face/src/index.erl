@@ -46,9 +46,9 @@ event(logout) ->
         $i -> wf:redirect("/login");
         $l -> wf:redirect("/login");
          _ -> wf:redirect("/static/spa/spa.htm") end;
-
 event(login) -> login:event(login);
 event(continue) -> wf:info("OK Pressed");
+
 event(Event) -> wf:info("Event: ~p", [Event]).
 
 chat_loop() ->
