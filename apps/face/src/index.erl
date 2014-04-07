@@ -31,8 +31,6 @@ event(join) ->
     wf:wire(Msg);
 
 
-
-
 %%-record(game_action, {
 %%          game      :: 'GameId'(),
 %%          action    :: string(),
