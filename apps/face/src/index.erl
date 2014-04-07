@@ -31,7 +31,7 @@ event(init) ->
 event({chat,Pid}) ->
     GamePid = get(game_session),
     game_session:process_request(GamePid,"Web Site",#session_attach{token=?TEST_TOKEN}), 
-    game_session:process_request(GamePid,"Web Site",#join_game{game=1000002}),
+    game_session:process_request(GamePid,"Web Site",#join_game{game=1000001}),
     error_logger:info_msg("Chat Pid: ~p",[Pid]),
     Username = wf:user(),
     Message = wf:q(message),

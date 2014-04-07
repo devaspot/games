@@ -1479,17 +1479,17 @@ desk_error_to_ext(E) -> {error, E}.
 
 %%===================================================================
 
-get_timeout(turn, fast) -> {ok, Val}   = nsm_db:get(config,"games/okey/turn_timeout_fast", 15000), Val;
-get_timeout(turn, normal) -> {ok, Val} = nsm_db:get(config,"games/okey/turn_timeout_normal", 30000), Val;
-get_timeout(turn, slow) -> {ok, Val}   = nsm_db:get(config,"games/okey/turn_timeout_slow", 60000), Val;
+get_timeout(turn, fast) -> {ok, Val}   = kvs:get(config,"games/okey/turn_timeout_fast", 15000), Val;
+get_timeout(turn, normal) -> {ok, Val} = kvs:get(config,"games/okey/turn_timeout_normal", 30000), Val;
+get_timeout(turn, slow) -> {ok, Val}   = kvs:get(config,"games/okey/turn_timeout_slow", 60000), Val;
 
-get_timeout(challenge, fast) ->  {ok, Val}   = nsm_db:get(config,"games/okey/challenge_timeout_fast", 5000), Val;
-get_timeout(challenge, normal) ->  {ok, Val} = nsm_db:get(config,"games/okey/challenge_timeout_normal", 10000), Val;
-get_timeout(challenge, slow) -> {ok, Val}    = nsm_db:get(config,"games/okey/challenge_timeout_slow", 20000), Val;
+get_timeout(challenge, fast) ->  {ok, Val}   = kvs:get(config,"games/okey/challenge_timeout_fast", 5000), Val;
+get_timeout(challenge, normal) ->  {ok, Val} = kvs:get(config,"games/okey/challenge_timeout_normal", 10000), Val;
+get_timeout(challenge, slow) -> {ok, Val}    = kvs:get(config,"games/okey/challenge_timeout_slow", 20000), Val;
 
-get_timeout(ready, fast) -> {ok, Val}   = nsm_db:get(config,"games/okey/ready_timeout_fast", 15000), Val;
-get_timeout(ready, normal) -> {ok, Val} = nsm_db:get(config,"games/okey/ready_timeout_normal", 25000), Val;
-get_timeout(ready, slow) -> {ok, Val}   = nsm_db:get(config,"games/okey/ready_timeout_slow", 45000), Val.
+get_timeout(ready, fast) -> {ok, Val}   = kvs:get(config,"games/okey/ready_timeout_fast", 15000), Val;
+get_timeout(ready, normal) -> {ok, Val} = kvs:get(config,"games/okey/ready_timeout_normal", 25000), Val;
+get_timeout(ready, slow) -> {ok, Val}   = kvs:get(config,"games/okey/ready_timeout_slow", 45000), Val.
 
 %%===================================================================
 

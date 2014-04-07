@@ -397,7 +397,7 @@ random_bool(Prob) ->
     Point = crypto:rand_uniform(0, 1000),
     Prob*1000 > Point.
 
-get_delay(fast) -> {ok, Val}   = nsm_db:get(config,"games/okey/robot_delay_fast", 6000), Val;
-get_delay(normal) -> {ok, Val} = nsm_db:get(config,"games/okey/robot_delay_normal", 9000), Val;
-get_delay(slow) -> {ok, Val}   = nsm_db:get(config,"games/okey/robot_delay_slow", 15000), Val.
+get_delay(fast) -> {ok, Val}   = kvs:get(config,"games/okey/robot_delay_fast", 6000), Val;
+get_delay(normal) -> {ok, Val} = kvs:get(config,"games/okey/robot_delay_normal", 9000), Val;
+get_delay(slow) -> {ok, Val}   = kvs:get(config,"games/okey/robot_delay_slow", 15000), Val.
 
