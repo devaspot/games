@@ -23,12 +23,6 @@ init(_Transport, Req, _Opts, _Active) ->
     Req1 = wf:header(<<"Access-Control-Allow-Origin">>, <<"*">>, NewCtx#context.req),
     {ok, Req1, NewCtx}.
 
-%% {'KamfMessage',23,game_event,[{game,undefined},{event,okey_tile_taken},{args,[{player,<<"dusler">>},{pile,0},{revealed,null},{pile_height,43}]}]}
-
-is_proplist([]) -> true;
-is_proplist([{K,_}|L]) when is_atom(K) -> is_proplist(L);
-is_proplist(_) -> false.
-
 stream(<<"ping">>, Req, State) ->
     wf:info("ping received~n"),
     {reply, <<"pong">>, Req, State};

@@ -15,6 +15,5 @@ route_prefix(P) -> route(P).
 
 route(<<>>)              -> index;
 route(<<"index">>)       -> index;
-route(<<"login">>)       -> login;
 route(<<"favicon.ico">>) -> static_file;
 route(_) -> index.
