@@ -413,11 +413,15 @@ handle_relay_message(Msg, _SubscrId, #state{rpc = RPC} = State) ->
         ok ->
             {noreply, State};
         tcp_closed ->
+            {stop, normal, State};
+        E -> error_logger:info_msg("ERROR SEND MESSAGE TO PLAYER: ~p",[E]),
             {stop, normal, State}
     catch
         exit:{normal, {gen_server,call, [RPC, {send_message, _}]}} ->
             {stop, normal, State};
         exit:{noproc, {gen_server,call, [RPC, {send_message, _}]}} ->
+            {stop, normal, State};
+        E:R ->
             {stop, normal, State}
     end.
 

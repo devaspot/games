@@ -111,6 +111,8 @@ handle_cast(Msg, State) ->
 handle_info({'DOWN', Ref, process, _, Reason}, State = #state{owner_mon = OMon}) when OMon == Ref ->
     ?INFO("relay goes down with reason ~p so does bot", [Reason]),
     {stop, Reason, State};
+handle_info({send_message,M}, State) ->
+    {noreply, State};
 handle_info(Info, State) ->
     {stop, {unrecognized_info, Info}, State}.
 
