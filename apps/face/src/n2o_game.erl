@@ -1,6 +1,10 @@
 -module(n2o_game).
 -author('Maxim Sokhatsky').
 -include_lib("n2o/include/wf.hrl").
+-include_lib("server/include/requests.hrl").
+-include_lib("server/include/game_okey.hrl").
+-include_lib("server/include/game_tavla.hrl").
+
 -export([init/4]).
 -export([stream/3]).
 -export([info/3]).
