@@ -26,7 +26,7 @@ body() ->
       #button{ id = attach, body = <<"Attach">>, postback = attach},
       #button{ id = join, body = <<"Join">>, postback = join},
       #button{ id = take, body = <<"Take">>, postback = take},
-      #select { id=dropdown1, value="2", options=[
+      #dropdown { id=dropdown1, value="2", options=[
                                                     #option { body="Option 1", value="1" },
                                                     #option { body="Option 2", value="2" },
                                                     #option { body="Option 3", value="3" }
