@@ -77,7 +77,7 @@ render_actions(InitActions) ->
     [RenderInit,RenderInitGenActions].
 
 info({client,Message}, Req, State) ->
-    GamePid = get(gamme_session),
+    GamePid = get(game_session),
     game_session:process_request(GamePid, Message), 
     wf:info("Client Message: ~p",[Message]),
     {reply,[],Req,State};
