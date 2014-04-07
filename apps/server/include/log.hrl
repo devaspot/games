@@ -1,12 +1,36 @@
 -define(LOG(Format, Args, Level, Tags), error_logger:info_msg("~p:~p " ++ Format,[?MODULE,?LINE] ++ Args)).
 
+-define(LOGGER_STUB_3, fun(_,_,_) -> true end).
+-define(LOGGER_STUB_2, fun(_,_) -> true end).
+-define(LOGGER_STUB_1, fun(_) -> true end).
+
+
+-ifdef(SERVER_LOG_VERBOSE).
+-ifdef(SERVER_LOG_DEBUG).
+
 -define(DBG(Format, Args, Tag), ?LOG(Format, Args, ?debug, Tag)).
 -define(DBG(Format, Args),      ?DBG(Format, Args, [])).
 -define(DBG(Format),            ?DBG(Format, [])).
 
+-else. %% LOG_DEBUG
+
+-define(DBG(Format, Args, Tag), ?LOGGER_STUB_3(Format, Args, Tag)).
+-define(DBG(Format, Args),      ?LOGGER_STUB_2(Format, Args)).
+-define(DBG(Format),            ?LOGGER_STUB_1(Format)).
+
+-endif. %% LOG_DEBUG
+
 -define(INFO(Format, Args, Tag), ?LOG(Format, Args, ?info, Tag)).
 -define(INFO(Format, Args),      ?INFO(Format, Args, [])).
 -define(INFO(Format),            ?INFO(Format, [])).
+
+-else. %% LOG_VERBOSE
+
+-define(INFO(Format, Args, Tag), ?LOGGER_STUB_3(Format, Args, Tag)).
+-define(INFO(Format, Args),      ?LOGGER_STUB_2(Format, Args)).
+-define(INFO(Format),            ?LOGGER_STUB_1(Format)).
+
+-endif. %% LOG_VERBOSE
 
 -define(NOTICE(Format, Args, Tag), ?LOG(Format, Args, ?notice, Tag)).
 -define(NOTICE(Format, Args),      ?NOTICE(Format, Args, [])).

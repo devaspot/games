@@ -11,6 +11,15 @@ LOG_DIR ?= rels/web/devbox/logs
 N2O     := deps/n2o/priv/static
 APP     := apps/face/priv/static/nitrogen
 
+ifeq "$(SV)" "1"
+REBAR_D = -DLOG_VERBOSE=1
+endif
+
+ifeq "$(SD)" "1"
+REBAR_D = -DSERVER_LOG_VERBOSE=1 -DSERVER_LOG_DEBUG=1
+endif
+
+
 default: get-deps compile static-link
 static-link:
 	rm -rf $(N2O)
