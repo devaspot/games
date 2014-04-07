@@ -1,6 +1,6 @@
 {application, db,
  [
-  {description, "KKN Tables"},
+  {description, "KKN Persistent Storage"},
   {vsn, "1"},
   {registered, []},
   {applications, [kernel,stdlib,kvs]},

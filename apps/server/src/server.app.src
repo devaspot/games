@@ -1,6 +1,6 @@
 {application, server,
  [
-  {description, "Kakaranet Game Server"},
+  {description, "KKN Game Server"},
   {vsn, "1"},
   {registered, []},
   {applications, [
