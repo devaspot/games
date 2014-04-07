@@ -15,7 +15,7 @@ body() ->
       #button{ id = attach, body = <<"Attach">>, postback = attach},
       #button{ id = join, body = <<"Join">>, postback = join},
       #button{ id = take, body = <<"Take">>, postback = take},
-      #button{ id = discard, body = <<"Discard">>, postback = discard}
+      #textbox{ id = tbcolor }, #textbox{ id = tbvalue }, #button{ id = discard, body = <<"Discard">>, postback = discard, source = [tbcolor, tbvalue]}
     ].
 
 event(init) ->
@@ -58,6 +58,13 @@ event(take) ->
 %%         }).
 
 
+event(discard) ->
+    Color = wf:q(tbcolor),
+    Value = wf:q(tbvalue),
+    Msg = "ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'),"
+        " Bert.tuple(Bert.atom('game_action'), 1000001, Bert.atom('okey_discard')," 
+        " [Bert.tuple(Bert.atom('tile'), Bert.tuple(Bert.atom('OkeyPiece'), " ++ Color ++ ", " ++ Value ++ "))]) )));",
+    wf:wire(Msg);
 
 
 event(Event) -> wf:info("Event: ~p", [Event]).

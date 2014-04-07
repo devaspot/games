@@ -1,6 +1,6 @@
 RELEASE := kakaranet
 COOKIE  := sample
-APPS    := kernel stdlib sasl sync gproc cowboy mimetypes ranch erlydtl n2o face db server
+APPS    := kernel stdlib sasl gproc cowboy mimetypes ranch erlydtl n2o face db server
 VER     := 1.0.0
 VM      := rels/web/files/vm.args
 SYS     := rels/web/files/sys.config
