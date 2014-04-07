@@ -17,7 +17,8 @@ body() ->
     [ #span{ body = io_lib:format("'/index?x=' is ~p",[wf:qs(<<"x">>)]) },
       #panel{ id=history },
       #textbox{ id=message },
-      #button{ id=send, body= <<"Chat">>, postback={chat,Pid}, source=[message] } ].
+      #button{ id=send, body= <<"Chat">>, postback={chat,Pid}, source=[message] },
+      #button{ id=test, body= <<"Test">>, postback={test,Pid}}].
 
 event(init) ->
     {ok,GamePid} = game_session:start_link(self()),
@@ -38,6 +39,9 @@ event({chat,Pid}) ->
     wf:wire(#jq{target=message,method=[focus,select]}),
     wf:update(text,[#panel{body= <<"Text">>},#panel{body= <<"OK">>}]),
     Pid ! {message, Username, Message};
+
+event({test, _Pid}) ->
+    wf:wire("ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'), Bert.atom('ok2') )));");
 
 event(logout) -> 
     wf:logout(),
