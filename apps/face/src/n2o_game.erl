@@ -21,6 +21,10 @@ init(_Transport, Req, _Opts, _Active) ->
 
 %% {'KamfMessage',23,game_event,[{game,undefined},{event,okey_tile_taken},{args,[{player,<<"dusler">>},{pile,0},{revealed,null},{pile_height,43}]}]}
 
+is_proplist([]) -> true;
+is_proplist([{K,_}|L]) when is_atom(K) -> is_proplist(L);
+is_proplist(_) -> false.
+
 stream(<<"ping">>, Req, State) ->
     wf:info("ping received~n"),
     {reply, <<"pong">>, Req, State};
@@ -32,6 +36,9 @@ stream({binary,Info}, Req, State) ->
     wf:info("Binary Received: ~p",[Info]),
     Pro = binary_to_term(Info,[safe]),
     wf:info("N2O Unknown Event: ~p",[Pro]),
+    case Pro of
+        {client,M} -> info({client,M},Req,State);
+        _ ->
     Pickled = proplists:get_value(pickle,Pro),
     Linked = proplists:get_value(linked,Pro),
     Depickled = wf:depickle(Pickled),
@@ -55,7 +62,7 @@ stream({binary,Info}, Req, State) ->
     RenderGenActions = wf:render(GenActions),
     wf_context:clear_actions(),
 
-    {reply, [Render,RenderGenActions], Req, State};
+    {reply, [Render,RenderGenActions], Req, State} end;
 stream(Data, Req, State) ->
     wf:info("Data Received ~p",[Data]),
     self() ! Data,
@@ -67,6 +74,10 @@ render_actions(InitActions) ->
     RenderInitGenActions = wf:render(InitGenActions),
     wf_context:clear_actions(),
     [RenderInit,RenderInitGenActions].
+
+info({client,Message}, Req, State) ->
+    wf:info("Client Message: ~p",[Message]),
+    {reply,[],Req,State};
 
 info({send_message,Message}, Req, State) ->
     wf:info("Game Message: ~p",[Message]),
@@ -105,7 +116,7 @@ info(Pro, Req, State) ->
                 end;
             <<"PING">> -> [];
             Unknown ->
-                wf:info("unk ~p", [Unknown]),
+                wf:info("Unknown WS Info Message ~p", [Unknown]),
                 M = State#context.module,
                 catch M:event(Unknown),
                 Actions = get(actions),
