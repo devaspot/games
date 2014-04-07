@@ -44,7 +44,8 @@ event(join) ->
 %%         }).
 
 event(take) ->
-    Msg = "ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'), Bert.tuple(Bert.atom('game_action'), 1000001, 'okey_take', [Bert.tuple(Bert.atom('pile'), 0))))));",
+    Msg = "ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'),"
+        " Bert.tuple(Bert.atom('game_action'), 1000001, Bert.atom('okey_take'), {pile: 0} ) )));",
     wf:wire(Msg);
 
 %%-record('OkeyPiece', {
