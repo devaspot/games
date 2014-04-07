@@ -27,7 +27,7 @@ html_events(Pro, State) ->
     Pickled = proplists:get_value(pickle,Pro),
     Linked = proplists:get_value(linked,Pro),
     Depickled = wf:depickle(Pickled),
-    wf:info("Depickled: ~p",[Depickled]),
+    %wf:info("Depickled: ~p",[Depickled]),
     case Depickled of
         #ev{module=Module,name=Function,payload=Parameter,trigger=Trigger} ->
             case Function of 
@@ -74,14 +74,12 @@ info({client,Message}, Req, State) ->
     GamePid = get(game_session),
     game_session:process_request(GamePid, Message), 
     Module = State#context.module,
-    Module:event(Message),
-    wf:info("Client Message: ~p",[Message]),
+    catch Module:event({client,Message}),
     {reply,[],Req,State};
 
 info({send_message,Message}, Req, State) ->
-    wf:info("Game Message: ~p",[Message]),
     Module = State#context.module,
-    Module:event(Message),
+    catch Module:event({server,Message}),
     Ret = io_lib:format("~p",[Message]),
     T = wf:js_escape(Ret),
     {reply,io_lib:format("console.log('~s')",[T]),Req,State};
