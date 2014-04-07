@@ -23,6 +23,29 @@ init(_Transport, Req, _Opts, _Active) ->
     Req1 = wf:header(<<"Access-Control-Allow-Origin">>, <<"*">>, NewCtx#context.req),
     {ok, Req1, NewCtx}.
 
+html_events(Pro, State) ->
+    Pickled = proplists:get_value(pickle,Pro),
+    Linked = proplists:get_value(linked,Pro),
+    Depickled = wf:depickle(Pickled),
+    wf:info("Depickled: ~p",[Depickled]),
+    case Depickled of
+        #ev{module=Module,name=Function,payload=Parameter,trigger=Trigger} ->
+            case Function of 
+                control_event   -> lists:map(fun({K,V})-> put(K,V) end,Linked),
+                                   Module:Function(Trigger, Parameter);
+                api_event       -> Module:Function(Parameter,Linked,State);
+                event           -> lists:map(fun({K,V})-> put(K,V) end,Linked),
+                                   Module:Function(Parameter);
+                UserCustomEvent -> Module:Function(Parameter,Trigger,State) end;
+        _Ev -> wf:error("N2O allows only #ev{} events") end,
+    Actions = get(actions),
+    wf_context:clear_actions(),
+    Render = wf:render(Actions),
+    GenActions = get(actions),
+    RenderGenActions = wf:render(GenActions),
+    wf_context:clear_actions(),
+    [Render,RenderGenActions].
+
 stream(<<"ping">>, Req, State) ->
     wf:info("ping received~n"),
     {reply, <<"pong">>, Req, State};
@@ -31,37 +54,10 @@ stream({text,Data}, Req, State) ->
     self() ! Data,
     {ok, Req,State};
 stream({binary,Info}, Req, State) ->
-    wf:info("Binary Received: ~p",[Info]),
     Pro = binary_to_term(Info,[safe]),
-
-    wf:info("N2O Unknown Event: ~p",[Pro]),
     case Pro of
         {client,M} -> info({client,M},Req,State);
-        _ ->
-            Pickled = proplists:get_value(pickle,Pro),
-            Linked = proplists:get_value(linked,Pro),
-            Depickled = wf:depickle(Pickled),
-            wf:info("Depickled: ~p",[Depickled]),
-            case Depickled of
-                #ev{module=Module,name=Function,payload=Parameter,trigger=Trigger} ->
-                    case Function of 
-                        control_event   -> lists:map(fun({K,V})-> put(K,V) end,Linked),
-                                           Module:Function(Trigger, Parameter);
-                        api_event       -> Module:Function(Parameter,Linked,State);
-                        event           -> lists:map(fun({K,V})-> put(K,V) end,Linked),
-                                           Module:Function(Parameter);
-                        UserCustomEvent -> Module:Function(Parameter,Trigger,State) end;
-                _Ev -> wf:error("N2O allows only #ev{} events") end,
-
-            Actions = get(actions),
-            wf_context:clear_actions(),
-            Render = wf:render(Actions),
-
-            GenActions = get(actions),
-            RenderGenActions = wf:render(GenActions),
-            wf_context:clear_actions(),
-
-            {reply, [Render,RenderGenActions], Req, State} end;
+        _ -> {reply,html_events(Pro,State),Req,State} end;
 stream(Data, Req, State) ->
     wf:info("Data Received ~p",[Data]),
     self() ! Data,
@@ -77,11 +73,15 @@ render_actions(InitActions) ->
 info({client,Message}, Req, State) ->
     GamePid = get(game_session),
     game_session:process_request(GamePid, Message), 
+    Module = State#context.module,
+    Module:event(Message),
     wf:info("Client Message: ~p",[Message]),
     {reply,[],Req,State};
 
 info({send_message,Message}, Req, State) ->
     wf:info("Game Message: ~p",[Message]),
+    Module = State#context.module,
+    Module:event(Message),
     Ret = io_lib:format("~p",[Message]),
     T = wf:js_escape(Ret),
     {reply,io_lib:format("console.log('~s')",[T]),Req,State};
