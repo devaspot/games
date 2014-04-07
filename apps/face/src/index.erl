@@ -1,8 +1,14 @@
 -module(index).
+-compile({parse_transform, shen}).
 -compile(export_all).
 -include_lib("n2o/include/wf.hrl").
 -include_lib("server/include/requests.hrl").
 -include_lib("server/include/settings.hrl").
+-jsmacro([take/2]).
+
+take(GameId,Place) ->
+    ws:send(bert:encodebuf(bert:tuple(bert:atom('client'),
+        bert:tuple(bert:atom("game_action"),GameId,bert:atom("okey_take"),[{pile,Place}])))).
 
 main() -> 
     case wf:user() of
@@ -43,10 +49,12 @@ event(join) ->
 %%          pile :: integer() %% 0 or 1
 %%         }).
 
+
+
 event(take) ->
     Msg = "ws.send(Bert.encodebuf(Bert.tuple(Bert.atom('client'),"
         " Bert.tuple(Bert.atom('game_action'), 1000001, Bert.atom('okey_take'), {pile: 0} ) )));",
-    wf:wire(Msg);
+    wf:wire(take("1000001","0"));
 
 %%-record('OkeyPiece', {
 %%          color = -1 :: integer(),           %% 1..4
