@@ -19,7 +19,7 @@ attach(Token) ->
 take(GameId,Place) ->
     ws:send(bert:encodebuf(bert:tuple(
         bert:atom('client'),
-        bert:tuple(bert:atom("game_action"),GameId,bert:atom("okey_take"),[{pile,Place}])))).
+        bert:tuple(bert:atom("game_action"),GameId, bert:atom("okey_take"),[{pile,Place}])))).
 
 discard(GameId, Color, Value) ->
     ws:send(
@@ -27,8 +27,8 @@ discard(GameId, Color, Value) ->
         bert:tuple(
           bert:atom('client'),
           bert:tuple(
-            bert:atom("game_action"), GameId, bert:atom("okey_discard"),
-            [{tile, bert:tuple(bert:atom("OkeyPiece"), Color, Value)}]
+            bert:atom("game_action"), GameId,
+            bert:atom("okey_discard"), [{tile, bert:tuple(bert:atom("OkeyPiece"), Color, Value)}]
            )
          )
        )
@@ -89,8 +89,9 @@ event({server, {game_event, _, okey_tile_discarded, Args}}) ->
     TilesList = lists:keydelete({C, V}, 2, TilesListOld),
     put(game_okey_tiles, TilesList),
     redraw_tiles(TilesList);
-%%event({server, {game_event, _, okey_tile_taken, Args}}) ->
-%%    TilesList = get(game_okey_tiles),
-%%    {_, Pile} = lists:keyfind(pile, 1, Args),
-%%    redraw_tiles(TilesList);
+event({server, {game_event, _, okey_tile_taken, Args}}) ->
+    {_, {_, C, V}} = lists:keyfind(revealed, 1, Args),
+    TilesList = [{erlang:list_to_binary([erlang:integer_to_list(C), " ", erlang:integer_to_list(V)]), {C, V}} | get(game_okey_tiles)],
+    put(game_okey_tiles, TilesList),
+    redraw_tiles(TilesList);
 event(Event)  -> wf:info("Event: ~p", [Event]).
