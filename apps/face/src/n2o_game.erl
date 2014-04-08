@@ -5,6 +5,7 @@
 -include("../../server/include/game_okey.hrl").
 -include("../../server/include/game_tavla.hrl").
 
+
 -export([init/4]).
 -export([stream/3]).
 -export([info/3]).
@@ -44,7 +45,8 @@ html_events(Pro, State) ->
     GenActions = get(actions),
     RenderGenActions = wf:render(GenActions),
     wf_context:clear_actions(),
-    [<<"EVAL">>,Render,RenderGenActions].
+    JS = iolist_to_binary([Render,RenderGenActions]),
+    wf:json([{eval,JS}]).
 
 stream(<<"ping">>, Req, State) ->
     wf:info("ping received~n"),
@@ -75,7 +77,14 @@ info({client,Message}, Req, State) ->
     game_session:process_request(GamePid, Message), 
     Module = State#context.module,
     catch Module:event({client,Message}),
-    {reply,<<"DATA">>,Req,State};
+    Actions = get(actions),
+    wf_context:clear_actions(),
+    Render = wf:render(Actions),
+    GenActions = get(actions),
+    RenderGenActions = wf:render(GenActions),
+    wf_context:clear_actions(),
+    {reply,wf:json([{eval,iolist_to_binary([Render,RenderGenActions])},
+                    {data,binary_to_list(term_to_binary(Message))}]),Req,State};
 
 info({send_message,Message}, Req, State) ->
     Module = State#context.module,
@@ -86,8 +95,8 @@ info({send_message,Message}, Req, State) ->
     GenActions = get(actions),
     RenderGenActions = wf:render(GenActions),
     wf_context:clear_actions(),
-    {reply,[<<"EVAL">>,Render,RenderGenActions],Req,State};
-%    {reply,[<<"DATA">>,io_lib:format("~p",[Message])],Req,State};
+    {reply,wf:json([{eval,iolist_to_binary([Render,RenderGenActions])},
+                    {data,binary_to_list(term_to_binary(Message))}]),Req,State};
 
 info(Pro, Req, State) ->
     Render = 
@@ -131,7 +140,8 @@ info(Pro, Req, State) ->
     wf_context:clear_actions(),
     RenderGenActions = wf:render(GenActions),
     wf_context:clear_actions(),
-    {reply, [<<"EVAL">>,Render,RenderGenActions], Req, State}.
+    JS = iolist_to_binary([Render,RenderGenActions]),
+    {reply, wf:json([{eval,JS}]), Req, State}.
 
 terminate(_Req, _State=#context{module=Module}) ->
     % wf:info("Bullet Terminated~n"),
