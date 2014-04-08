@@ -9,10 +9,10 @@ relx  := "{release,{$(RELEASE),\"$(VER)\"},[$(subst $(space),$(comma),$(APPS))]}
 \\n{extended_start_script,true}.\\n{generate_start_script,true}.\\n{sys_config,\"$(SYS)\"}.\
 \\n{vm_args,\"$(VM)\"}.\\n{overlay,[{mkdir,\"log/sasl\"}]}."
 
-test: eunit ct
+test: ct
 compile: get-deps static-link
 delete-deps get-deps compile clean update-deps:
-	rebar $(REBAR_D) $@ skip_deps=true
+	rebar $(REBAR_D) $@
 .applist:
 	./depman.erl $(APPS) > $@
 $(RUN_DIR) $(LOG_DIR):

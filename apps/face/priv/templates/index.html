@@ -6,7 +6,7 @@
 <body>
 {{body}}
 <script>var transition = {pid: '', port:'8000'};</script>
-<script>function handle_web_socket(body) { console.log(body); } </script>
+<script>function handle_web_socket(body) { console.log(String(bert.decodebuf(body))); } </script>
 <script src='/static/nitrogen/jquery.js' type='text/javascript' charset='utf-8'></script>
 <script src='/static/nitrogen/bullet.js' type='text/javascript' charset='utf-8'></script>
 <script src='/static/nitrogen/n2o.js' type='text/javascript' charset='utf-8'></script>
