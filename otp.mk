@@ -9,10 +9,14 @@ relx  := "{release,{$(RELEASE),\"$(VER)\"},[$(subst $(space),$(comma),$(APPS))]}
 \\n{extended_start_script,true}.\\n{generate_start_script,true}.\\n{sys_config,\"$(SYS)\"}.\
 \\n{vm_args,\"$(VM)\"}.\\n{overlay,[{mkdir,\"log/sasl\"}]}."
 
+ifeq "$(NODEPS)" "1"
+rebar_skip_deps=skip_deps=true
+endif
+
 test: ct
 compile: get-deps static-link
 delete-deps get-deps compile clean update-deps:
-	rebar $(REBAR_D) $@
+	rebar $(rebar_skip_deps) $(REBAR_D) $@
 .applist:
 	./depman.erl $(APPS) > $@
 $(RUN_DIR) $(LOG_DIR):
