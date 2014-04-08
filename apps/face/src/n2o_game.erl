@@ -80,7 +80,14 @@ info({client,Message}, Req, State) ->
 info({send_message,Message}, Req, State) ->
     Module = State#context.module,
     catch Module:event({server,Message}),
-    {reply,[<<"DATA">>,io_lib:format("~p",[Message])],Req,State};
+    Actions = get(actions),
+    wf_context:clear_actions(),
+    Render = wf:render(Actions),
+    GenActions = get(actions),
+    RenderGenActions = wf:render(GenActions),
+    wf_context:clear_actions(),
+    {reply,[<<"EVAL">>,Render,RenderGenActions],Req,State};
+%    {reply,[<<"DATA">>,io_lib:format("~p",[Message])],Req,State};
 
 info(Pro, Req, State) ->
     Render = 
