@@ -1,0 +1,8 @@
+language: erlang
+otp_release:
+  - R16B
+notifications:
+  email: maxim@synrc.com
+  irc: "chat.freenode.net#n2o"
+install: "make"
+script: "make test"

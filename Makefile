@@ -1,5 +1,5 @@
 RELEASE := kakaranet
-COOKIE  := sample
+COOKIE  := node_runner
 APPS    := kernel stdlib sasl gproc cowboy mimetypes ranch erlydtl n2o face db server
 VER     := 1.0.0
 VM      := rels/web/files/vm.args

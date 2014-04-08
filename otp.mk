@@ -27,7 +27,7 @@ attach:
 release:
 	echo $(shell echo $(relx) > relx.config) & relx
 stop:
-	kill -9 `ps ax -o pid= -o command=|grep $(RELEASE)|grep $(COOKIE)|awk '{print $$1}'`
+	kill -9 `ps ax -o pid= -o command=|grep $(RELEASE)|grep $(COOKIE)|awk '{print $1}'`
 $(PLT_NAME):
 	ERL_LIBS=deps dialyzer --build_plt --output_plt $(PLT_NAME) --apps $(APPS) || true
 dialyze: $(PLT_NAME) compile
