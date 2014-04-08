@@ -44,7 +44,7 @@ html_events(Pro, State) ->
     GenActions = get(actions),
     RenderGenActions = wf:render(GenActions),
     wf_context:clear_actions(),
-    [Render,RenderGenActions].
+    [<<"EVAL">>,Render,RenderGenActions].
 
 stream(<<"ping">>, Req, State) ->
     wf:info("ping received~n"),
@@ -75,14 +75,12 @@ info({client,Message}, Req, State) ->
     game_session:process_request(GamePid, Message), 
     Module = State#context.module,
     catch Module:event({client,Message}),
-    {reply,[],Req,State};
+    {reply,<<"DATA">>,Req,State};
 
 info({send_message,Message}, Req, State) ->
     Module = State#context.module,
     catch Module:event({server,Message}),
-    Ret = io_lib:format("~p",[Message]),
-    T = wf:js_escape(Ret),
-    {reply,io_lib:format("console.log('~s')",[T]),Req,State};
+    {reply,[<<"DATA">>,io_lib:format("~p",[Message])],Req,State};
 
 info(Pro, Req, State) ->
     Render = 
@@ -126,7 +124,7 @@ info(Pro, Req, State) ->
     wf_context:clear_actions(),
     RenderGenActions = wf:render(GenActions),
     wf_context:clear_actions(),
-    {reply, [Render,RenderGenActions], Req, State}.
+    {reply, [<<"EVAL">>,Render,RenderGenActions], Req, State}.
 
 terminate(_Req, _State=#context{module=Module}) ->
     % wf:info("Bullet Terminated~n"),
