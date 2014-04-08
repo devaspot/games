@@ -2,8 +2,8 @@
 -compile({parse_transform, shen}).
 -compile(export_all).
 -include_lib("n2o/include/wf.hrl").
--include_lib("server/include/requests.hrl").
--include_lib("server/include/settings.hrl").
+-include("../../server/include/requests.hrl").
+-include("../../server/include/settings.hrl").
 -jsmacro([take/2,attach/1,join/1]).
 
 join(Game) ->
