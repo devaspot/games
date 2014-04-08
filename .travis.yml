@@ -8,3 +8,4 @@ notifications:
     - sustel@kakaranet.com
   irc: "chat.freenode.net#n2o"
 install: "make"
+script: "make ct"
