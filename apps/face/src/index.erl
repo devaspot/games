@@ -84,7 +84,8 @@ event({server, {game_event, _, okey_game_started, Args}}) ->
     put(game_okey_tiles, TilesList),
     redraw_tiles(TilesList);
 event({server, {game_event, _, okey_tile_discarded, Args}}) ->
-    {_, {_, V, C}} = lists:keyfind(tile, 1, Args),
+    {_, {_, C, V}} = lists:keyfind(tile, 1, Args),
+    wf:info("c ~p v ~p", [C, V]),
     TilesListOld = get(game_okey_tiles),
     TilesList = lists:keydelete({C, V}, 2, TilesListOld),
     put(game_okey_tiles, TilesList),
