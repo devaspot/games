@@ -1,6 +1,8 @@
 Kakaranet Application
 =====================
 
+[![Build Status](https://travis-ci.org/kakaranet/games.svg?branch=master)](https://travis-ci.org/kakaranet/games)
+
 Run
 ---
 
