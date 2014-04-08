@@ -4,7 +4,7 @@
 -include_lib("n2o/include/wf.hrl").
 -include("../../server/include/requests.hrl").
 -include("../../server/include/settings.hrl").
--jsmacro([take/2,attach/1,join/1]).
+-jsmacro([take/2,attach/1,join/1,discard/3]).
 
 join(Game) ->
     ws:send(bert:encodebuf(bert:tuple(
@@ -28,14 +28,14 @@ discard(GameId, Color, Value) ->
           bert:atom('client'),
           bert:tuple(
             bert:atom("game_action"), GameId, bert:atom("okey_discard"),
-            bert:list(bert:tuple(bert:atom("tile"), bert:tuple(bert:atom("OkeyPiece"), Color, Value)))
+            [{tile, bert:tuple(bert:atom("OkeyPiece"), Color, Value)}]
            )
          )
        )
      ).
 
-redraw_tiles(TilesList) ->
-    wf:update(dddiscard, [#dropdown{id = drop, postback=combo, source=[drop], options = [#option{label = CVBin, value = CVBin} || {CVBin, _} <- TilesList]}]).
+redraw_tiles([{Tile, _}| _ ] = TilesList) ->
+    wf:update(dddiscard, [#dropdown{id = dddiscard, postback = combo, value = Tile, source = [dddiscard], options = [#option{label = CVBin, value = CVBin} || {CVBin, _} <- TilesList]}]).
 
 main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
@@ -50,7 +50,7 @@ body() ->
                       #option { label= <<"1">>, value= <<"1">> }
                      ]
                },
-      #button{ id = take, body = <<"Take">>, postback = take},
+      #button{ id = take, body = <<"Take">>, postback = take, source = [ddtake]},
       #dropdown{ id=dddiscard, value="2", postback=combo, source=[dddiscard], 
                  options = 
                      [
@@ -59,7 +59,7 @@ body() ->
                       #option { label= <<"Option 3">>, value= <<"3">> }
                      ]
                },
-      #button{ id = discard, body = <<"Discard">>, postback = discard}
+      #button{ id = discard, body = <<"Discard">>, postback = discard, source=[dddiscard]}
     ].
 
 event(init) ->
@@ -73,6 +73,7 @@ event(take)   -> wf:wire(take("1000001", wf:q(ddtake)));
 
 event(discard) -> 
     TilesList = get(game_okey_tiles),
+    wf:info("dd ~p", [wf:q(dddiscard)]),
     {_, {C, V}} = lists:keyfind(erlang:list_to_binary(wf:q(dddiscard)), 1, TilesList),
     wf:wire(discard("1000001", erlang:integer_to_list(C), erlang:integer_to_list(V)));
 
