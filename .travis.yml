@@ -9,3 +9,4 @@ notifications:
   irc: "chat.freenode.net#n2o"
 install: "make"
 script: "make test"
+
