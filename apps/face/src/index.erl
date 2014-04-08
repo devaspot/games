@@ -36,17 +36,21 @@ take(GameId,Place) ->
 %%     ).
 
 redraw_tiles(TilesList) ->
+    wf:info("Tiles ~p", [TilesList]),
     wf:replace(drop, #dropdown{id = drop, options = [#option{label = VCBin} || {VCBin, _} <- TilesList]}).
 
 main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
 body() ->
     [ #panel{ id=history },
-      #dropdown { id=drop, value="2", postback=combo, source=[drop], options=[
-        #option { label= <<"Option 1">>, value= <<"1">> },
-        #option { label= <<"Option 2">>, value= <<"2">> },
-        #option { label= <<"Option 3">>, value= <<"3">> }
-     ]},
+      #dropdown{ id=drop, value="2", postback=combo, source=[drop], 
+                 options = 
+                     [
+                      #option { label= <<"Option 1">>, value= <<"1">> },
+                      #option { label= <<"Option 2">>, value= <<"2">> },
+                      #option { label= <<"Option 3">>, value= <<"3">> }
+                     ]
+               },
       #button{ id = attach, body = <<"Attach">>, postback = attach},
       #button{ id = join, body = <<"Join">>, postback = join},
       #button{ id = take, body = <<"Take">>, postback = take},
@@ -70,6 +74,13 @@ event({game_event, _, okey_game_started, Args}) ->
 event({game_event, _, okey_tile_discarded, Args}) ->
     {_, {_, V, C}} = lists:keyfind(tile, 1, Args),
     TilesListOld = get(game_okey_tiles),
-    TilesList = lists:keydelete()
-    ;
+    TilesList = lists:keydelete({V, C}, 2, TilesListOld),
+    put(game_okey_tiles, TilesList),
+    redraw_tiles(TilesList);
+%%event({game_event, _, okey_tile_take, Args}) ->
+%%    {_, {_, V, C}} = lists:keyfind(tile, 1, Args),
+%%    TilesListOld = get(game_okey_tiles),
+%%    TilesList = lists:keydelete({V, C}, 2, TilesListOld),
+%%    put(game_okey_tiles, TilesList),
+%%    redraw_tiles(TilesList);
 event(Event)  -> wf:info("Event: ~p", [Event]).
