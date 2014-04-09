@@ -76,7 +76,12 @@ info({client,Message}, Req, State) ->
     GamePid = get(game_session),
     game_session:process_request(GamePid, Message), 
     Module = State#context.module,
-    catch Module:event({client,Message}),
+    case (catch Module:event({client,Message})) of
+        {'EXIT', Error} ->
+            wf:info("client event died with ~p", [Error]);
+        _Ok ->
+            _Ok
+    end,
     Actions = get(actions),
     wf_context:clear_actions(),
     Render = wf:render(Actions),
@@ -88,7 +93,12 @@ info({client,Message}, Req, State) ->
 
 info({send_message,Message}, Req, State) ->
     Module = State#context.module,
-    catch Module:event({server,Message}),
+    case (catch Module:event({server,Message})) of 
+        {'EXIT', Error} ->
+            wf:info("server event died with ~p", [Error]);
+        _Ok ->
+            _Ok
+    end,
     Actions = get(actions),
     wf_context:clear_actions(),
     Render = wf:render(Actions),
