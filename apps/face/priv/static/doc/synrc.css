@@ -10,9 +10,11 @@
     H2          { font-size:20pt; color: darkblue; margin-top:20px; margin-bottom:10px; margin-right:6px; }
     H3          { font-size:18pt; margin-top:20px; margin-bottom:10px; margin-right:6px; } 
     P           { font-size:14pt; margin-top: 0px; margin-bottom: 8px;  }
+    H3 P        { font-size:16pt; margin-left: 70px; margin-top:20px; margin-bottom:10px; margin-right:6px; } 
     B           { font-size:14pt; background-color: lightblue; padding: 2px; }
     H2 B        { font-size:16pt; background-color: lightblue; padding: 5px; margin-top: 20px; margin-bottom: 20px;}
     LI          { font-size:14pt; }
+
  pre          { font-size:10pt; font-family: Lucida Console; }
 
     .menu { font-size:14pt; font-family: Calibri, Lucida Sans Unicode; color: red; }
