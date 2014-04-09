@@ -88,27 +88,42 @@ event({server, {game_event, _, okey_game_started, Args}}) ->
     put(game_okey_tiles, TilesList),
     redraw_tiles(TilesList);
 event({server, {game_event, _, okey_tile_discarded, Args}}) ->
-    {_, {_, C, V}} = lists:keyfind(tile, 1, Args),
-    wf:info("c ~p v ~p", [C, V]),
-    TilesListOld = get(game_okey_tiles),
-    TilesList = lists:keydelete({C, V}, 2, TilesListOld),
-    put(game_okey_tiles, TilesList),
-    redraw_tiles(TilesList);
+    Im = get(okey_im),
+    {_, Player} = lists:keyfind(player, 1, Args),
+
+    if
+       Im == Player ->
+            {_, {_, C, V}} = lists:keyfind(tile, 1, Args),
+            wf:info("c ~p v ~p", [C, V]),
+            TilesListOld = get(game_okey_tiles),
+            TilesList = lists:keydelete({C, V}, 2, TilesListOld),
+            put(game_okey_tiles, TilesList),
+            redraw_tiles(TilesList);
+       true ->
+            ok
+    end;
 event({server, {game_event, _, okey_tile_taken, Args}}) ->
-        case lists:keyfind(revealed, 1, Args) of
-            {_, {_, C, V}} ->
-                TilesList = [{erlang:list_to_binary([erlang:integer_to_list(C), " ", erlang:integer_to_list(V)]), {C, V}} | get(game_okey_tiles)],
-                put(game_okey_tiles, TilesList),
-                redraw_tiles(TilesList);
-            _ ->
-                ok
-        end;
+    Im = get(okey_im),
+    {_, Player} = lists:keyfind(player, 1, Args),
+    if
+       Im == Player ->
+            case lists:keyfind(revealed, 1, Args) of
+                {_, {_, C, V}} ->
+                    TilesList = [{erlang:list_to_binary([erlang:integer_to_list(C), " ", erlang:integer_to_list(V)]), {C, V}} | get(game_okey_tiles)],
+                    put(game_okey_tiles, TilesList),
+                    redraw_tiles(TilesList);
+                _ ->
+                    ok
+            end;
+       true ->
+            ok
+    end;
 event({server,{game_event, Game, okey_turn_timeout, Args}}) ->
     wf:info("okey_turn_timeout ~p", [Args]),
     {_, TileTaken} = lists:keyfind(tile_taken, 1, Args),
-    event({server, {game_event, Game, okey_tile_taken, [{revealed, TileTaken}]}}),
+    event({server, {game_event, Game, okey_tile_taken, [{player, get(okey_im)}, {revealed, TileTaken}]}}),
     {_, TileDiscarded} = lists:keyfind(tile_discarded, 1, Args),
-    event({server, {game_event, Game, okey_tile_taken, [{tile, TileDiscarded}]}});
+    event({server, {game_event, Game, okey_tile_discarded, [{player, get(okey_im)}, {tile, TileDiscarded}]}});
 event({server, {game_event, _, okey_game_info, Args}}) ->
     wf:info("okay_game_info ~p", [Args]),
     {_, PlayersInfo} = lists:keyfind(players, 1, Args),
@@ -126,6 +141,7 @@ event({server, {game_event, _, okey_game_info, Args}}) ->
                     {Id, <<Id/binary, <<" R ">>/binary>>};
                 (#'PlayerInfo'{id = Id, robot = false} = P) ->
                     wf:info("pr ~p", [P]),
+                    put(okey_im, Id),
                     {Id, <<Id/binary, <<" M ">>/binary>>}
             end,
             PlayersInfo
