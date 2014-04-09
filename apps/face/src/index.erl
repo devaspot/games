@@ -41,9 +41,13 @@ main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
 body() ->
     [ #panel{ id=history },
+
+      #label{ id = player1, body = "Player 1", style = "color=black;"}, #label{ id = player2, body = "Player 2", style = "color=black;"},
+      #label{ id = player3, body = "Player 3", style = "color=black;"}, #label{ id = player4, body = "Player 4", style = "color=black;"},
+      #br{},
       #button{ id = attach, body = <<"Attach">>, postback = attach},
       #button{ id = join, body = <<"Join">>, postback = join},
-      #dropdown{ id=ddtake, value="0", postback=combo, source=[ddtake], 
+      #dropdown{ id=ddtake, value="0", postback=combo, source=[ddtake],
                  options = 
                      [
                       #option { label= <<"0">>, value= <<"0">> },
@@ -91,8 +95,54 @@ event({server, {game_event, _, okey_tile_discarded, Args}}) ->
     put(game_okey_tiles, TilesList),
     redraw_tiles(TilesList);
 event({server, {game_event, _, okey_tile_taken, Args}}) ->
-    {_, {_, C, V}} = lists:keyfind(revealed, 1, Args),
-    TilesList = [{erlang:list_to_binary([erlang:integer_to_list(C), " ", erlang:integer_to_list(V)]), {C, V}} | get(game_okey_tiles)],
-    put(game_okey_tiles, TilesList),
-    redraw_tiles(TilesList);
+        case lists:keyfind(revealed, 1, Args) of
+            {_, {_, C, V}} ->
+                TilesList = [{erlang:list_to_binary([erlang:integer_to_list(C), " ", erlang:integer_to_list(V)]), {C, V}} | get(game_okey_tiles)],
+                put(game_okey_tiles, TilesList),
+                redraw_tiles(TilesList);
+            _ ->
+                ok
+        end;
+event({server,{game_event, Game, okey_turn_timeout, Args}}) ->
+    wf:info("okey_turn_timeout ~p", [Args]),
+    {_, TileTaken} = lists:keyfind(tile_taken, 1, Args),
+    event({server, {game_event, Game, okey_tile_taken, [{revealed, TileTaken}]}}),
+    {_, TileDiscarded} = lists:keyfind(tile_discarded, 1, Args),
+    event({server, {game_event, Game, okey_tile_taken, [{tile, TileDiscarded}]}});
+event({server, {game_event, _, okey_game_info, Args}}) ->
+    wf:info("okay_game_info ~p", [Args]),
+    {_, PlayersInfo} = lists:keyfind(players, 1, Args),
+    wf:info("pi ~p", [PlayersInfo]),
+    Players = 
+        lists:zipwith(
+          fun(ListId, {PlayerId, PlayerLabel}) ->
+                  {ListId, PlayerId, PlayerLabel}
+          end,
+          [player1, player2, player3, player4],
+          lists:map(
+            fun
+                (#'PlayerInfo'{id = Id, robot = true} = P) ->
+                    wf:info("pp ~p", [P]),
+                    {Id, <<Id/binary, <<" R ">>/binary>>};
+                (#'PlayerInfo'{id = Id, robot = false} = P) ->
+                    wf:info("pr ~p", [P]),
+                    {Id, <<Id/binary, <<" M ">>/binary>>}
+            end,
+            PlayersInfo
+           )
+         ),
+    wf:info("players ~p", [Players]),
+    put(okey_players, Players),
+    [wf:update(LabelId, [#label{id = LabelId, body = PlayerLabel}]) || {LabelId, _, PlayerLabel}  <- Players];
+event({server,{game_event, _, okey_next_turn, Args}}) ->
+    {player, PlayerId} = lists:keyfind(player, 1, Args),
+    {LabelId, _, _} = lists:keyfind(PlayerId, 2, get(okey_players)),
+    case get(okey_turn_mark) of
+        undefined ->
+            ok;
+        OldLabelId -> 
+            wf:wire("document.querySelector('#" ++ erlang:atom_to_list(OldLabelId) ++ "').style.color = \"black\";")
+    end,
+    wf:wire("document.querySelector('#" ++ erlang:atom_to_list(LabelId) ++ "').style.color = \"red\";"),
+    put(okey_turn_mark, LabelId);
 event(Event)  -> wf:info("Event: ~p", [Event]).
