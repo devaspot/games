@@ -1,0 +1,188 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="synrc.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+
+<div class="threecol">
+
+<div class="left">
+<div class="hints"></div>
+<div class="main">
+
+<h1>Game Server Architecture</h1>
+
+<h3>Bots and Players</h3>
+
+<p>Bots are special <b>gen_server</b> that acts similar to
+connection handlers. They also owns <b>game_session</b> instance
+and loop bot logic for games. Same the conn_handler acts
+just like a bots it is  relying on network connection
+for user actions and also own game_session.</p>
+
+<h3>User Session</h3>
+
+<p>Session <b>gen_server</b> for every logged user that
+holds the references to game relays and chat relays.</p>
+
+<h3>Game FSMs</h3>
+
+<p>Game events in gen_fsm module for particular games
+implementations that hold the board information,
+link to game relay and users sessions pids.</p>
+
+<h3>Relays</h3>
+
+<p>Relay for routing messages from/to user session
+instances and/or clients within game instances that
+hold link to game module.</p>
+
+<p>This picture describes the structural organization of
+modules and run-time connections of instances. As you
+can see Game Relay is tightly coupled with particular
+board implementation and Session connected with Bot
+implementations and Connection Handler (for real users).
+
+All four blocks are gen_servers and just board game implementation is gen_fsm. </p>
+
+
+<code>             +---------------+
+             | Game Manager  |
+             +---------------+
+             | TOURNAMENT    |
+             +---------------+
+                     |
+                     V
+             +---------------+
+             | RELAY         |
+             +---------------+
+             | GAME FSM      |
+             +---------------+
+                |         |
+  +----------------+   +----------------+
+  | USER SESSION   |   | USER SESSION   |
+  +----------------+   +----------------+
+  | BOT            |   | PLAYER         |
+  +----------------+   +----------------+
+</code>
+
+<h2>Bots and Players</h2>
+
+<p>Each instance of game_session holds the state of each player in system.
+Once created by connection handler or by bot modules game session responds to
+requests from game clients (bots and players). </p>
+
+<h2><b>send_message { }</b></h2>
+
+Sends async message down to the bot logic or directly to connection socket.
+
+<h2><b>call_rpc { }</b></h2>
+
+Process the request to underlying game_session.
+
+<h2><b>get_session { }</b></h2>
+
+Return underlying game_session.
+
+<h2><b>init_state { }</b></h2>
+
+Override
+
+<h2><b>join_game { }</b></h2>
+
+Create
+
+<h2>User Session</h2>
+
+<h2><b>state { user,rpc,rpc_mon,games,chats,match_request }</b></h2>
+
+<p>The state hold user info, rpc for pid of self session instance
+and its erlang:monitor. Also holds all games
+participations (relay pids) and chats relays for given user.</p>
+
+<h2><b>session_attach { token }</b></h2>
+
+Used for authenticate the client by the registered
+token by the authentication server.
+If the user is not found, then terminate send to client pid.
+Also you can check for session_attach_debug for
+authentication by token and username. 
+
+It replaces the user in state of game_session from
+unknown to authorized user info #'PlayerInfo'.
+This is the first message sent by Flex client.
+Reply with #'PlayerInfo', if not found invalid_token returns.
+
+<h2><b>logout { }</b></h2>
+
+Send termination to client pid uncoditionally. Please use this function for correct consumer behavior at the end of gaming session. Reply is ok.
+
+<h2><b>chat { chat_id, message }</b></h2>
+
+Used for talking through publishing messages to relay.
+chat_id is actually the game id to which message should be relayed.
+Result not valuable, in case of failure returns chat_not_registered.
+
+<h2><b>get_player_info { player_id = 0 }</b></h2>
+
+Reply with current #'PlayerInfo' stored in State. Other player_id
+parameters replies with not_implemented.
+
+
+<h2><b>match_me { game_type }</b></h2>
+
+Asynchronous match the current user in state along with game type.
+Replies with generated request ref integer that will be answered
+in match_found API.
+
+<h2><b>match_found { ref,game_id,is_replacing,pid }</b></h2>
+
+Answer to matching request ref with relay as pid, and running game_id.
+
+<h2><b>join_game { game }</b></h2>
+
+Join current user in state for a particular game instance by its id.
+This is the second message send by Flex client. Returns #'TableInfo' for success. In case of failure returns: game_not_found, already_joined, this_game_is_private.
+
+<h2><b>game_event { game, event, args }</b></h2>
+
+This is both info and cast async API for handling game events.
+Send async notification message from SERVER to PLAYER.
+
+<h2><b>game_action { game, action, msg }</b></h2>
+
+This is just like game_event but being sent from PLAYERS to SERVER.
+
+<h2><b>pause_game { game, action }</b></h2>
+
+Action could be pause or resume. Then message downstreams to FSM by signaling.
+
+<h2><b>rematch { game }</b></h2>
+
+Rematching request for current player in USER SESSION for existing game instance. Message forwarded to FSM module by signaling.
+
+<h2><b>game_crashed { game }</b></h2>
+
+<h2><b>game_rematched { game }</b></h2>
+
+<h2><b>chat_msg { game }</b></h2>
+
+<h2><b>social_action { game, type, initiator, recepient }</b></h2>
+
+<h2><b>social_action_msg { type, initiator, recepient }</b></h2>
+
+
+
+</div>
+
+<div class="contents">
+<iframe src="contents.htm" frameborder=0 width=340 height=2190></iframe>
+</div>
+
+</div>
+
+</body>
+</html>
+
+

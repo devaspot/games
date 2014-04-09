@@ -1,0 +1,171 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="synrc.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+
+<div class="threecol">
+
+<div class="left">
+<div class="hints"></div>
+<div class="main">
+
+<h1><a name="chapter2">JavaScript Public Game Protocol</a></h1>
+
+<h2><a name="p1.1">Session Attach</a></h2>
+
+<p>Session Attach is the first message that should be
+sent from JavaScript client using Authorization token. For test purposes you can use following token:</p>
+
+<code>ws.send(bert.encodebuf(bert.tuple(
+    bert.atom('client'),
+    bert.tuple(
+        bert.atom('session_attach'),
+        'EBAs6dg2Xw6XuCdg8qiPmlBLgYJ6N4Ti0P+oGpWgY'+
+        'z4NW4nBBUzTe/wAuLYtPnjFpsjCExxSpV78fipmsP'+
+        'xcf+NGy+QKIM6rmVJhpnIlKf0bpFNuGaAPjZAWthh'+
+        'GO8nZ0V8UnA=='))));
+</code>
+
+<h2><a name="p1.1">Join Game</a></h2>
+
+<p>After session established you can join the game table.
+You should specify existed ID of game table. 1000001 is permanent lobby game ID:</p>
+
+<code>ws.send(bert.encodebuf(bert.tuple(
+    bert.atom('client'),
+    bert.tuple(bert.atom('join_game'),1000001))));
+</code>
+
+<h2><a name="p1.1">Game Events</a></h2>
+
+<p>Just after joining the table you will be able to listen the air.
+All messages from server to client are encoded as game events.
+You can make BERT huamn readable with:</P>
+
+<code>String(bert.decodebuf(raw))</code>
+
+<h3><a name="p1.1">Game Info</a></h3>
+
+<p>During each new game <b>okey_game_info</b> issued with full list of players.
+You should remeber thirs names to display in client.</p>
+
+<code>{game_event,undefined,okey_game_info,
+    {players,
+        {PlayerInfo,<<"dunes1500113">>,
+            <<"dunes">>,<<"Abe">>,Kobo,undefined,undefined,undefined,
+            <<"/files/users/user_dunes/avatar/1-small.jpg">>,true},
+        {PlayerInfo,<<"wolves1500114">>,
+            <<"wolves">>,<<"Herman">>,Hesse,undefined,undefined,undefined,
+            <<"/files/users/user_wolves/avatar/1-small.jpg">>,true},
+        {PlayerInfo,<<"wolves1500115">>,
+            <<"wolves">>,<<"Herman">>,Hesse,undefined,undefined,undefined,
+            <<"/files/users/user_wolves/avatar/1-small.jpg">>,true},
+        {PlayerInfo,<<"dunes1500112">>,
+            <<"dunes">>,<<"Abe">>,Kobo,undefined,undefined,undefined,
+            <<"/files/users/user_dunes/avatar/1-small.jpg">>,false}},
+    {timeouts,{OkeyTimeouts,normal,30000,10000,25000,45000}},
+    {game_type,standard},
+    {finish_with_gosterge,undefined},
+    {pairs,null},
+    {table_name,<<"I'm filling lucky">>},
+    {sets,null},{set_no,null},{rounds,undefined},
+    {mul_factor,1},{slang_flag,false},{observer_flag,false},
+    {pause_enabled,true},{social_actions_enabled,true},
+    {tournament_type,lucky},{series_confirmation_mode,<<"no">>}}
+</code>
+
+<h3><a name="p1.1">Player State</a></h3>
+
+<code>{game_event,undefined,okey_game_player_state,
+    {whos_move,null},{game_state,game_initializing},
+    {piles,null},{tiles,null},{gosterge,null},
+    {pile_height,null},{current_round,0},{game_sub_type,null},
+    {next_turn_in,0},{paused,false},{chanak_points,0},
+    {round_timeout,null},{set_timeout,null}}</code>
+
+<h3><a name="p1.1">Game Started</a></h3>
+
+<p>During each new game <b>okey_game_started</b> issued with full list of cards.
+You should remeber them in client along with Gosterge Jocker card.</p>
+
+<code>{game_event,undefined,okey_game_started,
+    {tiles,{OkeyPiece,3,2},  {OkeyPiece,3,4}, {OkeyPiece,2,12},
+           {OkeyPiece,3,8},  {OkeyPiece,1,0}, {OkeyPiece,1,10},
+           {OkeyPiece,2,13}, {OkeyPiece,2,6}, {OkeyPiece,2,10},
+           {OkeyPiece,2,10}, {OkeyPiece,4,5}, {OkeyPiece,2,11},
+           {OkeyPiece,2,4},  {OkeyPiece,4,10}},
+    {gosterge,{OkeyPiece,2,8}},{pile_height,48},
+    {current_round,1},{current_set,1},{game_type,null},
+    {game_speed,null},{game_submode,null},{chanak_points,0},
+    {round_timeout,null},{set_timeout,null}}</code>
+
+<h3><a name="p1.1">Next Turn</a></h3>
+
+<p>You should handle <b>okey_next_turn</b> message in order to give user ablity
+to play only when <b>player</b> is his name. Otherwise you messages will be ignored by server.</p>
+
+<code>{game_event,undefined,okey_next_turn,
+    {player,<<"oldman1500118">>},{can_challenge,false}}</code>
+
+<h3><a name="p1.1">Discarded Notification</a></h3>
+
+<p>When someone discards the Tash you should update you
+corner cards placeholders with discarded Tash.</p>
+
+<code>{game_event,undefined,okey_tile_discarded,
+    {player,<<"oldman1500118">>},{tile,{OkeyPiece,1,4}},{timeouted,true}}</code>
+
+<h3><a name="p1.1">Taken Notification</a></h3>
+
+<p>When someone take a cards from center of the table <b>pile=0</b>
+or from its neighbour <b>pile=1</b> you will be notified to update
+the <b>pile_height</b> cards left:</p>
+
+<code>{game_event,undefined,okey_tile_taken,
+    {player,<<"wolves1500121">>},{pile,0},
+    {revealed,null},{pile_height,47}}</code>
+
+<p>You the card was taken by you, you can see it in <b>tile</b>:</p>
+
+<code>{game_event,undefined,okey_tile_discarded,
+    {player,<<"dunes1500120">>},
+        {tile,{OkeyPiece,1,1}},{timeouted,false}}</code>
+
+<h2><a name="p1.1">Game Actions</a></h2>
+
+<p>Game Actions is something that you can send only from client to server.
+But for debugging purposes during development phase your game actions
+will mirror from server as DATA BERT event also.</P>
+
+<h3><a name="p1.1">Take</a></h3>
+
+<code>ws.send(bert.encodebuf(bert.tuple(
+    bert.atom('client'),
+    bert.tuple(
+        bert.atom('game_action'),
+        1000001,
+        bert.atom('okey_take'),
+        {'pile':0})))); </code>
+
+<h3><a name="p1.1">Discard</a></h3>
+
+<code>ws.send(bert.encodebuf(bert.tuple(
+    bert.atom('client'),
+    bert.tuple(
+        bert.atom('game_action'),
+        1000001,
+        bert.atom('okey_discard'),
+        {'tile':bert.tuple(bert.atom('OkeyPiece'),1,9)}))));</code>
+
+</div>
+
+<div class="contents">
+<iframe src="contents.htm" frameborder=0 width=340 height=2190></iframe>
+</div>
+
+</body>
+</html>
+
+
