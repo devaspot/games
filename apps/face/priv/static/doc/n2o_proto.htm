@@ -1,0 +1,55 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<link href="synrc.css" type="text/css" rel="stylesheet">
+</head>
+<body>
+
+<div class="threecol">
+
+<div class="left">
+<div class="hints"></div>
+<div class="main">
+
+<h1><a name="chapter2">N2O Protocol</a></h1>
+
+<h2><a name="p1.1">JSON container</a></h2>
+
+
+<p>Each message from Web Socket channel to Client encoded as JSON object.
+<a href="https://github.com/synrc/n2o_scripts/blob/master/n2o/n2o.js">N2O.js</a>
+is used to decode WebSocket binary messages from JSON container.</p>
+
+<code>{ "eval": "ws.send("Send Back This String");",
+  "data": [131,104,2,100,0,7,109,101,115,115,
+           97,103,101,107,0,5,72,101,108,108,111] }
+</code>
+
+<p>EVAL values evaluated immediately and DATA values passed
+to handle_web_socket(data) function if exists.</p>
+
+<code>function handle_web_socket(body) { console.log(body); } </code>
+
+<h2><a name="p1.1">BERT messages</a></h2>
+
+<p>Usually in DATA come <a href="http://bert-rpc.org">BERT</a> messages (Binary Erlang Term Format).
+<a href="https://github.com/synrc/n2o_scripts/blob/master/n2o/bert.js">BERT.js</a>
+is used to decode Game Protocol message.</p>
+
+<code>function handle_web_socket(body) {
+    console.log(String(bert.decodebuf(body))); } </code>
+
+<code style="background-color:white;">E> Received: {message,"Hello"} </code>
+
+</div>
+
+<div class="contents">
+<iframe src="contents.htm" frameborder=0 width=340 height=2190></iframe>
+</div>
+
+</div>
+
+</body>
+</html>
+
+
