@@ -1,3 +1,6 @@
+-ifndef(USERS_HRL).
+-define(USERS_HRL, "users.hrl").
+
 -include("types.hrl").
 
 -record(user_status,
@@ -129,3 +132,5 @@
 %% Group exchange name
 -define(GROUP_EXCHANGE(GroupId),
         list_to_binary("group_exchange."++GroupId++".fanout")).
+
+-endif.
