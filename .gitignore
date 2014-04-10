@@ -1,0 +1,5 @@
+*~
+Mnesia*
+.applist
+erl_crash.dump
+**/ebin
