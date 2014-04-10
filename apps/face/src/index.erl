@@ -65,8 +65,8 @@ body() ->
 event(terminate) -> wf:info("terminate");
 event(init) ->
     {ok,GamePid} = game_session:start_link(self()),
-    event(attach),
-    event(join),
+%    event(attach),
+%    event(join),
     wf:info("INIT ~p",[GamePid]),
     put(game_session, GamePid);
 
@@ -77,7 +77,7 @@ event(take)   -> wf:wire(take("1000001", wf:q(ddtake)));
 
 event(discard) -> 
     TilesList = get(game_okey_tiles),
-    wf:info("dd ~p", [wf:q(dddiscard)]),
+%    wf:info("dd ~p", [wf:q(dddiscard)]),
     {_, {C, V}} = lists:keyfind(erlang:list_to_binary(wf:q(dddiscard)), 1, TilesList),
     wf:wire(discard("1000001", erlang:integer_to_list(C), erlang:integer_to_list(V)));
 
@@ -94,7 +94,7 @@ event({server, {game_event, _, okey_tile_discarded, Args}}) ->
     if
        Im == Player ->
             {_, {_, C, V}} = lists:keyfind(tile, 1, Args),
-            wf:info("c ~p v ~p", [C, V]),
+%            wf:info("c ~p v ~p", [C, V]),
             TilesListOld = get(game_okey_tiles),
             TilesList = lists:keydelete({C, V}, 2, TilesListOld),
             put(game_okey_tiles, TilesList),
@@ -127,7 +127,7 @@ event({server,{game_event, Game, okey_turn_timeout, Args}}) ->
 event({server, {game_event, _, okey_game_info, Args}}) ->
     wf:info("okay_game_info ~p", [Args]),
     {_, PlayersInfo} = lists:keyfind(players, 1, Args),
-    wf:info("pi ~p", [PlayersInfo]),
+%    wf:info("pi ~p", [PlayersInfo]),
     Players = 
         lists:zipwith(
           fun(ListId, {PlayerId, PlayerLabel}) ->
@@ -137,10 +137,10 @@ event({server, {game_event, _, okey_game_info, Args}}) ->
           lists:map(
             fun
                 (#'PlayerInfo'{id = Id, robot = true} = P) ->
-                    wf:info("pp ~p", [P]),
+%                    wf:info("pp ~p", [P]),
                     {Id, <<Id/binary, <<" R ">>/binary>>};
                 (#'PlayerInfo'{id = Id, robot = false} = P) ->
-                    wf:info("pr ~p", [P]),
+%                    wf:info("pr ~p", [P]),
                     put(okey_im, Id),
                     {Id, <<Id/binary, <<" M ">>/binary>>}
             end,
