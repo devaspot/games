@@ -65,6 +65,8 @@ body() ->
 event(terminate) -> wf:info("terminate");
 event(init) ->
     {ok,GamePid} = game_session:start_link(self()),
+    event(attach),
+    event(join),
     wf:info("INIT ~p",[GamePid]),
     put(game_session, GamePid);
 
