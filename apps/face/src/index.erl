@@ -22,17 +22,13 @@ take(GameId,Place) ->
         bert:tuple(bert:atom("game_action"),GameId, bert:atom("okey_take"),[{pile,Place}])))).
 
 discard(GameId, Color, Value) ->
-    ws:send(
-      bert:encodebuf(
+    ws:send(bert:encodebuf(bert:tuple(
+        bert:atom('client'),
         bert:tuple(
-          bert:atom('client'),
-          bert:tuple(
-            bert:atom("game_action"), GameId,
-            bert:atom("okey_discard"), [{tile, bert:tuple(bert:atom("OkeyPiece"), Color, Value)}]
-           )
-         )
-       )
-     ).
+            bert:atom("game_action"),
+            GameId,
+            bert:atom("okey_discard"),
+            [{tile, bert:tuple(bert:atom("OkeyPiece"), Color, Value)}])))).
 
 redraw_tiles([{Tile, _}| _ ] = TilesList) ->
     wf:update(dddiscard, [#dropdown{id = dddiscard, postback = combo, value = Tile, source = [dddiscard], options = [#option{label = CVBin, value = CVBin} || {CVBin, _} <- TilesList]}]).
@@ -66,8 +62,10 @@ body() ->
       #button{ id = discard, body = <<"Discard">>, postback = discard, source=[dddiscard]}
     ].
 
+event(terminate) -> wf:info("terminate");
 event(init) ->
     {ok,GamePid} = game_session:start_link(self()),
+    wf:info("INIT ~p",[GamePid]),
     put(game_session, GamePid);
 
 event(combo)  -> wf:info("Combo: ~p",[wf:q(dddiscard)]);

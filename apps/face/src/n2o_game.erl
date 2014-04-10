@@ -52,9 +52,11 @@ html_events(Pro, State) ->
 stream(<<"ping">>, Req, State) ->
     {reply, <<"pong">>, Req, State};
 stream({text,Data}, Req, State) ->
+%    wf:info("Text: ~p",[Data]),
     info(Data,Req,State);
 stream({binary,Info}, Req, State) ->
     Pro = binary_to_term(Info,[safe]),
+    wf:info("Binary: ~p",[Pro]),
     case Pro of
         {client,M} -> info({client,M},Req,State);
         _ -> {reply,html_events(Pro,State),Req,State} end;
@@ -63,6 +65,7 @@ stream(<<"N2O",Rest/binary>> = Data, Req, State) ->
     info(Data,Req,State);
 
 stream(Data, Req, State) ->
+    wf:info("Binary: ~p",[Data]),
     info(binary_to_term(Data),Req,State).
 
 render_actions(InitActions) ->
@@ -74,6 +77,7 @@ render_actions(InitActions) ->
 
 info({client,Message}, Req, State) ->
     GamePid = get(game_session),
+    wf:info("GameSessionPid: ~p",[GamePid]),
     game_session:process_request(GamePid, Message), 
     Module = State#context.module,
     try Module:event({client,Message}) catch E:R -> wf:info("Catch: ~p:~p", [E,R]) end,

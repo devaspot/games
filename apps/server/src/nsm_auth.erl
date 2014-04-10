@@ -54,7 +54,7 @@ get_all_user() -> {ok, kvs:all(user)}.
 generate_token(User) ->
     Token = generate_token0(),
     Res = auth_server:store_token(0, Token, User),
-    ?INFO("with result :~p~n", [Res]),
+    gs:info("with result :~p~n", [Res]),
     Token.
 
 generate_token0() -> T0 = crypto:rand_bytes(100), T = base64:encode(T0), T.
@@ -64,7 +64,7 @@ build_user_info(#user{username = UserName,
                       surnames = Surname,
                       birth = Age,
                       sex = Sex} = User) ->
-    #user_info{username = UserName,
+    #user_info{username = Name,
                name = Name,
                surname = Surname,
                age = Age,
