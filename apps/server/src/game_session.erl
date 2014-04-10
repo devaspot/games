@@ -421,9 +421,9 @@ handle_relay_message(Msg, _SubscrId, #state{rpc = RPC} = State) ->
         E -> error_logger:info_msg("ERROR SEND MESSAGE TO PLAYER: ~p",[E]),
             {stop, normal, State}
     catch
-        exit:{normal, {gen_server,call, [RPC, {send_message, _}]}} ->
+        exit:{normal, {gen_server,call, [RPC, {server, _}]}} ->
             {stop, normal, State};
-        exit:{noproc, {gen_server,call, [RPC, {send_message, _}]}} ->
+        exit:{noproc, {gen_server,call, [RPC, {server, _}]}} ->
             {stop, normal, State};
         E:R ->
             {stop, normal, State}
@@ -493,4 +493,4 @@ get_relay(GameId, GameList) ->
 
 send_message_to_player(Pid, Message) ->
     ?INFO("MESSAGE to ~p ~p",[Pid,Message]),
-    Pid ! {send_message,Message}, ok.
+    Pid ! {server,Message}, ok.

@@ -40,7 +40,7 @@
 
 % gen_server
 
-send_message(Pid, Message) -> gen_server:call(Pid, {send_message, Message}).
+send_message(Pid, Message) -> gen_server:call(Pid, {server, Message}).
 call_rpc(Pid, Message) -> gen_server:call(Pid, {call_rpc, Message}).
 get_session(Pid) -> gen_server:call(Pid, get_session).
 init_state(Pid, Situation) -> gen_server:cast(Pid, {init_state, Situation}).
@@ -56,7 +56,7 @@ init([Owner, PlayerInfo, GameId]) ->
     {ok, #state{user = PlayerInfo, uid = UId, owner = Owner, gid = GameId, session = SPid}}.
 
 
-handle_call({send_message, Msg0}, _From, State) ->
+handle_call({server, Msg0}, _From, State) ->
     BPid = State#state.bot,
     Msg = flashify(Msg0),
     BPid ! Msg,
@@ -111,7 +111,7 @@ handle_cast(Msg, State) ->
 handle_info({'DOWN', Ref, process, _, Reason}, State = #state{owner_mon = OMon}) when OMon == Ref ->
     ?INFO("relay goes down with reason ~p so does bot", [Reason]),
     {stop, Reason, State};
-handle_info({send_message,M}, State) ->
+handle_info({server,M}, State) ->
     BPid = State#state.bot,
     BPid ! M,
     {noreply, State};
