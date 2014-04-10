@@ -50,13 +50,9 @@ html_events(Pro, State) ->
     wf:json([{eval,JS}]).
 
 stream(<<"ping">>, Req, State) ->
-    wf:info("ping received~n"),
     {reply, <<"pong">>, Req, State};
 stream({text,Data}, Req, State) ->
-    wf:info("Text Received ~p",[Data]),
-%    self() ! Data,
     info(Data,Req,State);
-%    {ok, Req,State};
 stream({binary,Info}, Req, State) ->
     Pro = binary_to_term(Info,[safe]),
     case Pro of
@@ -64,19 +60,10 @@ stream({binary,Info}, Req, State) ->
         _ -> {reply,html_events(Pro,State),Req,State} end;
 
 stream(<<"N2O",Rest/binary>> = Data, Req, State) ->
-%    self() ! Data,
     info(Data,Req,State);
 
 stream(Data, Req, State) ->
-    wf:info("Data Received ~p",[Data]),
-%    Pro = binary_to_term(Data,[safe]),
-%    case Pro of
-%        {client,M} -> info({client,M},Req,State);
-%        _ -> {reply,html_events(Pro,State),Req,State} end.
-
     info(binary_to_term(Data),Req,State).
-%    self() ! binary_to_term(Data),
-%    {ok, Req,State}.
 
 render_actions(InitActions) ->
     RenderInit = wf:render(InitActions),
@@ -86,7 +73,6 @@ render_actions(InitActions) ->
     [RenderInit,RenderInitGenActions].
 
 info({client,Message}, Req, State) ->
-    wf:info("CLIENT ~p",[Message]),
     GamePid = get(game_session),
     game_session:process_request(GamePid, Message), 
     Module = State#context.module,
@@ -101,7 +87,6 @@ info({client,Message}, Req, State) ->
                     {data,binary_to_list(term_to_binary(Message))}]),Req,State};
 
 info({send_message,Message}, Req, State) ->
-    wf:info("SERVER ~p",[Message]),
     Module = State#context.module,
     try Module:event({server,Message}) catch E:R -> wf:info("Catch: ~p:~p", [E,R]) end,
     Actions = get(actions),
@@ -163,7 +148,6 @@ info(Pro, Req, State) ->
     {reply, wf:json([{eval,JS}]), Req, State}.
 
 terminate(_Req, _State=#context{module=Module}) ->
-    % wf:info("Bullet Terminated~n"),
     Res = ets:update_counter(globals,onlineusers,{2,-1}),
     wf:send(broadcast,{counter,Res}),
     catch Module:event(terminate),
