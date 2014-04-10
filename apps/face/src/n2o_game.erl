@@ -28,7 +28,7 @@ html_events(Pro, State) ->
     Pickled = proplists:get_value(pickle,Pro),
     Linked = proplists:get_value(linked,Pro),
     Depickled = wf:depickle(Pickled),
-    %wf:info("Depickled: ~p",[Depickled]),
+    wf:info("Depickled: ~p",[Depickled]),
     case Depickled of
         #ev{module=Module,name=Function,payload=Parameter,trigger=Trigger} ->
             case Function of 
@@ -46,6 +46,7 @@ html_events(Pro, State) ->
     RenderGenActions = wf:render(GenActions),
     wf_context:clear_actions(),
     JS = iolist_to_binary([Render,RenderGenActions]),
+    wf:info("JS: ~p",[JS]),
     wf:json([{eval,JS}]).
 
 stream(<<"ping">>, Req, State) ->
@@ -53,17 +54,29 @@ stream(<<"ping">>, Req, State) ->
     {reply, <<"pong">>, Req, State};
 stream({text,Data}, Req, State) ->
     wf:info("Text Received ~p",[Data]),
-    self() ! Data,
-    {ok, Req,State};
+%    self() ! Data,
+    info(Data,Req,State);
+%    {ok, Req,State};
 stream({binary,Info}, Req, State) ->
     Pro = binary_to_term(Info,[safe]),
     case Pro of
         {client,M} -> info({client,M},Req,State);
         _ -> {reply,html_events(Pro,State),Req,State} end;
+
+stream(<<"N2O",Rest/binary>> = Data, Req, State) ->
+%    self() ! Data,
+    info(Data,Req,State);
+
 stream(Data, Req, State) ->
     wf:info("Data Received ~p",[Data]),
-    self() ! Data,
-    {ok, Req,State}.
+%    Pro = binary_to_term(Data,[safe]),
+%    case Pro of
+%        {client,M} -> info({client,M},Req,State);
+%        _ -> {reply,html_events(Pro,State),Req,State} end.
+
+    info(binary_to_term(Data),Req,State).
+%    self() ! binary_to_term(Data),
+%    {ok, Req,State}.
 
 render_actions(InitActions) ->
     RenderInit = wf:render(InitActions),
@@ -73,15 +86,11 @@ render_actions(InitActions) ->
     [RenderInit,RenderInitGenActions].
 
 info({client,Message}, Req, State) ->
+    wf:info("CLIENT ~p",[Message]),
     GamePid = get(game_session),
     game_session:process_request(GamePid, Message), 
     Module = State#context.module,
-    case (catch Module:event({client,Message})) of
-        {'EXIT', Error} ->
-            wf:info("client event died with ~p", [Error]);
-        _Ok ->
-            _Ok
-    end,
+    try Module:event({client,Message}) catch E:R -> wf:info("Catch: ~p:~p", [E,R]) end,
     Actions = get(actions),
     wf_context:clear_actions(),
     Render = wf:render(Actions),
@@ -92,13 +101,9 @@ info({client,Message}, Req, State) ->
                     {data,binary_to_list(term_to_binary(Message))}]),Req,State};
 
 info({send_message,Message}, Req, State) ->
+    wf:info("SERVER ~p",[Message]),
     Module = State#context.module,
-    case (catch Module:event({server,Message})) of 
-        {'EXIT', Error} ->
-            wf:info("server event died with ~p", [Error]);
-        _Ok ->
-            _Ok
-    end,
+    try Module:event({server,Message}) catch E:R -> wf:info("Catch: ~p:~p", [E,R]) end,
     Actions = get(actions),
     wf_context:clear_actions(),
     Render = wf:render(Actions),
@@ -107,6 +112,10 @@ info({send_message,Message}, Req, State) ->
     wf_context:clear_actions(),
     {reply,wf:json([{eval,iolist_to_binary([Render,RenderGenActions])},
                     {data,binary_to_list(term_to_binary(Message))}]),Req,State};
+
+
+info(Pro, Req, State) when is_list(Pro) ->
+    {reply,html_events(Pro,State),Req,State};
 
 info(Pro, Req, State) ->
     Render = 
@@ -140,7 +149,7 @@ info(Pro, Req, State) ->
                 end;
             <<"PING">> -> [];
             Unknown ->
-                wf:info("Unknown WS Info Message ~p", [Unknown]),
+%                wf:info("Unknown WS Info Message ~p", [Unknown]),
                 M = State#context.module,
                 catch M:event(Unknown),
                 Actions = get(actions),

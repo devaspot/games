@@ -161,4 +161,4 @@ event({server,{game_event, _, okey_next_turn, Args}}) ->
     end,
     wf:wire("document.querySelector('#" ++ erlang:atom_to_list(LabelId) ++ "').style.color = \"red\";"),
     put(okey_turn_mark, LabelId);
-event(Event)  -> wf:info("Event: ~p", [Event]).
+event(Event)  -> ok. % wf:info("Event: ~p", [Event]).
