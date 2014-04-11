@@ -5,6 +5,7 @@
 -include_lib("server/include/log.hrl").
 -include_lib("server/include/authtoken.hrl").
 -include_lib("server/include/requests.hrl").
+-include_lib("kvs/include/user.hrl").
 
 -behaviour(gen_server).
 -compile(export_all).
@@ -114,16 +115,16 @@ store_token(GameId, E, Token, UserId) ->
     ets:insert(E, Data).
 
 user_info(UserId) ->
-    case nsm_auth:get_user_info(UserId) of
+    case kvs:get(user,UserId) of
         {ok, UserData} ->
             gs:info("User Data: ~p",[UserData]),
-            {ok, #'PlayerInfo'{id = list_to_binary(UserData#user_info.username),
-                               login = list_to_binary(UserData#user_info.username),
-                               name = wf:to_binary(UserData#user_info.name),
-                               avatar_url = wf:to_binary(UserData#user_info.avatar_url),
-                               skill = UserData#user_info.skill,
-                               score = UserData#user_info.score,
-                               surname = wf:to_binary(UserData#user_info.surname)}};
+            {ok, #'PlayerInfo'{id = wf:to_binary(UserData#user.id),
+                               login = wf:to_binary(UserData#user.username),
+                               name = wf:to_binary(UserData#user.id),
+                               avatar_url = wf:to_binary(UserData#user.avatar),
+                               skill = 0,
+                               score = 0,
+                               surname = wf:to_binary(UserData#user.surnames)}};
         Error ->
             Error
     end.

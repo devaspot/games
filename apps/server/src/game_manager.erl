@@ -438,7 +438,7 @@ start_tournament(TrnId,NumberOfTournaments,NumberOfPlayers,_Quota,_Tours,_Speed,
                 game_type = GameType,
                 game_mode = GameMode,
                 speed = Speed} = Tournament,
-%%    ImagioUsers = nsm_auth:imagionary_users2(),
+
     RealPlayersPR = lists:keysort(#play_record.other, RealPlayersUnsorted),
     ?INFO("Head: ~p",[hd(RealPlayersPR)]),
     RealPlayers = [list_to_binary(Who)||#play_record{who=Who}<-RealPlayersPR, Who /= undefined],
@@ -446,10 +446,11 @@ start_tournament(TrnId,NumberOfTournaments,NumberOfPlayers,_Quota,_Tours,_Speed,
 %%     Registrants = case NumberOfPlayers > length(RealPlayers) of
 %%                        true -> nsm_db:put(Tournament#tournament{status=canceled}), RealPlayers;
 %%                        false -> [lists:nth(N,RealPlayers)||N<-lists:seq(1,NumberOfPlayers)] end,
+
     RealPlayersNumber = length(RealPlayers),
     Registrants = if NumberOfPlayers == RealPlayersNumber -> RealPlayers;
                      NumberOfPlayers > RealPlayersNumber ->
-                         RealPlayers ++ [list_to_binary(nsm_auth:ima_gio2(N)) ||
+                         RealPlayers ++ [list_to_binary(fake_users:ima_gio(N)) ||
                                             N <- lists:seq(1, NumberOfPlayers-RealPlayersNumber)];
                      true -> lists:sublist(RealPlayers, NumberOfPlayers)
                   end,

@@ -21,7 +21,7 @@
 -include_lib("server/include/game_okey.hrl").
 -include_lib("server/include/basic_types.hrl").
 -include_lib("db/include/config.hrl").
--include_lib("db/include/accounts.hrl").
+-include_lib("db/include/scoring.hrl").
 -include_lib("eunit/include/eunit.hrl").
 -include_lib("server/include/game_tavla.hrl").
 
