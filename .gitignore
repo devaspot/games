@@ -3,3 +3,7 @@ Mnesia*
 .applist
 erl_crash.dump
 **/ebin
+deps
+**/*.log*
+**/*.js
+**/nitrogen
