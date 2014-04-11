@@ -275,7 +275,7 @@ handle_client_request(#subscribe_player_rels{players = Players}, _From,
         if RelsChannel == undefined ->
 %               {ok, Channel} = nsx_msg:subscribe_for_user_actions(UserIdStr, self()),
 %               Channel;
-                ResChannel;
+                RelsChannel;
            true ->
                RelsChannel
         end,
