@@ -7,3 +7,4 @@ deps
 **/*.log*
 **/*.js
 **/nitrogen
+**/*.beam
