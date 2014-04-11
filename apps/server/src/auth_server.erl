@@ -7,14 +7,7 @@
 -include_lib("server/include/requests.hrl").
 
 -behaviour(gen_server).
-
 -compile(export_all).
--export([store_token/3,start_link/0,
-         robot_credentials/0,
-         fake_credentials/0,
-         get_user_info/1, get_user_info/2,
-         get_user_info_by_user_id/1
-        ]).
 
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
@@ -52,6 +45,7 @@ get_user_info_by_user_id(UserId) when is_list(UserId) -> get_user_info_by_user_i
 get_user_info_by_user_id(UserId) -> user_info(UserId).
 fake_credentials() -> gen_server:call(?SERVER, {fake_credentials}).
 robot_credentials() -> gen_server:call(?SERVER, {robot_credentials}).
+generate_token() -> base64:encode(crypto:rand_bytes(100)).
 
 init([]) ->
     Tokens = ets:new(tokens, [private, ordered_set, {keypos, #authtoken.token}]),

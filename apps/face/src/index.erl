@@ -71,7 +71,11 @@ event(init) ->
 
 event(combo)  -> wf:info("Combo: ~p",[wf:q(dddiscard)]);
 event(join)   -> wf:wire(join("1000001"));
-event(attach) -> wf:wire(attach("'"++?TEST_TOKEN++"'"));
+event(attach) -> 
+    Token = auth_server:generate_token(),
+    auth_server:store_token(1000001,Token,"maxim"),
+    wf:wire(attach(wf:f("'~s'",[Token])));
+
 event(take)   -> wf:wire(take("1000001", wf:q(ddtake)));
 
 event(discard) -> 
