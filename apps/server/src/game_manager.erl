@@ -429,7 +429,7 @@ start_tournament(TrnId,NumberOfTournaments,NumberOfPlayers,_Quota,_Tours,_Speed,
 
  if NumberOfPlayers - length(RealPlayersUnsorted) > 300 ->
            nsm_db:put(Tournament#tournament{status=canceled}),
-           nsx_msg:notify([tournament, TrnId, cancel], {TrnId}),
+           wf:send([tournament, TrnId, cancel], {TrnId}),
            error;
        true ->
 
@@ -467,7 +467,7 @@ start_tournament(TrnId,NumberOfTournaments,NumberOfPlayers,_Quota,_Tours,_Speed,
                        {awards, GiftIds}],
              {ok,GameId,A} = create_elimination_trn(GameType, Params, Registrants),
              nsm_db:put(Tournament#tournament{status=activated,start_time=time()}),
-             nsx_msg:notify([tournament, TrnId, activate], {TrnId}),
+             wf:send([tournament, TrnId, activate], {TrnId}),
              {ok,GameId,A}
          end || _ <-lists:seq(1,NumberOfTournaments)],
     [{ok,OP1,_}|_] = OkeyTournaments,

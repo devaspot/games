@@ -646,7 +646,7 @@ process_tour_result(#state{game_id = GameId, tournament_table = TTable, tours = 
        || {TableId, TableResultWithPos} <- TablesResultsWithPos],
     TourResultWithStrUserId = [{user_id_to_string(UserId), Position, Points, Status}
                                || {UserId, Position, Points, Status} <- TourResultWithUserId],
-    nsx_msg:notify(["system", "tournament_tour_note"], {TrnId, Tour, Tours, TourType, TourResultWithStrUserId}),
+    wf:send(["system", "tournament_tour_note"], {TrnId, Tour, Tours, TourType, TourResultWithStrUserId}),
     {TRef, Magic} = start_timer(?SHOW_SERIES_RESULT_TIMEOUT),
     ?INFO("TRN_ELIMINATION <~p> Results processing of tour <~p> is finished. "
           "Waiting some time (~p secs) before continue...",
@@ -661,11 +661,11 @@ finalize_tournament(#state{game_id = GameId, awards = Awards, tournament_table =
     AwardsDistrib = awards_distribution(TTable, Awards),
     AwardsDistribUserId = [{user_id_to_string(get_user_id(PlayerId, Players)), Pos, GiftId}
                            || {PlayerId, Pos, GiftId} <- AwardsDistrib],
-    [nsx_msg:notify(["gifts", "user", UserId, "give_gift"], {GiftId})
+    [wf:send(["gifts", "user", UserId, "give_gift"], {GiftId})
        || {UserId, _Pos, GiftId} <- AwardsDistribUserId],
     %% TODO: Do we need advertise the prizes to game clients?
     ?INFO("TRN_ELIMINATION <~p> Awards distribution: ~p", [GameId, AwardsDistribUserId]),
-    nsx_msg:notify(["system", "tournament_ends_note"], {TrnId, AwardsDistribUserId}),
+    wf:send(["system", "tournament_ends_note"], {TrnId, AwardsDistribUserId}),
     {TRef, Magic} = start_timer(?SHOW_TOURNAMENT_RESULT_TIMEOUT),
     ?INFO("TRN_ELIMINATION <~p> The tournament is finalized. "
           "Waiting some time (~p secs) before continue...",

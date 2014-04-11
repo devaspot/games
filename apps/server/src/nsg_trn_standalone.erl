@@ -1072,7 +1072,7 @@ add_points_to_accounts(Points, GameId, GameType, GameMode, MulFactor) ->
     ok.
 
 send_ends_note(GameName, GameType, EndsNotePoints) ->
-    nsx_msg:notify(["system", "game_ends_note"], {{GameName, GameType}, EndsNotePoints}).
+    wf:send(["system", "game_ends_note"], {{GameName, GameType}, EndsNotePoints}).
 
 shuffle(List) -> deck:to_list(deck:shuffle(deck:from_list(List))).
 

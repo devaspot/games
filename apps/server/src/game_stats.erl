@@ -172,12 +172,12 @@ assign_points(RawResults, GameInfo) ->
                                      timestamp = erlang:now()
                                     },
                 Route = [feed, user, UserId, scores, 0, add],  % maybe it would require separate worker for this
-                nsx_msg:notify(Route, [SR]),
+                wf:send(Route, [SR]),
                 {Wins, Loses} = if Winner-> {1, 0};
                                    true -> {0, 1}
                                 end,
                 % haven't found a way to properly get average time
-                nsx_msg:notify([personal_score, user, UserId, add],
+                wf:send([personal_score, user, UserId, add],
                                {_Games = 1, Wins, Loses, _Disconnects = 0, GamePoints, 0});
             true -> do_nothing  % no statistics for robots
          end,
@@ -203,7 +203,7 @@ assign_points(RawResults, GameInfo) ->
                   || #result{player_id = UserId, robot = Robot, pos = Pos,
                              kakush_points = KPoints, game_points = GPoints} <- Results],
     ?INFO("GAME_STATS <~p> Notificaton: ~p", [GameId, {{GameName, GameType}, GameEndRes}]),
-    nsx_msg:notify(["system", "game_ends_note"], {{GameName, GameType}, GameEndRes}).
+    wf:send(["system", "game_ends_note"], {{GameName, GameType}, GameEndRes}).
 
 is_bot(UserId, Players) ->
     case lists:keyfind(UserId, #'PlayerInfo'.id, Players) of

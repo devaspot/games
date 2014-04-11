@@ -105,7 +105,7 @@ handle_info({delivery, ["user_action", Action, Who, Whom], _} = Notification,
                                              type = Type
                                             },
                     % TODO: put real db change notification from users:343 module here
-                    %       nsx_msg:notify_db_subscription_change
+                    %       wf:send_db_subscription_change
                     %       should be additionaly subscribed in bg feed worker binded to USER_EXCHANGE
 
                     ok = send_message_to_player(RPC, Msg);
@@ -231,11 +231,11 @@ handle_client_request(#social_action_msg{type=Type, initiator=P1, recipient=P2},
             {reply, ok, State};
         ?SOCIAL_ACTION_BLOCK ->
             Subject = binary_to_list(P2),
-            nsx_msg:notify(["subscription", "user", UserId, "block_user"], {Subject}),
+            wf:send(["subscription", "user", UserId, "block_user"], {Subject}),
             {reply, ok, State};
         ?SOCIAL_ACTION_UNBLOCK ->
             Subject = binary_to_list(P2),
-            nsx_msg:notify(["subscription", "user", UserId, "unblock_user"], {Subject}),
+            wf:send(["subscription", "user", UserId, "unblock_user"], {Subject}),
             {reply, ok, State};
         ?SOCIAL_ACTION_LOVE ->
             {reply, ok, State};
@@ -273,8 +273,9 @@ handle_client_request(#subscribe_player_rels{players = Players}, _From,
     %% Create subscription if we need
     NewRelsChannel =
         if RelsChannel == undefined ->
-               {ok, Channel} = nsx_msg:subscribe_for_user_actions(UserIdStr, self()),
-               Channel;
+%               {ok, Channel} = nsx_msg:subscribe_for_user_actions(UserIdStr, self()),
+%               Channel;
+                ResChannel;
            true ->
                RelsChannel
         end,
