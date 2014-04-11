@@ -45,7 +45,7 @@ get_user_info_by_user_id(UserId) when is_list(UserId) -> get_user_info_by_user_i
 get_user_info_by_user_id(UserId) -> user_info(UserId).
 fake_credentials() -> gen_server:call(?SERVER, {fake_credentials}).
 robot_credentials() -> gen_server:call(?SERVER, {robot_credentials}).
-generate_token() -> base64:encode(crypto:rand_bytes(100)).
+generate_token(Game,User) -> T = base64:encode(crypto:rand_bytes(100)), store_token(Game,T,User).
 
 init([]) ->
     Tokens = ets:new(tokens, [private, ordered_set, {keypos, #authtoken.token}]),
