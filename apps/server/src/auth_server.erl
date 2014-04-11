@@ -106,7 +106,7 @@ handle_call(_Request, _From, State) -> Reply = ok, {reply, Reply, State}.
 handle_cast(_Msg, State) -> {noreply, State}.
 handle_info({system,Route,Message}, State) ->
     handle_system(Route,Message),
-    {noreply, State}.
+    {noreply, State};
 handle_info(_Info, State) -> {noreply, State}.
 terminate(_Reason, _State) -> ok.
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
