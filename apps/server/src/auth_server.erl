@@ -55,6 +55,7 @@ robot_credentials() -> gen_server:call(?SERVER, {robot_credentials}).
 
 init([]) ->
     Tokens = ets:new(tokens, [private, ordered_set, {keypos, #authtoken.token}]),
+    wf:reg(system),
     store_token(0,Tokens, <<?TEST_TOKEN>>, "maxim"),
     store_token(0,Tokens, <<?TEST_TOKEN2>>, "alice"),
     {ok, #state{tokens = Tokens}}.
@@ -103,9 +104,21 @@ handle_call({fake_credentials}, _From, #state{spare = Spare} = State) -> H = fak
 handle_call({robot_credentials}, _From, #state{spare = Spare} = State) -> H = fake_credentials0(Spare), {reply, H#'PlayerInfo'{robot = true}, State};
 handle_call(_Request, _From, State) -> Reply = ok, {reply, Reply, State}.
 handle_cast(_Msg, State) -> {noreply, State}.
+handle_info({system,Route,Message}, State) ->
+    handle_system(Route,Message),
+    {noreply, State}.
 handle_info(_Info, State) -> {noreply, State}.
 terminate(_Reason, _State) -> ok.
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
+
+handle_system([tournament,T,cancel],Message) -> ok;
+handle_system([tournament,T,activate],Message) -> ok;
+handle_system([personal_score,user,U,add],Message) -> ok;
+handle_system([system,game_end_note,U,add],Message) -> ok;
+handle_system([system,tournament_tour_note,T],Message) -> ok;
+handle_system([system,tournament_ends_note,T],Message) -> ok;
+handle_system([system,game_ends_note,T],Message) -> ok;
+handle_system(Route,Message) -> ok.
 
 fake_credentials0(Spare) ->
     Pos = crypto:rand_uniform(1, length(Spare)),
