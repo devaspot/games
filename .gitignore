@@ -1,10 +1,11 @@
+.#*
 *~
+apps/face/priv/static/nitrogen
 Mnesia*
 .applist
 erl_crash.dump
-**/ebin
+*/ebin/*.beam
 deps
-**/*.log*
-**/*.js
-**/nitrogen
-**/*.beam
+apps/**/ebin/**
+rels/web/devbox
+*.js
