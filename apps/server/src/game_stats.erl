@@ -50,7 +50,7 @@ get_player_stats(UserId) -> {ok, [{total_games,crypto:rand_uniform(1,10)},
                                   {average_play_time,crypto:rand_uniform(1000,5000)}]}.
 
 init([]) ->
-    wf:ref(stats),
+    wf:reg(stats),
     {ok, no_state}.
 
 handle_call(Request, From, State) ->
@@ -60,6 +60,7 @@ handle_call(Request, From, State) ->
 handle_cast({add_game, Game}, State) -> {noreply, State};
 handle_cast(Msg, State) -> error_logger:error_msg("unknown cast ~p ~n", [Msg]), {noreply, State}.
 handle_info({stats,Route,Message}, State) ->
+    wf:info("Stats: Route: ~p Message: ~p~n",[Route,Message]),
     handle_stats(Route,Message),
     {noreply, State};
 
