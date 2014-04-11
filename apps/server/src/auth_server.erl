@@ -8,6 +8,7 @@
 
 -behaviour(gen_server).
 
+-compile(export_all).
 -export([store_token/3,start_link/0,
          robot_credentials/0,
          fake_credentials/0,
@@ -63,37 +64,33 @@ handle_call({store_token, GameId, Token, UserId}, _From, #state{tokens = E} = St
     {reply, Token, State};
 
 handle_call({get_user_info, Token}, _From, #state{tokens = E} = State) ->
-    ?INFO("checking token: ~p", [Token]),
+    gs:info("checking token: ~p", [Token]),
     case ets:lookup(E, Token) of
         [] ->
-            ?INFO("token not found", []),
+            gs:info("token not found", []),
             {reply, false, State};
         List ->
             {authtoken, _, UserId} = hd(List),
-            ?INFO("token was registred, getting user info for ~p",[UserId]),
-	            proc_lib:spawn_link(fun() ->
-                                        Reply =
-                                            case user_info(UserId) of
-                                                {ok, UserInfo} ->
-                                                    ?INFO("..user info retrieved", []),
-                                                    UserInfo;
-                                                {error, user_not_found} ->
-                                                    ?INFO("..no such user info, providing fake credentials", []),
-                                                    fake_credentials0(State#state.spare); %% for eunit tests. FIX
-                                                {badrpc, _} ->
-                                                    ?INFO("..bad rpc, providing fake credentials", []),
-                                                    fake_credentials0(State#state.spare)  %% for eunit tests. FIX
-                                            end,
-                                        gen_server:reply(_From, Reply)
-                                end),
-            {noreply, State}
+            gs:info("token was registred, getting user info for ~p",[UserId]),
+            Reply = case user_info(UserId) of
+                {ok, UserInfo} ->
+                    gs:info("..user info retrieved", []),
+                    UserInfo;
+                {error, user_not_found} ->
+                    gs:info("..no such user info, providing fake credentials", []),
+                    fake_credentials0(State#state.spare); %% for eunit tests. FIX
+                {badrpc, _} ->
+                    gs:info("..bad rpc, providing fake credentials", []),
+                    fake_credentials0(State#state.spare)  %% for eunit tests. FIX
+            end,
+            {reply, Reply, State}
     end;
 
 handle_call({get_user_info, Token, Id}, _From, #state{tokens = E} = State) ->
-    ?INFO("checking token: ~p", [Token]),
+    gs:info("checking token: ~p", [Token]),
     case ets:lookup(E, Token) of
         [] ->
-            ?INFO("token not found", []),
+            gs:error("token not found", []),
             {reply, false, State};
         _List ->
             Reply0 = fake_credentials0(State#state.spare),
@@ -113,24 +110,26 @@ code_change(_OldVsn, State, _Extra) -> {ok, State}.
 fake_credentials0(Spare) ->
     Pos = crypto:rand_uniform(1, length(Spare)),
     H0 = lists:nth(Pos, Spare),
-    Id = list_to_binary(binary_to_list(H0#'PlayerInfo'.login) ++ integer_to_list(id_generator:get_id2())),
+    Id = list_to_binary(binary_to_list(H0#'PlayerInfo'.login) ++
+         integer_to_list(id_generator:get_id2())),
     H0#'PlayerInfo'{id = Id}.
 
 store_token(GameId, E, Token, UserId) ->
-    ?INFO("storing token: ~p", [Token]),
+    gs:info("storing token: ~p", [Token]),
     Data = #authtoken{token = Token, id = UserId},
     ets:insert(E, Data).
 
 user_info(UserId) ->
     case nsm_auth:get_user_info(UserId) of
         {ok, UserData} ->
+            gs:info("User Data: ~p",[UserData]),
             {ok, #'PlayerInfo'{id = list_to_binary(UserData#user_info.username),
                                login = list_to_binary(UserData#user_info.username),
-                               name = utils:convert_if(UserData#user_info.name, binary),
-                               avatar_url = utils:convert_if(UserData#user_info.avatar_url, binary),
+                               name = wf:to_binary(UserData#user_info.name),
+                               avatar_url = wf:to_binary(UserData#user_info.avatar_url),
                                skill = UserData#user_info.skill,
                                score = UserData#user_info.score,
-                               surname = utils:convert_if(UserData#user_info.surname, binary)}};
+                               surname = wf:to_binary(UserData#user_info.surname)}};
         Error ->
             Error
     end.

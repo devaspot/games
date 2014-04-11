@@ -14,7 +14,7 @@ start_link() -> supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
 init([]) ->
 
-    {ok, _} = cowboy:start_http(http, 100, [{port, 8000}],
+    {ok, _} = cowboy:start_http(http, 100, [{port, wf:config(n2o,transition_port,8000)}],
                                            [{env, [{dispatch, dispatch_rules()}]}]),
 
     users:init(),
@@ -29,6 +29,6 @@ dispatch_rules() ->
                                                 {mimetypes, {fun mimetypes:path_to_mimes/2, default}}]},
             {"/rest/:resource", rest_cowboy, []},
             {"/rest/:resource/:id", rest_cowboy, []},
-            {"/ws/[...]", bullet_handler, [{handler, n2o_game}]},
+            {"/ws/[...]", bullet_handler, [{handler, n2o_bullet}]},
             {'_', n2o_cowboy, []}
     ]}]).

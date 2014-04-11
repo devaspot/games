@@ -32,7 +32,7 @@
         request_id = 0
     }).
 
-send_message(Pid, Message) -> gen_server:call(Pid, {send_message, Message}).
+send_message(Pid, Message) -> gen_server:call(Pid, {server, Message}).
 call_rpc(Pid, Message) -> gen_server:call(Pid, {call_rpc, Message}).
 get_session(Pid) -> gen_server:call(Pid, get_session).
 init_state(Pid, Situation) -> gen_server:cast(Pid, {init_state, Situation}).
@@ -47,7 +47,7 @@ init([Owner, PlayerInfo, GameId]) ->
     ?INFO("BOTMODULE ~p started with game_session pid ~p", [UId,SPid]),
     {ok, #state{user = PlayerInfo, uid = UId, owner = Owner, gid = GameId, session = SPid}}.
 
-handle_call({send_message, Msg0}, _From, #state{uid = UId, bot = BPid} = State) ->
+handle_call({server, Msg0}, _From, #state{uid = UId, bot = BPid} = State) ->
     Msg = flashify(Msg0),
     ?INFO("OKEY BOT ~p: Resend message to bot process (~p): ~p",[UId, BPid, Msg0]),
     BPid ! Msg,
@@ -104,7 +104,7 @@ handle_info({'DOWN', Ref, process, _, Reason},
     ?INFO
     ("relay goes down with reason ~p so does bot", [Reason]),
     {stop, Reason, State};
-handle_info({send_message,M}, #state{uid = UId, bot = BPid} = State) ->
+handle_info({server,M}, #state{uid = UId, bot = BPid} = State) ->
     BPid ! M,
     {noreply, State};
 handle_info(Info, State) ->

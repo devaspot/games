@@ -47,11 +47,11 @@ bot_session_attach(Pid, UserInfo) ->
 % TODO: in case of game requests from web page handle them here
 
 process_request(Pid, Msg) ->
-    ?INFO("API payload ~p pid ~p",[Msg,Pid]),
+    gs:info("API payload ~p pid ~p",[Msg,Pid]),
     gen_server:call(Pid, {client_request, Msg}).
 
 process_request(Pid, Source, Msg) ->
-    ?INFO("API from ~p payload ~p pid ~p",[Source,Msg,Pid]),
+    gs:info("API from ~p payload ~p pid ~p",[Source,Msg,Pid]),
     gen_server:call(Pid, {client_request, Msg}).
 
 init([RPC]) ->
@@ -62,7 +62,7 @@ handle_call({client_request, Request}, From, State) ->
     handle_client_request(Request, From, State);
 
 handle_call(Request, From, State) ->
-    ?INFO("unrecognized call: ~p", [Request]),
+    gs:info("unrecognized call: ~p", [Request]),
     {stop, {unknown_call, From, Request}, State}.
 
 
@@ -71,7 +71,7 @@ handle_cast({bot_session_attach, UserInfo}, State = #state{user = undefined}) ->
     {noreply, State#state{user = UserInfo}};
 
 handle_cast(Msg, State) ->
-    ?INFO("session: unrecognized cast: ~p", [Msg]),
+    gs:info("session: unrecognized cast: ~p", [Msg]),
     {stop, {error, {unknown_cast, Msg}}, State}.
 
 
@@ -79,7 +79,7 @@ handle_info({relay_event, SubscrId, RelayMsg}, State) ->
     handle_relay_message(RelayMsg, SubscrId, State);
 
 handle_info({relay_kick, SubscrId, Reason}, State) ->
-    ?INFO("Recived a kick notification from the table: ~p", [Reason]),
+    gs:info("Recived a kick notification from the table: ~p", [Reason]),
     handle_relay_kick(Reason, SubscrId, State);
 
 handle_info({delivery, ["user_action", Action, Who, Whom], _} = Notification,
@@ -87,7 +87,7 @@ handle_info({delivery, ["user_action", Action, Who, Whom], _} = Notification,
                    user = User,
                    rpc = RPC
                   } = State) ->
-    ?INFO("~w:handle_info/2 Delivery: ~p", [?MODULE, Notification]),
+    gs:info("~w:handle_info/2 Delivery: ~p", [?MODULE, Notification]),
     UserId = User#'PlayerInfo'.id,
     case list_to_binary(Who) of
         UserId ->
@@ -119,7 +119,7 @@ handle_info({delivery, ["user_action", Action, Who, Whom], _} = Notification,
 
 
 handle_info({'DOWN', MonitorRef, _Type, _Object, _Info} = Msg, State = #state{rpc_mon = MonitorRef}) ->
-    ?INFO("connection closed, shutting down session:~p", [Msg]),
+    gs:info("connection closed, shutting down session:~p", [Msg]),
     {stop, normal, State};
 
 handle_info({'DOWN', OtherRef, process, _Object, Info} = _Msg,
@@ -136,11 +136,11 @@ handle_info({'DOWN', OtherRef, process, _Object, Info} = _Msg,
     end;
 
 handle_info(Info, State) ->
-    ?INFO("session: unrecognized info: ~p", [Info]),
+    gs:info("session: unrecognized info: ~p", [Info]),
     {noreply, State}.
 
 terminate(Reason, #state{rels_notif_channel = RelsChannel}) ->
-    ?INFO("terminating session. reason: ~p", [Reason]),
+    wf:info("terminating session. reason: ~p", [Reason]),
     if RelsChannel =/= undefined -> nsm_mq_channel:close(RelsChannel);
        true -> do_nothing end,
     ok.
@@ -152,31 +152,31 @@ code_change(_OldVsn, State, _Extra) ->
 
 handle_client_request(#session_attach{token = Token}, _From,
                       #state{user = undefined} = State) ->
-    ?INFO("checking session token: ~p", [Token]),
+    gs:info("checking session token: ~p", [Token]),
     case auth_server:get_user_info(Token) of
         false ->
-            ?INFO("failed session attach: ~p", [Token]),
+            gs:error("failed session attach: ~p", [Token]),
             {stop, normal, {error, invalid_token}, State};
         UserInfo ->
-            ?INFO("successfull session attach. Your user info: ~p", [UserInfo]),
+            gs:info("successfull session attach. Your user info: ~p", [UserInfo]),
             {reply, UserInfo, State#state{user = UserInfo}}
     end;
 
 handle_client_request(#session_attach_debug{token = Token, id = Id}, _From,
                       #state{user = undefined} = State) ->
-    ?INFO("checking debug session token: ~p", [{Token,Id}]),
+    gs:info("checking debug session token: ~p", [{Token,Id}]),
     case {?IS_TEST, auth_server:get_user_info(Token, Id)} of
         {_Test, false} ->
-            ?INFO("... ~p", [{_Test,false}]),
+            gs:error("... ~p", [{_Test,false}]),
             {stop, normal, {error, invalid_token}, State};
         {false, true} ->
-            ?INFO("... ~p", [{false,true}]),
+            gs:error("... ~p", [{false,true}]),
             {stop, normal, {error, invalid_token}, State};
         {true, UserInfo} ->
-            ?INFO("... ~p", [{true,UserInfo}]),
+            gs:info("... ~p", [{true,UserInfo}]),
             {reply, UserInfo, State#state{user = UserInfo}};
         {false, UserInfo} ->
-            ?INFO("... ~p", [{true,UserInfo}]),
+            gs:info("... ~p", [{true,UserInfo}]),
             {reply, UserInfo, State#state{user = UserInfo}}
     end;
 
@@ -421,9 +421,9 @@ handle_relay_message(Msg, _SubscrId, #state{rpc = RPC} = State) ->
         E -> error_logger:info_msg("ERROR SEND MESSAGE TO PLAYER: ~p",[E]),
             {stop, normal, State}
     catch
-        exit:{normal, {gen_server,call, [RPC, {send_message, _}]}} ->
+        exit:{normal, {gen_server,call, [RPC, {server, _}]}} ->
             {stop, normal, State};
-        exit:{noproc, {gen_server,call, [RPC, {send_message, _}]}} ->
+        exit:{noproc, {gen_server,call, [RPC, {server, _}]}} ->
             {stop, normal, State};
         E:R ->
             {stop, normal, State}
@@ -493,4 +493,4 @@ get_relay(GameId, GameList) ->
 
 send_message_to_player(Pid, Message) ->
     ?INFO("MESSAGE to ~p ~p",[Pid,Message]),
-    Pid ! {send_message,Message}, ok.
+    Pid ! {server,Message}, ok.
