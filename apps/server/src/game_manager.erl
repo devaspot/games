@@ -9,7 +9,7 @@
 -include_lib("db/include/tournaments.hrl").
 -include_lib("server/include/log.hrl").
 -include_lib("stdlib/include/qlc.hrl").
--include_lib("db/include/accounts.hrl").
+-include_lib("db/include/scoring.hrl").
 -record(state, { game_tavla = 0, game_okey = 0 }).
 
 destroy_game(Pid,Sup) -> game_sup:stop_game(Sup,Pid).

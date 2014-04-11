@@ -8,6 +8,7 @@ metainfo() ->
                 [
                  #table{name = player_scoring, fields=record_info(fields, player_scoring)},
                  #table{name = scoring_record, fields=record_info(fields, scoring_record)},
+                 #table{name = pointing_rule,  fields=record_info(fields, pointing_rule)},
                  #table{name = personal_score, fields=record_info(fields, personal_score)}
                 ]
            }.

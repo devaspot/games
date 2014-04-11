@@ -24,7 +24,8 @@
 -include_lib("server/include/log.hrl").
 -include_lib("server/include/basic_types.hrl").
 -include_lib("db/include/table.hrl").
--include_lib("db/include/accounts.hrl").
+-include_lib("db/include/transaction.hrl").
+-include_lib("db/include/scoring.hrl").
 -include_lib("server/include/game_tavla.hrl").
 
 %% --------------------------------------------------------------------
@@ -765,7 +766,9 @@ deduct_quota(GameId, GameType, GameMode, Amount, MulFactor, UsersIds) ->
          TI = #ti_game_event{game_name = GameType, game_mode = GameMode,
                              id = GameId, double_points = MulFactor,
                              type = start_round, tournament_type = ?TOURNAMENT_TYPE},
-         nsm_accounts:transaction(binary_to_list(UserId), ?CURRENCY_QUOTA, -RealAmount, TI)
+        kvs:add(#transaction{id=kvs:next_id(transaction,1),
+            feed_id={quota,binary_to_list(UserId)},amount=-RealAmount,comment=TI})
+%         nsm_accounts:transaction(binary_to_list(UserId), ?CURRENCY_QUOTA, -RealAmount, TI)
      end || UserId <- UsersIds],
     ok.
 
@@ -824,11 +827,15 @@ add_points_to_accounts(Points, GameId, GameType, GameMode, MulFactor) ->
                         type = game_end, tournament_type = ?TOURNAMENT_TYPE},
     [begin
          if KakushPoints =/= 0 ->
-                ok = nsm_accounts:transaction(UserId, ?CURRENCY_KAKUSH, KakushPoints, TI);
+        kvs:add(#transaction{id=kvs:next_id(transaction,1),
+            feed_id={kakush,UserId},amount=KakushPoints,comment=TI});
+%                ok = nsm_accounts:transaction(UserId, ?CURRENCY_KAKUSH, KakushPoints, TI);
             true -> do_nothing
          end,
          if GamePoints =/= 0 ->
-                ok = nsm_accounts:transaction(UserId, ?CURRENCY_GAME_POINTS, GamePoints, TI);
+        kvs:add(#transaction{id=kvs:next_id(transaction,1),
+            feed_id={game_points,UserId},amount=GamePoints,comment=TI});
+%                ok = nsm_accounts:transaction(UserId, ?CURRENCY_GAME_POINTS, GamePoints, TI);
             true -> do_nothing
          end
      end || {UserId, KakushPoints, GamePoints} <- Points],

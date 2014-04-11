@@ -2,7 +2,7 @@
 -compile(export_all).
 -include_lib("db/include/config.hrl").
 -include_lib("kvs/include/user.hrl").
--include_lib("db/include/user.hrl").
+-include_lib("db/include/user_info.hrl").
 -include_lib("server/include/log.hrl").
 
 login(Data) ->
@@ -71,19 +71,12 @@ build_user_info(#user{username = UserName,
                avatar_url = get_avatar(User, small),
                sex = Sex}.
 
-get_avatar(#user{avatar = Avatar}, Size) ->
-    get_avatar(Avatar, Size);
+get_avatar(#user{avatar = Avatar}, Size) -> get_avatar(Avatar, Size);
 get_avatar(Avatar, Size) ->
-    case Avatar of
-        #avatar{big = Big} when Size =:= big -> Big;
-        #avatar{small = Small} when Size =:= small -> Small;
-        #avatar{tiny = Tiny} when Size =:= tiny -> Tiny;
-        _ -> case Size of
-                 big -> "/images/no_avatar_big.jpg";
-                 small -> "/images/no_avatar_small.jpg";
-                 tiny -> "/images/no_avatar_tiny.jpg"
-             end
-    end.
+    case Size of
+         big -> "/images/no_avatar_big.jpg";
+         small -> "/images/no_avatar_small.jpg";
+         tiny -> "/images/no_avatar_tiny.jpg" end.
 
 names() ->
    ["pinar","betul","eda","lale","ilgin","alp","ayberk","vural","ozan","doruk",

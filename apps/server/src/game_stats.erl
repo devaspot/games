@@ -3,14 +3,14 @@
 
 -export([start_link/0, add_game/1, get_skill/1, get_game_points/2, get_player_stats/1,
          init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3,
-         assign_points/2, is_feel_lucky/1, game_info_to_ti/1, charge_quota/1]).
+         assign_points/2, is_feel_lucky/1, charge_quota/1]).
 
 -include_lib("server/include/basic_types.hrl").
 -include_lib("server/include/game_okey.hrl").
 -include_lib("server/include/game_tavla.hrl").
 -include_lib("server/include/log.hrl").
 -include_lib("server/include/games.hrl").
--include_lib("db/include/accounts.hrl").
+-include_lib("db/include/transaction.hrl").
 -include_lib("db/include/scoring.hrl").
 
 
@@ -49,7 +49,9 @@ get_player_stats(UserId) -> {ok, [{total_games,crypto:rand_uniform(1,10)},
                                   {overal_success_ratio,crypto:rand_uniform(1,100)},
                                   {average_play_time,crypto:rand_uniform(1000,5000)}]}.
 
-init([]) -> {ok, no_state}.
+init([]) ->
+    wf:ref(stats),
+    {ok, no_state}.
 
 handle_call(Request, From, State) ->
     error_logger:error_msg("unknown call ~p ~p ~n", [Request, From]),
@@ -57,19 +59,33 @@ handle_call(Request, From, State) ->
 
 handle_cast({add_game, Game}, State) -> {noreply, State};
 handle_cast(Msg, State) -> error_logger:error_msg("unknown cast ~p ~n", [Msg]), {noreply, State}.
+handle_info({stats,Route,Message}, State) ->
+    handle_stats(Route,Message),
+    {noreply, State};
+
 handle_info(Info, State) -> error_logger:error_msg("unknown info ~p~n", [Info]), {noreply, State}.
+
+handle_stats([tournament,T,cancel],Message) -> ok;
+handle_stats([tournament,T,activate],Message) -> ok;
+handle_stats([personal_score,user,U,add],Message) -> ok;
+handle_stats([system,game_end_note,U,add],Message) -> ok;
+handle_stats([system,tournament_tour_note,T],Message) -> ok;
+handle_stats([system,tournament_ends_note,T],Message) -> ok;
+handle_stats([system,game_ends_note,T],Message) -> ok;
+handle_stats(Route,Message) -> ok.
+
 terminate(_Reason, _State) -> ok.
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
 
 is_feel_lucky(GameInfo) ->
     proplists:get_value(lucky, GameInfo,false).
 
-game_info_to_ti(GameInfo) ->
-    #ti_game_event{game_name = okey,
-                   game_mode = proplists:get_value(mode, GameInfo),
-                   id = proplists:get_value(id, GameInfo),
-                   double_points = proplists:get_value(double_points, GameInfo)
-                  }.
+%game_info_to_ti(GameInfo) ->
+%    #ti_game_event{game_name = okey,
+%                   game_mode = proplists:get_value(mode, GameInfo),
+%                   id = proplists:get_value(id, GameInfo),
+%                   double_points = proplists:get_value(double_points, GameInfo)
+%                  }.
 
 
 charge_quota(GameInfo) ->
@@ -77,7 +93,7 @@ charge_quota(GameInfo) ->
     PRLucky   = proplists:get_value(pointing_rules_lucky, GameInfo),
     Players   = proplists:get_value(initial_players, GameInfo),
     Double    = proplists:get_value(double_points, GameInfo),
-    TI = game_info_to_ti(GameInfo),
+%    TI = game_info_to_ti(GameInfo),
     PR = pointing_rules:double_points(PR0, Double),
     [begin
          UId = user_id_to_string(U#'PlayerInfo'.id),
@@ -85,7 +101,9 @@ charge_quota(GameInfo) ->
                       true -> PRLucky#pointing_rule.quota;
                       _ -> PR#pointing_rule.quota
                   end,
-        ok = nsm_accounts:transaction(UId, ?CURRENCY_QUOTA, -Amount, TI#ti_game_event{type = game_start})
+
+        kvs:add(#transaction{id=kvs:next_id(transaction,1),feed_id={quota,UId},comment=game_start})
+
      end || U  <- Players].
 
 assign_points(#'TavlaGameResults'{players = Results}, GameInfo) ->
@@ -105,7 +123,7 @@ assign_points(RawResults, GameInfo) ->
     PRLucky  = proplists:get_value(pointing_rules_lucky, GameInfo),
     Players  = proplists:get_value(initial_players, GameInfo),
     Double   = proplists:get_value(double_points, GameInfo),
-    TI = game_info_to_ti(GameInfo),
+%    TI = game_info_to_ti(GameInfo),
 
     PR1 = pointing_rules:double_points(PR0, Double),
 
@@ -164,11 +182,13 @@ assign_points(RawResults, GameInfo) ->
          end,
          if not Robot ->
                 if KakushPoints /= 0 ->
-                       ok = nsm_accounts:transaction(UserId, ?CURRENCY_KAKUSH, KakushPoints, TI#ti_game_event{type = game_end});
+        kvs:add(#transaction{id=kvs:next_id(transaction,1),feed_id={kakush,UserId},comment=game_end});
+%                       ok = nsm_accounts:transaction(UserId, ?CURRENCY_KAKUSH, KakushPoints, TI#ti_game_event{type = game_end});
                    true -> ok
                 end,
                 if GamePoints /= 0 ->
-                        ok = nsm_accounts:transaction(UserId, ?CURRENCY_GAME_POINTS, GamePoints, TI#ti_game_event{type = game_end});
+        kvs:add(#transaction{id=kvs:next_id(transaction,1),feed_id={game_points,UserId},comment=game_end});
+%                        ok = nsm_accounts:transaction(UserId, ?CURRENCY_GAME_POINTS, GamePoints, TI#ti_game_event{type = game_end});
                    true -> ok
                 end;
             true -> do_nothing %% no points for robots
@@ -190,7 +210,7 @@ is_bot(UserId, Players) ->
         _ -> true % If UserId is not found then the player is a replaced bot. 
     end.
 
-is_paid(UserId) -> nsm_accounts:user_paid(UserId).
+is_paid(UserId) -> true. %nsm_accounts:user_paid(UserId).
 
 user_id_to_string(UserId) -> binary_to_list(UserId).
 

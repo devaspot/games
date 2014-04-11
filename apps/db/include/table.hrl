@@ -47,13 +47,4 @@
           robots_replacement_allowed = true :: boolean()
         }).
 
--record(save_game_table,
-        {
-          ?ITERATOR(feed),
-          uid :: username_type() | '_', %% Dialyzer and record MatchSpec warnings http://j.mp/vZ8670
-          name,
-          create_time,
-          settings
-         }
-       ).
 -endif.

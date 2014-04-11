@@ -24,7 +24,8 @@
 -include_lib("server/include/log.hrl").
 -include_lib("server/include/basic_types.hrl").
 -include_lib("db/include/table.hrl").
--include_lib("db/include/accounts.hrl").
+-include_lib("db/include/transaction.hrl").
+-include_lib("db/include/scoring.hrl").
 
 %% --------------------------------------------------------------------
 %% External exports
@@ -704,7 +705,13 @@ deduct_quota(GameId, GameType, GameMode, Amount, UsersIds) ->
     TI = #ti_game_event{game_name = GameType, game_mode = GameMode,
                         id = GameId, double_points = 1,
                         type = start_tour, tournament_type = ?TOURNAMENT_TYPE},
-    [nsm_accounts:transaction(binary_to_list(UserId), ?CURRENCY_QUOTA, -Amount, TI)
+    [
+%        nsm_accounts:transaction(binary_to_list(UserId), ?CURRENCY_QUOTA, -Amount, TI)
+    kvs:add(#transaction{
+        id=kvs:next_id(transaction,1),
+        feed_id={quota,binary_to_list(UserId)},
+        comment=TI})
+
        || UserId <- UsersIds],
     ok.
 

@@ -6,7 +6,6 @@
 metainfo() ->
     #schema{name = kvs, tables = 
                 [
-                 #table{name = game_table, fields=record_info(fields, game_table)},
-                 #table{name = save_game_table, fields=record_info(fields, save_game_table)}
+                 #table{name = game_table, fields=record_info(fields, game_table)}
                 ]
            }.
