@@ -1,7 +1,7 @@
 -ifndef(TABLE_HRL).
 -define(TABLE_HRL, "table.hrl").
 
--include_lib("server/include/types.hrl").
+-include("../../server/include/types.hrl").
 -include_lib("kvs/include/kvs.hrl").
 
 -record(game_table, 
