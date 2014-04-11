@@ -83,6 +83,8 @@ event(discard) ->
     {_, {C, V}} = lists:keyfind(erlang:list_to_binary(wf:q(dddiscard)), 1, TilesList),
     wf:wire(discard("1000001", erlang:integer_to_list(C), erlang:integer_to_list(V)));
 
+event({binary,M}) -> <<"Hello">>;
+
 event({client,Message}) ->
     GamePid = get(game_session),
     game_session:process_request(GamePid, Message);
