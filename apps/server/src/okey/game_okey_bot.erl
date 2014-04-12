@@ -163,31 +163,31 @@ okey_client_loop(State) ->
     Hand0 = State#state.hand,
     Id = State#state.uid,
     receive
-        #game_event{event = <<"okey_next_turn">>, args = Args} = Msg ->
+        #game_event{event = okey_next_turn, args = Args} = Msg ->
             gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             Hand1 = case {proplists:get_value(player, Args), proplists:get_value(can_challenge, Args)} of
                         {Id, false} ->
-                            gas:info(?MODULE,"OKEY NEXT TURN"),
+                            gas:info(?MODULE,"OKEY NEXT TURN",[]),
                             do_turn(State, Hand0);
                         {_OtherId, _Val} ->
                             Hand0
                     end,
             okey_client_loop(State#state{hand = Hand1});
-        #game_event{event = <<"okey_revealed">>} = Msg ->
+        #game_event{event = okey_revealed} = Msg ->
             gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             do_challenge(State),
             okey_client_loop(State);
-        #game_event{event = <<"okey_series_ended">>} = Msg ->
+        #game_event{event = okey_series_ended} = Msg ->
             gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
 %%            S = State#state.conn,
 %%            call_rpc(S, #logout{});
             okey_client_loop(State);
-        #game_event{event = <<"okey_round_ended">>, args = Args} = Msg ->
+        #game_event{event = okey_round_ended, args = Args} = Msg ->
             gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             NextAction = proplists:get_value(next_action, Args),
             gas:info(?MODULE,"ID: ~p round ended", [Id]),
             okey_client_round(NextAction, State);
-        #game_event{event = <<"okey_game_info">>, args = Args} = Msg ->
+        #game_event{event = okey_game_info, args = Args} = Msg ->
             gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             Mode = proplists:get_value(game_type, Args),
             SM = proplists:get_value(sets, Args),
@@ -199,10 +199,10 @@ okey_client_loop(State) ->
             Delay = get_delay(fast),
             ST = #'OkeySetState'{round_cur = 1, round_max = RM, set_cur = SC, set_max = SM},
             okey_client_loop(State#state{set_state = ST, delay = Delay, mode = Mode});
-        #game_event{event = <<"okey_disable_okey">>, args = Args} = Msg ->
+        #game_event{event = okey_disable_okey, args = Args} = Msg ->
             gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             okey_client_loop(State#state{okey_disable = true});
-        #game_event{event = <<"okey_game_started">>, args = Args} = Msg ->
+        #game_event{event = okey_game_started, args = Args} = Msg ->
             gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             MH = proplists:get_value(tiles, Args),
             G = proplists:get_value(gosterge, Args),
@@ -212,7 +212,7 @@ okey_client_loop(State) ->
 %            State#state{hand = MH, gosterge = G, set_state = ST1},
             gas:info(?MODULE,"OKEY BOT GAME STARTED : ~p",[length(MH)]),
             okey_client_loop(State#state{hand = MH, gosterge = G, set_state = ST1});
-        #game_event{event = <<"okey_game_player_state">>, args = Args} = Msg ->
+        #game_event{event = okey_game_player_state, args = Args} = Msg ->
             gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             SS = #'OkeySetState'{round_cur = 1, round_max = 3,
                             set_cur = 1,set_max = 1},
@@ -230,24 +230,24 @@ okey_client_loop(State) ->
 
 
             case {Turn, GameState} of
-                {Id, <<"do_okey_take">>} ->
+                {Id, do_okey_take} ->
                     gas:info(?MODULE,"init bot: take", []),
                     Hand1 = do_turn(State, Hand0),
                     okey_client_loop(State#state{hand = Hand1, gosterge = Gosterge});
-                {Id, <<"do_okey_discard">>} ->
+                {Id, do_okey_discard} ->
                     gas:info(?MODULE,"init bot: discard", []),
                     {TryDiscard, _} = draw_random(Hand0),
                     Hand1 = do_discard(State, Hand0, TryDiscard),
                     okey_client_loop(State#state{hand = Hand1, gosterge = Gosterge});
-                {_, <<"game_finished">>} ->
+                {_, game_finished} ->
                     gas:info(?MODULE,"init bot: finished", []),
                      okey_client_rematch(State),
                     okey_client_loop(State);
-                {_, <<"do_okey_ready">>} ->
+                {_, do_okey_ready} ->
                     gas:info(?MODULE,"init bot: ready", []),
                     say_ready(State),
                     okey_client_round(<<"done">>, State);
-                {_, <<"do_okey_challenge">>} ->
+                {_, do_okey_challenge} ->
                     gas:info(?MODULE,"init bot: challenge", []),
                     do_challenge(State),
                     okey_client_loop(State#state{hand = Hand0, gosterge = Gosterge});
@@ -342,7 +342,7 @@ time_to_sleep(discard, Delay) ->
 simulate_delay(Action, Delay) ->
     TheDelay = time_to_sleep(Action, Delay),
     receive
-        #game_paused{action = <<"pause">>} ->
+        #game_paused{action = pause} ->
             wait_for_resume()
     after TheDelay ->
             ok
@@ -350,7 +350,7 @@ simulate_delay(Action, Delay) ->
 
 wait_for_resume() ->
     receive
-        #game_paused{action = <<"resume">>} ->
+        #game_paused{action = resume} ->
             ok
     end.
 
@@ -400,7 +400,7 @@ random_bool(Prob) ->
     Point = crypto:rand_uniform(0, 1000),
     Prob*1000 > Point.
 
-get_delay(fast) -> {ok, Val}   = kvs:get(config,"games/okey/robot_delay_fast", 6000), Val;
+get_delay(fast) -> {ok, Val}   = kvs:get(config,"games/okey/robot_delay_fast", 1000), Val;
 get_delay(normal) -> {ok, Val} = kvs:get(config,"games/okey/robot_delay_normal", 9000), Val;
 get_delay(slow) -> {ok, Val}   = kvs:get(config,"games/okey/robot_delay_slow", 15000), Val.
 
