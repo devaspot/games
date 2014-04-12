@@ -67,6 +67,7 @@ event(init) ->
     {ok,GamePid} = game_session:start_link(self()),
     event(attach),
     event(join),
+    ets:insert(globals,{wf:session_id(),GamePid}),
     put(game_session, GamePid);
 
 event(combo)  -> wf:info("Combo: ~p",[wf:q(dddiscard)]);
@@ -86,7 +87,8 @@ event(discard) ->
 event({binary,M}) -> {ok,<<"Hello">>};
 
 event({client,Message}) ->
-    GamePid = get(game_session),
+%    GamePid = get(game_session),
+    [{_,GamePid}] = ets:lookup(globals,wf:session_id()),
     game_session:process_request(GamePid, Message);
 
 event({server, {game_event, _, okey_game_started, Args}}) ->

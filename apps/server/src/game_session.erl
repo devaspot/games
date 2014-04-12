@@ -493,5 +493,6 @@ get_relay(GameId, GameList) ->
 % TODO: flush message to web socket process
 
 send_message_to_player(Pid, Message) ->
-    ?INFO("MESSAGE to ~p ~p",[Pid,Message]),
-    Pid ! {server,Message}, ok.
+    gas:info("MESSAGE to ~p ~p",[Pid,Message]),
+    Pid ! {server,Message},
+    ok.
