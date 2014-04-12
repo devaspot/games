@@ -67,7 +67,7 @@
 
 -record(game_action, {
           game      :: 'GameId'(),
-          action    :: atom(),
+          action    :: any(),
           args = [] :: proplist()
          }).
 %%%
@@ -75,7 +75,7 @@
 %%%
 -record(game_event, {
           game      :: 'GameId'(),
-          event     :: string(),
+          event     :: any(),
           args = [] :: proplist()
          }).
 

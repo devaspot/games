@@ -1,4 +1,4 @@
--module(recrunt).
+-module(known_records).
 
 -include("types.hrl").
 -include("classes.hrl").
@@ -12,10 +12,6 @@
 
 fields(T) when is_tuple(T) ->  fields(element(1, T));
 
-fields('KamfRequest') ->           record_info(fields, 'KamfRequest');
-fields('KamfResponse') ->          record_info(fields, 'KamfResponse');
-fields('KamfFatalError') ->        record_info(fields, 'KamfFatalError');
-fields('KamfMessage') ->           record_info(fields, 'KamfMessage');
 fields(game_action) ->             record_info(fields, game_action);
 fields(match_me) ->                record_info(fields, match_me);
 fields(join_game) ->               record_info(fields, join_game);

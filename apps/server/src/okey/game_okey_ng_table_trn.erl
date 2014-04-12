@@ -515,18 +515,11 @@ handle_player_action(#player{id = PlayerId, seat_num = SeatNum, user_id = UserId
                      {submit, #game_action{action = Action, args = Args} = GA}, From,
                      StateName,
                      #state{game_id = GameId, table_id = TableId} = StateData) ->
-    try api_utils:to_known_record(Action, Args) of
-        ExtAction ->
-            gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Player <~p> (~p) submit the game action: ~p.",
-                  [GameId, TableId, PlayerId, UserId, ExtAction]),
-            do_action(SeatNum, ExtAction, From, StateName, StateData)
-    catch
-        _Class:_Exception ->
-            ?ERROR("OKEY_NG_TABLE_TRN <~p,~p> Can't convert action ~p. Exception: ~p:~p.",
-                   [GameId, TableId, GA, _Class, _Exception]),
-            {reply, {error, invalid_action}, StateName, StateData}
-    end;
-
+    {Keys,Values} = lists:unzip(Args),
+    ExtAction = list_to_tuple([Action|Values]),
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Player <~p> (~p) submit the game action: ~p.",
+        [GameId, TableId, PlayerId, UserId, ExtAction]),
+    do_action(SeatNum, ExtAction, From, StateName, StateData);
 
 handle_player_action(#player{id = PlayerId, user_id = UserId},
                      {signal, {pause_game, _}=Signal}, _From,
@@ -1001,17 +994,23 @@ init_players([{PlayerId, UserInfo, SeatNum, _StartPoints} | PlayersInfo], Player
     NewPlayers = reg_player(PlayerId, SeatNum, UserId, IsBot, UserInfo, _Connected = false, Players),
     init_players(PlayersInfo, NewPlayers).
 
-%%===================================================================
+%%=================================================================
 send_to_subscriber_ge(Relay, SubscrId, Msg) ->
-    Event = #game_event{event = api_utils:name(Msg), args = api_utils:members(Msg)},
+    [Name|List] = tuple_to_list(Msg),
+    Event = #game_event{event = Name, args = lists:zip(known_records:fields(Name),List) },
+    gas:info(?MODULE,"SEND SUB ~p",[Event]),
     ?RELAY:table_message(Relay, {to_subscriber, SubscrId, Event}).
 
 send_to_client_ge(Relay, PlayerId, Msg) ->
-    Event = #game_event{event = api_utils:name(Msg), args = api_utils:members(Msg)},
+    [Name|List] = tuple_to_list(Msg),
+    Event = #game_event{event = Name, args = lists:zip(known_records:fields(Name),List) },
+    gas:info(?MODULE,"SEND CLIENT ~p",[Event]),
     ?RELAY:table_message(Relay, {to_client, PlayerId, Event}).
 
 relay_publish_ge(Relay, Msg) ->
-    Event = #game_event{event = api_utils:name(Msg), args = api_utils:members(Msg)},
+    [Name|List] = tuple_to_list(Msg),
+    Event = #game_event{event = Name, args = lists:zip(known_records:fields(Name),List) },
+    gas:info(?MODULE,"RELAY PUBLISH ~p",[Event]),
     relay_publish(Relay, Event).
 
 relay_publish(Relay, Msg) ->

@@ -1,6 +1,6 @@
 RELEASE := kakaranet
 COOKIE  := node_runner
-APPS    := kernel stdlib sasl gproc cowboy cowlib ranch erlydtl n2o face db server
+APPS    := kernel stdlib sasl gproc cowboy cowlib ranch erlydtl n2o face db sync server
 VER     := 1.0.0
 VM      := rels/web/files/vm.args
 SYS     := rels/web/files/sys.config

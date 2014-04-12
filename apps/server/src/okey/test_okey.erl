@@ -421,7 +421,8 @@ pickup_game(S0) ->
     log(game_picked_up),
     GI = receive
              #'game_event'{event = <<"okey_game_info">>, args = Args0} ->
-                 A0 = api_utils:to_known_record(okey_game_info, Args0),
+                 {Keys,Values} = lists:unzip(Args0),
+                 A0 = list_to_tuple([okey_game_info|Values]),
                  gas:info(?MODULE,"A0: ~p", [A0]),
                  A0
          after ?BT -> erlang:error({server_timeout, "game_rematched"})
@@ -429,7 +430,8 @@ pickup_game(S0) ->
     gas:info(?MODULE,"ID: ~p, waiting for #okey_game_player_state", [Id]),
     GS = receive
              #'game_event'{event = <<"okey_game_player_state">>, args = Args} ->
-                 A = api_utils:to_known_record(okey_game_player_state, Args),
+                 {Keys2,Values2} = lists:unzip(Args),
+                 A = list_to_tuple([okey_game_player_state|Values2]),
                  gas:info(?MODULE,"A: ~p", [A]),
                  A
          after ?BT -> erlang:error({server_timeout, "game_rematched"})

@@ -1,7 +1,7 @@
 -module(gas).
 -compile(export_all).
 
--define(ALLOWED, [nsg_trn_lucky,game_manager,game_okey_ng_table_trn]).
+-define(ALLOWED, [nsg_trn_lucky,game_session,game_manager,game_okey_ng_table_trn]).
 
 info(Module,String, Args) ->
     case lists:member(Module,?ALLOWED) of

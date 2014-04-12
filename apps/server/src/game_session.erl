@@ -192,11 +192,9 @@ handle_client_request(#logout{}, _From, State) ->
     gas:info(?MODULE,"client requests #logout{}", []),
     {stop, normal, ok, State};
 
-handle_client_request(#get_player_stats{player_id = PlayerId, game_type = Game}, _From,
-                      State) when is_binary(Game) ->
-    gas:info(?MODULE,"get player stats", []),
-    GameModule = api_utils:gametype_to_gamemodule(api_utils:gametype_to_atom(Game)),
+handle_client_request(#get_player_stats{player_id = PlayerId, game_type = GameModule}, _From, State) ->
     Res = GameModule:get_player_stats(PlayerId),
+    gas:info(?MODULE,"get player stats: ~p", [Res]),
     {reply, Res, State};
 
 handle_client_request(#chat{chat_id = GameId, message = Msg0}, _From,
