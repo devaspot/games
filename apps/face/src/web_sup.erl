@@ -20,7 +20,7 @@ init([]) ->
     PrivDir = code:priv_dir(face),
 
     {ok, _} = cowboy:start_https(https, 100, [
-        {port, 8443},
+        {port, wf:config(n2o,port,8443)},
         {cacertfile, PrivDir ++ "/ssl/cowboy-ca.crt"},
         {certfile, PrivDir ++ "/ssl/server.crt"},
         {keyfile, PrivDir ++ "/ssl/server.key"} ], [{env, [{dispatch, dispatch_rules()}]}]),
