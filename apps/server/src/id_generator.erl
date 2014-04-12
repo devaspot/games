@@ -10,7 +10,7 @@ get_id() -> gen_server:call(?MODULE, get_id).
 get_id2() -> gen_server:call(?MODULE, get_id2).
 start_link() -> gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 
-init([]) -> {ok, #state{lastid=nsx_opt:get_env(nsx_idgen,game_pool,1000000)}}.
+init([]) -> {ok, #state{lastid=wf:config(nsx_idgen,game_pool,1000000)}}.
 handle_call(get_id, _From, #state{lastid = LID} = State) -> Reply = LID + 1, {reply, Reply, State#state{lastid = Reply}};
 handle_call(get_id2, _From, #state{robotid = RID} = State) -> Reply = RID + 1, {reply, Reply, State#state{robotid = Reply}};
 handle_call(_Request, _From, State) -> Reply = ok, {reply, Reply, State}.

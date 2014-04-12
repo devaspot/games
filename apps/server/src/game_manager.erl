@@ -15,7 +15,7 @@
 destroy_game(Pid,Sup) -> game_sup:stop_game(Sup,Pid).
 
 gen_game_id() ->
-    PoolNum = nsx_opt:get_env(nsx_idgen,game_pool,5000000) div 1000000,
+    PoolNum = wf:config(nsx_idgen,game_pool,5000000) div 1000000,
     PoolNumStr = integer_to_list(PoolNum),
     nsm_db:next_id("game_id_pool_"++PoolNumStr, PoolNum*1000000 + 200, 1). %% 200 is reserved for lucky games and for already created games
 
