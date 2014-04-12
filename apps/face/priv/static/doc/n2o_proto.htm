@@ -13,8 +13,100 @@
 
 <h1><a name="chapter2">N2O Protocol</a></h1>
 
-<h2><a name="p1.1">JSON container</a></h2>
+<h1><a name="p1.1">Requests</a></h1>
 
+<h2><a name="p1.1">pickle</a></h2>
+
+Picled messaged are used if you send messages over unencrypted
+channel and want to hide the content of the message,
+that was generated on server. You can use BASE64 pickling mechanisms
+with optional AES/RIPEMD160 encrypting.
+
+<code>ws.send(bert.encodebuf(
+    bert.tuple(bert.atom('pickle'),
+    bert.binary('ddtake'),
+    bert.binary('g2gCaAVkAAJldmQABWluZGV4ZAAEdGFrZWsABH'+
+                 Rha2VkAAVldmVudGgDYgAABXViAAQKXmIAC3cK'),
+    [bert.tuple(bert.atom('ddtake'),'0')])));</code>
+
+Where Base64 represents the N2O EVENT:
+
+<code>#ev{module=index,payload=take,trigger="take",name=event}</code>
+
+<p>This is Nitrogen-based messaging model.<br>
+This request will return JSON with EVAL field only.</p>
+
+<h2><a name="p1.1">client</a></h2>
+
+Client messages usually originated at client and represent the Client API Requests:
+
+<code>ws.send(bert.encodebuf(
+    bert.tuple(
+        bert.atom('client'),
+        bert.tuple(bert.atom('join_game'),1000001))));</code>
+
+<p>NOTE: This request may return JSON with EVAL and DATA fields.</p>
+
+<h2><a name="p1.1">bert</a></h2>
+
+<p>When you want to receive BERT messages on client you usually ask the
+server by sending:</p>
+
+<code>ws.send(bert.encodebuf(
+    bert.tuple(
+        bert.atom('bert'),
+        bert.binary('API Request'));</code>
+
+<p>This messages could be handled as this:</p>
+
+<code>event({binary,Message}) ->
+    wf:info("This API will return BERT enveloped echo"),
+    {answer,echo,Message};</code>
+
+<p>NOTE: you will always receive BERT messages.</p>
+
+<h2><a name="p1.1">binary</a></h2>
+
+<p>When you need raw binary Blob on client side,
+for images or other raw data you can ask server like this:</p>
+
+<code>ws.send(bert.encodebuf(
+    bert.tuple(
+        bert.atom('binary'),
+        bert.binary('API Request'));</code>
+
+<p>And handle also in binary clause:</p>
+
+<code>event({binary,Message}) ->
+    wf:info("This API will return Raw Binary"),
+    <<84,0,0,0,108>>;</code>
+
+<p>NOTE: if event will return not binary client will recieve BERT encoded message.</p>
+
+<h2><a name="p1.1">server</a></h2>
+
+Server messages are usually being sent to client originated on the
+server by sending <b>info</b> notifications directly to Web Socket process:
+
+<code>> WebSocketPid ! {server, Message} </code>
+
+<p>You can obtain this Pid like this:</p>
+
+<code>event(init) -> wf:info("Web Socket Pid: ~p",[self()]);</code>
+
+<p>You can also send server messages from client relays:</p>
+
+<code>ws.send(bert.encodebuf(
+    bert.tuple(
+        bert.atom('server'),
+        bert.binary('Binary Message'));</code>
+
+
+<p>NOTE: This request may return JSON with EVAL and DATA fields.</p>
+
+<h1><a name="p1.1">Responses</a></h1>
+
+<h2><a name="p1.1">JSON envelop</a></h2>
 
 <p>Each message from Web Socket channel to Client encoded as JSON object.
 <a href="https://github.com/synrc/n2o_scripts/blob/master/n2o/n2o.js">N2O.js</a>
@@ -30,7 +122,7 @@ to handle_web_socket(data) function if exists.</p>
 
 <code>function handle_web_socket(body) { console.log(body); } </code>
 
-<h2><a name="p1.1">BERT messages</a></h2>
+<h2><a name="p1.1">JSON enveloped BERT</a></h2>
 
 <p>Usually in DATA come <a href="http://bert-rpc.org">BERT</a> messages (Binary Erlang Term Format).
 <a href="https://github.com/synrc/n2o_scripts/blob/master/n2o/bert.js">BERT.js</a>
@@ -39,7 +131,18 @@ is used to decode Game Protocol message.</p>
 <code>function handle_web_socket(body) {
     console.log(String(bert.decodebuf(body))); } </code>
 
-<code style="background-color:white;">E> Received: {message,"Hello"} </code>
+<code style="background-color:white;margin-bottom:-5px;">E> Received: {message,"Hello"} </code>
+
+<h2><a name="">BERT binary</a></h2>
+
+<code>function handle_web_socket(body) {
+    console.log(String(bert.decodebuf(body))); } </code>
+
+<h2><a name="p1.1">RAW binary</a></h2>
+
+<code>function handle_web_socket_blob(body) { } </code>
+
+<code style="background-color:white;margin-bottom:-5px;">E> Unknown Raw Binary Received: [72,101,108,108,111]</code>
 
 </div>
 
