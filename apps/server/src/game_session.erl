@@ -36,23 +36,23 @@
           role = viewer :: atom()      %% [viewer, player, ghost]
          }).
 
-% TODO: perform start_link on web socket init
-
 start_link(RPC) when is_pid(RPC) ->
     gen_server:start_link(?MODULE, [RPC], []).
 
 bot_session_attach(Pid, UserInfo) ->
     gen_server:cast(Pid, {bot_session_attach, UserInfo}).
 
-% TODO: in case of game requests from web page handle them here
-
 process_request(Pid, Msg) ->
-    gas:info("API payload ~p pid ~p",[Msg,Pid]),
+    gas:info(?MODULE,"Client Request: ~p to: ~p",[Msg,Pid]),
     gen_server:call(Pid, {client_request, Msg}).
 
 process_request(Pid, Source, Msg) ->
-    gas:info("API from ~p payload ~p pid ~p",[Source,Msg,Pid]),
+    gas:info(?MODULE,"Client Request ~p to: ~p from: ~p",[Msg,Pid,Source]),
     gen_server:call(Pid, {client_request, Msg}).
+
+send_message_to_player(Pid, Message) ->
+    gas:info(?MODULE,"Server Response ~p to ~p",[Message,Pid]),
+    Pid ! {server,Message}, ok.
 
 init([RPC]) ->
     MonRef = erlang:monitor(process, RPC),
@@ -62,32 +62,27 @@ handle_call({client_request, Request}, From, State) ->
     handle_client_request(Request, From, State);
 
 handle_call(Request, From, State) ->
-    gas:info("unrecognized call: ~p", [Request]),
+    gas:info(?MODULE,"Unrecognized call: ~p", [Request]),
     {stop, {unknown_call, From, Request}, State}.
-
 
 handle_cast({bot_session_attach, UserInfo}, State = #state{user = undefined}) ->
 %    gas:info(?MODULE,"bot session attach", []),
     {noreply, State#state{user = UserInfo}};
 
 handle_cast(Msg, State) ->
-    gas:info("session: unrecognized cast: ~p", [Msg]),
+    gas:info(?MODULE,"Unrecognized cast: ~p", [Msg]),
     {stop, {error, {unknown_cast, Msg}}, State}.
-
 
 handle_info({relay_event, SubscrId, RelayMsg}, State) ->
     handle_relay_message(RelayMsg, SubscrId, State);
 
 handle_info({relay_kick, SubscrId, Reason}, State) ->
-    gas:info("Recived a kick notification from the table: ~p", [Reason]),
+    gas:info(?MODULE,"Recived a kick notification from the table: ~p", [Reason]),
     handle_relay_kick(Reason, SubscrId, State);
 
 handle_info({delivery, ["user_action", Action, Who, Whom], _} = Notification,
-            #state{rels_players = RelsPlayers,
-                   user = User,
-                   rpc = RPC
-                  } = State) ->
-    gas:info("~w:handle_info/2 Delivery: ~p", [?MODULE, Notification]),
+            #state{rels_players = RelsPlayers, user = User, rpc = RPC } = State) ->
+    gas:info(?MODULE,"Handle_info/2 Delivery: ~p", [Notification]),
     UserId = User#'PlayerInfo'.id,
     case list_to_binary(Who) of
         UserId ->
@@ -104,6 +99,7 @@ handle_info({delivery, ["user_action", Action, Who, Whom], _} = Notification,
                                              recipient = PlayerId,
                                              type = Type
                                             },
+
                     % TODO: put real db change notification from users:343 module here
                     %       wf:send_db_subscription_change
                     %       should be additionaly subscribed in bg feed worker binded to USER_EXCHANGE
@@ -117,7 +113,6 @@ handle_info({delivery, ["user_action", Action, Who, Whom], _} = Notification,
     end,
     {noreply, State};
 
-
 handle_info({'DOWN', MonitorRef, _Type, _Object, _Info} = Msg, State = #state{rpc_mon = MonitorRef}) ->
     gas:info("connection closed, shutting down session:~p", [Msg]),
     {stop, normal, State};
@@ -128,19 +123,20 @@ handle_info({'DOWN', OtherRef, process, _Object, Info} = _Msg,
         #participation{} ->
             gas:info(?MODULE,"The table is down: ~p", [Info]),
             gas:info(?MODULE,"Closing the client and sutting down the session.", []),
-            send_message_to_player(RPC, #disconnect{reason_id = <<"tableDown">>,
-                                                    reason = <<"The table you are playing on is unexpectedly down.">>}),
+            send_message_to_player(RPC,
+                #disconnect{reason_id = <<"tableDown">>,
+                    reason = <<"The table you are playing on is unexpectedly down.">>}),
             {stop, table_down, State};
         _ ->
             {noreply, State}
     end;
 
 handle_info(Info, State) ->
-    gas:info("session: unrecognized info: ~p", [Info]),
+    gas:info(?MODULE,"Unrecognized info: ~p", [Info]),
     {noreply, State}.
 
 terminate(Reason, #state{rels_notif_channel = RelsChannel}) ->
-    wf:info("terminating session. reason: ~p", [Reason]),
+    gas:info(?MODULE,"Terminating session: ~p", [Reason]),
     if RelsChannel =/= undefined -> nsm_mq_channel:close(RelsChannel);
        true -> do_nothing end,
     ok.
@@ -152,54 +148,37 @@ code_change(_OldVsn, State, _Extra) ->
 
 handle_client_request(#session_attach{token = Token}, _From,
                       #state{user = undefined} = State) ->
-    gas:info("checking session token: ~p", [Token]),
+    gas:info(?MODULE,"Checking session token: ~p", [Token]),
     case auth_server:get_user_info(Token) of
         false ->
-            gas:error("failed session attach: ~p", [Token]),
+            gas:error(?MODULE,"failed session attach: ~p", [Token]),
             {stop, normal, {error, invalid_token}, State};
         UserInfo ->
-            gas:info("successfull session attach. Your user info: ~p", [UserInfo]),
-            {reply, UserInfo, State#state{user = UserInfo}}
-    end;
-
-handle_client_request(#session_attach_debug{token = Token, id = Id}, _From,
-                      #state{user = undefined} = State) ->
-    gas:info("checking debug session token: ~p", [{Token,Id}]),
-    case {?IS_TEST, auth_server:get_user_info(Token, Id)} of
-        {_Test, false} ->
-            gas:error("... ~p", [{_Test,false}]),
-            {stop, normal, {error, invalid_token}, State};
-        {false, true} ->
-            gas:error("... ~p", [{false,true}]),
-            {stop, normal, {error, invalid_token}, State};
-        {true, UserInfo} ->
-            gas:info("... ~p", [{true,UserInfo}]),
-            {reply, UserInfo, State#state{user = UserInfo}};
-        {false, UserInfo} ->
-            gas:info("... ~p", [{true,UserInfo}]),
+            gas:info(?MODULE,"successfull session attach. Your user info: ~p", [UserInfo]),
             {reply, UserInfo, State#state{user = UserInfo}}
     end;
 
 handle_client_request(_, _From, #state{user = undefined} = State) ->
-    gas:info(?MODULE,"unknown session call", []),
+    gas:info(?MODULE,"Unknown session call", []),
     {reply, {error, do_session_attach_first}, State};
 
 handle_client_request(#get_game_info{}, _From, State) ->
-    gas:info(?MODULE,"session get game info", []),
+    gas:info(?MODULE,"Session get game info", []),
     {reply, {error, not_implemented}, State};
 
 handle_client_request(#logout{}, _From, State) ->
-    gas:info(?MODULE,"client requests #logout{}", []),
+    gas:info(?MODULE,"Logout", []),
     {stop, normal, ok, State};
 
-handle_client_request(#get_player_stats{player_id = PlayerId, game_type = GameModule}, _From, State) ->
+handle_client_request(#get_player_stats{player_id = PlayerId, game_type = GameModule}, _From, #state{rpc = RPC} = State) ->
     Res = GameModule:get_player_stats(PlayerId),
-    gas:info(?MODULE,"get player stats: ~p", [Res]),
+    gas:info(?MODULE,"Get player stats: ~p", [Res]),
+    send_message_to_player(RPC, Res),
     {reply, Res, State};
 
 handle_client_request(#chat{chat_id = GameId, message = Msg0}, _From,
                       #state{user = User, games = Games} = State) ->
-    gas:info(?MODULE,"chat", []),
+    gas:info(?MODULE,"Chat", []),
     Msg = #chat_msg{chat = GameId, content = Msg0,
                     author_id = User#'PlayerInfo'.id,
                     author_nick = User#'PlayerInfo'.login
@@ -216,7 +195,7 @@ handle_client_request(#chat{chat_id = GameId, message = Msg0}, _From,
 handle_client_request(#social_action_msg{type=Type, initiator=P1, recipient=P2}, _From,
                       #state{user = User} = State) when User =/= undefined ->
     UserIdBin = User#'PlayerInfo'.id,
-    gas:info(?MODULE,"social action msg from ~p to ~p (casted by ~p)", [P1, P2, UserIdBin]),
+    gas:info(?MODULE,"Social action msg from ~p to ~p (casted by ~p)", [P1, P2, UserIdBin]),
     UserId = binary_to_list(UserIdBin),
     case Type of
         ?SOCIAL_ACTION_SUBSCRIBE ->
@@ -240,13 +219,13 @@ handle_client_request(#social_action_msg{type=Type, initiator=P1, recipient=P2},
         ?SOCIAL_ACTION_HAMMER ->
             {reply, ok, State};
         UnknownAction ->
-            ?ERROR("Unknown social action msg from ~p to ~p: ~w", [P1,P2, UnknownAction]),
+            gas:error(?MODULE,"Unknown social action msg from ~p to ~p: ~w", [P1,P2, UnknownAction]),
             {reply, {error, unknown_action}, State}
     end;
 
 handle_client_request(#social_action{} = Msg, _From,
                       #state{user = User, games = Games} = State) ->
-    gas:info(?MODULE,"social action", []),
+    gas:info(?MODULE,"Social action", []),
     GameId = Msg#social_action.game,
     Res = #social_action_msg{type = Msg#social_action.type,
                              game = GameId,
@@ -265,7 +244,7 @@ handle_client_request(#social_action{} = Msg, _From,
 handle_client_request(#subscribe_player_rels{players = Players}, _From,
             #state{user = User, rels_notif_channel = RelsChannel,
                    rels_players = RelsPlayers, rpc = RPC} = State) ->
-    gas:info(?MODULE,"subscribe player relations notifications: ~p", [Players]),
+    gas:info(?MODULE,"Subscribe player relations notifications: ~p", [Players]),
     UserId = User#'PlayerInfo'.id,
     UserIdStr = binary_to_list(UserId),
     %% Create subscription if we need
@@ -310,7 +289,7 @@ handle_client_request(#unsubscribe_player_rels{players = Players}, _From,
                       #state{rels_notif_channel = RelsChannel,
                              rels_players = RelsPlayers
                             } = State) ->
-    gas:info(?MODULE,"unsubscribe player relations notifications", []),
+    gas:info(?MODULE,"Unsubscribe player relations notifications", []),
     %% Remove players from common list
     NewRelsPlayers = RelsPlayers -- Players,
 
@@ -329,7 +308,7 @@ handle_client_request(#unsubscribe_player_rels{players = Players}, _From,
 handle_client_request(#join_game{game = GameId}, _From,
                       #state{user = User, rpc = RPC, games = Games} = State) ->
     UserId = User#'PlayerInfo'.id,
-    gas:info(?MODULE,"join game ~p user ~p from ~p", [GameId, UserId,_From]),
+    gas:info(?MODULE,"Join game ~p user ~p from ~p", [GameId, UserId,_From]),
     case get_relay(GameId, Games) of
         #participation{} ->
             {reply, {error, already_joined}, State};
@@ -359,13 +338,13 @@ handle_client_request(#join_game{game = GameId}, _From,
                                                                          reason = null}),
                             {reply, {error, out}, State};
                         {error, not_allowed} ->
-                            ?ERROR("Not allowed to connect: ~p.",[GameId]),
+                            gas:error(?MODULE,"Not allowed to connect: ~p.",[GameId]),
                             ok = send_message_to_player(RPC, #disconnect{reason_id = <<"notAllowed">>,
                                                                          reason = null}),
                             {reply, {error, not_allowed}, State}
                     end;
                 undefined ->
-                    ?ERROR("Game not found: ~p.",[GameId]),
+                    gas:error(?MODULE,"Game not found: ~p.",[GameId]),
                     ok = send_message_to_player(RPC, #disconnect{reason_id = <<"notExists">>,
                                                                  reason = null}),
                     {reply, {error, not_exists}, State}
@@ -374,7 +353,7 @@ handle_client_request(#join_game{game = GameId}, _From,
 
 
 handle_client_request(#game_action{game = GameId} = Msg, _From, State) ->
-%    gas:info(?MODULE,"game action ~p", [{GameId,Msg,_From}]),
+    gas:info(?MODULE,"Game action ~p", [{GameId,Msg,_From}]),
     Participation = get_relay(GameId, State#state.games),
     case Participation of
         false ->
@@ -387,10 +366,11 @@ handle_client_request(#game_action{game = GameId} = Msg, _From, State) ->
 
 
 handle_client_request(#pause_game{game = GameId, action = Action}, _From, State) ->
-%    gas:info(?MODULE,"pause game", []),
-%    UId = (State#state.user)#'PlayerInfo'.id,
+
     Participation = get_relay(GameId, State#state.games),
-%    gas:info(?MODULE,"ID: ~p, pause game: ~p, my games: ~p", [UId, GameId, State#state.games]),
+    gas:info(?MODULE,"Pause game: ~p, user: ~p games: ~p",
+        [GameId, State#state.user, State#state.games]),
+
     case Participation of
         false ->
             gas:info(?MODULE,"A", []),
@@ -413,20 +393,12 @@ handle_client_request(Request, _From, State) ->
 
 handle_relay_message(Msg, _SubscrId, #state{rpc = RPC} = State) ->
     try send_message_to_player(RPC, Msg) of
-        ok ->
-            {noreply, State};
-        tcp_closed ->
-            {stop, normal, State};
-        E -> error_logger:info_msg("ERROR SEND MESSAGE TO PLAYER: ~p",[E]),
-            {stop, normal, State}
-    catch
-        exit:{normal, {gen_server,call, [RPC, {server, _}]}} ->
-            {stop, normal, State};
-        exit:{noproc, {gen_server,call, [RPC, {server, _}]}} ->
-            {stop, normal, State};
-        E:R ->
-            {stop, normal, State}
-    end.
+        ok -> {noreply, State};
+        tcp_closed -> {stop, normal, State};
+        E -> {stop, normal, State}
+    catch exit:{normal, {gen_server,call, [RPC, {server, _}]}} -> {stop, normal, State};
+          exit:{noproc, {gen_server,call, [RPC, {server, _}]}} -> {stop, normal, State};
+          E:R -> {stop, normal, State} end.
 
 %%===================================================================
 
@@ -441,7 +413,7 @@ handle_relay_kick({rejoin, GameId}, _SubscrId,
             gas:info(?MODULE,"Found the game: ~p. Trying to register...",[{FLMod, FLPid}]),
             case FLMod:reg(FLPid, User) of
                 {ok, {RegNum, {RMod, RPid}, {TMod, TPid}}} ->
-                    gas:info(?MODULE,"join to game relay: ~p",[{RMod, RPid}]),
+                    gas:info(?MODULE,"Join to game relay: ~p",[{RMod, RPid}]),
                     {ok, _NewSubscrId} = RMod:subscribe(RPid, self(), UserId, RegNum),
                     Ref = erlang:monitor(process, RPid),
                     Part = #participation{ref = Ref, game_id = GameId, reg_num = RegNum,
@@ -460,13 +432,13 @@ handle_relay_kick({rejoin, GameId}, _SubscrId,
                                                             reason = null}),
                     {stop, normal, State};
                 {error, not_allowed} ->
-                    ?ERROR("Not allowed to connect: ~p.",[GameId]),
+                    gas:error(?MODULE,"Not allowed to connect: ~p.",[GameId]),
                     send_message_to_player(RPC, #disconnect{reason_id = <<"notAllowed">>,
                                                             reason = null}),
                     {stop, {error, not_allowed_to_join}, State}
             end;
         undefined ->
-            ?ERROR("Game not found: ~p.",[GameId]),
+            gas:error(?MODULE,"Game not found: ~p.",[GameId]),
             send_message_to_player(RPC, #disconnect{reason_id = <<"notExists">>,
                                                     reason = null}),
             {stop, {error, game_not_found}, State}
@@ -490,7 +462,3 @@ get_relay(GameId, GameList) ->
 
 % TODO: flush message to web socket process
 
-send_message_to_player(Pid, Message) ->
-%    gas:info("MESSAGE to ~p ~p",[Pid,Message]),
-    Pid ! {server,Message},
-    ok.

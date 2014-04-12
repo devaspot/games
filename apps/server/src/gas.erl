@@ -1,18 +1,21 @@
 -module(gas).
 -compile(export_all).
 
--define(ALLOWED, [nsg_trn_lucky,game_session,game_manager,game_okey_ng_table_trn,game_okey_bot]).
+-define(ALLOWED, [gas,nsg_trn_lucky,game_session,game_manager,game_okey_ng_table_trn]).
 
-info(Module,String, Args) ->
+log(Module, String, Args, Fun) ->
     case lists:member(Module,?ALLOWED) of
-         true -> error_logger:info_msg(String, Args);
+         true -> error_logger:Fun(String, Args);
          false -> skip end.
 
-info(String, Args) ->  error_logger:info_msg(String, Args).
-info(String) -> error_logger:info_msg(String).
-warning(Module,String, Args) -> error_logger:warning_msg(String, Args).
-warning(String, Args) -> error_logger:warning_msg(String, Args).
-warning(String) -> error_logger:warning_msg(String).
-error(Module,String, Args) -> error_logger:error_msg(String, Args).
-error(String, Args) -> error_logger:error_msg(String, Args).
-error(String) -> error_logger:error_msg(String).
+info(Module,String, Args) ->  log(Module,String, Args, info_msg).
+info(String, Args) -> log(?MODULE, String, Args, info_msg).
+info(String) -> log(?MODULE, String, [], info_msg).
+
+warning(Module,String, Args) -> log(Module, String, Args, warning_msg).
+warning(String, Args) -> log(?MODULE, String, Args, warning_msg).
+warning(String) -> log(?MODULE,String, [], warning_msg).
+
+error(Module,String, Args) -> log(Module, String, Args, error_msg).
+error(String, Args) -> log(?MODULE, String, Args, error_msg).
+error(String) -> log(?MODULE, String, [], error_msg).
