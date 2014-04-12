@@ -47,11 +47,11 @@ bot_session_attach(Pid, UserInfo) ->
 % TODO: in case of game requests from web page handle them here
 
 process_request(Pid, Msg) ->
-    gs:info("API payload ~p pid ~p",[Msg,Pid]),
+    gas:info("API payload ~p pid ~p",[Msg,Pid]),
     gen_server:call(Pid, {client_request, Msg}).
 
 process_request(Pid, Source, Msg) ->
-    gs:info("API from ~p payload ~p pid ~p",[Source,Msg,Pid]),
+    gas:info("API from ~p payload ~p pid ~p",[Source,Msg,Pid]),
     gen_server:call(Pid, {client_request, Msg}).
 
 init([RPC]) ->
@@ -62,7 +62,7 @@ handle_call({client_request, Request}, From, State) ->
     handle_client_request(Request, From, State);
 
 handle_call(Request, From, State) ->
-    gs:info("unrecognized call: ~p", [Request]),
+    gas:info("unrecognized call: ~p", [Request]),
     {stop, {unknown_call, From, Request}, State}.
 
 
@@ -71,7 +71,7 @@ handle_cast({bot_session_attach, UserInfo}, State = #state{user = undefined}) ->
     {noreply, State#state{user = UserInfo}};
 
 handle_cast(Msg, State) ->
-    gs:info("session: unrecognized cast: ~p", [Msg]),
+    gas:info("session: unrecognized cast: ~p", [Msg]),
     {stop, {error, {unknown_cast, Msg}}, State}.
 
 
@@ -79,7 +79,7 @@ handle_info({relay_event, SubscrId, RelayMsg}, State) ->
     handle_relay_message(RelayMsg, SubscrId, State);
 
 handle_info({relay_kick, SubscrId, Reason}, State) ->
-    gs:info("Recived a kick notification from the table: ~p", [Reason]),
+    gas:info("Recived a kick notification from the table: ~p", [Reason]),
     handle_relay_kick(Reason, SubscrId, State);
 
 handle_info({delivery, ["user_action", Action, Who, Whom], _} = Notification,
@@ -87,7 +87,7 @@ handle_info({delivery, ["user_action", Action, Who, Whom], _} = Notification,
                    user = User,
                    rpc = RPC
                   } = State) ->
-    gs:info("~w:handle_info/2 Delivery: ~p", [?MODULE, Notification]),
+    gas:info("~w:handle_info/2 Delivery: ~p", [?MODULE, Notification]),
     UserId = User#'PlayerInfo'.id,
     case list_to_binary(Who) of
         UserId ->
@@ -119,7 +119,7 @@ handle_info({delivery, ["user_action", Action, Who, Whom], _} = Notification,
 
 
 handle_info({'DOWN', MonitorRef, _Type, _Object, _Info} = Msg, State = #state{rpc_mon = MonitorRef}) ->
-    gs:info("connection closed, shutting down session:~p", [Msg]),
+    gas:info("connection closed, shutting down session:~p", [Msg]),
     {stop, normal, State};
 
 handle_info({'DOWN', OtherRef, process, _Object, Info} = _Msg,
@@ -136,7 +136,7 @@ handle_info({'DOWN', OtherRef, process, _Object, Info} = _Msg,
     end;
 
 handle_info(Info, State) ->
-    gs:info("session: unrecognized info: ~p", [Info]),
+    gas:info("session: unrecognized info: ~p", [Info]),
     {noreply, State}.
 
 terminate(Reason, #state{rels_notif_channel = RelsChannel}) ->
@@ -152,31 +152,31 @@ code_change(_OldVsn, State, _Extra) ->
 
 handle_client_request(#session_attach{token = Token}, _From,
                       #state{user = undefined} = State) ->
-    gs:info("checking session token: ~p", [Token]),
+    gas:info("checking session token: ~p", [Token]),
     case auth_server:get_user_info(Token) of
         false ->
-            gs:error("failed session attach: ~p", [Token]),
+            gas:error("failed session attach: ~p", [Token]),
             {stop, normal, {error, invalid_token}, State};
         UserInfo ->
-            gs:info("successfull session attach. Your user info: ~p", [UserInfo]),
+            gas:info("successfull session attach. Your user info: ~p", [UserInfo]),
             {reply, UserInfo, State#state{user = UserInfo}}
     end;
 
 handle_client_request(#session_attach_debug{token = Token, id = Id}, _From,
                       #state{user = undefined} = State) ->
-    gs:info("checking debug session token: ~p", [{Token,Id}]),
+    gas:info("checking debug session token: ~p", [{Token,Id}]),
     case {?IS_TEST, auth_server:get_user_info(Token, Id)} of
         {_Test, false} ->
-            gs:error("... ~p", [{_Test,false}]),
+            gas:error("... ~p", [{_Test,false}]),
             {stop, normal, {error, invalid_token}, State};
         {false, true} ->
-            gs:error("... ~p", [{false,true}]),
+            gas:error("... ~p", [{false,true}]),
             {stop, normal, {error, invalid_token}, State};
         {true, UserInfo} ->
-            gs:info("... ~p", [{true,UserInfo}]),
+            gas:info("... ~p", [{true,UserInfo}]),
             {reply, UserInfo, State#state{user = UserInfo}};
         {false, UserInfo} ->
-            gs:info("... ~p", [{true,UserInfo}]),
+            gas:info("... ~p", [{true,UserInfo}]),
             {reply, UserInfo, State#state{user = UserInfo}}
     end;
 

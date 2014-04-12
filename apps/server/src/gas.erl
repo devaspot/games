@@ -1,4 +1,4 @@
--module(gs).
+-module(gas).
 -compile(export_all).
 
 info(String, Args) ->  error_logger:info_msg(String, Args).

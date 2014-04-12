@@ -59,33 +59,33 @@ handle_call({store_token, GameId, Token, UserId}, _From, #state{tokens = E} = St
     {reply, Token, State};
 
 handle_call({get_user_info, Token}, _From, #state{tokens = E} = State) ->
-    gs:info("checking token: ~p", [Token]),
+    gas:info("checking token: ~p", [Token]),
     case ets:lookup(E, Token) of
         [] ->
-            gs:info("token not found", []),
+            gas:info("token not found", []),
             {reply, false, State};
         List ->
             {authtoken, _, UserId} = hd(List),
-            gs:info("token was registred, getting user info for ~p",[UserId]),
+            gas:info("token was registred, getting user info for ~p",[UserId]),
             Reply = case user_info(UserId) of
                 {ok, UserInfo} ->
-                    gs:info("..user info retrieved", []),
+                    gas:info("..user info retrieved", []),
                     UserInfo;
                 {error, user_not_found} ->
-                    gs:info("..no such user info, providing fake credentials", []),
+                    gas:info("..no such user info, providing fake credentials", []),
                     fake_credentials0(State#state.spare); %% for eunit tests. FIX
                 {badrpc, _} ->
-                    gs:info("..bad rpc, providing fake credentials", []),
+                    gas:info("..bad rpc, providing fake credentials", []),
                     fake_credentials0(State#state.spare)  %% for eunit tests. FIX
             end,
             {reply, Reply, State}
     end;
 
 handle_call({get_user_info, Token, Id}, _From, #state{tokens = E} = State) ->
-    gs:info("checking token: ~p", [Token]),
+    gas:info("checking token: ~p", [Token]),
     case ets:lookup(E, Token) of
         [] ->
-            gs:error("token not found", []),
+            gas:error("token not found", []),
             {reply, false, State};
         _List ->
             Reply0 = fake_credentials0(State#state.spare),
@@ -110,14 +110,14 @@ fake_credentials0(Spare) ->
     H0#'PlayerInfo'{id = Id}.
 
 store_token(GameId, E, Token, UserId) ->
-    gs:info("storing token: ~p", [Token]),
+    gas:info("storing token: ~p", [Token]),
     Data = #authtoken{token = Token, id = UserId},
     ets:insert(E, Data).
 
 user_info(UserId) ->
     case kvs:get(user,UserId) of
         {ok, UserData} ->
-            gs:info("User Data: ~p",[UserData]),
+            gas:info("User Data: ~p",[UserData]),
             {ok, #'PlayerInfo'{id = wf:to_binary(UserData#user.id),
                                login = wf:to_binary(UserData#user.username),
                                name = wf:to_binary(UserData#user.id),
