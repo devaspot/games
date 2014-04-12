@@ -35,9 +35,9 @@ get_lucky_pid(Sup) ->
     [X]=game_manager:get_lucky_table(Sup),
     X#game_table.game_process.
 get_relay_pid(GameId) -> case get_tables(GameId) of [] -> undefined;
-    [#game_table{game_process = P} | _] -> ?INFO("GameRelay: ~p",[P]), P end.
+    [#game_table{game_process = P} | _] -> gas:info(?MODULE,"GameRelay: ~p",[P]), P end.
 get_relay_mod_pid(GameId) -> case get_tables(GameId) of [] -> undefined;
-    [#game_table{game_process = P, game_module = M} | _] ->  ?INFO("GameRelay: ~p",[{M,P}]), {M,P} end.
+    [#game_table{game_process = P, game_module = M} | _] ->  gas:info(?MODULE,"GameRelay: ~p",[{M,P}]), {M,P} end.
 get_relay(GameId) -> gen_server:call(?MODULE, {get_relay, GameId}).
 game_requirements(GameAtom) -> GameAtom:get_requirements().
 game_requirements(game_tavla,paired) -> paired_tavla:get_requirements();
@@ -87,9 +87,9 @@ game_sup_domain(Module, Params) ->
 
 create_game_monitor(Topic, GameFSM, Params) ->
     Sup = game_sup_domain(GameFSM, Params),
-    ?INFO("Create Root Game Process (Game Monitor2): ~p Params: ~p Sup: ~p",[GameFSM, Params,Sup]),
+    gas:info(?MODULE,"Create Root Game Process (Game Monitor2): ~p Params: ~p Sup: ~p",[GameFSM, Params,Sup]),
     RelayInit = Sup:start_game(GameFSM,[Topic,Params],Topic),
-    ?INFO("RelayInit ~p",[RelayInit]),
+    gas:info(?MODULE,"RelayInit ~p",[RelayInit]),
     RelayInit.
 
 get_lucky_table(Game) ->
@@ -119,7 +119,7 @@ get_tournament(TrnId) ->
                    [T] -> X = T#game_table.id, X;
                      _ -> []
             end,
-%    ?INFO("~w:get_tournament Table = ~p", [?MODULE, Table]),
+%    gas:info(?MODULE,"~w:get_tournament Table = ~p", [?MODULE, Table]),
     Table.
 
 
@@ -142,11 +142,11 @@ get_tournament(TrnId) ->
 %%                    end ||X<-lists:seq(1,NumberOfRooms)],
 %%     [{ok,OP1,_}|_] = OkeyPlayers,
 %%     [{ok,OP2,_}|_] = lists:reverse(OkeyPlayers),
-%%     ?INFO("Okey bot rooms runned (STRESS): ~p~n",[{OP1,OP2}]).
+%%     gas:info(?MODULE,"Okey bot rooms runned (STRESS): ~p~n",[{OP1,OP2}]).
 
 
 create_standalone_game(Game, Params, Users) ->
-    ?INFO("create_standalone_game/3 Params:~p", [Params]),
+    gas:info(?MODULE,"create_standalone_game/3 Params:~p", [Params]),
     case Game of
         game_okey ->
             #pointing_rule{quota = Quota,
@@ -269,7 +269,7 @@ create_standalone_game(Game, Params, Users) ->
 
 
 create_paired_game(Game, Params, Users) ->
-    ?INFO("create_paired_game/3 Params:~p", [Params]),
+    gas:info(?MODULE,"create_paired_game/3 Params:~p", [Params]),
     case Game of
         game_tavla ->
             #pointing_rule{quota = Quota,
@@ -330,7 +330,7 @@ create_paired_game(Game, Params, Users) ->
 
 
 create_elimination_trn(GameType, Params, Registrants) ->
-    ?INFO("create_elimination_trn/3 Params:~p", [Params]),
+    gas:info(?MODULE,"create_elimination_trn/3 Params:~p", [Params]),
     TrnId         = proplists:get_value(trn_id, Params),
     QuotaPerRound = proplists:get_value(quota_per_round, Params),
     PlayersNumber = proplists:get_value(players_number, Params),
@@ -423,7 +423,7 @@ create_elimination_trn(GameType, Params, Registrants) ->
 
 
 start_tournament(TrnId,NumberOfTournaments,NumberOfPlayers,_Quota,_Tours,_Speed,GiftIds) ->
-    ?INFO("START TOURNAMENT: ~p",[{TrnId,NumberOfTournaments,NumberOfPlayers,_Quota,_Tours,_Speed,GiftIds}]),
+    gas:info(?MODULE,"START TOURNAMENT: ~p",[{TrnId,NumberOfTournaments,NumberOfPlayers,_Quota,_Tours,_Speed,GiftIds}]),
     {ok,Tournament} = nsm_db:get(tournament,TrnId),
     RealPlayersUnsorted = nsm_tournaments:joined_users(TrnId),
 
@@ -440,7 +440,7 @@ start_tournament(TrnId,NumberOfTournaments,NumberOfPlayers,_Quota,_Tours,_Speed,
                 speed = Speed} = Tournament,
 
     RealPlayersPR = lists:keysort(#play_record.other, RealPlayersUnsorted),
-    ?INFO("Head: ~p",[hd(RealPlayersPR)]),
+    gas:info(?MODULE,"Head: ~p",[hd(RealPlayersPR)]),
     RealPlayers = [list_to_binary(Who)||#play_record{who=Who}<-RealPlayersPR, Who /= undefined],
 
 %%     Registrants = case NumberOfPlayers > length(RealPlayers) of
@@ -455,7 +455,7 @@ start_tournament(TrnId,NumberOfTournaments,NumberOfPlayers,_Quota,_Tours,_Speed,
                      true -> lists:sublist(RealPlayers, NumberOfPlayers)
                   end,
 
-    ?INFO("Registrants: ~p",[Registrants]),
+    gas:info(?MODULE,"Registrants: ~p",[Registrants]),
     OkeyTournaments =
         [begin
              Params = [{trn_id, TrnId},
@@ -472,7 +472,7 @@ start_tournament(TrnId,NumberOfTournaments,NumberOfPlayers,_Quota,_Tours,_Speed,
          end || _ <-lists:seq(1,NumberOfTournaments)],
     [{ok,OP1,_}|_] = OkeyTournaments,
     [{ok,OP2,_}|_] = lists:reverse(OkeyTournaments),
-    ?INFO("Okey tournaments runned: ~p~n",[{OP1,OP2}]),
+    gas:info(?MODULE,"Okey tournaments runned: ~p~n",[{OP1,OP2}]),
     OP1
 
    end.

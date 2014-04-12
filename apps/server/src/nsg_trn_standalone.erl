@@ -158,7 +158,7 @@ client_request(Pid, Message, Timeout) ->
 %% ====================================================================
 
 init([GameId, Params, _Manager]) ->
-    ?INFO("TRN_STANDALONE <~p> Init started.", [GameId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Init started.", [GameId]),
     Registrants =   get_param(registrants, Params),
     SeatsPerTable = get_param(seats, Params),
     Game =          get_param(game, Params),
@@ -176,7 +176,7 @@ init([GameId, Params, _Manager]) ->
     BotsReplacementMode = get_param(bots_replacement_mode, Params),
     CommonParams  = get_param(common_params, Params),
 
-    ?INFO("TRN_STANDALONE <~p> All parameteres are read. Send the directive to start the game.", [GameId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> All parameteres are read. Send the directive to start the game.", [GameId]),
     gen_fsm:send_all_state_event(self(), go),
     {ok, ?STATE_INIT, #state{game_id = GameId,
                              game = Game,
@@ -202,7 +202,7 @@ init([GameId, Params, _Manager]) ->
 handle_event(go, ?STATE_INIT, #state{game_id = GameId, game = GameType,
                                      registrants = Registrants, bot_module = BotModule,
                                      common_params = CommonParams} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Received the directive to start the game.", [GameId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Received the directive to start the game.", [GameId]),
     DeclRec = create_decl_rec(GameType, CommonParams, GameId, Registrants),
     gproc:reg({p,l,self()}, DeclRec),
     {Players, PlayerIdCounter} = setup_players(Registrants, GameId, BotModule),
@@ -211,24 +211,24 @@ handle_event(go, ?STATE_INIT, #state{game_id = GameId, game = GameType,
     init_tour(1, NewStateData);
 
 handle_event({client_message, Message}, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Received the message from a client: ~p.", [GameId, Message]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Received the message from a client: ~p.", [GameId, Message]),
     handle_client_message(Message, StateName, StateData);
 
 handle_event({table_message, TableId, Message}, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Received the message from table <~p>: ~p.", [GameId, TableId, Message]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Received the message from table <~p>: ~p.", [GameId, TableId, Message]),
     handle_table_message(TableId, Message, StateName, StateData);
 
 handle_event(Message, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Unhandled message(event) received in state <~p>: ~p.",
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Unhandled message(event) received in state <~p>: ~p.",
           [GameId, StateName, Message]),
     {next_state, StateName, StateData}.
 
 handle_sync_event({client_request, Request}, From, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Received the request from a client: ~p.", [GameId, Request]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Received the request from a client: ~p.", [GameId, Request]),
     handle_client_request(Request, From, StateName, StateData);
 
 handle_sync_event(Request, From, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Unhandled request(event) received in state <~p> from ~p: ~p.",
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Unhandled request(event) received in state <~p> from ~p: ~p.",
           [GameId, StateName, From, Request]),
     {reply, {error, unknown_request}, StateName, StateData}.
 
@@ -238,7 +238,7 @@ handle_info({'DOWN', MonRef, process, _Pid, _}, StateName,
             #state{game_id = GameId, tables = Tables} = StateData) ->
     case get_table_by_mon_ref(MonRef, Tables) of
         #table{id = TableId} ->
-            ?INFO("TRN_STANDALONE <~p> Table <~p> is down. Stopping", [GameId, TableId]),
+            gas:info(?MODULE,"TRN_STANDALONE <~p> Table <~p> is down. Stopping", [GameId, TableId]),
             %% TODO: More smart handling (failover) needed
             {stop, {one_of_tables_down, TableId}, StateData};
         not_found ->
@@ -252,18 +252,18 @@ handle_info({rest_timeout, TableId}, ?STATE_SET_PROCESSING = StateName,
                    players = Players, seats = Seats, cur_table = TableId, bot_module = BotModule,
                    player_id_counter = PlayerIdCounter, tab_requests = Requests,
                    table_module = TableMod, common_params = CommonParams} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Time to start new round for table <~p>.", [GameId, TableId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Time to start new round for table <~p>.", [GameId, TableId]),
     Disconnected = find_disconnected_players(TableId, Seats),
     ConnectedRealPlayers = [PlayerId || #player{id = PlayerId, is_bot = false} <- players_to_list(Players),
                                         not lists:member(PlayerId, Disconnected)],
     case ConnectedRealPlayers of
         [] -> %% Finish game
-            ?INFO("TRN_STANDALONE <~p> No real players left in table <~p>. "
+            gas:info(?MODULE,"TRN_STANDALONE <~p> No real players left in table <~p>. "
                   "Stopping the game.", [GameId, TableId]),
             finalize_tables_with_disconnect(TableMod, Tables),
             {stop, normal, StateData#state{tables = [], seats = []}};
         _ -> %% Replace disconnected players by bots
-            ?INFO("TRN_STANDALONE <~p> Initiating new round at table <~p>.", [GameId, TableId]),
+            gas:info(?MODULE,"TRN_STANDALONE <~p> Initiating new round at table <~p>.", [GameId, TableId]),
             {Replacements, NewPlayers, NewSeats, NewPlayerIdCounter} =
                 replace_by_bots(Disconnected, GameId, BotModule, TableId, Players, Seats, PlayerIdCounter),
             #table{pid = TablePid} = Table = fetch_table(TableId, Tables),
@@ -286,15 +286,15 @@ handle_info({rest_timeout, TableId}, ?STATE_SET_FINISHED,
                    players = Players, cur_table = TableId, table_module = TableMod,
                    kakush_for_winners = KakushForWinners, kakush_for_loser = KakushForLoser,
                    win_game_points = WinGamePoints, mul_factor = MulFactor} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Time to determinate set results (table: <~p>).", [GameId, TableId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Time to determinate set results (table: <~p>).", [GameId, TableId]),
     #table{pid = TablePid} = fetch_table(TableId, Tables),
     {_, TableScore} = lists:keyfind(TableId, 1, TablesResults),
     SeriesResult = series_result(TableScore),
-    ?INFO("TRN_STANDALONE <~p> Set result: ~p", [GameId, SeriesResult]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Set result: ~p", [GameId, SeriesResult]),
     send_to_table(TableMod, TablePid, {show_series_result, SeriesResult}),
     Points = calc_players_prize_points(SeriesResult, KakushForWinners, KakushForLoser, WinGamePoints, MulFactor, Players),
     UsersPrizePoints = prepare_users_prize_points(Points, Players),
-    ?INFO("TRN_STANDALONE <~p> Prizes: ~p", [GameId, UsersPrizePoints]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Prizes: ~p", [GameId, UsersPrizePoints]),
     add_points_to_accounts(UsersPrizePoints, GameId, GameType, GameMode, MulFactor),
     EndsNotePoints = prepare_ends_note_points(SeriesResult, Points, Players),
     send_ends_note(GameName, GameType, EndsNotePoints),
@@ -305,33 +305,33 @@ handle_info({rest_timeout, TableId}, ?STATE_SET_FINISHED,
 
 handle_info({timeout, Magic}, ?STATE_WAITING_FOR_PLAYERS,
             #state{timer_magic = Magic, game_id = GameId} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Time to start new set.", [GameId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Time to start new set.", [GameId]),
     start_set(StateData);
 
 
 handle_info({timeout, Magic}, ?STATE_SHOW_SET_RESULT,
             #state{timer_magic = Magic, game_id = GameId} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Time to finalize the game.", [GameId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Time to finalize the game.", [GameId]),
     finalize_tournament(StateData);
 
 
 handle_info({timeout, Magic}, ?STATE_FINISHED,
             #state{timer_magic = Magic, tables = Tables, game_id = GameId,
                    table_module = TableMod} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Time to stopping the game.", [GameId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Time to stopping the game.", [GameId]),
     finalize_tables_with_disconnect(TableMod, Tables),
     {stop, normal, StateData#state{tables = [], seats = []}};
 
 
 handle_info(Message, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Unhandled message(info) received in state <~p>: ~p.",
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Unhandled message(info) received in state <~p>: ~p.",
           [GameId, StateName, Message]),
     {next_state, StateName, StateData}.
 
 %%===================================================================
 
 terminate(_Reason, _StateName, #state{game_id=GameId}=_StatData) ->
-    ?INFO("TRN_STANDALONE <~p> Shutting down at state: <~p>. Reason: ~p",
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Shutting down at state: <~p>. Reason: ~p",
           [GameId, _StateName, _Reason]),
     ok.
 
@@ -421,13 +421,13 @@ handle_table_message(TableId, {table_created, Relay},
 handle_table_message(TableId, {round_finished, TableContext, _RoundScore, _TotalScore},
                      ?STATE_SET_PROCESSING,
                      #state{game_id = GameId, tables = Tables, table_module = TableMod} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Round is finished (table: <~p>).", [GameId, TableId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Round is finished (table: <~p>).", [GameId, TableId]),
     #table{pid = TablePid} = Table = fetch_table(TableId, Tables),
     TRef = erlang:send_after(?REST_TIMEOUT, self(), {rest_timeout, TableId}),
     NewTable = Table#table{context = TableContext, state = ?TABLE_STATE_FINISHED, timer = TRef},
     NewTables = store_table(NewTable, Tables),
     send_to_table(TableMod, TablePid, show_round_result),
-    ?INFO("TRN_STANDALONE <~p> Waiting some time (~p secs) before start of next round.",
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Waiting some time (~p secs) before start of next round.",
           [GameId, ?REST_TIMEOUT div 1000]),
     {next_state, ?STATE_SET_PROCESSING, StateData#state{tables = NewTables}};
 
@@ -435,14 +435,14 @@ handle_table_message(TableId, {round_finished, TableContext, _RoundScore, _Total
 handle_table_message(TableId, {game_finished, TableContext, _RoundScore, TableScore},
                      ?STATE_SET_PROCESSING,
                      #state{game_id = GameId, tables = Tables, table_module = TableMod} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Last round of the set is finished (table: <~p>).", [GameId, TableId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Last round of the set is finished (table: <~p>).", [GameId, TableId]),
     TablesResults = [{TableId, TableScore}],
     #table{pid = TablePid} = Table = fetch_table(TableId, Tables),
     TRef = erlang:send_after(?REST_TIMEOUT, self(), {rest_timeout, TableId}),
     NewTable = Table#table{context = TableContext, state = ?TABLE_STATE_FINISHED, timer = TRef},
     NewTables = store_table(NewTable, Tables),
     send_to_table(TableMod, TablePid, show_round_result),
-    ?INFO("TRN_STANDALONE <~p> Waiting some time (~p secs) before the set results calculation.",
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Waiting some time (~p secs) before the set results calculation.",
           [GameId, ?REST_TIMEOUT div 1000]),
     {next_state, ?STATE_SET_FINISHED, StateData#state{tables = NewTables,
                                                       tables_results = TablesResults}};
@@ -454,7 +454,7 @@ handle_table_message(TableId, {response, RequestId, Response},
     NewTabRequests = dict:erase(RequestId, TabRequests),
     case dict:find(RequestId, TabRequests) of
         {ok, ReqContext} ->
-            ?INFO("TRN_STANDALONE <~p> The a response received from table <~p>. "
+            gas:info(?MODULE,"TRN_STANDALONE <~p> The a response received from table <~p>. "
                   "RequestId: ~p. Request context: ~p. Response: ~p",
                   [GameId, TableId, RequestId, ReqContext, Response]),
             handle_table_response(TableId, ReqContext, Response, StateName,
@@ -523,51 +523,51 @@ handle_client_request({join, UserInfo}, From, StateName,
                              table_module = TableMod, cur_table = TableId,
                              bots_replacement_mode = BotsReplacementMode} = StateData) ->
     #'PlayerInfo'{id = UserId, robot = _IsBot} = UserInfo,
-    ?INFO("TRN_STANDALONE <~p> The 'Join' request received from user: ~p.", [GameId, UserId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> The 'Join' request received from user: ~p.", [GameId, UserId]),
     if StateName == ?STATE_FINISHED ->
-           ?INFO("TRN_STANDALONE <~p> The game is finished. "
+           gas:info(?MODULE,"TRN_STANDALONE <~p> The game is finished. "
                  "Reject to join user ~p.", [GameId, UserId]),
            {reply, {error, finished}, StateName, StateData};
        true -> %% Game in progress. Find a seat for the user
            case get_player_by_user_id(UserId, Players) of
                {ok, #player{id = PlayerId}} -> %% The user is a registered member of the game (player)
-                   ?INFO("TRN_STANDALONE <~p> User ~p is a registered member of the game. "
+                   gas:info(?MODULE,"TRN_STANDALONE <~p> User ~p is a registered member of the game. "
                          "Allow to join.", [GameId, UserId]),
                    [#seat{table = TableId, registered_by_table = RegByTable}] = find_seats_by_player_id(PlayerId, Seats),
                    case RegByTable of
                        false -> %% The player is not registered by the table yet
-                           ?INFO("TRN_STANDALONE <~p> User ~p not yet regirested by the table. "
+                           gas:info(?MODULE,"TRN_STANDALONE <~p> User ~p not yet regirested by the table. "
                                  "Add the request to the waiting pool.", [GameId, UserId]),
                            NewRegRequests = dict:store(PlayerId, From, RegRequests),
                            {next_state, StateName, StateData#state{reg_requests = NewRegRequests}};
                        _ -> %% The player is registered by the table. Return the table requisites
-                           ?INFO("TRN_STANDALONE <~p> Return the join response for player ~p immediately.",
+                           gas:info(?MODULE,"TRN_STANDALONE <~p> Return the join response for player ~p immediately.",
                                  [GameId, UserId]),
                            #table{relay = Relay, pid = TPid} = fetch_table(TableId, Tables),
                            {reply, {ok, {PlayerId, Relay, {TableMod, TPid}}}, StateName, StateData}
                    end;
                error -> %% Not a member yet
-                   ?INFO("TRN_STANDALONE <~p> User ~p is not a member of the game.", [GameId, UserId]),
+                   gas:info(?MODULE,"TRN_STANDALONE <~p> User ~p is not a member of the game.", [GameId, UserId]),
                    case find_free_seats(TableId, Seats) of
                        [] when BotsReplacementMode == disabled ->
-                           ?INFO("TRN_STANDALONE <~p> No free seats for user ~p. Robots replacement is disabled. "
+                           gas:info(?MODULE,"TRN_STANDALONE <~p> No free seats for user ~p. Robots replacement is disabled. "
                                  "Reject to join.", [GameId, UserId]),
                            {reply, {error, not_allowed}, StateName, StateData};
                        [] when BotsReplacementMode == enabled ->
-                           ?INFO("TRN_STANDALONE <~p> No free seats for user ~p. Robots replacement is enabled. "
+                           gas:info(?MODULE,"TRN_STANDALONE <~p> No free seats for user ~p. Robots replacement is enabled. "
                                  "Tring to find a robot for replace.", [GameId, UserId]),
                            case find_registered_robot_seats(TableId, Seats) of
                                [] ->
-                                   ?INFO("TRN_STANDALONE <~p> No robots for replacement by user ~p. "
+                                   gas:info(?MODULE,"TRN_STANDALONE <~p> No robots for replacement by user ~p. "
                                          "Reject to join.", [GameId, UserId]),
                                    {reply, {error, not_allowed}, StateName, StateData};
                                [#seat{seat_num = SeatNum, player_id = OldPlayerId} | _] ->
-                                   ?INFO("TRN_STANDALONE <~p> There is a robot for replacement by user ~p. "
+                                   gas:info(?MODULE,"TRN_STANDALONE <~p> There is a robot for replacement by user ~p. "
                                          "Registering.", [GameId, UserId]),
                                    reg_player_with_replace(UserInfo, TableId, SeatNum, OldPlayerId, From, StateName, StateData)
                            end;
                        [#seat{seat_num = SeatNum} | _] ->
-                           ?INFO("TRN_STANDALONE <~p> There is a free seat for user ~p. "
+                           gas:info(?MODULE,"TRN_STANDALONE <~p> There is a free seat for user ~p. "
                                  "Registering.", [GameId, UserId]),
                            reg_new_player(UserInfo, TableId, SeatNum, From, StateName, StateData)
                    end
@@ -584,7 +584,7 @@ init_tour(Tour, #state{game_id = GameId, seats_per_table = SeatsPerTable,
                        params = TableParams, players = Players, table_module = TableMod,
                        table_id_counter = TableIdCounter, tables = OldTables,
                        initial_points = InitialPoints} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Initializing tour <~p>...", [GameId, Tour]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Initializing tour <~p>...", [GameId, Tour]),
     PlayersList = prepare_players_for_new_tour(InitialPoints, Players),
     {NewTables, Seats, NewTableIdCounter, CrRequests} =
         setup_tables(TableMod, PlayersList, SeatsPerTable, undefined, Tour,
@@ -592,7 +592,7 @@ init_tour(Tour, #state{game_id = GameId, seats_per_table = SeatsPerTable,
     if Tour > 1 -> finalize_tables_with_rejoin(TableMod, OldTables);
        true -> do_nothing
     end,
-    ?INFO("TRN_STANDALONE <~p> Initializing of tour <~p> is finished. "
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Initializing of tour <~p> is finished. "
           "Waiting creating confirmations from the tours' tables...",
           [GameId, Tour]),
     {next_state, ?STATE_WAITING_FOR_TABLES, StateData#state{tables = NewTables,
@@ -610,7 +610,7 @@ init_tour(Tour, #state{game_id = GameId, seats_per_table = SeatsPerTable,
 start_set(#state{game_id = GameId, game = Game, game_mode = GameMode, mul_factor = MulFactor,
                  quota_per_round = Amount, tour = Tour, tables = Tables, players = Players,
                  table_module = TableMod} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Starting tour <~p>...", [GameId, Tour]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Starting tour <~p>...", [GameId, Tour]),
     UsersIds = [UserId || #player{user_id = UserId, is_bot = false} <- players_to_list(Players)],
     deduct_quota(GameId, Game, GameMode, Amount, MulFactor, UsersIds),
     TablesList = tables_to_list(Tables),
@@ -620,17 +620,17 @@ start_set(#state{game_id = GameId, game = Game, game_mode = GameMode, mul_factor
         end,
     NewTables = lists:foldl(F, Tables, TablesList),
     WL = [T#table.id || T <- TablesList],
-    ?INFO("TRN_STANDALONE <~p> Tour <~p> is started. Processing...",
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Tour <~p> is started. Processing...",
           [GameId, Tour]),
     {next_state, ?STATE_SET_PROCESSING, StateData#state{tables = NewTables,
                                                         tables_wl = WL}}.
 
 
 finalize_tournament(#state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_STANDALONE <~p> Finalizing the game...", [GameId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> Finalizing the game...", [GameId]),
     %% TODO: Real finalization needed
     {TRef, Magic} = start_timer(?SHOW_TOURNAMENT_RESULT_TIMEOUT),
-    ?INFO("TRN_STANDALONE <~p> The game is finalized. "
+    gas:info(?MODULE,"TRN_STANDALONE <~p> The game is finalized. "
           "Waiting some time (~p secs) before continue...",
           [GameId, ?SHOW_TOURNAMENT_RESULT_TIMEOUT div 1000]),
     {next_state, ?STATE_FINISHED, StateData#state{timer = TRef, timer_magic = Magic}}.
@@ -645,10 +645,10 @@ reg_player_with_replace(UserInfo, TableId, SeatNum, OldPlayerId, From, StateName
     NewPlayers = del_player(OldPlayerId, Players),
     NewPlayers2 = store_player(#player{id = PlayerId, user_id = UserId,
                                        user_info = UserInfo, is_bot = IsBot}, NewPlayers),
-    ?INFO("TRN_STANDALONE <~p> User ~p registered as player <~p>.", [GameId, UserId, PlayerId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> User ~p registered as player <~p>.", [GameId, UserId, PlayerId]),
     NewSeats = set_seat(TableId, SeatNum, PlayerId, _Bot = false, _RegByTable = false,
                         _Connected = false, _Free = false, Seats),
-    ?INFO("TRN_STANDALONE <~p> User ~p assigned to seat <~p> of table <~p>.", [GameId, UserId, SeatNum, TableId]),
+    gas:info(?MODULE,"TRN_STANDALONE <~p> User ~p assigned to seat <~p> of table <~p>.", [GameId, UserId, SeatNum, TableId]),
     NewRegRequests = dict:store(PlayerId, From, RegRequests),
     TablePid = get_table_pid(TableId, Tables),
     NewTabRequests = table_req_replace_player(TableModule, TablePid, PlayerId, UserInfo, TableId, SeatNum, TabRequests),
@@ -686,11 +686,11 @@ reg_new_player(UserInfo, TableId, SeatNum, From, StateName,
                                    players = NewPlayers, seats = NewSeats,
                                    player_id_counter = PlayerId + 1},
     if StateName == ?STATE_EMPTY_SEATS_FILLING andalso TableIsFull ->
-           ?INFO("TRN_STANDALONE <~p> It's enough players registered to start the game. "
+           gas:info(?MODULE,"TRN_STANDALONE <~p> It's enough players registered to start the game. "
                  "Initiating the procedure.", [GameId]),
            start_set(NewStateData);
        true ->
-           ?INFO("TRN_STANDALONE <~p> Not enough players registered to start the game. "
+           gas:info(?MODULE,"TRN_STANDALONE <~p> Not enough players registered to start the game. "
                  "Waiting for more registrations.", [GameId]),
            {next_state, StateName, NewStateData}
     end.
@@ -740,7 +740,7 @@ setup_tables(TableMod, Players, SeatsPerTable, TTable, Tour, Tours, TableId, Gam
                                       (empty, SeatNum) ->
                                            {{_PlayerId = {empty, SeatNum+1}, empty_seat_userinfo(SeatNum+1), SeatNum, _Points=0}, SeatNum+1}
                                    end, 1, SPlayers),
-    ?INFO("EmptySeatsNum:~p SPlayers: ~p TPlayers:~p", [EmptySeatsNum, SPlayers, TPlayers]),
+    gas:info(?MODULE,"EmptySeatsNum:~p SPlayers: ~p TPlayers:~p", [EmptySeatsNum, SPlayers, TPlayers]),
     TableParams2 = [{players, TPlayers}, {ttable, TTable}, {tour, Tour},
                     {tours, Tours}, {parent, {?MODULE, self()}} | TableParams],
     {ok, TabPid} = spawn_table(TableMod, GameId, TableId, TableParams2),

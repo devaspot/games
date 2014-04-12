@@ -50,13 +50,13 @@ fire_starter(MultiOwner, CreateMode, RevealMode) ->
 
             Humans = [<<"maxim">>,<<"alice">>], % see authored users in auth_server.erl
             {ok, GameId, _A} = game_manager:create_table(game_tavla, [{deny_robots,true},{rounds, 1}], Humans),
-            ?INFO("created table for Tavla Game: gameid ~p",[{GameId,_A}]),
+            gas:info(?MODULE,"created table for Tavla Game: gameid ~p",[{GameId,_A}]),
             Clients = [ proc_lib:spawn_link(fun() -> 
                                  timer:sleep(crypto:rand_uniform(0, 10)),
                                  attach_and_join(Owner, Host, Port, GameId, Id, Rematch, RevealMode)
                         end) || Id <- Humans ],
 
-            ?INFO("Human Pids: ~p",[Clients]),
+            gas:info(?MODULE,"Human Pids: ~p",[Clients]),
             Orders = []
 
     end,
@@ -90,17 +90,17 @@ play_round(State0, Rematch) ->
 
 loop_and_restart(State) ->
     LoopRes = tavla_client_loop(State#state{}),
-    ?INFO("Human LoopRes: ~p",[LoopRes]),
+    gas:info(?MODULE,"Human LoopRes: ~p",[LoopRes]),
     say_ready(State),
     case LoopRes of
         <<"done">> ->
-            ?INFO("ID: ~p, next action done", [State#state.uid]),
+            gas:info(?MODULE,"ID: ~p, next action done", [State#state.uid]),
             ok;
         <<"next_set">> ->
-            ?INFO("ID: ~p, next action next_set", [State#state.uid]),
+            gas:info(?MODULE,"ID: ~p, next action next_set", [State#state.uid]),
             ok;
         <<"next_round">> ->
-            ?INFO("ID: ~p, next action next_round", [State#state.uid]),
+            gas:info(?MODULE,"ID: ~p, next action next_round", [State#state.uid]),
             State1 = State#state{current_round = -1},
             check_ack(State1, game_ended, fun loop_and_restart/1, [State1])
     end.
@@ -115,7 +115,7 @@ init_tavla_roundroll(State) ->
             log(game_info),
             State#state{mode = GT, current_round = CurrentRound, rounds = Rounds}
     after ?BT ->
-            ?INFO("ERROR: ~p", [{server_timeout, "game_event:tavla_game_info"}]),
+            gas:info(?MODULE,"ERROR: ~p", [{server_timeout, "game_event:tavla_game_info"}]),
             erlang:error({server_timeout, "game_event:tavla_game_info"})
     end.
 
@@ -146,7 +146,7 @@ tavla_client_loop(State) ->
             %okey_round_ended_checks(Args, State),
             Reason = proplists:get_value(reason, Args),
             NextAction = proplists:get_value(next_action, Args),
-            ?INFO("ID: ~p game ended, reason: ~p", [Id, Reason]),
+            gas:info(?MODULE,"ID: ~p game ended, reason: ~p", [Id, Reason]),
             NextAction;
         #player_left{} ->
             tavla_client_loop(State);
@@ -155,7 +155,7 @@ tavla_client_loop(State) ->
         #'game_event'{event = <<"player_left">>} ->
             tavla_client_loop(State);
         _Msg ->
-            ?INFO("the msg: ~p", [_Msg]),
+            gas:info(?MODULE,"the msg: ~p", [_Msg]),
             erlang:error({bot_received_unrecognized_message, _Msg})
     after ?BT ->
             log(server_timeouted),
@@ -176,7 +176,7 @@ do_roll(State) ->
                          game = GameId,
                          action = tavla_roll,
                          args = []}),
-    ?INFO("ID: ~p roll result: ~p", [State#state.uid, ZZZ]),
+    gas:info(?MODULE,"ID: ~p roll result: ~p", [State#state.uid, ZZZ]),
     ok.
 
 do_move(State) ->
@@ -188,7 +188,7 @@ do_move(State) ->
                          game = GameId,
                          action = tavla_move,
                          args = [ {moves, Moves}, {player, Player} ]}),
-    ?INFO("ID: ~p move result: ~p", [State#state.uid, ZZZ]),
+    gas:info(?MODULE,"ID: ~p move result: ~p", [State#state.uid, ZZZ]),
     ok.
 
 log(Msg) ->
@@ -197,14 +197,14 @@ log(Msg) ->
 wait_for(_C) ->
     receive
         {_, game_ended} ->
-            ?INFO("client: game ended");
+            gas:info(?MODULE,"client: game ended");
         {'EXIT', _, normal} = M ->
-            ?INFO("client: normal ending: ~p", [M]);
+            gas:info(?MODULE,"client: normal ending: ~p", [M]);
         {'EXIT', _C, Reason} = M ->
-            ?INFO("client: FAILURE message: ~p", [{M,_C,Reason}]),
+            gas:info(?MODULE,"client: FAILURE message: ~p", [{M,_C,Reason}]),
             erlang:error(Reason);
         M ->
-            ?INFO("client: unrecognized result: ~p", [M]),
+            gas:info(?MODULE,"client: unrecognized result: ~p", [M]),
             erlang:error(M)
     end.
 
@@ -220,7 +220,7 @@ check_ack(State = #state{acker_fun = F}, Event, ContinueFun, Args) ->
             apply(What, [State] ++ With),
             apply(ContinueFun, Args);
         stop ->
-            ?INFO("ID: ~p, Pid: ~p, check_ack. STOPPING THE BOT!!!", [State#state.uid, self()]),
+            gas:info(?MODULE,"ID: ~p, Pid: ~p, check_ack. STOPPING THE BOT!!!", [State#state.uid, self()]),
             erlang:error({terminate, acker_stop})
     end.
 
@@ -229,11 +229,11 @@ standard_acker(Owner) ->
     Ref = make_ref(),
     fun(Event) ->
             E = {event, Ref, Self, Event},
-            ?INFO("standard acker. ~p ! ~p", [Owner, E]),
+            gas:info(?MODULE,"standard acker. ~p ! ~p", [Owner, E]),
             Owner ! E,
             receive
                 {ARef, Res} when Ref == ARef ->
-                    ?INFO("standard acker got '~p' answer on question ~p", [Res,{Owner, E}]),
+                    gas:info(?MODULE,"standard acker got '~p' answer on question ~p", [Res,{Owner, E}]),
                     Res
             end
     end.
@@ -260,7 +260,7 @@ match_event(Orders, Events, Pid, Event) ->
     end.
 
 conductor(Orders, Clients) ->
-    ?INFO("conductor init", []),
+    gas:info(?MODULE,"conductor init", []),
     Pairs = lists:zip(lists:seq(1, length(Clients)), Clients),
     Orders2 = lists:map(fun(O) ->
                                 {_, P} = lists:keyfind(O#bo.pid, 1, Pairs),
@@ -268,7 +268,7 @@ conductor(Orders, Clients) ->
                         end, Orders),
     conductor(Orders2, Clients, []).
 conductor(_Orders, [], _Events) ->
-    ?INFO("conductor stop", []),
+    gas:info(?MODULE,"conductor stop", []),
     ok;
 conductor(Orders, Clients, Events) ->
     receive
@@ -283,18 +283,18 @@ conductor(Orders, Clients, Events) ->
             end,
             conductor(Orders, Clients, E2);
         {C, game_ended} ->
-            ?INFO("conductor: game ended", []),
+            gas:info(?MODULE,"conductor: game ended", []),
             conductor(Orders, lists:delete(C, Clients), Events);
         {'EXIT', C, normal} = M ->
-            ?INFO("conductor: normal ending: ~p", [M]),
+            gas:info(?MODULE,"conductor: normal ending: ~p", [M]),
             conductor(Orders, lists:delete(C, Clients), Events);
         {'EXIT', C, {terminate, acker_stop}} = M ->
-            ?INFO("conductor: removing client ~p because of ~p", [C, M]),
+            gas:info(?MODULE,"conductor: removing client ~p because of ~p", [C, M]),
             conductor(Orders, lists:delete(C, Clients), Events);
         {'EXIT', _C, Reason} = M ->
-            ?INFO("conductor: FAILURE message: ~p", [{M,_C,Reason}]),
+            gas:info(?MODULE,"conductor: FAILURE message: ~p", [{M,_C,Reason}]),
             erlang:error(Reason);
         M ->
-            ?INFO("conductor: unrecognized msg from client: ~p", [M]),
+            gas:info(?MODULE,"conductor: unrecognized msg from client: ~p", [M]),
             erlang:error(M)
     end.

@@ -76,7 +76,7 @@
 %%     RoundsNum = undefined | pos_integer()
 
 init(Mode, SeatsInfo, RoundsNum) ->
-    ?INFO("OKEY_NG_SCORING init Mode: ~p SeatsInfo = ~p RoundsNum = ~p", [Mode, SeatsInfo, RoundsNum]),
+    gas:info(?MODULE,"OKEY_NG_SCORING init Mode: ~p SeatsInfo = ~p RoundsNum = ~p", [Mode, SeatsInfo, RoundsNum]),
     true = lists:member(Mode, [?MODE_STANDARD, ?MODE_EVENODD, ?MODE_COLOR, ?MODE_COUNTDOWN]),
     true = if Mode == ?MODE_COUNTDOWN -> RoundsNum == undefined;
               true -> is_integer(RoundsNum) orelse RoundsNum == undefined end,

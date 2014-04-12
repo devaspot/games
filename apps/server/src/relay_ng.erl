@@ -136,11 +136,11 @@ handle_call(_Request, _From, State) ->
 
 %% --------------------------------------------------------------------
 handle_cast({client_message, Msg}, State) ->
-    ?INFO("RELAY_NG Received client message: ~p", [Msg]),
+    gas:info(?MODULE,"RELAY_NG Received client message: ~p", [Msg]),
     handle_client_message(Msg, State);
 
 handle_cast({table_message, Msg}, State) ->
-    ?INFO("RELAY_NG Received table message: ~p", [Msg]),
+    gas:info(?MODULE,"RELAY_NG Received table message: ~p", [Msg]),
     handle_table_message(Msg, State);
 
 handle_cast(_Msg, State) ->
@@ -150,7 +150,7 @@ handle_cast(_Msg, State) ->
 handle_info({'DOWN', TableMonRef, process, _Pid, _Info},
             #state{subscribers = Subscribers,
                    table_mon_ref = TableMonRef} = State) ->
-    ?INFO("RELAY_NG All The parent table is down. "
+    gas:info(?MODULE,"RELAY_NG All The parent table is down. "
           "Disconnecting all subscribers and sutting down.", []),
     [begin
          erlang:demonitor(MonRef, [flush]),
@@ -170,7 +170,7 @@ handle_info({'DOWN', MonRef, process, _Pid, _Info},
             NewSubscribers = del_subscriber(SubscrId, Subscribers),
             case find_subscribers_by_player_id(PlayerId, NewSubscribers) of
                 [] ->
-                    ?INFO("RELAY_NG All sessions of player <~p> (~p) are closed. "
+                    gas:info(?MODULE,"RELAY_NG All sessions of player <~p> (~p) are closed. "
                           "Sending the notification to the table.", [PlayerId, UserId]),
                     NewPlayers = update_player_status(PlayerId, offline, Players),
                     TableMod:relay_message(TablePid, {player_disconnected, PlayerId}),
@@ -213,27 +213,27 @@ handle_client_request({subscribe, Pid, UserId, observer}, _From,
 handle_client_request({subscribe, Pid, UserId, PlayerId}, _From,
                       #state{players = Players, subscribers = Subscribers,
                              table = {TableMod, TablePid}} = State) ->
-    ?INFO("RELAY_NG Subscription request from user ~p, PlayerId: <~p>", [UserId, PlayerId]),
+    gas:info(?MODULE,"RELAY_NG Subscription request from user ~p, PlayerId: <~p>", [UserId, PlayerId]),
     case find_player(PlayerId, Players) of
         {ok, #player{user_id = UserId, status = Status} = P} ->  %% The user id is matched
-            ?INFO("RELAY_NG User ~p is registered as player <~p>", [UserId, PlayerId]),
-            ?INFO("RELAY_NG User ~p player info: ~p", [UserId, P]),
+            gas:info(?MODULE,"RELAY_NG User ~p is registered as player <~p>", [UserId, PlayerId]),
+            gas:info(?MODULE,"RELAY_NG User ~p player info: ~p", [UserId, P]),
             MonRef = erlang:monitor(process, Pid),
             SubscrId = erlang:make_ref(),
             NewSubscribers = store_subscriber(SubscrId, Pid, UserId, PlayerId, MonRef,
                                               _BroadcastAllowed = false, Subscribers),
             NewPlayers = if Status == offline ->
-                                ?INFO("RELAY_NG Notifying the table about user ~p (<~p>).", [PlayerId, UserId]),
+                                gas:info(?MODULE,"RELAY_NG Notifying the table about user ~p (<~p>).", [PlayerId, UserId]),
                                 TableMod:relay_message(TablePid, {player_connected, PlayerId}),
                                 update_player_status(PlayerId, online, Players);
                             true ->
-                                ?INFO("RELAY_NG User ~p (<~p>) is already subscribed.", [PlayerId, UserId]),
+                                gas:info(?MODULE,"RELAY_NG User ~p (<~p>) is already subscribed.", [PlayerId, UserId]),
                                 Players
                          end,
             TableMod:relay_message(TablePid, {subscriber_added, PlayerId, SubscrId}),
             {reply, {ok, SubscrId}, State#state{players = NewPlayers, subscribers = NewSubscribers}};
         {ok, #player{}=P} ->
-            ?INFO("RELAY_NG Subscription for user ~p rejected. There is another owner of the "
+            gas:info(?MODULE,"RELAY_NG Subscription for user ~p rejected. There is another owner of the "
                   "PlayerId <~p>: ~p", [UserId, PlayerId, P]),
             {reply, {error, not_player_id_owner}, State};
         error ->
@@ -309,7 +309,7 @@ handle_client_message(_Msg, State) ->
 %%===================================================================
 
 handle_table_message({publish, Msg}, #state{subscribers = Subscribers} = State) ->
-    ?INFO("RELAY_NG The table publish message: ~p", [Msg]),
+    gas:info(?MODULE,"RELAY_NG The table publish message: ~p", [Msg]),
     Receipients = subscribers_to_list(Subscribers),
     [Pid ! {relay_event, SubscrId, Msg} ||
      #subscriber{id = SubscrId, pid = Pid, broadcast_allowed = true} <- Receipients],
@@ -317,13 +317,13 @@ handle_table_message({publish, Msg}, #state{subscribers = Subscribers} = State) 
 
 handle_table_message({to_client, PlayerId, Msg}, #state{subscribers = Subscribers} = State) ->
     Recepients = find_subscribers_by_player_id(PlayerId, Subscribers),
-    ?INFO("RELAY_NG Send table message to player's (~p) sessions: ~p. Message: ~p",
+    gas:info(?MODULE,"RELAY_NG Send table message to player's (~p) sessions: ~p. Message: ~p",
           [PlayerId, Recepients, Msg]),
     [Pid ! {relay_event, SubscrId, Msg} || #subscriber{id = SubscrId, pid = Pid} <- Recepients],
     {noreply, State};
 
 handle_table_message({to_subscriber, SubscrId, Msg}, #state{subscribers = Subscribers} = State) ->
-    ?INFO("RELAY_NG Send table message to subscriber: ~p. Message: ~p", [SubscrId, Msg]),
+    gas:info(?MODULE,"RELAY_NG Send table message to subscriber: ~p. Message: ~p", [SubscrId, Msg]),
     case get_subscriber(SubscrId, Subscribers) of
         {ok, #subscriber{pid = Pid}} -> Pid ! {relay_event, SubscrId, Msg};
         _ -> do_nothing
@@ -332,7 +332,7 @@ handle_table_message({to_subscriber, SubscrId, Msg}, #state{subscribers = Subscr
 
 handle_table_message({allow_broadcast_for_player, PlayerId},
                      #state{subscribers = Subscribers} = State) ->
-    ?INFO("RELAY_NG Received directive to allow receiving published messages for player <~p>",
+    gas:info(?MODULE,"RELAY_NG Received directive to allow receiving published messages for player <~p>",
           [PlayerId]),
     PlSubscribers = find_subscribers_by_player_id(PlayerId, Subscribers),
     F = fun(Subscriber, Acc) ->

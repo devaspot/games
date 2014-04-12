@@ -116,7 +116,7 @@ stats(Srv, Uid) ->
 %% @end
 %%--------------------------------------------------------------------
 init([Params]) ->
-    ?INFO("Scoring Params: ~p", [Params]),
+    gas:info(?MODULE,"Scoring Params: ~p", [Params]),
     Mode = proplists:get_value(game_mode, Params),
     {is_mode, true} = {is_mode, is_mode(Mode)},
     Sets = proplists:get_value(sets, Params),
@@ -180,19 +180,19 @@ handle_call({finish_round, _, _, _, _, _, _} = Msg, From, State = #state{set = [
 handle_call({finish_round, #'OkeyGameResults'{} = Res0, Hands, Gosterge, undefined, undefined, undefined}, _From, State0) ->
     #state{mode = Mode0, stats = Stats0} = State0,
     Mode = game_okey:get_scoring_mode(Mode0, Gosterge),
-    ?INFO("scoring mode: ~p", [Mode]),
+    gas:info(?MODULE,"scoring mode: ~p", [Mode]),
     {State1, Stats1} = refill_chanak(Mode, State0, Stats0),
-    ?INFO("chanak value: ~p", [State1#state.chanak]),
+    gas:info(?MODULE,"chanak value: ~p", [State1#state.chanak]),
     Stats = check_hands_for_8_tashes(Hands, Stats1),
     common_round_finish(Stats, Res0, Mode, State1);
 handle_call({finish_round, #'OkeyGameResults'{} = Res0, Hands, Gosterge, Winners, LastRevealTash, RevealHand}, _From, State) ->
     #state{mode = Mode0, stats = Stats0} = State,
     Mode = game_okey:get_scoring_mode(Mode0, Gosterge),
-    ?INFO("scoring mode: ~p", [Mode]),
+    gas:info(?MODULE,"scoring mode: ~p", [Mode]),
     {State1, Stats1} = refill_chanak(Mode, State, Stats0),
-    ?INFO("chanak value: ~p", [State1#state.chanak]),
+    gas:info(?MODULE,"chanak value: ~p", [State1#state.chanak]),
     Stats = check_hands_for_8_tashes(Hands, Stats1),
-    [ ?INFO("Player ~p ended with ~p", [binary_to_list(Player),Ending]) || {_,Player,Ending}<-Stats],
+    [ gas:info(?MODULE,"Player ~p ended with ~p", [binary_to_list(Player),Ending]) || {_,Player,Ending}<-Stats],
     Okey = game_okey:get_okey(Gosterge),
     Stats2 = case Winners of
                  [Winner] ->
@@ -202,7 +202,7 @@ handle_call({finish_round, #'OkeyGameResults'{} = Res0, Hands, Gosterge, Winners
                                  #okey_stats_entry{uid = Winner#okey_player.player_id, reason = even}),
                      C = if_list(with_color(Gosterge, RevealHand),
                                  #okey_stats_entry{uid = Winner#okey_player.player_id, reason = color}),
-                     ?INFO("A: ~p, B: ~p, C: ~p", [A, B, C]),
+                     gas:info(?MODULE,"A: ~p, B: ~p, C: ~p", [A, B, C]),
                      lists:flatten([A, B, C| Stats]);
                  _ ->
                      Stats
@@ -281,7 +281,7 @@ handle_cast(_Msg, State) ->
 % handle_info(die, State) ->
 %     {stop, normal, State};
 handle_info(Info, State) ->
-    ?INFO("unrecognized info: ~p", [Info]),
+    gas:info(?MODULE,"unrecognized info: ~p", [Info]),
     {stop, {error, unrecognized_info}, State}.
 
 %%--------------------------------------------------------------------
@@ -412,15 +412,15 @@ update_history(Res, State) ->
     case State#state.history of
         [] ->
             Res1 = trim_to_10(Res, State#state.mode),
-            ?INFO("old entry: none", []),
-            ?INFO("new entry: ~p", [Spin(Res1)]),
-            ?INFO("cmb entry: ~p", [Spin(Res1)]),
+            gas:info(?MODULE,"old entry: none", []),
+            gas:info(?MODULE,"new entry: ~p", [Spin(Res1)]),
+            gas:info(?MODULE,"cmb entry: ~p", [Spin(Res1)]),
             {State#state{history = [Res1]}, Res1};
         [H|Rest] ->
             C = combine(Res, H, State#state.mode),
-            ?INFO("old entry: ~p", [Spin(H)]),
-            ?INFO("new entry: ~p", [Spin(Res)]),
-            ?INFO("cmb entry: ~p", [Spin(C)]),
+            gas:info(?MODULE,"old entry: ~p", [Spin(H)]),
+            gas:info(?MODULE,"new entry: ~p", [Spin(Res)]),
+            gas:info(?MODULE,"cmb entry: ~p", [Spin(C)]),
             {State#state{history = [C, H | Rest]}, C}
     end.
 
@@ -467,8 +467,8 @@ get_max_countdown_counter(#state{history = [L|_]} = _State) ->
 check_set_ending(#state{mode = countdown, round_cur = RCur,
                         set_cur = SetCur, set_max = SetMax} = State) ->
     {A, B} = get_max_countdown_counter(State),
-    ?INFO("SetCur: ~p, SetMax: ~p", [SetCur, SetMax]),
-    ?INFO("coundown best score: ~p", [{A, B}]),
+    gas:info(?MODULE,"SetCur: ~p, SetMax: ~p", [SetCur, SetMax]),
+    gas:info(?MODULE,"coundown best score: ~p", [{A, B}]),
     case {A, B} of
         {PlayerId, Points} when Points >= 10 ->
             Acc =
@@ -493,32 +493,32 @@ check_set_ending(#state{mode = countdown, round_cur = RCur,
 check_set_ending(State = #state{round_cur = RCur0, round_max = RMax0,
                                 set_cur = SetCur0, set_max = SetMax0})
   when (RCur0 /= RMax0) ->
-    ?INFO("check_set_ending A, next_round. debug: ~p", [{RCur0, RMax0, SetCur0, SetMax0}]),
+    gas:info(?MODULE,"check_set_ending A, next_round. debug: ~p", [{RCur0, RMax0, SetCur0, SetMax0}]),
     State1 = update_to_next_round_or_set(State),
     {State1, next_round, false};
 check_set_ending(State = #state{set_cur = SetCur0, set_max = SetMax0,
                                 round_cur = RCur0, round_max = RMax0})
   when (RCur0 == RMax0) andalso (SetCur0 < SetMax0)->
-    ?INFO("check_set_ending A, next_set. debug: ~p", [{RCur0, RMax0, SetCur0, SetMax0}]),
+    gas:info(?MODULE,"check_set_ending A, next_set. debug: ~p", [{RCur0, RMax0, SetCur0, SetMax0}]),
     State1 = update_to_next_round_or_set(State),
     {State1, next_set, false};
 check_set_ending(State = #state{set_cur = SetCur, set_max = SetMax,
                                 round_cur = RCur, round_max = RMax}) ->
-    ?INFO("check_set_ending B, done. debug: ~p", [{RCur, RMax, SetCur, SetMax}]),
+    gas:info(?MODULE,"check_set_ending B, done. debug: ~p", [{RCur, RMax, SetCur, SetMax}]),
     State1 = update_to_next_round_or_set(State),
     {State1, done, false}.
 
 update_to_next_round_or_set(State = #state{mode = Mode}) when Mode == standard; Mode == evenodd; Mode == color ->
     NextRound = State#state.round_cur + 1,
     CurrentSet = State#state.set_cur,
-    ?INFO("update_to_next_round_or_set. {set_cur, round_cur}: ~p", [{State#state.set_cur, State#state.round_cur}]),
+    gas:info(?MODULE,"update_to_next_round_or_set. {set_cur, round_cur}: ~p", [{State#state.set_cur, State#state.round_cur}]),
     case NextRound > State#state.round_max of
         true ->
             %% new set
-            ?INFO("next set", []),
+            gas:info(?MODULE,"next set", []),
             State#state{round_cur = 1, set_cur = CurrentSet + 1, stats = [], gosterge_shown = false};
         false ->
-            ?INFO("next round", []),
+            gas:info(?MODULE,"next round", []),
             %% new round
             State#state{round_cur = NextRound, stats = [], gosterge_shown = false}
     end;
@@ -538,7 +538,7 @@ check_hands_for_8_tashes(Hands, Stats) ->
                 end, Stats, Hands).
 
 reset_scoring0(State) ->
-    ?INFO("External reset scoring. set 1, round 1", []),
+    gas:info(?MODULE,"External reset scoring. set 1, round 1", []),
     State#state{round_cur = 1, set_cur = 1, stats = [], gosterge_shown = false, history = []}.
 
 common_round_finish(Stats, Res0, Mode, State1) ->
@@ -608,7 +608,7 @@ update_set_state(State, R = #'OkeyGameResults'{}, CW) ->
     
     Reward = State#state.chanak,
     #'OkeyGameR'{breakdown = BR, score = OrgScore, score_delta = OrgDelta} = CW,
-    ?INFO("chanak points: ~p", [Reward]),
+    gas:info(?MODULE,"chanak points: ~p", [Reward]),
     BR1 = [#'OkeyScoringDetail'{reason = <<"chanak points">>, score = Reward} | BR],
 
     Entries2 = [CW#'OkeyGameR'{breakdown = BR1,
@@ -635,13 +635,13 @@ new_chanak(Mode) ->
 
 analyze_game(Stats, #'OkeyGameResults'{results = PlayerResults0} = Res, Mode) ->
     PlayerEvents = dict:from_list([ {Id, []} || #'OkeyGameR'{player_id = Id} <- PlayerResults0 ]),
-%    ?INFO("PlayerEvents: ~p", [PlayerEvents]),
+%    gas:info(?MODULE,"PlayerEvents: ~p", [PlayerEvents]),
     PlayerEvents1 = analyze_game0(Stats, PlayerEvents, fun describe_achievement/2),
-%    ?INFO("PlayerEvents1: ~p", [PlayerEvents1]),
+%    gas:info(?MODULE,"PlayerEvents1: ~p", [PlayerEvents1]),
     Check = [ check_stats(X) ||  {_Id, X} <- dict:to_list(PlayerEvents1) ],
     case lists:any(fun(Bool) -> Bool end, Check) of
         false ->
-%            ?INFO("PlayerEvents: ~p", [PlayerEvents1]),
+%            gas:info(?MODULE,"PlayerEvents: ~p", [PlayerEvents1]),
             erlang:error(incomplete_stats_detected);
         true -> ok
     end,
@@ -735,7 +735,7 @@ with_even_tashes(Gosterge, Hand0) ->
     Res = lists:all(fun(S) ->
                       game_okey:is_pair(S)
               end, Sets),
-    Res andalso ?INFO("Detected even tashes, gosterge: ~p~nhand ~p", [Gosterge, Hand0]),
+    Res andalso gas:info(?MODULE,"Detected even tashes, gosterge: ~p~nhand ~p", [Gosterge, Hand0]),
     Res.
 
 with_8_tashes(Hand0) ->
@@ -1055,7 +1055,7 @@ reduce_ach_test() ->
 
 insert_at_random_test() ->
     A = put_some_nulls(20, lists:seq(1, 10)),
-    ?INFO("insert_at_random_test: ~p", [A]).
+    gas:info(?MODULE,"insert_at_random_test: ~p", [A]).
 
 
 positions_arrange_test() ->

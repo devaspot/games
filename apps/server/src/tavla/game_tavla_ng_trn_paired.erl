@@ -172,7 +172,7 @@ client_request(Pid, Message, Timeout) ->
 %% ====================================================================
 
 init([GameId, Params, _Manager]) ->
-    ?INFO("TRN_PAIRED <~p> Init started",[GameId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Init started",[GameId]),
     Registrants =   get_param(registrants, Params),
     GameMode =      get_param(game_mode, Params),
     GameName =      get_param(game_name, Params),
@@ -188,9 +188,9 @@ init([GameId, Params, _Manager]) ->
     BotsReplacementMode = get_param(bots_replacement_mode, Params),
     CommonParams  = get_param(common_params, Params),
 
-    [?INFO("TRN_PAIRED_DBG <~p> Parameter <~p> : ~p", [GameId, P, V]) || {P, V} <- Params],
+    [gas:info(?MODULE,"TRN_PAIRED_DBG <~p> Parameter <~p> : ~p", [GameId, P, V]) || {P, V} <- Params],
 
-    ?INFO("TRN_PAIRED <~p> started.  Pid:~p", [GameId, self()]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> started.  Pid:~p", [GameId, self()]),
 
     gen_fsm:send_all_state_event(self(), go),
     {ok, ?STATE_INIT, #state{game_id = GameId,
@@ -216,7 +216,7 @@ init([GameId, Params, _Manager]) ->
 handle_event(go, ?STATE_INIT, #state{game_id = GameId, registrants = Registrants,
                                      game_type = GameType, bot_module = BotModule,
                                      common_params = CommonParams} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Received a directive to starting the game.", [GameId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Received a directive to starting the game.", [GameId]),
     DeclRec = create_decl_rec(GameType, CommonParams, GameId, Registrants),
     gproc:reg({p,l,self()}, DeclRec),
     {Players, PlayerIdCounter} = setup_players(Registrants, GameId, BotModule),
@@ -225,24 +225,24 @@ handle_event(go, ?STATE_INIT, #state{game_id = GameId, registrants = Registrants
    init_tour(1, NewStateData);
 
 handle_event({client_message, Message}, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED_DBG <~p> Received the message from a client: ~p.", [GameId, Message]),
+    gas:info(?MODULE,"TRN_PAIRED_DBG <~p> Received the message from a client: ~p.", [GameId, Message]),
     handle_client_message(Message, StateName, StateData);
 
 handle_event({table_message, TableId, Message}, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED_DBG <~p> Received the message from table <~p>: ~p.", [GameId, TableId, Message]),
+    gas:info(?MODULE,"TRN_PAIRED_DBG <~p> Received the message from table <~p>: ~p.", [GameId, TableId, Message]),
     handle_table_message(TableId, Message, StateName, StateData);
 
 handle_event(Message, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED_DBG <~p> Unhandled message(event) received in state <~p>: ~p.",
+    gas:info(?MODULE,"TRN_PAIRED_DBG <~p> Unhandled message(event) received in state <~p>: ~p.",
           [GameId, StateName, Message]),
     {next_state, StateName, StateData}.
 
 handle_sync_event({client_request, Request}, From, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED_DBG <~p> Received the request from a client: ~p.", [GameId, Request]),
+    gas:info(?MODULE,"TRN_PAIRED_DBG <~p> Received the request from a client: ~p.", [GameId, Request]),
     handle_client_request(Request, From, StateName, StateData);
 
 handle_sync_event(Request, From, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED_DBG <~p> Unhandled request(event) received in state <~p> from ~p: ~p.",
+    gas:info(?MODULE,"TRN_PAIRED_DBG <~p> Unhandled request(event) received in state <~p> from ~p: ~p.",
           [GameId, StateName, From, Request]),
     {reply, {error, unknown_request}, StateName, StateData}.
 
@@ -252,7 +252,7 @@ handle_info({'DOWN', MonRef, process, _Pid, _}, StateName,
             #state{game_id = GameId, tables = Tables} = StateData) ->
     case get_table_by_mon_ref(MonRef, Tables) of
         #table{id = TableId} ->
-            ?INFO("TRN_PAIRED <~p> Table <~p> is down. Stopping", [GameId, TableId]),
+            gas:info(?MODULE,"TRN_PAIRED <~p> Table <~p> is down. Stopping", [GameId, TableId]),
             %% TODO: More smart handling (failover) needed
             {stop, {one_of_tables_down, TableId}, StateData};
         not_found ->
@@ -262,7 +262,7 @@ handle_info({'DOWN', MonRef, process, _Pid, _}, StateName,
 
 handle_info({timeout, Magic}, ?STATE_WAITING_FOR_PLAYERS,
             #state{timer_magic = Magic, game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Time to start the tour.", [GameId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Time to start the tour.", [GameId]),
     start_tour(StateData);
 
 handle_info({timeout, Magic}, ?STATE_TOUR_PROCESSING,
@@ -271,25 +271,25 @@ handle_info({timeout, Magic}, ?STATE_TOUR_PROCESSING,
                    bot_module = BotModule, player_id_counter = PlayerIdCounter,
                    game_type = GameType, common_params = CommonParams,
                    tab_requests = Requests} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Time to start new round. Checking start conditions...", [GameId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Time to start new round. Checking start conditions...", [GameId]),
     DisconnectedSeats = find_disconnected_seats(Seats),
     DisconnectedPlayers = [PlayerId || #seat{player_id = PlayerId} <- DisconnectedSeats],
     ConnectedRealPlayers = [PlayerId || #player{id = PlayerId, is_bot = false} <- players_to_list(Players),
                                         not lists:member(PlayerId, DisconnectedPlayers)],
     case ConnectedRealPlayers of
         [] -> %% Finish game
-            ?INFO("TRN_PAIRED <~p> No real players left in tournament. "
+            gas:info(?MODULE,"TRN_PAIRED <~p> No real players left in tournament. "
                   "Stopping the game.", [GameId]),
             finalize_tables_with_disconnect(TableModule, Tables),
             {stop, normal, StateData#state{tables = [], seats = []}};
         _ -> %% Replace disconnected players by bots and start the round
-            ?INFO("TRN_PAIRED <~p> Enough real players in the game to continue. "
+            gas:info(?MODULE,"TRN_PAIRED <~p> Enough real players in the game to continue. "
                   "Replacing disconnected players by bots.", [GameId]),
             {Replacements, NewPlayers, NewSeats, NewPlayerIdCounter} =
                 replace_by_bots(DisconnectedSeats, GameId, BotModule, Players, Seats, PlayerIdCounter),
             NewRequests = req_replace_players(TableModule, Tables, Replacements, Requests),
             update_gproc(GameId, GameType, CommonParams, NewPlayers),
-            ?INFO("TRN_PAIRED <~p> The replacement is completed.", [GameId]),
+            gas:info(?MODULE,"TRN_PAIRED <~p> The replacement is completed.", [GameId]),
             start_round(StateData#state{tab_requests = NewRequests,
                                         players = NewPlayers,
                                         seats = NewSeats,
@@ -298,24 +298,24 @@ handle_info({timeout, Magic}, ?STATE_TOUR_PROCESSING,
 
 handle_info({timeout, Magic}, ?STATE_TOUR_FINISHED,
             #state{timer_magic = Magic, game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Time to finalize the tour.", [GameId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Time to finalize the tour.", [GameId]),
     finalize_tour(StateData);
 
 handle_info({timeout, Magic}, ?STATE_SHOW_TOUR_RESULT,
             #state{timer_magic = Magic, game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Time to finalize the game.", [GameId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Time to finalize the game.", [GameId]),
     finalize_tournament(StateData);
 
 handle_info({publish_series_result, TableId}, StateName,
             #state{game_id = GameId, tables = Tables, table_module = TableModule,
                    series_results = SeriesResults} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Time to publish the series result for table <~p>.", [GameId, TableId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Time to publish the series result for table <~p>.", [GameId, TableId]),
     case fetch_table(TableId, Tables) of
         #table{state = ?TABLE_STATE_FINISHED, pid = TablePid} ->
             {_, SeriesResult} = lists:keyfind(TableId, 1, SeriesResults),
             send_to_table(TableModule, TablePid, {show_series_result, SeriesResult});
         _ ->
-            ?INFO("TRN_PAIRED <~p> Don't publish the series result because the state of table <~p> "
+            gas:info(?MODULE,"TRN_PAIRED <~p> Don't publish the series result because the state of table <~p> "
                   "is not 'finished'.", [GameId, TableId])
     end,
     {next_state, StateName, StateData};
@@ -323,20 +323,20 @@ handle_info({publish_series_result, TableId}, StateName,
 %% handle_info({timeout, Magic}, ?STATE_FINISHED,
 %%             #state{timer_magic = Magic, tables = Tables, game_id = GameId,
 %%                    table_module = TableModule} = StateData) ->
-%%     ?INFO("TRN_PAIRED <~p> Time to stopping the tournament.", [GameId]),
+%%     gas:info(?MODULE,"TRN_PAIRED <~p> Time to stopping the tournament.", [GameId]),
 %%     finalize_tables_with_disconnect(TableModule, Tables),
 %%     {stop, normal, StateData#state{tables = [], seats = []}};
 
 
 handle_info(Message, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Unhandled message(info) received in state <~p>: ~p.",
+    gas:info(?MODULE,"TRN_PAIRED <~p> Unhandled message(info) received in state <~p>: ~p.",
           [GameId, StateName, Message]),
     {next_state, StateName, StateData}.
 
 %%===================================================================
 
 terminate(_Reason, _StateName, #state{game_id=GameId}=_StatData) ->
-    ?INFO("TRN_PAIRED <~p> Shutting down at state: <~p>. Reason: ~p",
+    gas:info(?MODULE,"TRN_PAIRED <~p> Shutting down at state: <~p>. Reason: ~p",
           [GameId, _StateName, _Reason]),
     ok.
 
@@ -351,7 +351,7 @@ code_change(_OldVsn, StateName, StateData, _Extra) ->
 
 
 handle_client_message(Message, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Unhandled client message received in "
+    gas:info(?MODULE,"TRN_PAIRED <~p> Unhandled client message received in "
           "state <~p>: ~p.", [GameId, StateName, Message]),
     {next_state, StateName, StateData}.
 
@@ -438,7 +438,7 @@ handle_table_message(TableId, {round_finished, NewScoringState, _RoundScore, _To
                      ?STATE_TOUR_PROCESSING = StateName,
                      #state{game_id = GameId, tables = Tables, table_module = TableModule,
                             tables_wl = WL} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Round is finished (table <~p>).", [GameId, TableId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Round is finished (table <~p>).", [GameId, TableId]),
     #table{pid = TablePid} = Table = fetch_table(TableId, Tables),
     NewTable = Table#table{context = NewScoringState, state = ?TABLE_STATE_WAITING_NEW_ROUND},
     NewTables = store_table(NewTable, Tables),
@@ -465,7 +465,7 @@ handle_table_message(TableId, {game_finished, TableContext, _RoundScore, TableSc
                             kakush_for_winners = KakushForWinners, kakush_for_loser = KakushForLoser,
                             win_game_points = WinGamePoints, players = Players,
                             series_results = SeriesResults} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Last round of the set is finished (table <~p>).", [GameId, TableId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Last round of the set is finished (table <~p>).", [GameId, TableId]),
     NewTablesResults = [{TableId, TableScore} | TablesResults],
     #table{pid = TablePid} = Table = fetch_table(TableId, Tables),
     NewTable = Table#table{context = TableContext, state = ?TABLE_STATE_FINISHED},
@@ -476,10 +476,10 @@ handle_table_message(TableId, {game_finished, TableContext, _RoundScore, TableSc
        || #table{pid = TPid, state = ?TABLE_STATE_FINISHED} <- tables_to_list(Tables)],
     SeriesResult = series_result(TableScore),
     NewSeriesResults = [{TableId, SeriesResult} | SeriesResults],
-    ?INFO("TRN_PAIRED <~p> Set result: ~p", [GameId, SeriesResult]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Set result: ~p", [GameId, SeriesResult]),
     Points = calc_players_prize_points(SeriesResult, KakushForWinners, KakushForLoser, WinGamePoints, MulFactor, Players),
     UsersPrizePoints = prepare_users_prize_points(Points, Players),
-    ?INFO("TRN_PAIRED <~p> Prizes: ~p", [GameId, UsersPrizePoints]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Prizes: ~p", [GameId, UsersPrizePoints]),
     add_points_to_accounts(UsersPrizePoints, GameId, GameType, GameMode, MulFactor),
     NewStateData = StateData#state{tables = NewTables,
                                    tables_results = NewTablesResults,
@@ -501,7 +501,7 @@ handle_table_message(TableId, {response, RequestId, Response},
     NewTabRequests = dict:erase(RequestId, TabRequests),
     case dict:find(RequestId, TabRequests) of
         {ok, ReqContext} ->
-            ?INFO("TRN_PAIRED <~p> The a response received from table <~p>. "
+            gas:info(?MODULE,"TRN_PAIRED <~p> The a response received from table <~p>. "
                   "RequestId: ~p. Request context: ~p. Response: ~p",
                   [GameId, TableId, RequestId, ReqContext, Response]),
             handle_table_response(TableId, ReqContext, Response, StateName,
@@ -519,7 +519,7 @@ handle_table_message(TableId, {game_event, #tavla_next_turn{table_id = TableId,
                      #state{cur_color = CurColor, next_turn_wl = NextTurnWL,
                             game_id = GameId} = StateData) ->
     Color = ext_to_color(ExtColor),
-    ?INFO("TRN_PAIRED <~p> The 'tavla_next_turn event' received from table <~p>. "
+    gas:info(?MODULE,"TRN_PAIRED <~p> The 'tavla_next_turn event' received from table <~p>. "
           "Color: ~p. CurColor: ~p, WaitList: ~p",
           [GameId, TableId, Color, CurColor, NextTurnWL]),
     true = opponent(CurColor) == Color, %% Assert 
@@ -544,7 +544,7 @@ handle_table_message(_TableId, {table_state_event, DestTableId, PlayerId, Ref, S
     {next_state, StateName, StateData};
 
 handle_table_message(TableId, Message, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Unhandled table message received from table <~p> in "
+    gas:info(?MODULE,"TRN_PAIRED <~p> Unhandled table message received from table <~p> in "
           "state <~p>: ~p.", [GameId, TableId, StateName, Message]),
     {next_state, StateName, StateData}.
 
@@ -587,7 +587,7 @@ handle_table_response(_TableId, {replace_player, PlayerId, TableId, SeatNum}, ok
 
 handle_table_response(TableId, RequestContext, Response, StateName,
                       #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Unhandled 'table response' received from table <~p> "
+    gas:info(?MODULE,"TRN_PAIRED <~p> Unhandled 'table response' received from table <~p> "
           "in state <~p>. Request context: ~p. Response: ~p.",
           [GameId, TableId, StateName, RequestContext, Response]),
     {next_state, StateName, StateData}.
@@ -600,51 +600,51 @@ handle_client_request({join, UserInfo}, From, StateName,
                              bots_replacement_mode = BotsReplacementMode,
                              table_module = TableMod} = StateData) ->
     #'PlayerInfo'{id = UserId, robot = _IsBot} = UserInfo,
-    ?INFO("TRN_PAIRED <~p> The 'Join' request received from user: ~p.", [GameId, UserId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> The 'Join' request received from user: ~p.", [GameId, UserId]),
     if StateName == ?STATE_FINISHED ->
-           ?INFO("TRN_PAIRED <~p> The game is finished. "
+           gas:info(?MODULE,"TRN_PAIRED <~p> The game is finished. "
                  "Reject to join user ~p.", [GameId, UserId]),
            {reply, {error, finished}, StateName, StateData};
        true -> %% Game in progress. Find a seat for the user
            case get_player_by_user_id(UserId, Players) of
                {ok, #player{id = PlayerId}} -> %% The user is a registered member of the game (player)
-                   ?INFO("TRN_PAIRED <~p> User ~p is a registered member of the game. "
+                   gas:info(?MODULE,"TRN_PAIRED <~p> User ~p is a registered member of the game. "
                          "Allow to join.", [GameId, UserId]),
                    [#seat{table = TableId, registered_by_table = RegByTable}] = find_seats_by_player_id(PlayerId, Seats),
                    case RegByTable of
                        false -> %% The player is not registered by the table yet
-                           ?INFO("TRN_PAIRED <~p> User ~p not yet regirested by the table. "
+                           gas:info(?MODULE,"TRN_PAIRED <~p> User ~p not yet regirested by the table. "
                                  "Add the request to the waiting pool.", [GameId, UserId]),
                            NewRegRequests = dict:store(PlayerId, From, RegRequests),
                            {next_state, StateName, StateData#state{reg_requests = NewRegRequests}};
                        _ -> %% The player is registered by the table. Return the table requisites
-                           ?INFO("TRN_PAIRED <~p> Return the join response for player ~p immediately.",
+                           gas:info(?MODULE,"TRN_PAIRED <~p> Return the join response for player ~p immediately.",
                                  [GameId, UserId]),
                            #table{relay = Relay, pid = TPid} = fetch_table(TableId, Tables),
                            {reply, {ok, {PlayerId, Relay, {TableMod, TPid}}}, StateName, StateData}
                    end;
                error -> %% Not a member yet
-                   ?INFO("TRN_PAIRED <~p> User ~p is not a member of the game.", [GameId, UserId]),
+                   gas:info(?MODULE,"TRN_PAIRED <~p> User ~p is not a member of the game.", [GameId, UserId]),
                    case find_free_seats(Seats) of
                        [] when BotsReplacementMode == disabled ->
-                           ?INFO("TRN_PAIRED <~p> No free seats for user ~p. Robots replacement is disabled. "
+                           gas:info(?MODULE,"TRN_PAIRED <~p> No free seats for user ~p. Robots replacement is disabled. "
                                  "Reject to join.", [GameId, UserId]),
                            {reply, {error, not_allowed}, StateName, StateData};
                        [] when BotsReplacementMode == enabled ->
-                           ?INFO("TRN_PAIRED <~p> No free seats for user ~p. Robots replacement is enabled. "
+                           gas:info(?MODULE,"TRN_PAIRED <~p> No free seats for user ~p. Robots replacement is enabled. "
                                  "Tring to find a robot for replace.", [GameId, UserId]),
                            case find_registered_robot_seats(Seats) of
                                [] ->
-                                   ?INFO("TRN_PAIRED <~p> No robots for replacement by user ~p. "
+                                   gas:info(?MODULE,"TRN_PAIRED <~p> No robots for replacement by user ~p. "
                                          "Reject to join.", [GameId, UserId]),
                                    {reply, {error, not_allowed}, StateName, StateData};
                                [#seat{table = TableId, seat_num = SeatNum, player_id = OldPlayerId} | _] ->
-                                   ?INFO("TRN_PAIRED <~p> There is a robot for replacement by user ~p. "
+                                   gas:info(?MODULE,"TRN_PAIRED <~p> There is a robot for replacement by user ~p. "
                                          "Registering.", [GameId, UserId]),
                                    reg_player_with_replace(UserInfo, TableId, SeatNum, OldPlayerId, From, StateName, StateData)
                            end;
                        [#seat{table = TableId, seat_num = SeatNum} | _] ->
-                           ?INFO("TRN_PAIRED <~p> There is a free seat for user ~p. "
+                           gas:info(?MODULE,"TRN_PAIRED <~p> There is a free seat for user ~p. "
                                  "Registering.", [GameId, UserId]),
                            reg_new_player(UserInfo, TableId, SeatNum, From, StateName, StateData)
                    end
@@ -652,7 +652,7 @@ handle_client_request({join, UserInfo}, From, StateName,
     end;
 
 handle_client_request(Request, From, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Unhandled client request received from ~p in "
+    gas:info(?MODULE,"TRN_PAIRED <~p> Unhandled client request received from ~p in "
           "state <~p>: ~p.", [GameId, From, StateName, Request]),
    {reply, {error, unexpected_request}, StateName, StateData}.
 
@@ -661,7 +661,7 @@ init_tour(Tour, #state{game_id = GameId, table_module = TableModule,
                       params = TableParams, players = Players, tables_num = TablesNum,
                       table_id_counter = TableIdCounter, tables = OldTables,
                       seats_per_table = SeatsPerTable} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Initializing tour <~p>...", [GameId, Tour]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Initializing tour <~p>...", [GameId, Tour]),
     PlayersList = prepare_players_for_new_tour(0, Players),
     {NewTables, Seats, NewTableIdCounter, CrRequests} =
         setup_tables(TableModule, PlayersList, SeatsPerTable, TablesNum, _TTable = undefined,
@@ -669,7 +669,7 @@ init_tour(Tour, #state{game_id = GameId, table_module = TableModule,
     if Tour > 1 -> finalize_tables_with_rejoin(TableModule, OldTables);
        true -> do_nothing
     end,
-    ?INFO("TRN_PAIRED <~p> Initializing of tour <~p> is finished. "
+    gas:info(?MODULE,"TRN_PAIRED <~p> Initializing of tour <~p> is finished. "
           "Waiting creating confirmations from the tours' tables...",
           [GameId, Tour]),
     {next_state, ?STATE_WAITING_FOR_TABLES, StateData#state{tables = NewTables,
@@ -684,14 +684,14 @@ init_tour(Tour, #state{game_id = GameId, table_module = TableModule,
                                                            }}.
 
 start_tour(#state{game_id = GameId, tour = Tour} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Starting tour <~p>...", [GameId, Tour]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Starting tour <~p>...", [GameId, Tour]),
     start_round(StateData#state{start_color = undefined}).
 
 start_round(#state{game_id = GameId, game_type = GameType, game_mode = GameMode,
                    mul_factor = MulFactor, quota_per_round = Amount,
                    tables = Tables, players = Players, table_module = TableModule,
                    start_color = StartColor} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Starting new round...", [GameId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Starting new round...", [GameId]),
     UsersIds = [UserId || #player{user_id = UserId, is_bot = false} <- players_to_list(Players)],
     deduct_quota(GameId, GameType, GameMode, Amount, MulFactor, UsersIds),
     TablesList = tables_to_list(Tables),
@@ -701,7 +701,7 @@ start_round(#state{game_id = GameId, game_type = GameType, game_mode = GameMode,
         end,
     NewTables = lists:foldl(F, Tables, TablesList),
     WL = [T#table.id || T <- TablesList],
-    ?INFO("TRN_PAIRED <~p> The round is started. Processing...", [GameId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> The round is started. Processing...", [GameId]),
     NewStartColor =
         if StartColor == undefined ->
                {Die1, Die2} = competition_roll(),
@@ -716,7 +716,7 @@ start_round(#state{game_id = GameId, game_type = GameType, game_mode = GameMode,
                   || #table{pid = Pid} <- TablesList],
                OppColor
         end,
-    ?INFO("TRN_PAIRED <~p> Start color is ~p", [GameId, NewStartColor]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Start color is ~p", [GameId, NewStartColor]),
     {next_state, ?STATE_TOUR_PROCESSING, StateData#state{tables = NewTables,
                                                          tables_wl = WL,
                                                          start_color = NewStartColor,
@@ -724,9 +724,9 @@ start_round(#state{game_id = GameId, game_type = GameType, game_mode = GameMode,
                                                          next_turn_wl = WL}}.
 
 finalize_tour(#state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Finalizing the tour...", [GameId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Finalizing the tour...", [GameId]),
     {TRef, Magic} = start_timer(?SHOW_SERIES_RESULT_TIMEOUT),
-    ?INFO("TRN_PAIRED <~p> The tour is finalized. "
+    gas:info(?MODULE,"TRN_PAIRED <~p> The tour is finalized. "
           "Waiting some time (~p secs) before continue...",
           [GameId, ?SHOW_SERIES_RESULT_TIMEOUT div 1000]),
     {next_state, ?STATE_SHOW_TOUR_RESULT, StateData#state{timer = TRef, timer_magic = Magic}}.
@@ -734,9 +734,9 @@ finalize_tour(#state{game_id = GameId} = StateData) ->
 
 finalize_tournament(#state{game_id = GameId, table_module = TableModule,
                            tables = Tables} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Finalizing the tournament...", [GameId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Finalizing the tournament...", [GameId]),
     finalize_tables_with_disconnect(TableModule, Tables),
-    ?INFO("TRN_PAIRED <~p> Finalization completed. Stopping...", [GameId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> Finalization completed. Stopping...", [GameId]),
     {stop, normal, StateData#state{tables = [], seats = []}}.
 
 
@@ -853,16 +853,16 @@ reg_player_with_replace(UserInfo, TableId, SeatNum, OldPlayerId, From, StateName
     NewPlayers = del_player(OldPlayerId, Players),
     NewPlayers2 = store_player(#player{id = PlayerId, user_id = UserId,
                                        user_info = UserInfo, is_bot = IsBot}, NewPlayers),
-    ?INFO("TRN_PAIRED <~p> User ~p registered as player <~p>.", [GameId, UserId, PlayerId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> User ~p registered as player <~p>.", [GameId, UserId, PlayerId]),
     NewSeats = set_seat(TableId, SeatNum, PlayerId, _Bot = false, _RegByTable = false,
                         _Connected = false, _Free = false, Seats),
-    ?INFO("TRN_PAIRED <~p> User ~p assigned to seat <~p> of table <~p>.", [GameId, UserId, SeatNum, TableId]),
+    gas:info(?MODULE,"TRN_PAIRED <~p> User ~p assigned to seat <~p> of table <~p>.", [GameId, UserId, SeatNum, TableId]),
     NewRegRequests = dict:store(PlayerId, From, RegRequests),
     #table{pid = TablePid, state = TableStateName} = fetch_table(TableId, Tables),
     NewTabRequests = table_req_replace_player(TableModule, TablePid, PlayerId, UserInfo, TableId, SeatNum, TabRequests),
     case TableStateName of
         ?TABLE_STATE_IN_PROGRESS when not IsBot->
-            ?INFO("TRN_PAIRED <~p> User ~p is a real player <~p> and he was registered in the middle of the round."
+            gas:info(?MODULE,"TRN_PAIRED <~p> User ~p is a real player <~p> and he was registered in the middle of the round."
                   "So deduct some quota.", [GameId, UserId, PlayerId]),
             deduct_quota(GameId, GameType, GameMode, Amount, MulFactor, [UserId]);
         _ -> do_nothing
@@ -895,11 +895,11 @@ reg_new_player(UserInfo, TableId, SeatNum, From, StateName,
                                    player_id_counter = PlayerId + 1},
     EnoughPlayers = enough_players(NewSeats, TablesNum*SeatsPerTable),
     if StateName == ?STATE_EMPTY_SEATS_FILLING andalso EnoughPlayers ->
-           ?INFO("TRN_PAIRED <~p> It's enough players registered to start the game. "
+           gas:info(?MODULE,"TRN_PAIRED <~p> It's enough players registered to start the game. "
                  "Initiating the procedure.", [GameId]),
            start_tour(NewStateData);
        true ->
-           ?INFO("TRN_PAIRED <~p> Not enough players registered to start the game. "
+           gas:info(?MODULE,"TRN_PAIRED <~p> Not enough players registered to start the game. "
                  "Waiting for more registrations.", [GameId]),
            {next_state, StateName, NewStateData}
     end.
@@ -1066,22 +1066,22 @@ remove_table_from_next_turn_wl(TableId, StateName,
                                #state{game_id = GameId, cur_color = CurColor,
                                       next_turn_wl = NextTurnWL, table_module = TableModule,
                                       tables = Tables, tables_wl = TablesWL} = StateData) ->
-    ?INFO("TRN_PAIRED <~p> Removing table <~p> from the next turn waiting list: ~p.",
+    gas:info(?MODULE,"TRN_PAIRED <~p> Removing table <~p> from the next turn waiting list: ~p.",
           [GameId, TableId, NextTurnWL]),
     NewNextTurnWL = lists:delete(TableId, NextTurnWL),
     if NewNextTurnWL == [] ->
            OppColor = opponent(CurColor),
            {Die1, Die2} = roll(),
-           ?INFO("TRN_PAIRED <~p> The next turn waiting list is empty. Rolling dice for color ~p: ~p",
+           gas:info(?MODULE,"TRN_PAIRED <~p> The next turn waiting list is empty. Rolling dice for color ~p: ~p",
                  [GameId, OppColor, [Die1, Die2]]),
            [send_to_table(TableModule, TablePid, {action, {rolls, OppColor, Die1, Die2}}) ||
               #table{pid = TablePid} <- tables_to_list(Tables)],
-           ?INFO("TRN_PAIRED <~p> New next turn waiting list is ~p",
+           gas:info(?MODULE,"TRN_PAIRED <~p> New next turn waiting list is ~p",
                  [GameId, TablesWL]),
            {next_state, StateName, StateData#state{next_turn_wl = TablesWL,
                                                    cur_color = OppColor}};
        true ->
-           ?INFO("TRN_PAIRED <~p> The next turn waiting list is not empty:~p. Waiting for the rest players.",
+           gas:info(?MODULE,"TRN_PAIRED <~p> The next turn waiting list is not empty:~p. Waiting for the rest players.",
                  [GameId, NewNextTurnWL]),
            {next_state, StateName, StateData#state{next_turn_wl = NewNextTurnWL}}
     end.
@@ -1235,7 +1235,7 @@ send_to_table(TableModule, TablePid, Message) ->
 
 
 get_param(ParamId, Params) ->
-    ?INFO("get_param/2 ParamId:~p", [ParamId]),
+    gas:info(?MODULE,"get_param/2 ParamId:~p", [ParamId]),
     {_, Value} = lists:keyfind(ParamId, 1, Params),
     Value.
 

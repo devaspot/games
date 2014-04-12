@@ -158,7 +158,7 @@ system_request(Pid, Message, Timeout) ->
 %% ====================================================================
 
 init([GameId, Params, _Manager]) ->
-    ?INFO("TRN_ELIMINATION <~p> Init started",[GameId]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Init started",[GameId]),
     Registrants = get_param(registrants, Params),
     QuotaPerRound = get_param(quota_per_round, Params),
     RoundsPerTour = get_param(rounds_per_tour, Params),
@@ -175,15 +175,15 @@ init([GameId, Params, _Manager]) ->
     DemoMode = get_option(demo_mode, Params, false),
     TrnId = get_option(trn_id, Params, undefined),
 
-    [?INFO("TRN_ELIMINATION_DBG <~p> Parameter <~p> : ~p", [GameId, P, V]) ||
+    [gas:info(?MODULE,"TRN_ELIMINATION_DBG <~p> Parameter <~p> : ~p", [GameId, P, V]) ||
      {P, V} <- Params],
 
     Players = setup_players(Registrants),
     PlayersIds = get_players_ids(Players),
     TTable = ttable_init(PlayersIds),
 
-    ?INFO("TRN_ELIMINATION_DBG <~p> TTable: ~p", [GameId, TTable]),
-    ?INFO("TRN_ELIMINATION <~p> started.  Pid:~p", [GameId, self()]),
+    gas:info(?MODULE,"TRN_ELIMINATION_DBG <~p> TTable: ~p", [GameId, TTable]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> started.  Pid:~p", [GameId, self()]),
 
     gen_fsm:send_all_state_event(self(), go),
     {ok, ?STATE_INIT, #state{game_id = GameId,
@@ -208,7 +208,7 @@ init([GameId, Params, _Manager]) ->
 %%===================================================================
 handle_event(go, ?STATE_INIT, #state{game_id = GameId, trn_id = TrnId,
                                      game_type = GameType} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Received a directive to starting the tournament.", [GameId]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Received a directive to starting the tournament.", [GameId]),
     GProcVal = #game_table{game_type = GameType,
                            game_process = self(),
                            game_module = ?MODULE,
@@ -230,28 +230,28 @@ handle_event(go, ?STATE_INIT, #state{game_id = GameId, trn_id = TrnId,
     init_tour(1, StateData);
 
 handle_event({client_message, Message}, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Received the message from a client: ~p.", [GameId, Message]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Received the message from a client: ~p.", [GameId, Message]),
     handle_client_message(Message, StateName, StateData);
 
 handle_event({table_message, TableId, Message}, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Received the message from table <~p>: ~p.", [GameId, TableId, Message]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Received the message from table <~p>: ~p.", [GameId, TableId, Message]),
     handle_table_message(TableId, Message, StateName, StateData);
 
 handle_event(Message, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Unhandled message(event) received in state <~p>: ~p.",
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Unhandled message(event) received in state <~p>: ~p.",
           [GameId, StateName, Message]),
     {next_state, StateName, StateData}.
 
 handle_sync_event({client_request, Request}, From, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Received the request from a client: ~p.", [GameId, Request]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Received the request from a client: ~p.", [GameId, Request]),
     handle_client_request(Request, From, StateName, StateData);
 
 handle_sync_event({system_request, Request}, From, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Received the request from the system: ~p.", [GameId, Request]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Received the request from the system: ~p.", [GameId, Request]),
     handle_system_request(Request, From, StateName, StateData);
 
 handle_sync_event(Request, From, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Unhandled request(event) received in state <~p> from ~p: ~p.",
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Unhandled request(event) received in state <~p> from ~p: ~p.",
           [GameId, StateName, From, Request]),
     {reply, {error, unknown_request}, StateName, StateData}.
 
@@ -261,7 +261,7 @@ handle_info({'DOWN', MonRef, process, _Pid, _}, StateName,
             #state{game_id = GameId, tables = Tables} = StateData) ->
     case get_table_by_mon_ref(MonRef, Tables) of
         #table{id = TableId} ->
-            ?INFO("TRN_ELIMINATION <~p> Table <~p> is down. Stopping", [GameId, TableId]),
+            gas:info(?MODULE,"TRN_ELIMINATION <~p> Table <~p> is down. Stopping", [GameId, TableId]),
             %% TODO: More smart handling (failover) needed
             {stop, {one_of_tables_down, TableId}, StateData};
         not_found ->
@@ -271,7 +271,7 @@ handle_info({'DOWN', MonRef, process, _Pid, _}, StateName,
 
 handle_info({rest_timeout, TableId}, StateName,
             #state{game_id = GameId, tables = Tables, table_module = TableModule} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Time to start new round for table <~p>.", [GameId, TableId]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Time to start new round for table <~p>.", [GameId, TableId]),
     #table{pid = TablePid, state = TableState} = Table = fetch_table(TableId, Tables),
     if TableState == ?TABLE_STATE_WAITING_NEW_ROUND ->
            NewTable = Table#table{state = ?TABLE_STATE_IN_PROGRESS},
@@ -279,7 +279,7 @@ handle_info({rest_timeout, TableId}, StateName,
            send_to_table(TableModule, TablePid, start_round),
            {next_state, StateName, StateData#state{tables = NewTables}};
        true ->
-           ?INFO("TRN_ELIMINATION <~p> Don't start new round at table <~p> because it is not waiting for start.",
+           gas:info(?MODULE,"TRN_ELIMINATION <~p> Don't start new round at table <~p> because it is not waiting for start.",
                  [GameId, TableId]),
            {next_state, StateName, StateData}
     end;
@@ -287,7 +287,7 @@ handle_info({rest_timeout, TableId}, StateName,
 
 handle_info({timeout, Magic}, ?STATE_WAITING_FOR_PLAYERS,
             #state{timer_magic = Magic, game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Time to start new turn.", [GameId]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Time to start new turn.", [GameId]),
     start_turn(StateData);
 
 
@@ -295,11 +295,11 @@ handle_info({timeout, Magic}, ?STATE_SHOW_SERIES_RESULT,
             #state{timer_magic = Magic, tour = Tour, tours = Tours,
                    game_id = GameId} = StateData) ->
     if Tour == Tours ->
-           ?INFO("TRN_ELIMINATION <~p> Time to finalize the tournament.", [GameId]),
+           gas:info(?MODULE,"TRN_ELIMINATION <~p> Time to finalize the tournament.", [GameId]),
            finalize_tournament(StateData);
        true ->
            NewTour = Tour + 1,
-           ?INFO("TRN_ELIMINATION <~p> Time to initialize tour <~p>.", [GameId, NewTour]),
+           gas:info(?MODULE,"TRN_ELIMINATION <~p> Time to initialize tour <~p>.", [GameId, NewTour]),
            init_tour(NewTour, StateData)
     end;
 
@@ -307,20 +307,20 @@ handle_info({timeout, Magic}, ?STATE_SHOW_SERIES_RESULT,
 handle_info({timeout, Magic}, ?STATE_FINISHED,
             #state{timer_magic = Magic, tables = Tables, game_id = GameId,
                    table_module = TableModule} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Time to stopping the tournament.", [GameId]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Time to stopping the tournament.", [GameId]),
     finalize_tables_with_disconnect(TableModule, Tables),
     {stop, normal, StateData#state{tables = [], seats = []}};
 
 
 handle_info(Message, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Unhandled message(info) received in state <~p>: ~p.",
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Unhandled message(info) received in state <~p>: ~p.",
           [GameId, StateName, Message]),
     {next_state, StateName, StateData}.
 
 %%===================================================================
 
 terminate(_Reason, _StateName, #state{game_id=GameId}=_StatData) ->
-    ?INFO("TRN_ELIMINATION <~p> Shutting down at state: <~p>. Reason: ~p",
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Shutting down at state: <~p>. Reason: ~p",
           [GameId, _StateName, _Reason]),
     ok.
 
@@ -335,7 +335,7 @@ code_change(_OldVsn, StateName, StateData, _Extra) ->
 
 
 handle_client_message(Message, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Unhandled client message received in "
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Unhandled client message received in "
           "state <~p>: ~p.", [GameId, StateName, Message]),
     {next_state, StateName, StateData}.
 
@@ -451,7 +451,7 @@ handle_table_message(TableId, {response, RequestId, Response},
     NewTabRequests = dict:erase(RequestId, TabRequests),
     case dict:find(RequestId, TabRequests) of
         {ok, ReqContext} ->
-            ?INFO("TRN_ELIMINATION <~p> The a response received from table <~p>. "
+            gas:info(?MODULE,"TRN_ELIMINATION <~p> The a response received from table <~p>. "
                   "RequestId: ~p. Request context: ~p. Response: ~p",
                   [GameId, TableId, RequestId, ReqContext, Response]),
             handle_table_response(TableId, ReqContext, Response, StateName,
@@ -464,7 +464,7 @@ handle_table_message(TableId, {response, RequestId, Response},
 
 
 handle_table_message(TableId, Message, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Unhandled table message received from table <~p> in "
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Unhandled table message received from table <~p> in "
           "state <~p>: ~p.", [GameId, TableId, StateName, Message]),
     {next_state, StateName, StateData}.
 
@@ -507,7 +507,7 @@ handle_table_message(TableId, Message, StateName, #state{game_id = GameId} = Sta
 
 handle_table_response(TableId, RequestContext, Response, StateName,
                       #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Unhandled 'table response' received from table <~p> "
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Unhandled 'table response' received from table <~p> "
           "in state <~p>. Request context: ~p. Response: ~p.",
           [GameId, TableId, StateName, RequestContext, Response]),
     {next_state, StateName, StateData}.
@@ -519,56 +519,56 @@ handle_client_request({join, User}, From, StateName,
                              seats = Seats, players=Players, tables = Tables,
                              table_module = TableModule} = StateData) ->
     #'PlayerInfo'{id = UserId, robot = _IsBot} = User,
-    ?INFO("TRN_ELIMINATION <~p> The 'Join' request received from user: ~p.", [GameId, UserId]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> The 'Join' request received from user: ~p.", [GameId, UserId]),
     if StateName == ?STATE_FINISHED ->
-           ?INFO("TRN_ELIMINATION <~p> The tournament is finished. "
+           gas:info(?MODULE,"TRN_ELIMINATION <~p> The tournament is finished. "
                  "Reject to join user ~p.", [GameId, UserId]),
            {reply, {error, finished}, StateName, StateData};
        true ->
            case get_player_by_user_id(UserId, Players) of
                {ok, #player{status = active, id = PlayerId}} -> %% The user is an active member of the tournament.
-                   ?INFO("TRN_ELIMINATION <~p> User ~p is an active member of the tournament. "
+                   gas:info(?MODULE,"TRN_ELIMINATION <~p> User ~p is an active member of the tournament. "
                          "Allow to join.", [GameId, UserId]),
                    [#seat{table = TableId, registered_by_table = RegByTable}] = find_seats_by_player_id(PlayerId, Seats),
                    case RegByTable of
                        false -> %% Store this request to the waiting pool
-                           ?INFO("TRN_ELIMINATION <~p> User ~p not yet regirested by the table. "
+                           gas:info(?MODULE,"TRN_ELIMINATION <~p> User ~p not yet regirested by the table. "
                                  "Add the request to the waiting pool.", [GameId, UserId]),
                            NewRegRequests = dict:store(PlayerId, From, RegRequests),
                            {next_state, StateName, StateData#state{reg_requests = NewRegRequests}};
                        _ ->
-                           ?INFO("TRN_ELIMINATION <~p> Return join response for player ~p immediately.",
+                           gas:info(?MODULE,"TRN_ELIMINATION <~p> Return join response for player ~p immediately.",
                                  [GameId, UserId]),
                            #table{relay = Relay, pid = TPid} = fetch_table(TableId, Tables),
                            {reply, {ok, {PlayerId, Relay, {TableModule, TPid}}}, StateName, StateData}
                    end;
                {ok, #player{status = eliminated}} ->
-                   ?INFO("TRN_ELIMINATION <~p> User ~p is member of the tournament but he was eliminated. "
+                   gas:info(?MODULE,"TRN_ELIMINATION <~p> User ~p is member of the tournament but he was eliminated. "
                          "Reject to join.", [GameId, UserId]),
                    {reply, {error, out}, StateName, StateData};
                error -> %% Not a member
-                   ?INFO("TRN_ELIMINATION <~p> User ~p is not a member of the tournament. "
+                   gas:info(?MODULE,"TRN_ELIMINATION <~p> User ~p is not a member of the tournament. "
                          "Reject to join.", [GameId, UserId]),
                    {reply, {error, not_allowed}, StateName, StateData}
            end
     end;
 
 handle_client_request(Request, From, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Unhandled client request received from ~p in "
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Unhandled client request received from ~p in "
           "state <~p>: ~p.", [GameId, From, StateName, Request]),
    {reply, {error, unexpected_request}, StateName, StateData}.
 
 handle_system_request(last_tour_result, _From, StateName,
                       #state{game_id = GameId, tournament_table = TTable,
                              players = Players} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Received request for the last tour results.", [GameId]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Received request for the last tour results.", [GameId]),
     {LastTourNum, TourResultsRaw} = hd(lists:reverse(lists:keysort(1, TTable))),
     TourResults = [{get_user_id(PlayerId, Players), CommonPos, Points, Status}
                    || {PlayerId, CommonPos, Points, Status} <- TourResultsRaw],
     {reply, {ok, {LastTourNum, TourResults}}, StateName, StateData};
 
 handle_system_request(Request, From, StateName, #state{game_id = GameId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Unhandled system request received from ~p in "
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Unhandled system request received from ~p in "
           "state <~p>: ~p.", [GameId, From, StateName, Request]),
     {reply, {error, unexpected_request}, StateName, StateData}.
 
@@ -579,7 +579,7 @@ init_tour(Tour, #state{game_id = GameId, tours_plan = Plan, tournament_table = T
                        players_per_table = PlayersPerTable, game_type = GameType,
                        game_mode = GameMode, table_module = TableModule,
                        rounds_per_tour = RoundsPerTour} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Initializing tour <~p>...", [GameId, Tour]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Initializing tour <~p>...", [GameId, Tour]),
     PlayersList = prepare_players_for_new_tour(Tour, TTable, Plan, Players),
     PrepTTable = prepare_ttable_for_tables(TTable, Players),
     UsersIds = [UserId || {_, #'PlayerInfo'{id = UserId}, _} <- PlayersList],
@@ -590,7 +590,7 @@ init_tour(Tour, #state{game_id = GameId, tours_plan = Plan, tournament_table = T
     if Tour > 1 -> finalize_tables_with_rejoin(TableModule, OldTables);
        true -> do_nothing
     end,
-    ?INFO("TRN_ELIMINATION <~p> Initializing of tour <~p> is finished. "
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Initializing of tour <~p> is finished. "
           "Waiting creating confirmations from the tours' tables...",
           [GameId, Tour]),
     {next_state, ?STATE_WAITING_FOR_TABLES, StateData#state{tables = NewTables,
@@ -605,7 +605,7 @@ init_tour(Tour, #state{game_id = GameId, tours_plan = Plan, tournament_table = T
 
 start_turn(#state{game_id = GameId, tour = Tour, tables = Tables,
                   table_module = TableModule} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Starting tour <~p>...", [GameId, Tour]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Starting tour <~p>...", [GameId, Tour]),
     TablesList = tables_to_list(Tables),
     [send_to_table(TableModule, Pid, start_round) || #table{pid = Pid} <- TablesList],
     F = fun(Table, Acc) ->
@@ -613,7 +613,7 @@ start_turn(#state{game_id = GameId, tour = Tour, tables = Tables,
         end,
     NewTables = lists:foldl(F, Tables, TablesList),
     WL = [T#table.id || T <- TablesList],
-    ?INFO("TRN_ELIMINATION <~p> Tour <~p> is started. Processing...",
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Tour <~p> is started. Processing...",
           [GameId, Tour]),
     {next_state, ?STATE_TURN_PROCESSING, StateData#state{tables = NewTables,
                                                          tables_wl = WL}}.
@@ -623,7 +623,7 @@ process_tour_result(#state{game_id = GameId, tournament_table = TTable, tours = 
                            tours_plan = Plan, tour = Tour, tables_results = TablesResults,
                            players = Players, tables = Tables, trn_id = TrnId,
                            table_module = TableModule} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Tour <~p> is completed. Starting results processing...", [GameId, Tour]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Tour <~p> is completed. Starting results processing...", [GameId, Tour]),
     TourType = lists:nth(Tour, Plan),
     TourResult1 = case TourType of
                      ne -> tour_result_all(TablesResults);
@@ -648,7 +648,7 @@ process_tour_result(#state{game_id = GameId, tournament_table = TTable, tours = 
                                || {UserId, Position, Points, Status} <- TourResultWithUserId],
     wf:send(["system", "tournament_tour_note"], {TrnId, Tour, Tours, TourType, TourResultWithStrUserId}),
     {TRef, Magic} = start_timer(?SHOW_SERIES_RESULT_TIMEOUT),
-    ?INFO("TRN_ELIMINATION <~p> Results processing of tour <~p> is finished. "
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Results processing of tour <~p> is finished. "
           "Waiting some time (~p secs) before continue...",
           [GameId, Tour, ?SHOW_SERIES_RESULT_TIMEOUT div 1000]),
     {next_state, ?STATE_SHOW_SERIES_RESULT, StateData#state{timer = TRef, timer_magic = Magic,
@@ -657,17 +657,17 @@ process_tour_result(#state{game_id = GameId, tournament_table = TTable, tours = 
 
 finalize_tournament(#state{game_id = GameId, awards = Awards, tournament_table = TTable,
                            players = Players, trn_id = TrnId} = StateData) ->
-    ?INFO("TRN_ELIMINATION <~p> Finalizing the tournament...", [GameId]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Finalizing the tournament...", [GameId]),
     AwardsDistrib = awards_distribution(TTable, Awards),
     AwardsDistribUserId = [{user_id_to_string(get_user_id(PlayerId, Players)), Pos, GiftId}
                            || {PlayerId, Pos, GiftId} <- AwardsDistrib],
     [wf:send(["gifts", "user", UserId, "give_gift"], {GiftId})
        || {UserId, _Pos, GiftId} <- AwardsDistribUserId],
     %% TODO: Do we need advertise the prizes to game clients?
-    ?INFO("TRN_ELIMINATION <~p> Awards distribution: ~p", [GameId, AwardsDistribUserId]),
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> Awards distribution: ~p", [GameId, AwardsDistribUserId]),
     wf:send(["system", "tournament_ends_note"], {TrnId, AwardsDistribUserId}),
     {TRef, Magic} = start_timer(?SHOW_TOURNAMENT_RESULT_TIMEOUT),
-    ?INFO("TRN_ELIMINATION <~p> The tournament is finalized. "
+    gas:info(?MODULE,"TRN_ELIMINATION <~p> The tournament is finalized. "
           "Waiting some time (~p secs) before continue...",
           [GameId, ?SHOW_TOURNAMENT_RESULT_TIMEOUT div 1000]),
     {next_state, ?STATE_FINISHED, StateData#state{timer = TRef, timer_magic = Magic}}.

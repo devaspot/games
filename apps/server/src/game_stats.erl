@@ -146,8 +146,8 @@ assign_points(RawResults, GameInfo) ->
     WinnersNum = length(Winners),
     KakushPerWinner = round((KakushWinner * PaidsNum div TotalNum) / WinnersNum),
     KakushPerLoser = KakushOther * PaidsNum div TotalNum,
-    ?INFO("GAME_STATS <~p> KakushWinner: ~p KakushOther: ~p", [GameId, KakushWinner, KakushOther]),
-    ?INFO("GAME_STATS <~p> KakushPerWinner: ~p KakushPerLoser: ~p", [GameId, KakushPerWinner, KakushPerLoser]),
+    gas:info(?MODULE,"GAME_STATS <~p> KakushWinner: ~p KakushOther: ~p", [GameId, KakushWinner, KakushOther]),
+    gas:info(?MODULE,"GAME_STATS <~p> KakushPerWinner: ~p KakushPerLoser: ~p", [GameId, KakushPerWinner, KakushPerLoser]),
     Results = [begin
                    Robot = lists:member(UserId, Bots),
                    Paid = lists:member(UserId, Paids),
@@ -156,7 +156,7 @@ assign_points(RawResults, GameInfo) ->
                    #result{player_id = user_id_to_string(UserId), robot = Robot, winner = Winner,
                            pos = Pos, kakush_points = KakushPoints, game_points = GamePoints}
                end || #raw_result{player_id = UserId, winner = Winner, pos = Pos} <- RawResults],
-    ?INFO("GAME_STATS <~p> Results: ~p", [GameId, Results]),
+    gas:info(?MODULE,"GAME_STATS <~p> Results: ~p", [GameId, Results]),
     [begin
          if not Robot ->
                 SR = #scoring_record{
@@ -202,7 +202,7 @@ assign_points(RawResults, GameInfo) ->
     GameEndRes = [{if Robot -> "robot"; true -> UserId end, Robot, Pos, KPoints, GPoints}
                   || #result{player_id = UserId, robot = Robot, pos = Pos,
                              kakush_points = KPoints, game_points = GPoints} <- Results],
-    ?INFO("GAME_STATS <~p> Notificaton: ~p", [GameId, {{GameName, GameType}, GameEndRes}]),
+    gas:info(?MODULE,"GAME_STATS <~p> Notificaton: ~p", [GameId, {{GameName, GameType}, GameEndRes}]),
     wf:send(["system", "game_ends_note"], {{GameName, GameType}, GameEndRes}).
 
 is_bot(UserId, Players) ->

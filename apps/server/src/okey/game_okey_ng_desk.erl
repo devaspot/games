@@ -359,7 +359,7 @@ handle_player_action(PlayerId, {discard, Tash}, ?STATE_DISCARD,
     if PlayerId == CurPlayerId ->
            case discard_tash(Tash, PlayerId, Players) of
                error ->
-                   ?INFO("OKEY_NG_DESK Discard error. SeatNum: ~p. Tash: ~p", [PlayerId, Tash]),
+                   gas:info(?MODULE,"OKEY_NG_DESK Discard error. SeatNum: ~p. Tash: ~p", [PlayerId, Tash]),
                    {error, no_such_tash};
                NewPlayers ->
                    Events1 = [{tash_discarded, PlayerId, Tash}],

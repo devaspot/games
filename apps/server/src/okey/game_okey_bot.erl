@@ -44,12 +44,12 @@ init([Owner, PlayerInfo, GameId]) ->
     {ok, SPid} = game_session:start_link(self()),
     game_session:bot_session_attach(SPid, PlayerInfo),
     UId = PlayerInfo#'PlayerInfo'.id,
-    ?INFO("BOTMODULE ~p started with game_session pid ~p", [UId,SPid]),
+    gas:info(?MODULE,"BOTMODULE ~p started with game_session pid ~p", [UId,SPid]),
     {ok, #state{user = PlayerInfo, uid = UId, owner = Owner, gid = GameId, session = SPid}}.
 
 handle_call({server, Msg0}, _From, #state{uid = UId, bot = BPid} = State) ->
     Msg = flashify(Msg0),
-    ?INFO("OKEY BOT ~p: Resend message to bot process (~p): ~p",[UId, BPid, Msg0]),
+    gas:info(?MODULE,"OKEY BOT ~p: Resend message to bot process (~p): ~p",[UId, BPid, Msg0]),
     BPid ! Msg,
     {reply, ok, State};
 
@@ -61,9 +61,9 @@ handle_call({call_rpc, Msg}, From, State) ->
     proc_lib:spawn_link(fun() ->
                                 Res = try
                                           Answer = game_session:process_request(State#state.session, "OKEY BOT", Msg),
-%                            		  ?INFO("Process Request from OKEY BOT:",[]),
-%                            		  ?INFO("                      REQUEST: ~p",[Msg]),
-%                            		  ?INFO("                        REPLY: ~p",[Answer]),
+%                            		  gas:info(?MODULE,"Process Request from OKEY BOT:",[]),
+%                            		  gas:info(?MODULE,"                      REQUEST: ~p",[Msg]),
+%                            		  gas:info(?MODULE,"                        REPLY: ~p",[Answer]),
                                           {reply, Id, Answer}
                                       catch
                                           _Err:Reason ->
@@ -84,7 +84,7 @@ handle_call(get_session, _From, State) ->
 
 handle_call(Request, _From, State) ->
     Reply = ok,
-    ?INFO("unknown call: ~p", [Request]),
+    gas:info(?MODULE,"unknown call: ~p", [Request]),
     {reply, Reply, State}.
 
 handle_cast(join_game, State) ->
@@ -96,12 +96,12 @@ handle_cast(join_game, State) ->
     {noreply, State#state{bot = BPid, owner_mon = Mon}};
 
 handle_cast(Msg, State) ->
-    ?INFO("unknown cast: ~p", [Msg]),
+    gas:info(?MODULE,"unknown cast: ~p", [Msg]),
     {noreply, State}.
 
 handle_info({'DOWN', Ref, process, _, Reason},
             State = #state{owner_mon = OMon}) when OMon == Ref->
-    ?INFO
+    gas:info
     ("relay goes down with reason ~p so does bot", [Reason]),
     {stop, Reason, State};
 handle_info({server,M}, #state{uid = UId, bot = BPid} = State) ->
@@ -146,49 +146,49 @@ robot_init_loop(State) ->
     GameId = State#state.gid,
     receive
         join_game ->
-            ?INFO("OKEY BOT JOINED"),
+            gas:info(?MODULE,"OKEY BOT JOINED"),
             case call_rpc(S, #join_game{game = GameId}) of
                 {error, _Err} ->
-                    ?INFO("ID: ~p failed take with msg ~p", [Id, _Err]),
+                    gas:info(?MODULE,"ID: ~p failed take with msg ~p", [Id, _Err]),
                     erlang:error(robot_cant_join_game);
                 _ ->
                     okey_client_loop(State)
             end;
         _X ->
-           ?INFO("OKEY BOT X: ~p",[_X])
+           gas:info(?MODULE,"OKEY BOT X: ~p",[_X])
     end.
 
 okey_client_loop(State) ->
-    ?INFO("OKEY BOT CLIENT LOOP"),
+    gas:info(?MODULE,"OKEY BOT CLIENT LOOP", []),
     Hand0 = State#state.hand,
     Id = State#state.uid,
     receive
         #game_event{event = <<"okey_next_turn">>, args = Args} = Msg ->
-            ?INFO("OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
+            gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             Hand1 = case {proplists:get_value(player, Args), proplists:get_value(can_challenge, Args)} of
                         {Id, false} ->
-                            ?INFO("OKEY NEXT TURN"),
+                            gas:info(?MODULE,"OKEY NEXT TURN"),
                             do_turn(State, Hand0);
                         {_OtherId, _Val} ->
                             Hand0
                     end,
             okey_client_loop(State#state{hand = Hand1});
         #game_event{event = <<"okey_revealed">>} = Msg ->
-            ?INFO("OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
+            gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             do_challenge(State),
             okey_client_loop(State);
         #game_event{event = <<"okey_series_ended">>} = Msg ->
-            ?INFO("OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
+            gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
 %%            S = State#state.conn,
 %%            call_rpc(S, #logout{});
             okey_client_loop(State);
         #game_event{event = <<"okey_round_ended">>, args = Args} = Msg ->
-            ?INFO("OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
+            gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             NextAction = proplists:get_value(next_action, Args),
-            ?INFO("ID: ~p round ended", [Id]),
+            gas:info(?MODULE,"ID: ~p round ended", [Id]),
             okey_client_round(NextAction, State);
         #game_event{event = <<"okey_game_info">>, args = Args} = Msg ->
-            ?INFO("OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
+            gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             Mode = proplists:get_value(game_type, Args),
             SM = proplists:get_value(sets, Args),
             SC = proplists:get_value(set_no, Args),
@@ -200,20 +200,20 @@ okey_client_loop(State) ->
             ST = #'OkeySetState'{round_cur = 1, round_max = RM, set_cur = SC, set_max = SM},
             okey_client_loop(State#state{set_state = ST, delay = Delay, mode = Mode});
         #game_event{event = <<"okey_disable_okey">>, args = Args} = Msg ->
-            ?INFO("OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
+            gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             okey_client_loop(State#state{okey_disable = true});
         #game_event{event = <<"okey_game_started">>, args = Args} = Msg ->
-            ?INFO("OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
+            gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             MH = proplists:get_value(tiles, Args),
             G = proplists:get_value(gosterge, Args),
             RC = proplists:get_value(current_round, Args),
             ST = State#state.set_state,
             ST1 = ST#'OkeySetState'{round_cur = RC},
 %            State#state{hand = MH, gosterge = G, set_state = ST1},
-            ?INFO("OKEY BOT GAME STARTED : ~p",[length(MH)]),
+            gas:info(?MODULE,"OKEY BOT GAME STARTED : ~p",[length(MH)]),
             okey_client_loop(State#state{hand = MH, gosterge = G, set_state = ST1});
         #game_event{event = <<"okey_game_player_state">>, args = Args} = Msg ->
-            ?INFO("OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
+            gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             SS = #'OkeySetState'{round_cur = 1, round_max = 3,
                             set_cur = 1,set_max = 1},
 
@@ -221,7 +221,7 @@ okey_client_loop(State) ->
             Turn = proplists:get_value(whos_move, Args),
             GameState = proplists:get_value(game_state, Args),
             Gosterge = State#state.gosterge,
-            ?INFO("Id ~p Turn: ~p GameState: ~p",[Id, Turn,GameState]),
+            gas:info(?MODULE,"Id ~p Turn: ~p GameState: ~p",[Id, Turn,GameState]),
 
             case Pause of
                  true -> wait_for_resume();
@@ -231,33 +231,33 @@ okey_client_loop(State) ->
 
             case {Turn, GameState} of
                 {Id, <<"do_okey_take">>} ->
-                    ?INFO("init bot: take", []),
+                    gas:info(?MODULE,"init bot: take", []),
                     Hand1 = do_turn(State, Hand0),
                     okey_client_loop(State#state{hand = Hand1, gosterge = Gosterge});
                 {Id, <<"do_okey_discard">>} ->
-                    ?INFO("init bot: discard", []),
+                    gas:info(?MODULE,"init bot: discard", []),
                     {TryDiscard, _} = draw_random(Hand0),
                     Hand1 = do_discard(State, Hand0, TryDiscard),
                     okey_client_loop(State#state{hand = Hand1, gosterge = Gosterge});
                 {_, <<"game_finished">>} ->
-                    ?INFO("init bot: finished", []),
+                    gas:info(?MODULE,"init bot: finished", []),
                      okey_client_rematch(State),
                     okey_client_loop(State);
                 {_, <<"do_okey_ready">>} ->
-                    ?INFO("init bot: ready", []),
+                    gas:info(?MODULE,"init bot: ready", []),
                     say_ready(State),
                     okey_client_round(<<"done">>, State);
                 {_, <<"do_okey_challenge">>} ->
-                    ?INFO("init bot: challenge", []),
+                    gas:info(?MODULE,"init bot: challenge", []),
                     do_challenge(State),
                     okey_client_loop(State#state{hand = Hand0, gosterge = Gosterge});
                 {_, _B} ->
-                    ?INFO("init bot: UNKNOWN ~p", [_B]),
+                    gas:info(?MODULE,"init bot: UNKNOWN ~p", [_B]),
                     okey_client_loop(State#state{hand = Hand0, gosterge = Gosterge})
             end;
 
         _Other = Msg ->
-            ?INFO("OKEY_BOT <~p> : Received unhandled message: ~p", [Id, Msg]),
+            gas:info(?MODULE,"OKEY_BOT <~p> : Received unhandled message: ~p", [Id, Msg]),
             okey_client_loop(State)
     end.
 
@@ -268,7 +268,7 @@ do_challenge(State) ->
                          game = GameId,
                          action = okey_challenge,
                          args = [ {challenge, random_bool(0.2)} ]}),
-    ?INFO("ID: ~p challenge result: ~p", [State#state.uid, ZZZ]),
+    gas:info(?MODULE,"ID: ~p challenge result: ~p", [State#state.uid, ZZZ]),
     ok.
 
 okey_client_round(<<"done">>, State = #state{}) ->
@@ -289,21 +289,21 @@ okey_client_round(<<"next_round">>, State) ->
 okey_client_rematch(State) ->
     S = State#state.conn,
     GameId = State#state.gid,
-    ?INFO("sending rematch", []),
+    gas:info(?MODULE,"sending rematch", []),
     A = call_rpc(S, #rematch{game = GameId}),
-    ?INFO("rematch result: ~p", [A]),
+    gas:info(?MODULE,"rematch result: ~p", [A]),
     ok = A,
     okey_client_rematch2(State).
 
 okey_client_rematch2(State) ->
     S = State#state.conn,
     GameId = State#state.gid,
-    ?INFO("rematch loop receive", []),
+    gas:info(?MODULE,"rematch loop receive", []),
     receive
         #game_rematched{game = GI} when GameId == GI ->
-            ?INFO("#game_rematched{game = GameId}", []);
+            gas:info(?MODULE,"#game_rematched{game = GameId}", []);
         #game_event{event = <<"player_left">>, args = Args} ->
-            ?INFO("#game_event{event = <<\"player_left\">>, args = Args}", []),
+            gas:info(?MODULE,"#game_event{event = <<\"player_left\">>, args = Args}", []),
             Replaced = proplists:get_value(bot_replaced, Args, false) orelse
                 proplists:get_value(human_replaced, Args, false),
             case Replaced of
@@ -323,14 +323,14 @@ do_turn(#state{delay = Delay} = State, Hand) ->
     Hand1 = if length(Hand) == 15 ->
                    Hand;
                true ->
-                   ?INFO("OKEY BOT TAKE ? ~p ",[length(Hand)]),
+                   gas:info(?MODULE,"OKEY BOT TAKE ? ~p ",[length(Hand)]),
                    simulate_delay(take, Delay),
                    {_, H1} = do_take(State, Hand),
                    H1
             end,
     true = is_list(Hand1),
     {TryDiscard, _} = draw_random(Hand1),
-    ?INFO("DO TURN"),
+    gas:info(?MODULE,"DO TURN"),
     simulate_delay(discard, Delay),
     do_discard(State, Hand1, TryDiscard).
 
@@ -374,7 +374,7 @@ do_take(State, Hand) ->
         {error, game_has_already_ended} when State#state.mode == <<"countdown">> ->
             {false, Hand};
         _Err ->
-            ?INFO("ID: ~p failed take with msg ~p", [Id, _Err]),
+            gas:info(?MODULE,"ID: ~p failed take with msg ~p", [Id, _Err]),
             erlang:error(failed_take),
             {false, Hand}
     end.

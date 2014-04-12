@@ -38,7 +38,7 @@ to_known_record(Bin, Members) when is_binary(Bin) ->
               T
           catch
               _:_ ->
-                  ?INFO("{Bin, Members}: ~p", [{Bin, Members}]),
+                  gas:info(?MODULE,"{Bin, Members}: ~p", [{Bin, Members}]),
                   erlang:error(api_error_unknown_call)
           end,
     to_known_record(Tag, Members);
@@ -46,9 +46,9 @@ to_known_record(Bin, Members) when is_binary(Bin) ->
 to_known_record(Tag, Members0) when is_atom(Tag) ->
     try
         Names = recrunt:fields(Tag),
-%        ?INFO("Names: ~p, Members: ~p",[Names,case Members0 of null -> []; X -> X end]),
+%        gas:info(?MODULE,"Names: ~p, Members: ~p",[Names,case Members0 of null -> []; X -> X end]),
         Members = case to_proper_proplists(Members0) of null -> []; Y -> Y end,
-%        ?INFO("Members: ~p",[Members]),
+%        gas:info(?MODULE,"Members: ~p",[Members]),
         Rev = lists:map(fun(X) ->
                                 Res = proplists:get_value(X, Members),
                                 %% true = (Res =/= undefined),
@@ -58,7 +58,7 @@ to_known_record(Tag, Members0) when is_atom(Tag) ->
         list_to_tuple(List)
     catch
         _:_ ->
-            ?INFO("{Tag, Members0}: ~p", [{Tag, Members0}]),
+            gas:info(?MODULE,"{Tag, Members0}: ~p", [{Tag, Members0}]),
             erlang:error(api_error_wrong_params)
     end.
 

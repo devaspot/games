@@ -12,7 +12,7 @@ start() -> supervisor:start({local, ?SERVER}, ?MODULE, []).
 start_link() -> supervisor:start_link({local, ?SERVER}, ?MODULE, []).
 stop() -> exit(?SERVER, shutdown).
 start_game(Mod,Par,GameId) -> 
-    ?INFO("TAVLA SUP STAR CHILD"),
+    gas:info(?MODULE,"TAVLA SUP STAR CHILD"),
 %%    Restart = transient,
     Restart = temporary,
     Shutdown = 200,
@@ -20,7 +20,7 @@ start_game(Mod,Par,GameId) ->
     supervisor:start_child(?MODULE,ChildSpec).
 
 init([]) ->
-    ?INFO("TAVLA SUP STARTED"),
+    gas:info(?MODULE,"TAVLA SUP STARTED"),
     RestartStrategy = one_for_one,
     MaxRestarts = 1,
     MaxSecondsBetweenRestarts = 600,

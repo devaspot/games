@@ -67,7 +67,7 @@ handle_call(Request, From, State) ->
 
 
 handle_cast({bot_session_attach, UserInfo}, State = #state{user = undefined}) ->
-%    ?INFO("bot session attach", []),
+%    gas:info(?MODULE,"bot session attach", []),
     {noreply, State#state{user = UserInfo}};
 
 handle_cast(Msg, State) ->
@@ -126,8 +126,8 @@ handle_info({'DOWN', OtherRef, process, _Object, Info} = _Msg,
             #state{games = Games, rpc = RPC} = State) ->
     case lists:keyfind(OtherRef, #participation.ref, Games) of
         #participation{} ->
-            ?INFO("The table is down: ~p", [Info]),
-            ?INFO("Closing the client and sutting down the session.", []),
+            gas:info(?MODULE,"The table is down: ~p", [Info]),
+            gas:info(?MODULE,"Closing the client and sutting down the session.", []),
             send_message_to_player(RPC, #disconnect{reason_id = <<"tableDown">>,
                                                     reason = <<"The table you are playing on is unexpectedly down.">>}),
             {stop, table_down, State};
@@ -181,27 +181,27 @@ handle_client_request(#session_attach_debug{token = Token, id = Id}, _From,
     end;
 
 handle_client_request(_, _From, #state{user = undefined} = State) ->
-    ?INFO("unknown session call", []),
+    gas:info(?MODULE,"unknown session call", []),
     {reply, {error, do_session_attach_first}, State};
 
 handle_client_request(#get_game_info{}, _From, State) ->
-    ?INFO("session get game info", []),
+    gas:info(?MODULE,"session get game info", []),
     {reply, {error, not_implemented}, State};
 
 handle_client_request(#logout{}, _From, State) ->
-    ?INFO("client requests #logout{}", []),
+    gas:info(?MODULE,"client requests #logout{}", []),
     {stop, normal, ok, State};
 
 handle_client_request(#get_player_stats{player_id = PlayerId, game_type = Game}, _From,
                       State) when is_binary(Game) ->
-    ?INFO("get player stats", []),
+    gas:info(?MODULE,"get player stats", []),
     GameModule = api_utils:gametype_to_gamemodule(api_utils:gametype_to_atom(Game)),
     Res = GameModule:get_player_stats(PlayerId),
     {reply, Res, State};
 
 handle_client_request(#chat{chat_id = GameId, message = Msg0}, _From,
                       #state{user = User, games = Games} = State) ->
-    ?INFO("chat", []),
+    gas:info(?MODULE,"chat", []),
     Msg = #chat_msg{chat = GameId, content = Msg0,
                     author_id = User#'PlayerInfo'.id,
                     author_nick = User#'PlayerInfo'.login
@@ -218,7 +218,7 @@ handle_client_request(#chat{chat_id = GameId, message = Msg0}, _From,
 handle_client_request(#social_action_msg{type=Type, initiator=P1, recipient=P2}, _From,
                       #state{user = User} = State) when User =/= undefined ->
     UserIdBin = User#'PlayerInfo'.id,
-    ?INFO("social action msg from ~p to ~p (casted by ~p)", [P1, P2, UserIdBin]),
+    gas:info(?MODULE,"social action msg from ~p to ~p (casted by ~p)", [P1, P2, UserIdBin]),
     UserId = binary_to_list(UserIdBin),
     case Type of
         ?SOCIAL_ACTION_SUBSCRIBE ->
@@ -248,7 +248,7 @@ handle_client_request(#social_action_msg{type=Type, initiator=P1, recipient=P2},
 
 handle_client_request(#social_action{} = Msg, _From,
                       #state{user = User, games = Games} = State) ->
-    ?INFO("social action", []),
+    gas:info(?MODULE,"social action", []),
     GameId = Msg#social_action.game,
     Res = #social_action_msg{type = Msg#social_action.type,
                              game = GameId,
@@ -267,7 +267,7 @@ handle_client_request(#social_action{} = Msg, _From,
 handle_client_request(#subscribe_player_rels{players = Players}, _From,
             #state{user = User, rels_notif_channel = RelsChannel,
                    rels_players = RelsPlayers, rpc = RPC} = State) ->
-    ?INFO("subscribe player relations notifications: ~p", [Players]),
+    gas:info(?MODULE,"subscribe player relations notifications: ~p", [Players]),
     UserId = User#'PlayerInfo'.id,
     UserIdStr = binary_to_list(UserId),
     %% Create subscription if we need
@@ -312,7 +312,7 @@ handle_client_request(#unsubscribe_player_rels{players = Players}, _From,
                       #state{rels_notif_channel = RelsChannel,
                              rels_players = RelsPlayers
                             } = State) ->
-    ?INFO("unsubscribe player relations notifications", []),
+    gas:info(?MODULE,"unsubscribe player relations notifications", []),
     %% Remove players from common list
     NewRelsPlayers = RelsPlayers -- Players,
 
@@ -331,18 +331,18 @@ handle_client_request(#unsubscribe_player_rels{players = Players}, _From,
 handle_client_request(#join_game{game = GameId}, _From,
                       #state{user = User, rpc = RPC, games = Games} = State) ->
     UserId = User#'PlayerInfo'.id,
-    ?INFO("join game ~p user ~p from ~p", [GameId, UserId,_From]),
+    gas:info(?MODULE,"join game ~p user ~p from ~p", [GameId, UserId,_From]),
     case get_relay(GameId, Games) of
         #participation{} ->
             {reply, {error, already_joined}, State};
         false ->
-            ?INFO("Requesting main relay info...",[]),
+            gas:info(?MODULE,"Requesting main relay info...",[]),
             case game_manager:get_relay_mod_pid(GameId) of
                 {FLMod, FLPid} ->
-                    ?INFO("Found the game: ~p. Trying to register...",[{FLMod, FLPid}]),
+                    gas:info(?MODULE,"Found the game: ~p. Trying to register...",[{FLMod, FLPid}]),
                     case FLMod:reg(FLPid, User) of
                         {ok, {RegNum, {RMod, RPid}, {TMod, TPid}}} ->
-                            ?INFO("join to game relay: ~p",[{RMod, RPid}]),
+                            gas:info(?MODULE,"join to game relay: ~p",[{RMod, RPid}]),
                             {ok, _SubscrId} = RMod:subscribe(RPid, self(), UserId, RegNum),
                             Ref = erlang:monitor(process, RPid),
                             Part = #participation{ref = Ref, game_id = GameId, reg_num = RegNum,
@@ -351,12 +351,12 @@ handle_client_request(#join_game{game = GameId}, _From,
                             Res = #'TableInfo'{}, % FIXME: The client should accept 'ok' responce
                             {reply, Res, State#state{games = [Part | State#state.games]}};
                         {error, finished} ->
-                            ?INFO("The game is finished: ~p.",[GameId]),
+                            gas:info(?MODULE,"The game is finished: ~p.",[GameId]),
                             ok = send_message_to_player(RPC, #disconnect{reason_id = <<"gameFinished">>,
                                                                          reason = null}),
                             {reply, {error, finished}, State};
                         {error, out} ->
-                            ?INFO("Out of the game: ~p.",[GameId]),
+                            gas:info(?MODULE,"Out of the game: ~p.",[GameId]),
                             ok = send_message_to_player(RPC, #disconnect{reason_id = <<"disconnected">>,
                                                                          reason = null}),
                             {reply, {error, out}, State};
@@ -376,26 +376,26 @@ handle_client_request(#join_game{game = GameId}, _From,
 
 
 handle_client_request(#game_action{game = GameId} = Msg, _From, State) ->
-%    ?INFO("game action ~p", [{GameId,Msg,_From}]),
+%    gas:info(?MODULE,"game action ~p", [{GameId,Msg,_From}]),
     Participation = get_relay(GameId, State#state.games),
     case Participation of
         false ->
             {reply, {error, game_not_found}, State};
         #participation{reg_num = RegNum, tab_pid = TPid, tab_module = TMod} ->
             UId = (State#state.user)#'PlayerInfo'.id,
-            ?INFO("PLAYER ~p MOVES ~p in GAME ~p",[UId,Msg,GameId]),
+            gas:info(?MODULE,"PLAYER ~p MOVES ~p in GAME ~p",[UId,Msg,GameId]),
             {reply, TMod:submit(TPid, RegNum, Msg), State}
     end;
 
 
 handle_client_request(#pause_game{game = GameId, action = Action}, _From, State) ->
-%    ?INFO("pause game", []),
+%    gas:info(?MODULE,"pause game", []),
 %    UId = (State#state.user)#'PlayerInfo'.id,
     Participation = get_relay(GameId, State#state.games),
-%    ?INFO("ID: ~p, pause game: ~p, my games: ~p", [UId, GameId, State#state.games]),
+%    gas:info(?MODULE,"ID: ~p, pause game: ~p, my games: ~p", [UId, GameId, State#state.games]),
     case Participation of
         false ->
-            ?INFO("A", []),
+            gas:info(?MODULE,"A", []),
             {reply, {error, game_not_found}, State};
         #participation{reg_num = RegNum, tab_pid = TPid, tab_module = TMod} ->
             Signal = case Action of
@@ -403,12 +403,12 @@ handle_client_request(#pause_game{game = GameId, action = Action}, _From, State)
                          <<"resume">> -> resume_game
                      end,
             Res = TMod:signal(TPid, RegNum, {Signal, self()}),
-            ?INFO("B. Res: ~p", [Res]),
+            gas:info(?MODULE,"B. Res: ~p", [Res]),
             {reply, Res, State}
     end;
 
 handle_client_request(Request, _From, State) ->
-    ?INFO("unrecognized client request: ~p", [Request]),
+    gas:info(?MODULE,"unrecognized client request: ~p", [Request]),
     {stop, {unknown_client_request, Request}, State}.
 
 %%===================================================================
@@ -436,14 +436,14 @@ handle_relay_message(Msg, _SubscrId, #state{rpc = RPC} = State) ->
 %% because the user for example was moved to another table.
 handle_relay_kick({rejoin, GameId}, _SubscrId,
                   #state{user = User, games = Games, rpc = RPC} = State) ->
-    ?INFO("Requesting main relay info...",[]),
+    gas:info(?MODULE,"Requesting main relay info...",[]),
     UserId = User#'PlayerInfo'.id,
     case game_manager:get_relay_mod_pid(GameId) of
         {FLMod, FLPid} ->
-            ?INFO("Found the game: ~p. Trying to register...",[{FLMod, FLPid}]),
+            gas:info(?MODULE,"Found the game: ~p. Trying to register...",[{FLMod, FLPid}]),
             case FLMod:reg(FLPid, User) of
                 {ok, {RegNum, {RMod, RPid}, {TMod, TPid}}} ->
-                    ?INFO("join to game relay: ~p",[{RMod, RPid}]),
+                    gas:info(?MODULE,"join to game relay: ~p",[{RMod, RPid}]),
                     {ok, _NewSubscrId} = RMod:subscribe(RPid, self(), UserId, RegNum),
                     Ref = erlang:monitor(process, RPid),
                     Part = #participation{ref = Ref, game_id = GameId, reg_num = RegNum,
@@ -452,12 +452,12 @@ handle_relay_kick({rejoin, GameId}, _SubscrId,
                     NewGames = lists:keyreplace(GameId, #participation.game_id, Games, Part),
                     {noreply, State#state{games = NewGames}};
                 {error, finished} ->
-                    ?INFO("The game is finished: ~p.",[GameId]),
+                    gas:info(?MODULE,"The game is finished: ~p.",[GameId]),
                     send_message_to_player(RPC, #disconnect{reason_id = <<"gameFinished">>,
                                                             reason = null}),
                     {stop, normal, State};
                 {error, out} ->
-                    ?INFO("Out of the game: ~p.",[GameId]),
+                    gas:info(?MODULE,"Out of the game: ~p.",[GameId]),
                     send_message_to_player(RPC, #disconnect{reason_id = <<"kicked">>,
                                                             reason = null}),
                     {stop, normal, State};

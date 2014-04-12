@@ -173,9 +173,9 @@ init([GameId, TableId, Params]) ->
                    {observers_allowed, false},
                    {table, {?MODULE, self()}}],
     {ok, Relay} = ?RELAY:start(RelayParams),
-    ?INFO("OKEY_NG_TABLE_TRN_DBG <~p,~p> Set timeout: ~p, round timeout: ~p.", [GameId, TableId, SetTimeout, RoundTimeout]),
-    ?INFO("OKEY_NG_TABLE_TRN_DBG <~p,~p> PlayersInfo: ~p.", [GameId, TableId, PlayersInfo]),
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Started.", [GameId, TableId]),
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN_DBG <~p,~p> Set timeout: ~p, round timeout: ~p.", [GameId, TableId, SetTimeout, RoundTimeout]),
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN_DBG <~p,~p> PlayersInfo: ~p.", [GameId, TableId, PlayersInfo]),
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Started.", [GameId, TableId]),
     parent_notify_table_created(Parent, TableId, Relay),
     {ok, ?STATE_WAITING_FOR_START, #state{game_id = GameId,
                                           table_id = TableId,
@@ -210,13 +210,13 @@ init([GameId, TableId, Params]) ->
 
 handle_event({parent_message, Message}, StateName,
              #state{game_id = GameId, table_id = TableId} = StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Received message from the parent: ~p.",
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Received message from the parent: ~p.",
           [GameId, TableId, Message]),
     handle_parent_message(Message, StateName, StateData);
 
 handle_event({relay_message, Message}, StateName,
              #state{game_id = GameId, table_id = TableId} =  StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Received message from the relay: ~p.",
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Received message from the relay: ~p.",
           [GameId, TableId, Message]),
     handle_relay_message(Message, StateName, StateData);
 
@@ -238,13 +238,13 @@ handle_sync_event(_Event, _From, StateName, StateData) ->
 
 handle_info({timeout, Magic}, ?STATE_PLAYING,
             #state{timeout_magic = Magic, game_id = GameId, table_id = TableId} = StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Move timeout. Do an automatic move(s).", [GameId, TableId]),
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Move timeout. Do an automatic move(s).", [GameId, TableId]),
     do_timeout_moves(StateData);
 
 handle_info({round_timeout, Round}, ?STATE_PLAYING,
             #state{cur_round = Round, desk_state = DeskState, game_id = GameId,
                    table_id = TableId, timeout_timer = TRef} = StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Time to finish round ~p because the round timeout.", [GameId, TableId, Round]),
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Time to finish round ~p because the round timeout.", [GameId, TableId, Round]),
     if TRef =/= undefined -> erlang:cancel_timer(TRef);
        true -> do_nothing
     end,
@@ -254,7 +254,7 @@ handle_info(set_timeout, StateName,
             #state{cur_round = Round, desk_state = DeskState, game_id = GameId,
                    table_id = TableId, timeout_timer = TRef} = StateData) when
   StateName =/= ?STATE_SET_FINISHED ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Time to finish round ~p and the set because the set timeout.", [GameId, TableId, Round]),
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Time to finish round ~p and the set because the set timeout.", [GameId, TableId, Round]),
     if TRef =/= undefined -> erlang:cancel_timer(TRef);
        true -> do_nothing
     end,
@@ -263,17 +263,17 @@ handle_info(set_timeout, StateName,
 handle_info({timeout, Magic}, ?STATE_REVEAL_CONFIRMATION,
             #state{timeout_magic = Magic, wait_list = WL, game_id = GameId, table_id = TableId,
                    reveal_confirmation_list = CList} = StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Time to check reveal confirmation responses.", [GameId, TableId]),
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Time to check reveal confirmation responses.", [GameId, TableId]),
     NewCList = lists:foldl(fun(SeatNum, Acc) -> [{SeatNum, false} | Acc] end, CList, WL),
     finalize_round(StateData#state{reveal_confirmation_list = NewCList});
 
 handle_info(Info, StateName, #state{game_id = GameId, table_id = TableId} = StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Unexpected message(info) received at state <~p>: ~p.",
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Unexpected message(info) received at state <~p>: ~p.",
           [GameId, TableId, StateName, Info]),
     {next_state, StateName, StateData}.
 
 terminate(Reason, StateName, #state{game_id = GameId, table_id = TableId, relay = Relay}) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Shutting down at state: <~p>. Reason: ~p",
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Shutting down at state: <~p>. Reason: ~p",
           [GameId, TableId, StateName, Reason]),
     relay_stop(Relay),
     ok.
@@ -375,7 +375,7 @@ handle_parent_message(show_round_result, StateName,
                       #state{relay = Relay, scoring_state = ScoringState,
                              game_id = GameId, table_id = TableId} = StateData) ->
     {FinishInfo, RoundScore, AchsPoints, TotalScore} = ?SCORING:last_round_result(ScoringState),
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> RoundScore: ~p Total score: ~p.", [GameId, TableId, RoundScore, TotalScore]),
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> RoundScore: ~p Total score: ~p.", [GameId, TableId, RoundScore, TotalScore]),
     Msg = case FinishInfo of
               {win_reveal, Revealer, WrongRejects, _RevealWithColor, _RevealWithOkey, _RevealWithPairs} ->
                   create_okey_round_ended_reveal(Revealer, true, WrongRejects, RoundScore,
@@ -451,7 +451,7 @@ handle_parent_message(Message, StateName,
 handle_relay_message({player_connected, PlayerId} = Msg, StateName,
                      #state{parent = Parent, game_id = GameId,
                             table_id = TableId, players = Players} = StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Received nofitication from the relay: ~p", [GameId, TableId, Msg]),
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Received nofitication from the relay: ~p", [GameId, TableId, Msg]),
     case get_player(PlayerId, Players) of
         {ok, Player} ->
             NewPlayers = store_player_rec(Player#player{connected = true}, Players),
@@ -477,7 +477,7 @@ handle_relay_message({subscriber_added, PlayerId, SubscrId} = Msg, StateName,
                      #state{relay = Relay, game_id = GameId,
                             table_id = TableId, tournament_table = TTable,
                             players = Players} = StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Received nofitication from the relay: ~p", [GameId, TableId, Msg]),
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Received nofitication from the relay: ~p", [GameId, TableId, Msg]),
     PlayerIdIsValid = case PlayerId of
                           observer -> true;
                           administrator -> true;
@@ -517,7 +517,7 @@ handle_player_action(#player{id = PlayerId, seat_num = SeatNum, user_id = UserId
                      #state{game_id = GameId, table_id = TableId} = StateData) ->
     try api_utils:to_known_record(Action, Args) of
         ExtAction ->
-            ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Player <~p> (~p) submit the game action: ~p.",
+            gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Player <~p> (~p) submit the game action: ~p.",
                   [GameId, TableId, PlayerId, UserId, ExtAction]),
             do_action(SeatNum, ExtAction, From, StateName, StateData)
     catch
@@ -533,7 +533,7 @@ handle_player_action(#player{id = PlayerId, user_id = UserId},
                      StateName,
                      #state{table_id = TableId, game_id = GameId, timeout_timer = TRef,
                             pause_mode = PauseMode, relay = Relay} = StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Received signal from player <~p> : ~p. PauseMode: ~p",
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Received signal from player <~p> : ~p. PauseMode: ~p",
           [GameId, TableId, PlayerId, Signal, PauseMode]),
     case PauseMode of
         disabled ->
@@ -561,7 +561,7 @@ handle_player_action(#player{id = PlayerId, user_id = UserId},
                      #state{table_id = TableId, game_id = GameId, pause_mode = PauseMode,
                             relay = Relay, paused_statename = ResumedStateName,
                             paused_timeout_value = Timeout} = StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Received signal from player <~p> : ~p. PauseMode: ~p",
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Received signal from player <~p> : ~p. PauseMode: ~p",
           [GameId, TableId, PlayerId, Signal, PauseMode]),
     case PauseMode of
         disabled ->
@@ -581,7 +581,7 @@ handle_player_action(#player{id = PlayerId, user_id = UserId},
 handle_player_action(#player{id = PlayerId},
                      {signal, Signal}, _From, StateName,
                      #state{table_id = TableId, game_id = GameId} = StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Received signal from player <~p> : ~p. Ignoring.",
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Received signal from player <~p> : ~p. Ignoring.",
           [GameId, TableId, PlayerId, Signal]),
     {reply, ok, StateName, StateData};
 
@@ -716,7 +716,7 @@ do_timeout_moves(#state{desk_rule_pid = Desk, desk_state = DeskState} = StateDat
 
 do_game_action(SeatNum, GameAction, From, StateName,
                #state{desk_rule_pid = Desk} = StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN do_game_action SeatNum: ~p  GameAction: ~p", [SeatNum, GameAction]),
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN do_game_action SeatNum: ~p  GameAction: ~p", [SeatNum, GameAction]),
     case desk_player_action(Desk, SeatNum, GameAction) of
         {ok, Events} ->
             Response = case GameAction of
@@ -799,7 +799,7 @@ finalize_round(#state{desk_state = #desk_state{finish_reason = FinishReason,
                       reveal_confirmation_list = CList,
                       parent = Parent, players = Players,
                       game_id = GameId, table_id = TableId} = StateData) ->
-    ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Finalizing the round. Finish reason: ~p. Finish info: ~p.",
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Finalizing the round. Finish reason: ~p. Finish info: ~p.",
           [GameId, TableId, FinishReason, FinishInfo]),
     FR = case FinishReason of
              tashes_out -> tashes_out;
@@ -810,7 +810,7 @@ finalize_round(#state{desk_state = #desk_state{finish_reason = FinishReason,
                  ConfirmationList = if RevealConfirmation -> CList; true -> [] end,
                  CListUId = [{SeatNum, get_user_id_by_seat_num(SeatNum, Players), Response}
                              || {SeatNum, Response} <- ConfirmationList],
-                 ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Confirmation list: ~p.", [GameId, TableId, CListUId]),
+                 gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Confirmation list: ~p.", [GameId, TableId, CListUId]),
                  {reveal, Revealer, Tashes, Discarded, ConfirmationList};
              gosterge_finish ->
                  Winner = FinishInfo,
@@ -822,11 +822,11 @@ finalize_round(#state{desk_state = #desk_state{finish_reason = FinishReason,
     RoundScorePl = [{get_player_id_by_seat_num(SeatNum, Players), Points} || {SeatNum, Points} <- RoundScore],
     TotalScorePl = [{get_player_id_by_seat_num(SeatNum, Players), Points} || {SeatNum, Points} <- TotalScore],
     if GameOver ->
-           ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Set is over.", [GameId, TableId]),
+           gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Set is over.", [GameId, TableId]),
            parent_send_game_res(Parent, TableId, NewScoringState, RoundScorePl, TotalScorePl),
            {next_state, ?STATE_SET_FINISHED, StateData#state{scoring_state = NewScoringState}};
        true ->
-           ?INFO("OKEY_NG_TABLE_TRN <~p,~p> Round is over.", [GameId, TableId]),
+           gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Round is over.", [GameId, TableId]),
            parent_send_round_res(Parent, TableId, NewScoringState, RoundScorePl, TotalScorePl),
            {next_state, ?STATE_FINISHED, StateData#state{scoring_state = NewScoringState}}
     end.
@@ -869,7 +869,7 @@ handle_desk_events([Event | Events], DeskState, Players, Relay) ->
                 DeskState#desk_state{hands = NewHands, discarded = NewDiskarded, state = state_discard};
             {taked_from_table, SeatNum, Tash} ->
                 [Tash | NewDeck] = Deck,
-                Msg = create_okey_tile_taken_table(SeatNum, length(NewDeck), Players),
+                Msg = create_okey_tile_taken_table(SeatNum, Tash, length(NewDeck), Players),
                 relay_publish_ge(Relay, Msg),
                 {_, Hand} = lists:keyfind(SeatNum, 1, Hands),
                 NewHands = lists:keyreplace(SeatNum, 1, Hands, {SeatNum, [Tash | Hand]}),
@@ -1296,11 +1296,11 @@ create_okey_tile_taken_discarded(SeatNum, Tash, PileHeight, Players) ->
                      pile_height = PileHeight}.
 
 
-create_okey_tile_taken_table(SeatNum, PileHeight, Players) ->
+create_okey_tile_taken_table(SeatNum, Tash, PileHeight, Players) ->
     #player{user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
     #okey_tile_taken{player = UserId,
                      pile = 0, %% From the deck on the table
-                     revealed = null,
+                     revealed = tash_to_ext(Tash),
                      pile_height = PileHeight}.
 
 

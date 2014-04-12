@@ -208,7 +208,7 @@ start_test_game_t(MultiOwner, CreateMode, RevealMode) ->
 				   init_with_match_me_replaceable(Owner, Host, Port, ReplacementId, 0, RevealMode) 
 			  end),
 
-            ?INFO("replacement players pid: ~p", [Replacement]),
+            gas:info(?MODULE,"replacement players pid: ~p", [Replacement]),
 
             Others = [],
             Clients = Clients0 ++ [Replacement] ++ Others,
@@ -220,14 +220,14 @@ start_test_game_t(MultiOwner, CreateMode, RevealMode) ->
             Humans = [<<"paul">>],%<<"radistao">>, <<"paul">>],
             {ok, GameId, _A} = game_manager:create_table(game_okey, [{sets,2}, {rounds,20},{game_mode,color}], Robots ++ Humans),
 
-	    ?INFO("created table for Okey Game: gameid ~p",[{GameId,_A}]),
+	    gas:info(?MODULE,"created table for Okey Game: gameid ~p",[{GameId,_A}]),
 
             Clients = [ proc_lib:spawn_link(fun() -> 
 				 timer:sleep(crypto:rand_uniform(0, 10)),
                                  init_with_join_game(Owner, Host, Port, GameId, Id, Rematch, RevealMode)
                         end) || Id <- Humans ],
 
-            ?INFO("Human Pids: ~p",[Clients]),
+            gas:info(?MODULE,"Human Pids: ~p",[Clients]),
             
             Orders = [];
 
@@ -349,7 +349,7 @@ init_with_join_game_observe(_Owner, Host, Port, GameId, OwnId, Mode, EJoinResult
     Stats = ?TCM:call_rpc(S1, #get_player_stats{game_type = <<"okey">>, player_id = Id}) ,
     #'PlayerOkeyStats'{} = Stats,
     JR = ?TCM:call_rpc(S1, #join_game{game = GameId}) ,
-    ?INFO("JR: ~p, expected result: ~p", [JR, EJoinResult]),
+    gas:info(?MODULE,"JR: ~p, expected result: ~p", [JR, EJoinResult]),
     true = cmpr(EJoinResult, JR),
     log(finished),
     ok = ?TCM:flush_events(?FLUSH_DELAY),
@@ -383,27 +383,27 @@ init_with_match_me_replaceable(_Owner, Host, Port, OwnId, _Rematch, RevealMode) 
     log(connected),
     Stats = ?TCM:call_rpc(S1, #get_player_stats{game_type = <<"okey">>, player_id = Id}),
     #'PlayerOkeyStats'{level = _Level} = Stats,
-    ?INFO("match me replaceable 2", []),
+    gas:info(?MODULE,"match me replaceable 2", []),
     ZZZ = ?TCM:call_rpc(S1, #match_me{game_type = <<"okey">>}),
-    ?INFO("match me replaceable status: ~p", [ZZZ]),
+    gas:info(?MODULE,"match me replaceable status: ~p", [ZZZ]),
     GameId =
         receive
             #'game_matched'{} = Rec ->
-                ?INFO("got game_matched: ~p", [Rec]),
+                gas:info(?MODULE,"got game_matched: ~p", [Rec]),
                 true = Rec#game_matched.is_replacing,
                 log(matched),
                 Rec#game_matched.game
         after ?BT -> erlang:error({server_timeout, self(), ZZZ, "game_matched"})
         end,
     State = #state{conn = S1, gid = GameId, uid = Id},
-    ?INFO("picking up game", []),
+    gas:info(?MODULE,"picking up game", []),
     pickup_game(State).
 
 init_with_match_me_disconnect(Owner, Host, Port, OwnId, Rematch, Mode, false) ->
-    ?INFO("player discon normal", []),
+    gas:info(?MODULE,"player discon normal", []),
     init_with_match_me(Owner, Host, Port, OwnId, Rematch, Mode);
 init_with_match_me_disconnect(_Owner, Host, Port, OwnId, _Rematch, _Mode, true) ->
-    ?INFO("player discon bad", []),
+    gas:info(?MODULE,"player discon bad", []),
     S1 = ?TCM:connect(Host, Port),
     TT = ?TEST_TOKEN,
     #'PlayerInfo'{id = Id} = ?TCM:call_rpc(S1, #session_attach_debug{token = TT, id = OwnId}) ,
@@ -417,24 +417,24 @@ init_with_match_me_disconnect(_Owner, Host, Port, OwnId, _Rematch, _Mode, true) 
 
 pickup_game(S0) ->
     Id = S0#state.uid,
-    ?INFO("ID: ~p, waiting for #okey_game_info", [Id]),
+    gas:info(?MODULE,"ID: ~p, waiting for #okey_game_info", [Id]),
     log(game_picked_up),
     GI = receive
              #'game_event'{event = <<"okey_game_info">>, args = Args0} ->
                  A0 = api_utils:to_known_record(okey_game_info, Args0),
-                 ?INFO("A0: ~p", [A0]),
+                 gas:info(?MODULE,"A0: ~p", [A0]),
                  A0
          after ?BT -> erlang:error({server_timeout, "game_rematched"})
          end,
-    ?INFO("ID: ~p, waiting for #okey_game_player_state", [Id]),
+    gas:info(?MODULE,"ID: ~p, waiting for #okey_game_player_state", [Id]),
     GS = receive
              #'game_event'{event = <<"okey_game_player_state">>, args = Args} ->
                  A = api_utils:to_known_record(okey_game_player_state, Args),
-                 ?INFO("A: ~p", [A]),
+                 gas:info(?MODULE,"A: ~p", [A]),
                  A
          after ?BT -> erlang:error({server_timeout, "game_rematched"})
          end,
-    ?INFO("picking up the game", []),
+    gas:info(?MODULE,"picking up the game", []),
     NTI = GS#okey_game_player_state.next_turn_in,
     true = is_integer(NTI) orelse NTI =:= <<"infinity">>,
     SS = #'OkeySetState'{
@@ -452,30 +452,30 @@ pickup_game(S0) ->
              },
     Turn = GS#okey_game_player_state.whos_move,
     GameState = GS#okey_game_player_state.game_state,
-    ?INFO("ID: ~p, picking up the game. Turn: ~p, GameState: ~p", [Id, Turn, GameState]),
+    gas:info(?MODULE,"ID: ~p, picking up the game. Turn: ~p, GameState: ~p", [Id, Turn, GameState]),
     case {Turn, GameState} of
         {_, <<"game_finished">>} ->
-            ?INFO("init bot finished", []),
+            gas:info(?MODULE,"init bot finished", []),
             okey_client_rematch(State),
             play_set(State, 0);
         {_, <<"do_okey_ready">>} ->
-            ?INFO("init bot wait", []),
+            gas:info(?MODULE,"init bot wait", []),
             loop_and_restart(State);
         {Id, <<"do_okey_take">>} ->
-            ?INFO("init bot: move both", []),
+            gas:info(?MODULE,"init bot: move both", []),
             State1 = do_turn(State, 1),
             okey_client_loop(State1);
         {Id, <<"do_okey_discard">>} ->
-            ?INFO("init bot: move discard only", []),
+            gas:info(?MODULE,"init bot: move discard only", []),
             {TryDiscard, _} = draw_random(Hand),
             Hand1 = do_discard(State, Hand, TryDiscard, 1),
             okey_client_loop(State#state{hand = Hand1});
         {_, <<"do_okey_challenge">>} ->
-            ?INFO("init bot: challenge", []),
+            gas:info(?MODULE,"init bot: challenge", []),
             do_challenge(State),
             okey_client_loop(State#state{hand = Hand});
         {_, _} ->
-            ?INFO("init bot: not bot's move", []),
+            gas:info(?MODULE,"init bot: not bot's move", []),
             okey_client_loop(State#state{hand = Hand})
     end.
 
@@ -485,45 +485,45 @@ loop_and_restart(#state{set_state = #'OkeySetState'{round_max = MR, round_cur = 
 loop_and_restart(State) ->
     #state{set_state = #'OkeySetState'{round_cur = RC}} = State,
     {Hand0, Gosterge0} = get_hand(State),
-    ?INFO("Human {Hand,Gosterge}: ~p",[{Hand0,Gosterge0}]),
+    gas:info(?MODULE,"Human {Hand,Gosterge}: ~p",[{Hand0,Gosterge0}]),
     LoopRes = okey_client_loop(State#state{hand = Hand0, gosterge = Gosterge0}),
-    ?INFO("Human LoopRes: ~p",[LoopRes]),
+    gas:info(?MODULE,"Human LoopRes: ~p",[LoopRes]),
     case LoopRes of
         <<"done">> ->
-            ?INFO("ID: ~p, next action done", [State#state.uid]),
+            gas:info(?MODULE,"ID: ~p, next action done", [State#state.uid]),
             ok;
         <<"next_set">> ->
             say_ready(State),
-            ?INFO("ID: ~p, next action next_set", [State#state.uid]),
+            gas:info(?MODULE,"ID: ~p, next action next_set", [State#state.uid]),
             ok;
         <<"next_round">> ->
             say_ready(State),
-            ?INFO("ID: ~p, next action next_round", [State#state.uid]),
+            gas:info(?MODULE,"ID: ~p, next action next_round", [State#state.uid]),
             State1 = State#state{set_state = #'OkeySetState'{round_cur = RC + 1}},
             check_ack(State1, game_ended, fun loop_and_restart/1, [State1])
     end.
 
 play_set(State0, Rematch) ->
-%    ?INFO("ID: ~p, sets: start", [State0#state.uid]),
+%    gas:info(?MODULE,"ID: ~p, sets: start", [State0#state.uid]),
     Id = State0#state.uid,
     State = init_okey_tour(State0),
     Rounds = (State#state.set_state)#'OkeySetState'.round_max,
     SetNo = (State#state.set_state)#'OkeySetState'.set_cur,
     Sets = (State#state.set_state)#'OkeySetState'.set_max,
-    ?INFO("ID: ~p Start playing ~p/~p set of ~p rounds",[State0#state.uid,SetNo,Sets,Rounds]),
+    gas:info(?MODULE,"ID: ~p Start playing ~p/~p set of ~p rounds",[State0#state.uid,SetNo,Sets,Rounds]),
     loop_and_restart(State),
-    ?INFO("ID: ~p Finish playing ~p/~p set of ~p rounds",[State0#state.uid,SetNo,Sets,Rounds]),
+    gas:info(?MODULE,"ID: ~p Finish playing ~p/~p set of ~p rounds",[State0#state.uid,SetNo,Sets,Rounds]),
     case {SetNo, Rematch} of
         {X, 0} when X == Sets ->
-            ?INFO("last set, no rematch", []),
+            gas:info(?MODULE,"last set, no rematch", []),
             get_series_ended(Id),
             ok;
         {X, _} when X == Sets ->
-            ?INFO("ID: ~p, last set, do rematch", [State0#state.uid]),
+            gas:info(?MODULE,"ID: ~p, last set, do rematch", [State0#state.uid]),
             okey_client_rematch(State),
             play_set(State, Rematch-1);
         _ ->
-            ?INFO("ID: ~p,  play next set", [State0#state.uid]),
+            gas:info(?MODULE,"ID: ~p,  play next set", [State0#state.uid]),
             play_set(State, Rematch)
     end.
 
@@ -531,7 +531,7 @@ init_okey_tour(State) ->
     GameId = State#state.gid,
     receive
         #'game_event'{event = <<"okey_game_info">>, args = Args, game = GI} ->
-%           ?INFO("CLIENT TOUR STARTED okey_game_info:~n ~p", [Args]),
+%           gas:info(?MODULE,"CLIENT TOUR STARTED okey_game_info:~n ~p", [Args]),
             GT = proplists:get_value(game_type, Args),
             Rounds = proplists:get_value(rounds, Args),
             Sets = proplists:get_value(sets, Args),
@@ -551,15 +551,15 @@ init_okey_tour(State) ->
             log(game_info),
             State#state{set_state = SS, mode = GT}
     after ?BT ->
-            ?INFO("ERROR: ~p", [{server_timeout, "game_event:okey_game_info"}]),
+            gas:info(?MODULE,"ERROR: ~p", [{server_timeout, "game_event:okey_game_info"}]),
             erlang:error({server_timeout, "game_event:okey_game_info"})
     end.
 
 get_series_ended(Id)->
-    ?INFO("ID: ~p; waiting for okey_series_ended", [Id]),
+    gas:info(?MODULE,"ID: ~p; waiting for okey_series_ended", [Id]),
     receive
         #game_event{event = <<"okey_series_ended">>} ->
-            ?INFO("ID: ~p CLIENT SERIES ENDED", [Id]),
+            gas:info(?MODULE,"ID: ~p CLIENT SERIES ENDED", [Id]),
             log(tour_ended)
     after ?BT -> erlang:error({server_timeout, "okey_series_ended"})
     end.
@@ -568,11 +568,11 @@ okey_client_rematch(State) ->
     S1 = State#state.conn, GameId = State#state.gid, Id = State#state.uid,
     get_series_ended(Id),
     RematchR = ?TCM:call_rpc(S1, #rematch{game = GameId}) ,
-    ?INFO("ID: ~p; rematch result: ~p", [Id, RematchR]),
+    gas:info(?MODULE,"ID: ~p; rematch result: ~p", [Id, RematchR]),
     <<"ok">> = RematchR,
     receive
         #game_rematched{game = GameId} ->
-            ?INFO("#game_rematched{game = GameId}", []),
+            gas:info(?MODULE,"#game_rematched{game = GameId}", []),
             log(game_rematched)
     after ?BT -> erlang:error({server_timeout, "game_rematched"})
     end.
@@ -595,10 +595,10 @@ get_hand(State) ->
 
             ((MH == undefined) orelse (G == undefined)) andalso erlang:error(cant_get_params_of_hand),
 
-            ?INFO("Human Round/Set: ~p/~p", [CR,CS]),
+            gas:info(?MODULE,"Human Round/Set: ~p/~p", [CR,CS]),
             HasGosterge = lists:member(G, MH),
             HasGostergeServer = ?TCM:call_rpc(S1, #game_action{game = GameId, action = okey_has_gosterge, args = []}),
-            ?INFO("HasGostergeServer: ~p",[HasGostergeServer]),
+            gas:info(?MODULE,"HasGostergeServer: ~p",[HasGostergeServer]),
             HasGosterge = HasGostergeServer,
             check_ack(State, got_hand, fun() -> ok end, []),
             {MH, G}
@@ -618,7 +618,7 @@ check_ack(State = #state{acker_fun = F}, Event, ContinueFun, Args) ->
             apply(What, [State] ++ With),
             apply(ContinueFun, Args);
         stop ->
-            ?INFO("ID: ~p, Pid: ~p, check_ack. STOPPING THE BOT!!!", [State#state.uid, self()]),
+            gas:info(?MODULE,"ID: ~p, Pid: ~p, check_ack. STOPPING THE BOT!!!", [State#state.uid, self()]),
             erlang:error({terminate, acker_stop})
     end.
 
@@ -628,13 +628,13 @@ validate_hand(S, GameId, Hand) ->
                          action = okey_debug,
                          args = []})  of
         {error, Reason} ->
-            ?INFO("dying in fire. Reason: ~p", [Reason]),
+            gas:info(?MODULE,"dying in fire. Reason: ~p", [Reason]),
             erlang:error(die_in_fire);
         ServerHand ->
             Res = game_okey:is_same_hand(ServerHand, Hand),
             case Res of
                 false ->
-                    ?INFO("validation failed: ~p =/= ~p", [Hand, ServerHand]);
+                    gas:info(?MODULE,"validation failed: ~p =/= ~p", [Hand, ServerHand]);
                 _ ->
                     ok
             end,
@@ -680,7 +680,7 @@ okey_client_loop(State) ->
             GS = proplists:get_value(good_shot, Args),
             Reason = proplists:get_value(reason, Args),
             NextAction = proplists:get_value(next_action, Args),
-            ?INFO("ID: ~p game ended, good_shot: ~p, reason: ~p", [Id, GS, Reason]),
+            gas:info(?MODULE,"ID: ~p game ended, good_shot: ~p, reason: ~p", [Id, GS, Reason]),
             NextAction;
         #player_left{} ->
             okey_client_loop(State);
@@ -698,7 +698,7 @@ okey_client_loop(State) ->
             NextAction = proplists:get_value(next_action, Args),
             NextAction;
         _Msg ->
-            ?INFO("the msg: ~p", [_Msg]),
+            gas:info(?MODULE,"the msg: ~p", [_Msg]),
             erlang:error({bot_received_unrecognized_message, _Msg})
     after ?BT ->
             log(server_timeouted),
@@ -727,7 +727,7 @@ do_challenge(State) ->
                          game = GameId,
                          action = okey_challenge,
                          args = [ {challenge, random_bool(0.2)} ]}),
-    ?INFO("ID: ~p challenge result: ~p", [State#state.uid, ZZZ]),
+    gas:info(?MODULE,"ID: ~p challenge result: ~p", [State#state.uid, ZZZ]),
     ok.
 
 do_take(State, Timeout) ->
@@ -737,7 +737,7 @@ do_take(State, Timeout) ->
     {is_list, true} = {is_list, is_list(Hand)},
     receive
         #'game_event'{event = <<"okey_turn_timeout">>, args = Args} ->
-                                                % ?INFO("ID: ~p I timeouted on take", [Id]),
+                                                % gas:info(?MODULE,"ID: ~p I timeouted on take", [Id]),
             TileT = proplists:get_value(<<"tile_taken">>, Args),
             TileD = proplists:get_value(<<"tile_discarded">>, Args),
             Hand1 = lists:delete(TileD, Hand),
@@ -750,22 +750,22 @@ do_take(State, Timeout) ->
                                args = [ {pile, Pile} ]}) of
                 #'OkeyPiece'{} = Tosh ->
                     MyHand = [Tosh | Hand],
-                                                % ?INFO("ID: ~p Take tosh in ~p pile! Get: ~p", [Id, Pile, Tosh]),
+                                                % gas:info(?MODULE,"ID: ~p Take tosh in ~p pile! Get: ~p", [Id, Pile, Tosh]),
                     {false, MyHand};
                 {error, <<"cant_take_do_discard">>} ->
-                                                % ?INFO("ID: ~p Has 15 items in hand. 15=~p", [Id, length(Hand)]),
+                                                % gas:info(?MODULE,"ID: ~p Has 15 items in hand. 15=~p", [Id, length(Hand)]),
                     {false, Hand};
                 {error, <<"game_has_already_ended">>} = Err ->
                     case State#state.mode of
                         <<"countdown">> ->
                             {false, Hand};
                         _ ->
-                            ?INFO("ID: ~p; mode:~p; failed take with msg ~p",
+                            gas:info(?MODULE,"ID: ~p; mode:~p; failed take with msg ~p",
                                 [State#state.uid, State#state.mode, Err]),
                             erlang:error(failed_take)
                     end;
                 Err ->
-                    ?INFO("ID: ~p failed take with msg ~p", [State#state.uid, Err]),
+                    gas:info(?MODULE,"ID: ~p failed take with msg ~p", [State#state.uid, Err]),
                     erlang:error(failed_take)
             end
     end.
@@ -834,14 +834,14 @@ is_revealing(_PileHeight, _, empty_pile) ->
 wait_for(_C) ->
     receive
         {_, game_ended} ->
-            ?INFO("client: game ended");
+            gas:info(?MODULE,"client: game ended");
         {'EXIT', _, normal} = M ->
-            ?INFO("client: normal ending: ~p", [M]);
+            gas:info(?MODULE,"client: normal ending: ~p", [M]);
         {'EXIT', _C, Reason} = M ->
-            ?INFO("client: FAILURE message: ~p", [{M,_C,Reason}]),
+            gas:info(?MODULE,"client: FAILURE message: ~p", [{M,_C,Reason}]),
             erlang:error(Reason);
         M ->
-            ?INFO("client: unrecognized result: ~p", [M]),
+            gas:info(?MODULE,"client: unrecognized result: ~p", [M]),
             erlang:error(M)
     end.
 
@@ -877,17 +877,17 @@ standard_acker(Owner) ->
     Ref = make_ref(),
     fun(Event) ->
             E = {event, Ref, Self, Event},
-            ?INFO("standard acker. ~p ! ~p", [Owner, E]),
+            gas:info(?MODULE,"standard acker. ~p ! ~p", [Owner, E]),
             Owner ! E,
             receive
                 {ARef, Res} when Ref == ARef ->
-                    ?INFO("standard acker got '~p' answer on question ~p", [Res,{Owner, E}]),
+                    gas:info(?MODULE,"standard acker got '~p' answer on question ~p", [Res,{Owner, E}]),
                     Res
             end
     end.
 
 conductor(Orders, Clients) ->
-    ?INFO("conductor init", []),
+    gas:info(?MODULE,"conductor init", []),
     Pairs = lists:zip(lists:seq(1, length(Clients)), Clients),
     Orders2 = lists:map(fun(O) ->
                                 {_, P} = lists:keyfind(O#bo.pid, 1, Pairs),
@@ -895,7 +895,7 @@ conductor(Orders, Clients) ->
                         end, Orders),
     conductor(Orders2, Clients, []).
 conductor(_Orders, [], _Events) ->
-    ?INFO("conductor stop", []),
+    gas:info(?MODULE,"conductor stop", []),
     ok;
 conductor(Orders, Clients, Events) ->
     receive
@@ -910,19 +910,19 @@ conductor(Orders, Clients, Events) ->
             end,
             conductor(Orders, Clients, E2);
         {C, game_ended} ->
-            ?INFO("conductor: game ended", []),
+            gas:info(?MODULE,"conductor: game ended", []),
             conductor(Orders, lists:delete(C, Clients), Events);
         {'EXIT', C, normal} = M ->
-            ?INFO("conductor: normal ending: ~p", [M]),
+            gas:info(?MODULE,"conductor: normal ending: ~p", [M]),
             conductor(Orders, lists:delete(C, Clients), Events);
         {'EXIT', C, {terminate, acker_stop}} = M ->
-            ?INFO("conductor: removing client ~p because of ~p", [C, M]),
+            gas:info(?MODULE,"conductor: removing client ~p because of ~p", [C, M]),
             conductor(Orders, lists:delete(C, Clients), Events);
         {'EXIT', _C, Reason} = M ->
-            ?INFO("conductor: FAILURE message: ~p", [{M,_C,Reason}]),
+            gas:info(?MODULE,"conductor: FAILURE message: ~p", [{M,_C,Reason}]),
             erlang:error(Reason);
         M ->
-            ?INFO("conductor: unrecognized msg from client: ~p", [M]),
+            gas:info(?MODULE,"conductor: unrecognized msg from client: ~p", [M]),
             erlang:error(M)
     end.
 

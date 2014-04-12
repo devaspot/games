@@ -51,7 +51,7 @@
 %%     RoundsNum = undefined | pos_integer()
 
 init(Mode, SeatsInfo, RoundsNum) ->
-    ?INFO("TAVLA_NG_SCORING init Mode: ~p SeatsInfo = ~p RoundsNum = ~p", [Mode, SeatsInfo, RoundsNum]),
+    gas:info(?MODULE,"TAVLA_NG_SCORING init Mode: ~p SeatsInfo = ~p RoundsNum = ~p", [Mode, SeatsInfo, RoundsNum]),
     true = lists:member(Mode, [?MODE_STANDARD, ?MODE_PAIRED]),
     true = is_integer(RoundsNum) orelse RoundsNum == undefined,
     SeatsNum = length(SeatsInfo),
