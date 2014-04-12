@@ -71,7 +71,7 @@ handle_call({get_user_info, Token}, _From, #state{tokens = E} = State) ->
                 {ok, UserInfo} ->
                     gas:info("..user info retrieved", []),
                     UserInfo;
-                {error, user_not_found} ->
+                {error, not_found} ->
                     gas:info("..no such user info, providing fake credentials", []),
                     fake_credentials0(State#state.spare); %% for eunit tests. FIX
                 {badrpc, _} ->
