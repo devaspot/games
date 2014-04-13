@@ -77,8 +77,8 @@ body() ->
 event(terminate) -> wf:info("terminate");
 event(init) ->
     {ok,GamePid} = game_session:start_link(self()),
-    event(attach),
     event(join),
+    event(attach),
     ets:insert(globals,{wf:session_id(),GamePid}),
     put(game_session, GamePid);
 
