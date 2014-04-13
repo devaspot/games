@@ -59,7 +59,7 @@ server by sending:</p>
 
 <p>This messages could be handled as this:</p>
 
-<code>event({binary,Message}) ->
+<code>event({bert,Message}) ->
     wf:info("This API will return BERT enveloped echo"),
     {answer,echo,Message};</code>
 
