@@ -77,8 +77,8 @@ body() ->
 event(terminate) -> wf:info("terminate");
 event(init) ->
     {ok,GamePid} = game_session:start_link(self()),
-%    event(attach),
-%    event(join),
+    event(attach),
+    event(join),
     ets:insert(globals,{wf:session_id(),GamePid}),
     put(game_session, GamePid);
 
@@ -89,7 +89,6 @@ event(player_info) -> wf:wire(player_info(wf:f("'~s'",["maxim"]),wf:f("'~s'",[ga
 event(attach) -> 
     Token = auth_server:generate_token(1000001,"maxim"),
     wf:wire(attach(wf:f("'~s'",[Token]))),
-    wf:info("ATTACH ~p",[get(actions)]),
     ok;
 
 event(discard) -> 

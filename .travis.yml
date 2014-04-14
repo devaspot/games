@@ -6,6 +6,5 @@ notifications:
     - maxim@synrc.com
     - roman.dayneko@gmail.com
     - sustel@kakaranet.com
-  irc: "chat.freenode.net#n2o"
 install: "make"
 script: "make ct"
