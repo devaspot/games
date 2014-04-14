@@ -77,8 +77,8 @@ body() ->
 event(terminate) -> wf:info("terminate");
 event(init) ->
     {ok,GamePid} = game_session:start_link(self()),
-    event(attach),
-    event(join),
+%    event(attach),
+%    event(join),
     ets:insert(globals,{wf:session_id(),GamePid}),
     put(game_session, GamePid);
 
@@ -88,7 +88,9 @@ event(take)   -> wf:wire(take("1000001", wf:q(take_combo)));
 event(player_info) -> wf:wire(player_info(wf:f("'~s'",["maxim"]),wf:f("'~s'",[game_okey])));
 event(attach) -> 
     Token = auth_server:generate_token(1000001,"maxim"),
-    wf:wire(attach(wf:f("'~s'",[Token])));
+    wf:wire(attach(wf:f("'~s'",[Token]))),
+    wf:info("ATTACH ~p",[get(actions)]),
+    ok;
 
 event(discard) -> 
     TilesList = get(game_okey_tiles),
@@ -96,7 +98,7 @@ event(discard) ->
     wf:wire(discard("1000001", erlang:integer_to_list(C), erlang:integer_to_list(V)));
 
 
-event({binary,M}) -> {ok,<<"Hello">>};
+%event({binary,M}) -> {ok,<<"Hello">>};
 
 event({client,Message}) ->
 %    GamePid = get(game_session),
