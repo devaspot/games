@@ -4,7 +4,7 @@
 -include_lib("n2o/include/wf.hrl").
 -include("../../server/include/requests.hrl").
 -include("../../server/include/settings.hrl").
--jsmacro([take/2,attach/1,join/1,discard/3,player_info/2]).
+-jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/3]).
 
 join(Game) ->
     ws:send(bert:encodebuf(bert:tuple(
@@ -35,6 +35,20 @@ player_info(User,GameModule) ->
     ws:send(bert:encodebuf(bert:tuple(
         bert:atom('client'),
         bert:tuple(bert:atom("get_player_stats"),bert:binary(User),bert:atom(GameModule))))).
+
+reveal(GameId, {CDiscarded, VDiscarded}, Hand) ->
+    wf:send(
+      bert:encodebuf(
+        bert:atom("client"),
+        ber:tuple(
+          bert:atom("game_action"),
+          GameId,
+          bert:atom("okey_reveal"),
+          [{discarded, bert:tuple(bert:atom("OkeyPieces"), CDiscarded, VDiscarded)},
+           {hand, [[case OkeyPiece of null -> bert:atom("null"); {C, V} -> bert:tuple(bert:atom("OkeyPiece"), C, V) end || OkeyPiece <- Hand]]}]
+         )
+       )
+     ).
 
 redraw_tiles([{Tile, _}| _ ] = TilesList) ->
     wf:update(discard_combo,
@@ -71,6 +85,7 @@ body() ->
                      ]
                },
       #button{ id = discard, body = <<"Discard">>, postback = discard, source=[discard_combo]},
+      #button{ id = reveal, body = <<"Reveal">>, postback = reveal, source = [discard_combo]},
       #button{ id = player_info, body = <<"PlayerInfo">>, postback = player_info}
     ].
 
@@ -193,5 +208,18 @@ event({server,{game_event, _, okey_next_turn, Args}}) ->
         ++ "').style.color = \"red\";"),
 
     put(okey_turn_mark, LabelId);
+
+event(reveal) ->
+    TilesList = get(game_okey_tiles),
+    Discarded = wf:q(discard_combo),
+
+    case lists:keyfind(erlang:list_to_binary(Discarded), 1, TilesList) of
+        {_, {CDiscarded, VDiscarded} = Key} ->
+            Hand = [{erlang:integer_to_list(C), erlang:integer_to_list(V)} || {_, {C, V}} <- lists:keydelete(Key, 2, TilesList)],
+            wf:info("+++ ~p ~p", [CDiscarded, VDiscarded]),
+            wf:info(reveal("1000001", {erlang:integer_to_list(CDiscarded), erlang:integer_to_list(VDiscarded)}, [null | Hand]));
+        _ ->
+            wf:info("error discarded ~p", Discarded)
+    end;
 
 event(Event)  -> wf:info("Event: ~p", [Event]).
