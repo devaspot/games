@@ -4,7 +4,7 @@
 -include_lib("n2o/include/wf.hrl").
 -include("../../server/include/requests.hrl").
 -include("../../server/include/settings.hrl").
--jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4]).
+-jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2]).
 
 join(Game) ->
     ws:send(bert:encodebuf(bert:tuple(
@@ -35,6 +35,9 @@ player_info(User,GameModule) ->
     ws:send(bert:encodebuf(bert:tuple(
         bert:atom('client'),
         bert:tuple(bert:atom("get_player_stats"),bert:binary(User),bert:atom(GameModule))))).
+
+piece(Color,Value) ->
+    bert:tuple(bert:atom("OkeyPiece"), Color, Value).
 
 reveal(GameId, Color, Value, Hand) ->
     ws:send(bert:encodebuf(bert:tuple(
@@ -213,13 +216,11 @@ event(reveal) ->
     Discarded = wf:q(discard_combo),
 
     case lists:keyfind(wf:to_binary(Discarded), 1, TilesList) of
-        {_, {CDiscarded, VDiscarded} = Key} ->
-            Hand = [{C,V} || {_, {C, V}} <- lists:keydelete(Key, 2, TilesList)],
-            wf:info("Discarded: ~p ~p", [CDiscarded, VDiscarded]),
+        {_, {CD, VD} = Key} ->
+            Hand = [{C,V} || {_, {C, V}} <- lists:keydelete(Key, 2, TilesList) ],
             HandJS = "[[" ++ string:join([
-                wf:f("bert.tuple(bert.atom('OkeyPiece'), ~w, ~w)",[C,V])
-                || {C,V} <- Hand],",") ++ "],[]]",
-            RevealJS = reveal("1000001",wf:f("~p",[CDiscarded]),wf:f("~p",[VDiscarded]),HandJS),
+                wf:f("bert.tuple(bert.atom('OkeyPiece'),~p,~p)",[C,V]) || {C,V} <- Hand],",") ++ "],[]]",
+            RevealJS = reveal("1000001",wf:f("~p",[CD]),wf:f("~p",[VD]),HandJS),
             wf:info("RevealJS: ~p",[lists:flatten(RevealJS)]),
             wf:wire(RevealJS);
         _ ->
