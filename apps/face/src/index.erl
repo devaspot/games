@@ -93,8 +93,11 @@ event(attach) ->
 
 event(discard) -> 
     TilesList = get(game_okey_tiles),
-    {_, {C, V}} = lists:keyfind(erlang:list_to_binary(wf:q(discard_combo)), 1, TilesList),
-    wf:wire(discard("1000001", erlang:integer_to_list(C), erlang:integer_to_list(V)));
+    DiscardCombo = wf:q(discard_combo),
+    case lists:keyfind(erlang:list_to_binary(DiscardCombo), 1, TilesList) of
+    {_, {C, V}} ->
+        wf:wire(discard("1000001", erlang:integer_to_list(C), erlang:integer_to_list(V)));
+    false -> wf:info("Discard Combo: ~p",[DiscardCombo]) end;
 
 
 %event({binary,M}) -> {ok,<<"Hello">>};
