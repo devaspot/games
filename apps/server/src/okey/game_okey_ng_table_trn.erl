@@ -364,6 +364,8 @@ handle_parent_message(start_round, StateName,
                                    round_timer = RoundTRef,
                                    set_timer = NewSetTRef},
     [begin
+         GameInfoMsg = create_okey_game_info(NewStateData),
+         send_to_client_ge(Relay, PlayerId, GameInfoMsg),
          GameStartedMsg = create_okey_game_started(SeatNum, DeskState, NewCurRound, NewStateData),
          send_to_client_ge(Relay, PlayerId, GameStartedMsg)
      end || #player{id = PlayerId, seat_num = SeatNum} <- find_connected_players(Players)],
@@ -488,9 +490,7 @@ handle_relay_message({subscriber_added, PlayerId, SubscrId} = Msg, StateName,
                               end
                       end,
     if PlayerIdIsValid ->
-           GI = create_okey_game_info(StateData),
            PlState = create_okey_game_player_state(PlayerId, StateName, StateData),
-           send_to_subscriber_ge(Relay, SubscrId, GI),
            send_to_subscriber_ge(Relay, SubscrId, PlState),
            relay_allow_broadcast_for_player(Relay, PlayerId),
            if TTable =/= undefined ->
