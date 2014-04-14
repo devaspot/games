@@ -490,6 +490,10 @@ handle_relay_message({subscriber_added, PlayerId, SubscrId} = Msg, StateName,
                               end
                       end,
     if PlayerIdIsValid ->
+
+        GI = create_okey_game_info(StateData),
+        send_to_subscriber_ge(Relay, SubscrId, GI),
+
            PlState = create_okey_game_player_state(PlayerId, StateName, StateData),
            send_to_subscriber_ge(Relay, SubscrId, PlState),
            relay_allow_broadcast_for_player(Relay, PlayerId),
