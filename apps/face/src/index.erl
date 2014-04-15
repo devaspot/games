@@ -143,7 +143,7 @@ event(attach) ->
     {ok,GamePid} = game_session:start_link(self()),
     wf:session(<<"game_pid">>,GamePid),
     User = user(),
-    Login = wf:to_list(User#user.id),
+    Login = User#user.id,
     wf:info("Session User: ~p",[Login]),
     Token = auth_server:generate_token(1000001,Login),
     wf:wire(attach(wf:f("'~s'",[Token]))),
