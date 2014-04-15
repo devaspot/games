@@ -144,6 +144,7 @@ event(attach) ->
     wf:session(<<"game_pid">>,GamePid),
     User = user(),
     Login = User#user.id,
+    put(okey_im, Login),
     wf:info("Session User: ~p",[Login]),
     Token = auth_server:generate_token(1000001,Login),
     wf:wire(attach(wf:f("'~s'",[Token]))),
@@ -169,16 +170,25 @@ event({server, {game_event, _, okey_game_started, Args}}) ->
     {_, Tiles} = lists:keyfind(tiles, 1, Args),
     TilesList = [{erlang:list_to_binary([erlang:integer_to_list(C), " ",
                  erlang:integer_to_list(V)]), {C, V}} || {_, C, V} <- Tiles],
-    wf:info("tiles ~p", [TilesList]),
+    %%wf:info("tiles ~p", [TilesList]),
     put(game_okey_tiles, TilesList),
     put(game_okey_pause, resume),
     redraw_tiles(TilesList);
 
+event({server, {game_event, _, okey_game_player_state, Args}}) ->
+    {_, Tiles} = lists:keyfind(tiles, 1, Args),
+    TilesList =
+        [
+         {erlang:list_to_binary([erlang:integer_to_list(C), " ", erlang:integer_to_list(V)]), {C, V}}
+         || {_, C, V} <- Tiles
+        ],
+    redraw_tiles(TilesList),
+    put(game_okey_tiles, TilesList);
+
 event({server, {game_event, _, okey_tile_discarded, Args}}) ->
     Im = get(okey_im),
 %%    Players = get(okey_players),
-    {_, Player} = lists:keyfind(player, 1, Args),
-
+    {_, Player} = (catch lists:keyfind(player, 1, Args)),
 %%    wf:info("++++ ~p", [Args]),
 
     if
@@ -220,7 +230,7 @@ event({server,{game_event, Game, okey_turn_timeout, Args}}) ->
             [{player, get(okey_im)}, {tile, TileDiscarded}]}});
 
 event({server, {game_event, _, okey_game_info, Args}}) ->
-    wf:info("okay_game_info ~p", [Args]),
+%%    wf:info("okay_game_info ~p", [Args]),
     {_, PlayersInfo} = lists:keyfind(players, 1, Args),
 
 %%          [p1right_combo, p2right_combo, p3right_combo],
@@ -236,7 +246,6 @@ event({server, {game_event, _, okey_game_info, Args}}) ->
                 (#'PlayerInfo'{id = Id, robot = true}) ->
                     {Id, <<Id/binary, <<" R ">>/binary>>};
                 (#'PlayerInfo'{id = Id, robot = false}) ->
-                    put(okey_im, Id),
                     {Id, <<Id/binary, <<" M ">>/binary>>}
             end,
             PlayersInfo
@@ -247,31 +256,34 @@ event({server, {game_event, _, okey_game_info, Args}}) ->
 %%    put(pkey_game_right, [{p1right_combo, []}, {p2right_combo, []}, {p3right_combo, []}]),
     redraw_players(Players);
 
-%%{game_event,undefined,player_left,
-%%{player,<<"wolves1507751">>},{bot_replaced,false},{human_replaced,true},
-%%{replacement,{PlayerInfo,<<"maxim@synrc.com">>,<<"undefined">>,<<"maxim@synrc.com">>,<<"undefined">>,undefined,0,0,<<"undefined">>,false}}}
-
-event({server,{game_event, _, player_left, {player, OldPlayerId}, _, _, {replacment, #'PlayerInfo'{id = NewPlayerId, robot = IsRobot}}}}) ->
-    wf:info("left ~p replacment ~p is_robot ~p", [OldPlayerId, NewPlayerId, IsRobot]),
+event({server,{game_event, _, player_left, Args}}) ->
+    {_, OldPlayerId} = lists:keyfind(player, 1, Args),
+    wf:info("++++ pi ~p", [lists:keyfind(replacement, 1, Args)]),
+    {_, #'PlayerInfo'{id = NewPlayerId, robot = IsRobot}} = lists:keyfind(replacement, 1, Args),
     OldPlayers = get(okey_players),
+
+    wf:info("left ~p replacment ~p is_robot ~p old players ~p", [OldPlayerId, NewPlayerId, IsRobot, OldPlayers]),
     {ListId, _, _} = lists:keyfind(OldPlayerId, 2, OldPlayers),
+
     PlayerMark = case IsRobot of true -> <<" R ">>; false -> <<" M ">> end,
     NewPlayers = 
-        lists:sort(fun({E1, _, _, _}, {E2, _, _, _}) -> E1 < E2 end,
-                   [{ListId, NewPlayerId, <<NewPlayerId/binary, PlayerMark>>} | lists:keydelete(OldPlayerId, 2, OldPlayers)]
+        lists:sort(fun({E1, _, _}, {E2, _, _}) -> E1 < E2 end,
+                   [{ListId, NewPlayerId, <<NewPlayerId/binary, PlayerMark/binary>>} | lists:keydelete(OldPlayerId, 2, OldPlayers)]
                   ),
+    wf:info("+++++ new players ~p", [NewPlayers]),
     put(okey_players, NewPlayers),
     redraw_players(NewPlayers);
 
 event({server,{game_event, _, okey_next_turn, Args}}) ->
     {player, PlayerId} = lists:keyfind(player, 1, Args),
+    wf:info("im ~p next turn players ~p ~p", [get(okey_im), PlayerId, get(okey_players)]),
     {LabelId, _, _} = lists:keyfind(PlayerId, 2, get(okey_players)),
     case get(okey_turn_mark) of
         undefined ->
             ok;
         OldLabelId -> 
             wf:wire("document.querySelector('#" ++ 
-                erlang:atom_to_list(OldLabelId) ++ "').style.color = \"black\";")
+                     erlang:atom_to_list(OldLabelId) ++ "').style.color = \"black\";")
     end,
     wf:wire("document.querySelector('#" ++ erlang:atom_to_list(LabelId) 
         ++ "').style.color = \"red\";"),
