@@ -5,7 +5,7 @@
 -include("../../server/include/requests.hrl").
 -include("../../server/include/settings.hrl").
 -include_lib("avz/include/avz.hrl").
--jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2]).
+-jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2,pause/3]).
 
 join(Game) ->
     ws:send(bert:encodebuf(bert:tuple(
@@ -50,6 +50,22 @@ reveal(GameId, Color, Value, Hand) ->
             [{discarded, bert:tuple(bert:atom("OkeyPiece"), Color, Value)},
              {hand, Hand}])))).
 
+pause(GameId, Action, Who) ->
+    ws:send(
+      bert:encodebuf(
+        bert:tuple(
+          bert:atom("client"),
+          bert:tuple(
+            bert:atom("game_paused"),
+            [{action, bert:atom(Action)},
+             {game, GameId},
+             {who, bert:binary(Who)},
+             {retries, "0"}]
+           )
+         )
+       )
+     ).
+
 redraw_tiles([{Tile, _}| _ ] = TilesList) ->
     wf:update(discard_combo,
         [#dropdown{id = discard_combo, postback = combo,
@@ -89,6 +105,7 @@ body() ->
                },
       #button{ id = discard, body = <<"Discard">>, postback = discard, source=[discard_combo]},
       #button{ id = reveal, body = <<"Reveal">>, postback = reveal, source = [discard_combo]},
+      #button{ id = pause, body = <<"Pause">>, postback = pause},
       #button{ id = player_info, body = <<"PlayerInfo">>, postback = player_info}
     ].
 
@@ -131,6 +148,7 @@ event({server, {game_event, _, okey_game_started, Args}}) ->
                  erlang:integer_to_list(V)]), {C, V}} || {_, C, V} <- Tiles],
     wf:info("tiles ~p", [TilesList]),
     put(game_okey_tiles, TilesList),
+    put(game_okey_pause, resume),
     redraw_tiles(TilesList);
 
 event({server, {game_event, _, okey_tile_discarded, Args}}) ->
@@ -232,6 +250,18 @@ event(reveal) ->
     end;
 
 
+event(pause) ->
+    Action  =
+        case get(game_okey_pause) of 
+            resume -> 
+                put(game_okey_pause, pause),
+                "pause";
+            pause ->
+                put(game_okey_pause, resume),
+                "resume"
+        end,
+    wf:info("im ~p", [get(okey_im)]),
+    wf:wire(pause("1000001", wf:f("~p", [Action]), wf:f("~p", [wf:to_list(get(okey_im))])));
 
 %%event(X) -> avz:event(X).
 
