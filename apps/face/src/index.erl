@@ -261,7 +261,7 @@ event(reveal) ->
 
 event(login_button) -> wf:wire(logout());
 event({register,User}) -> wf:info("Register: ~p",[User]), kvs:add(User), wf:user(User);
-event({login,User}) -> wf:info("Login: ~p",[User]), wf:user(User);
+event({login,User}) -> wf:info("Login: ~p",[User]), kvs:put(User), wf:user(User);
 
 event(pause) ->
     Action  =
