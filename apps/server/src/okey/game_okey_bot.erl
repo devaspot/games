@@ -146,7 +146,7 @@ robot_init_loop(State) ->
     GameId = State#state.gid,
     receive
         join_game ->
-            gas:info(?MODULE,"OKEY BOT JOINED"),
+            gas:info(?MODULE,"OKEY BOT JOINED",[]),
             case call_rpc(S, #join_game{game = GameId}) of
                 {error, _Err} ->
                     gas:info(?MODULE,"ID: ~p failed take with msg ~p", [Id, _Err]),
@@ -330,7 +330,7 @@ do_turn(#state{delay = Delay} = State, Hand) ->
             end,
     true = is_list(Hand1),
     {TryDiscard, _} = draw_random(Hand1),
-    gas:info(?MODULE,"DO TURN"),
+    gas:info(?MODULE,"DO TURN",[]),
     simulate_delay(discard, Delay),
     do_discard(State, Hand1, TryDiscard).
 
