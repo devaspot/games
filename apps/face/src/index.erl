@@ -108,7 +108,7 @@ event(attach) ->
     {ok,GamePid} = game_session:start_link(self()),
     ets:insert(globals,{wf:session_id(),GamePid}),
     put(game_session, GamePid),
-    User = get(user),
+    User = wf:user(),
     Login = case User of undefined -> "maxim"; _ -> User#user.id end,
     Token = auth_server:generate_token(1000001,Login),
     wf:wire(attach(wf:f("'~s'",[Token]))),
