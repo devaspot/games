@@ -13,10 +13,10 @@ function plusoneCallback(auth){
 }
 
 function render(){
-  gapi.signin.render('{{loginbtnid}}', {
+  gapi.signin.render('plusloginbtn', {
     'callback':'plusoneCallback',
-    'clientid':'{{clientid}}',
-    'cookiepolicy': '{{cookiepolicy}}',
+    'clientid':'146782506820.apps.googleusercontent.com',
+    'cookiepolicy': 'http://synrc.com',
     'requestvisibleactions':'http://schemas.google.com/AddActivity',
     'scope':'https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email '
   });
