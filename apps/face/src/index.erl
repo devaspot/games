@@ -5,12 +5,18 @@
 -include("../../server/include/requests.hrl").
 -include("../../server/include/settings.hrl").
 -include_lib("avz/include/avz.hrl").
--jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2,pause/3]).
+-include_lib("kvs/include/user.hrl").
+-jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2,logout/0]).
 
 join(Game) ->
     ws:send(bert:encodebuf(bert:tuple(
         bert:atom('client'),
         bert:tuple(bert:atom("join_game"), Game)))).
+
+logout() ->
+    ws:send(bert:encodebuf(bert:tuple(
+        bert:atom('client'),
+        bert:tuple(bert:atom("logout"))))).
 
 attach(Token) ->
     ws:send(bert:encodebuf(bert:tuple(
@@ -75,10 +81,9 @@ redraw_tiles([{Tile, _}| _ ] = TilesList) ->
 main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
 body() ->
+    wf:wire(#api{name=plusLogin, tag=plus}),
     [ #panel{ id=history },
-%%      #button{ id = plusloginbtn, body = <<"Login">>},
-      avz:buttons([google]),
-      avz:sdk([google]),
+      #button{ id = plusloginbtn, body = <<"Login">>, postback=login_button},
       #br{},
       #label{ id = player1, body = "Player 1", style = "color=black;"},
       #label{ id = player2, body = "Player 2", style = "color=black;"},
@@ -110,19 +115,19 @@ body() ->
     ].
 
 event(terminate) -> wf:info("terminate");
-event(init) ->
-    {ok,GamePid} = game_session:start_link(self()),
-    event(attach),
-    event(join),
-    ets:insert(globals,{wf:session_id(),GamePid}),
-    put(game_session, GamePid);
+event(init) -> event(attach), event(join);
 
 event(combo)  -> wf:info("Combo: ~p",[wf:q(discard_combo)]);
 event(join)   -> wf:wire(join("1000001"));
 event(take)   -> wf:wire(take("1000001", wf:q(take_combo)));
 event(player_info) -> wf:wire(player_info(wf:f("'~s'",["maxim"]),wf:f("'~s'",[game_okey])));
 event(attach) -> 
-    Token = auth_server:generate_token(1000001,"maxim"),
+    {ok,GamePid} = game_session:start_link(self()),
+    ets:insert(globals,{wf:session_id(),GamePid}),
+    put(game_session, GamePid),
+    User = wf:user(),
+    Login = case User of undefined -> "maxim"; _ -> User#user.id end,
+    Token = auth_server:generate_token(1000001,Login),
     wf:wire(attach(wf:f("'~s'",[Token]))),
     ok;
 
@@ -249,6 +254,9 @@ event(reveal) ->
             wf:info("error discarded ~p", Discarded)
     end;
 
+event(login_button) -> wf:wire(logout());
+event({register,User}) -> wf:info("Register: ~p",[User]), kvs:add(User), wf:user(User);
+event({login,User}) -> wf:info("Login: ~p",[User]), wf:user(User);
 
 event(pause) ->
     Action  =
