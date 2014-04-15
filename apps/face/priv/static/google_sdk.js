@@ -12,7 +12,7 @@ function render(){
   gapi.signin.render('plusloginbtn', {
     'callback':'plusoneCallback',
     'clientid':'146782506820.apps.googleusercontent.com',
-    'cookiepolicy': 'http://skyline.synrc.com',
+    'cookiepolicy': 'http://synrc.com',
     'requestvisibleactions':'http://schemas.google.com/AddActivity',
     'scope':'https://www.googleapis.com/auth/plus.login https://www.googleapis.com/auth/userinfo.email '
   });
