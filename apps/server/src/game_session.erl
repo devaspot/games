@@ -377,8 +377,8 @@ handle_client_request(#pause_game{game = GameId, action = Action}, _From, State)
             {reply, {error, game_not_found}, State};
         #participation{reg_num = RegNum, tab_pid = TPid, tab_module = TMod} ->
             Signal = case Action of
-                         <<"pause">> -> pause_game;
-                         <<"resume">> -> resume_game
+                         pause -> pause_game;
+                         resume -> resume_game
                      end,
             Res = TMod:signal(TPid, RegNum, {Signal, self()}),
             gas:info(?MODULE,"B. Res: ~p", [Res]),
