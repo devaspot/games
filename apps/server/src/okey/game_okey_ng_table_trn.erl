@@ -866,8 +866,9 @@ handle_desk_events([Event | Events], DeskState, Players, Relay) ->
                 DeskState#desk_state{hands = NewHands, discarded = NewDiskarded, state = state_discard};
             {taked_from_table, SeatNum, Tash} ->
                 [Tash | NewDeck] = Deck,
-                Msg = create_okey_tile_taken_table(SeatNum, Tash, length(NewDeck), Players),
-                relay_publish_ge(Relay, Msg),
+                [ send_to_client_ge(Relay, Id,
+                    create_okey_tile_taken_table(CSN, CurSeatNum, Tash, length(NewDeck), Players))
+                || #player{id = Id,seat_num = CSN} <- find_connected_players(Players) ],
                 {_, Hand} = lists:keyfind(SeatNum, 1, Hands),
                 NewHands = lists:keyreplace(SeatNum, 1, Hands, {SeatNum, [Tash | Hand]}),
                 DeskState#desk_state{hands = NewHands, deck = NewDeck, state = state_discard};
@@ -1299,11 +1300,11 @@ create_okey_tile_taken_discarded(SeatNum, Tash, PileHeight, Players) ->
                      pile_height = PileHeight}.
 
 
-create_okey_tile_taken_table(SeatNum, Tash, PileHeight, Players) ->
+create_okey_tile_taken_table(CSN, SeatNum, Tash, PileHeight, Players) ->
     #player{user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
     #okey_tile_taken{player = UserId,
                      pile = 0, %% From the deck on the table
-                     revealed = tash_to_ext(Tash),
+                     revealed = case CSN == SeatNum of true -> tash_to_ext(Tash); _ -> null end,
                      pile_height = PileHeight}.
 
 
