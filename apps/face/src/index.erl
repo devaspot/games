@@ -4,12 +4,8 @@
 -include_lib("n2o/include/wf.hrl").
 -include("../../server/include/requests.hrl").
 -include("../../server/include/settings.hrl").
-<<<<<<< HEAD
 -include_lib("avz/include/avz.hrl").
--jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4]).
-=======
 -jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2]).
->>>>>>> 3c18764f0aba17050c7d9385380db30b16af11c0
 
 join(Game) ->
     ws:send(bert:encodebuf(bert:tuple(
