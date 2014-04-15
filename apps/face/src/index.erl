@@ -79,6 +79,10 @@ redraw_tiles([{Tile, _}| _ ] = TilesList) ->
         value = Tile, source = [discard_combo],
         options = [#option{label = CVBin, value = CVBin} || {CVBin, _} <- TilesList]}]).
 
+redraw_players(Players) ->
+    [wf:update(LabelId, [#label{id = LabelId, body = PlayerLabel}]) 
+     || {LabelId, _, PlayerLabel}  <- Players].
+
 main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
 body() ->
@@ -86,10 +90,19 @@ body() ->
     [ #panel{ id=history },
       #button{ id = plusloginbtn, body = <<"Login">>, postback=login_button},
       #br{},
+
+%%      #dropdown{ id = p1right_combo, body = "0 0"},
       #label{ id = player1, body = "Player 1", style = "color=black;"},
+
+%%      #dropdown{ id = p2right_combo, body = "0 0"},
       #label{ id = player2, body = "Player 2", style = "color=black;"},
+
+%%      #dropdown{ id = p3right_combo, body = "0 0"},
       #label{ id = player3, body = "Player 3", style = "color=black;"},
+
+%%      #dropdown{ id = p4right_combo, body = "0 0"},
       #label{ id = player4, body = "Player 4", style = "color=black;"},
+
       #br{},
       #button{ id = attach, body = <<"Attach">>, postback = attach},
       #button{ id = join, body = <<"Join">>, postback = join},
@@ -162,7 +175,10 @@ event({server, {game_event, _, okey_game_started, Args}}) ->
 
 event({server, {game_event, _, okey_tile_discarded, Args}}) ->
     Im = get(okey_im),
+%%    Players = get(okey_players),
     {_, Player} = lists:keyfind(player, 1, Args),
+
+%%    wf:info("++++ ~p", [Args]),
 
     if
        Im == Player ->
@@ -205,10 +221,13 @@ event({server,{game_event, Game, okey_turn_timeout, Args}}) ->
 event({server, {game_event, _, okey_game_info, Args}}) ->
     wf:info("okay_game_info ~p", [Args]),
     {_, PlayersInfo} = lists:keyfind(players, 1, Args),
+
+%%          [p1right_combo, p2right_combo, p3right_combo],
+
     Players = 
         lists:zipwith(
-          fun(ListId, {PlayerId, PlayerLabel}) ->
-                  {ListId, PlayerId, PlayerLabel}
+          fun(LabelId, {PlayerId, PlayerLabel}) ->
+                  {LabelId, PlayerId, PlayerLabel}
           end,
           [player1, player2, player3, player4],
           lists:map(
@@ -224,8 +243,24 @@ event({server, {game_event, _, okey_game_info, Args}}) ->
          ),
     wf:info("players ~p", [Players]),
     put(okey_players, Players),
-    [wf:update(LabelId, [#label{id = LabelId, body = PlayerLabel}]) 
-         || {LabelId, _, PlayerLabel}  <- Players];
+%%    put(pkey_game_right, [{p1right_combo, []}, {p2right_combo, []}, {p3right_combo, []}]),
+    redraw_players(Players);
+
+%%{game_event,undefined,player_left,
+%%{player,<<"wolves1507751">>},{bot_replaced,false},{human_replaced,true},
+%%{replacement,{PlayerInfo,<<"maxim@synrc.com">>,<<"undefined">>,<<"maxim@synrc.com">>,<<"undefined">>,undefined,0,0,<<"undefined">>,false}}}
+
+event({server,{game_event, _, player_left, {player, OldPlayerId}, _, _, {replacment, #'PlayerInfo'{id = NewPlayerId, robot = IsRobot}}}}) ->
+    wf:info("left ~p replacment ~p is_robot ~p", [OldPlayerId, NewPlayerId, IsRobot]),
+    OldPlayers = get(okey_players),
+    {ListId, _, _} = lists:keyfind(OldPlayerId, 2, OldPlayers),
+    PlayerMark = case IsRobot of true -> <<" R ">>; false -> <<" M ">> end,
+    NewPlayers = 
+        lists:sort(fun({E1, _, _, _}, {E2, _, _, _}) -> E1 < E2 end,
+                   [{ListId, NewPlayerId, <<NewPlayerId/binary, PlayerMark>>} | lists:keydelete(OldPlayerId, 2, OldPlayers)]
+                  ),
+    put(okey_players, NewPlayers),
+    redraw_players(NewPlayers);
 
 event({server,{game_event, _, okey_next_turn, Args}}) ->
     {player, PlayerId} = lists:keyfind(player, 1, Args),
