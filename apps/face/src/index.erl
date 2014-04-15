@@ -6,7 +6,7 @@
 -include("../../server/include/settings.hrl").
 -include_lib("avz/include/avz.hrl").
 -include_lib("kvs/include/user.hrl").
--jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2,logout/0]).
+-jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2,logout/0,pause/3]).
 
 join(Game) ->
     ws:send(bert:encodebuf(bert:tuple(
@@ -62,11 +62,10 @@ pause(GameId, Action, Who) ->
         bert:tuple(
           bert:atom("client"),
           bert:tuple(
-            bert:atom("game_paused"),
-            [{action, bert:atom(Action)},
-             {game, GameId},
-             {who, bert:binary(Who)},
-             {retries, "0"}]
+            bert:atom("pause_game"),
+            bert:atom("undefined"),
+            GameId,
+            bert:binary(Action)
            )
          )
        )
@@ -263,15 +262,14 @@ event(pause) ->
         case get(game_okey_pause) of 
             resume -> 
                 put(game_okey_pause, pause),
+                wf:update(pause, [#button{id = pause, body = "Resume", postback = pause}]),
                 "pause";
             pause ->
                 put(game_okey_pause, resume),
+                wf:update(pause, [#button{id = pause, body = <<"Pause">>, postback = pause}]),
                 "resume"
         end,
-    wf:info("im ~p", [get(okey_im)]),
     wf:wire(pause("1000001", wf:f("~p", [Action]), wf:f("~p", [wf:to_list(get(okey_im))])));
-
-%%event(X) -> avz:event(X).
 
 event(Event)  -> wf:info("Event: ~p", [Event]).
 
