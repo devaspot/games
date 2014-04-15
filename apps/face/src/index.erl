@@ -8,6 +8,8 @@
 -include_lib("kvs/include/user.hrl").
 -jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2,logout/0]).
 
+user() -> case wf:user() of undefined -> #user{id="maxim"}; U->U end.
+
 join(Game) ->
     ws:send(bert:encodebuf(bert:tuple(
         bert:atom('client'),
@@ -103,13 +105,17 @@ event(init) -> event(attach), event(join);
 event(combo)  -> wf:info("Combo: ~p",[wf:q(discard_combo)]);
 event(join)   -> wf:wire(join("1000001"));
 event(take)   -> wf:wire(take("1000001", wf:q(take_combo)));
-event(player_info) -> wf:wire(player_info(wf:f("'~s'",["maxim"]),wf:f("'~s'",[game_okey])));
+event(player_info) -> 
+    User = user(),
+    wf:wire(player_info(wf:f("'~s'",[wf:to_list(User#user.id)]),wf:f("'~s'",[game_okey])));
 event(attach) -> 
+    wf:info("ATTACH"),
     {ok,GamePid} = game_session:start_link(self()),
     ets:insert(globals,{wf:session_id(),GamePid}),
     put(game_session, GamePid),
-    User = wf:user(),
-    Login = case User of undefined -> "maxim"; _ -> User#user.id end,
+    User = user(),
+    Login = wf:to_list(User#user.id),
+    wf:info("Session User: ~p",[Login]),
     Token = auth_server:generate_token(1000001,Login),
     wf:wire(attach(wf:f("'~s'",[Token]))),
     ok;
