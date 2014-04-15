@@ -1,15 +1,11 @@
 function plusoneCallback(auth){
-  if(!auth['g-oauth-window']) {
-    console.log('skip autologin');
-  } else if(auth['access_token']){
+  if (!auth['g-oauth-window']) { console.log('skip autologin'); }
+  else if(auth['access_token']) {
     gapi.client.load('oauth2', 'v2', function(){
       gapi.client.oauth2.userinfo.get().execute(function(oauthResp){
-        gapi.client.load('plus', 'v1', function(){
-          gapi.client.plus.people.get({'userId':'me'}).execute(function(profileResp){
-            if(plusLogin)plusLogin($.extend({}, gapi.auth.getToken(), oauthResp, profileResp, {'g-oauth-window': 'defined'})); }); }); }); });
-  }else if(auth['error']){
-        console.log('error');
-  }
+            if(plusLogin) plusLogin(oauthResp);
+     }); });
+  } else if(auth['error']) { console.log('error'); }
 }
 
 function render(){
