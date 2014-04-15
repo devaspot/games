@@ -8,4 +8,3 @@ erl_crash.dump
 deps
 apps/**/ebin/**
 rels/web/devbox
-*.js

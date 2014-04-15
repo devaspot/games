@@ -4,6 +4,7 @@
 -include_lib("n2o/include/wf.hrl").
 -include("../../server/include/requests.hrl").
 -include("../../server/include/settings.hrl").
+-include_lib("avz/include/avz.hrl").
 -jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4]).
 
 join(Game) ->
@@ -56,7 +57,10 @@ main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
 body() ->
     [ #panel{ id=history },
-
+%%      #button{ id = plusloginbtn, body = <<"Login">>},
+      avz:buttons([google]),
+      avz:sdk([google]),
+      #br{},
       #label{ id = player1, body = "Player 1", style = "color=black;"},
       #label{ id = player2, body = "Player 2", style = "color=black;"},
       #label{ id = player3, body = "Player 3", style = "color=black;"},
@@ -226,4 +230,10 @@ event(reveal) ->
             wf:info("error discarded ~p", Discarded)
     end;
 
+
+
+%%event(X) -> avz:event(X).
+
 event(Event)  -> wf:info("Event: ~p", [Event]).
+
+api_event(X,Y,Z) -> avz:api_event(X,Y,Z).
