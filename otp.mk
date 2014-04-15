@@ -44,4 +44,4 @@ eunit:
 ct:
 	rebar ct skip_deps=true verbose=1
 
-.PHONY: delete-deps get-deps compile clean console start attach release update-deps dialyze ct eunit tar
+.PHONY: delete-deps get-deps clean compile console start attach release update-deps dialyze ct eunit tar
