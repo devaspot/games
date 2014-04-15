@@ -312,6 +312,6 @@ event(pause) ->
         end,
     wf:wire(pause("1000001", wf:f("~p", [Action])));
 
-event(Event)  -> wf:info("Event: ~p", [Event]).
+event(Event)  -> ok. %wf:info("Event: ~p", [Event]).
 
 api_event(X,Y,Z) -> avz:api_event(X,Y,Z).
