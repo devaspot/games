@@ -6,7 +6,7 @@
 -include("../../server/include/settings.hrl").
 -include_lib("avz/include/avz.hrl").
 -include_lib("kvs/include/user.hrl").
--jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2,logout/0,pause/3]).
+-jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2,logout/0,pause/2]).
 
 user() -> case wf:user() of undefined -> #user{id="maxim"}; U->U end.
 
@@ -58,7 +58,7 @@ reveal(GameId, Color, Value, Hand) ->
             [{discarded, bert:tuple(bert:atom("OkeyPiece"), Color, Value)},
              {hand, Hand}])))).
 
-pause(GameId, Action, Who) ->
+pause(GameId, Action) ->
     ws:send(
       bert:encodebuf(
         bert:tuple(
@@ -67,7 +67,7 @@ pause(GameId, Action, Who) ->
             bert:atom("pause_game"),
             bert:atom("undefined"),
             GameId,
-            bert:binary(Action)
+            bert:atom(Action)
            )
          )
        )
@@ -214,9 +214,9 @@ event({server, {game_event, _, okey_game_info, Args}}) ->
           [player1, player2, player3, player4],
           lists:map(
             fun
-                (#'PlayerInfo'{id = Id, robot = true} = P) ->
+                (#'PlayerInfo'{id = Id, robot = true}) ->
                     {Id, <<Id/binary, <<" R ">>/binary>>};
-                (#'PlayerInfo'{id = Id, robot = false} = P) ->
+                (#'PlayerInfo'{id = Id, robot = false}) ->
                     put(okey_im, Id),
                     {Id, <<Id/binary, <<" M ">>/binary>>}
             end,
@@ -275,7 +275,7 @@ event(pause) ->
                 wf:update(pause, [#button{id = pause, body = <<"Pause">>, postback = pause}]),
                 "resume"
         end,
-    wf:wire(pause("1000001", wf:f("~p", [Action]), wf:f("~p", [wf:to_list(get(okey_im))])));
+    wf:wire(pause("1000001", wf:f("~p", [Action])));
 
 event(Event)  -> wf:info("Event: ~p", [Event]).
 

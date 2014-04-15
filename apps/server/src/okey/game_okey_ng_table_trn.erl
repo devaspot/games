@@ -1447,13 +1447,13 @@ create_okey_turn_timeout(TashTaken, TashDiscarded) ->
 create_game_paused_pause(UserId, GameId) ->
     #game_paused{game = GameId,
                  who = UserId,
-                 action = <<"pause">>,
+                 action = pause,
                  retries = 0}.
 
 create_game_paused_resume(UserId, GameId) ->
     #game_paused{game = GameId,
                  who = UserId,
-                 action = <<"resume">>,
+                 action = resume,
                  retries = 0}.
 
 create_okey_playing_tables(Num) ->
