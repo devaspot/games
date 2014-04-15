@@ -127,8 +127,7 @@ event(player_info) ->
 event(attach) -> 
     wf:info("ATTACH"),
     {ok,GamePid} = game_session:start_link(self()),
-    ets:insert(globals,{wf:session_id(),GamePid}),
-    put(game_session, GamePid),
+    wf:session(<<"game_pid">>,GamePid),
     User = user(),
     Login = wf:to_list(User#user.id),
     wf:info("Session User: ~p",[Login]),
@@ -148,9 +147,9 @@ event(discard) ->
 %event({binary,M}) -> {ok,<<"Hello">>};
 
 event({client,Message}) ->
-%    GamePid = get(game_session),
-    [{_,GamePid}] = ets:lookup(globals,wf:session_id()),
-    game_session:process_request(GamePid, Message);
+    case wf:session(<<"game_pid">>) of
+        undefined -> skip;
+        GamePid -> game_session:process_request(GamePid, Message) end;
 
 event({server, {game_event, _, okey_game_started, Args}}) ->
     {_, Tiles} = lists:keyfind(tiles, 1, Args),
