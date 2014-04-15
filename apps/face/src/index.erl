@@ -73,6 +73,7 @@ pause(GameId, Action) ->
        )
      ).
 
+redraw_tiles(undefined) -> [];
 redraw_tiles([{Tile, _}| _ ] = TilesList) ->
     wf:update(discard_combo,
         [#dropdown{id = discard_combo, postback = combo,
@@ -116,7 +117,7 @@ body() ->
     ].
 
 event(terminate) -> wf:info("terminate");
-event(init) -> event(attach), event(join);
+event(init) -> ok; %event(attach), event(join);
 
 event(combo)  -> wf:info("Combo: ~p",[wf:q(discard_combo)]);
 event(join)   -> wf:wire(join("1000001"));
