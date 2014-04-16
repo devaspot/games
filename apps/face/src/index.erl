@@ -8,6 +8,15 @@
 
 -define(GAMEID, 1000001).
 
+-record(okey_player,
+        {
+          player_id,
+          label_id,
+          player_info,
+          right_pile_id
+        }
+       ).
+
 user() -> 
     case wf:user() of undefined ->
         Imagionary = fake_users:imagionary_users(),
@@ -35,7 +44,7 @@ redraw_players(Players) ->
         style= case User#user.id == Id of
             true -> "font-weight: bold;";
             _ -> "" end, body = <<" ",PN/binary>>}]) 
-     end || {LabelId, _, #'PlayerInfo'{id=Id}=PI} <- Players].
+     end || #okey_player{label_id = LabelId, player_info =  #'PlayerInfo'{id = Id} = PI} <- Players].
 
 player_name(PI) -> auth_server:player_name(PI).
 
@@ -162,7 +171,8 @@ event({server, {game_event, _, okey_game_player_state, Args}}) ->
 
     {_, WhosMove} = lists:keyfind(whos_move, 1, Args),
     Players = get(okey_players),
-    {X, _, _} = lists:keyfind(WhosMove, 2, Players),
+    %%wf:info("++++ whos move ~p", [lists:keyfind(WhosMove, #okey_player.player_id, Players)]),
+    #okey_player{label_id = X} = lists:keyfind(WhosMove, #okey_player.player_id, Players),
     case X of
         null -> skip;
         false -> skip;
@@ -222,7 +232,8 @@ event({server, {game_event, _, okey_game_info, Args}}) ->
 
     Players = 
         lists:zipwith(
-          fun(LabelId, #'PlayerInfo'{id = Id}=PI) -> {LabelId, Id, PI} end,
+          fun(LabelId, #'PlayerInfo'{id = Id} = PI) -> 
+                  #okey_player{label_id = LabelId, player_id = Id, player_info = PI} end,
           [player1, player2, player3, player4], PlayersInfo),
     put(okey_players, Players),
 
@@ -234,13 +245,15 @@ event({server, {game_event, _, okey_game_info, Args}}) ->
 event({server,{game_event, _, player_left, Args}}) ->
     {_, OldPlayerId} = lists:keyfind(player, 1, Args),
     {_, PI} = lists:keyfind(replacement, 1, Args),
-    #'PlayerInfo'{id = NewPlayerId, robot = IsRobot} = PI,
+    #'PlayerInfo'{id = NewPlayerId} = PI,
     OldPlayers = get(okey_players),
 
-    {ListId, _, _} = lists:keyfind(OldPlayerId, 2, OldPlayers),
+    #okey_player{label_id = LabelId} = lists:keyfind(OldPlayerId, #okey_player.player_id, OldPlayers),
 
-    NewPlayers = lists:sort(fun({E1, _, _}, {E2, _, _}) -> E1 < E2 end,
-        [{ListId, NewPlayerId, PI} | lists:keydelete(OldPlayerId, 2, OldPlayers)]),
+    NewPlayers = lists:sort(
+                   fun(#okey_player{label_id = E1}, #okey_player{label_id = E2}) -> E1 < E2 end,
+                   [#okey_player{label_id = LabelId, player_id = NewPlayerId, player_info = PI} | lists:keydelete(OldPlayerId, 2, OldPlayers)]
+                  ),
 
     put(okey_players, NewPlayers),
     redraw_players(NewPlayers),
@@ -250,7 +263,7 @@ event({server,{game_event, _, player_left, Args}}) ->
 event({server,{game_event, _, okey_next_turn, Args}}) ->
     {player, PlayerId} = lists:keyfind(player, 1, Args),
 %    wf:info("im ~p next turn players ~p ~p", [get(okey_im), PlayerId, get(okey_players)]),
-    {LabelId, _, _} = lists:keyfind(PlayerId, 2, get(okey_players)),
+    #okey_player{label_id = LabelId} = lists:keyfind(PlayerId, #okey_player.player_id, get(okey_players)),
     case get(okey_turn_mark) of
         undefined -> ok;
         OldLabelId -> unselect(OldLabelId) end,
@@ -261,6 +274,6 @@ event({server,{game_event, _, okey_next_turn, Args}}) ->
 event({register,User}) -> wf:info("Register: ~p",[User]), kvs:add(User), wf:user(User);
 event({login,User}) -> wf:info("Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
 
-event(Event)  -> ok. %wf:info("Event: ~p", [Event]).
+event(_Event)  -> ok. %wf:info("Event: ~p", [Event]).
 
 api_event(X,Y,Z) -> avz:api_event(X,Y,Z).
