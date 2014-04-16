@@ -37,6 +37,8 @@ redraw_discard_combo(TilesList) ->
     redraw_tiles(TilesList, #dropdown{id = discard_combo, postback = combo, source = [discard_combo]}).
 
 redraw_tiles(undefined, _DropDown) -> [];
+redraw_tiles([] = _TilesList, DropDown = #dropdown{id = ElementId}) ->
+    wf:update(ElementId, [DropDown#dropdown{value = [], options = []}]);
 redraw_tiles([{Tile, _}| _ ] = TilesList, DropDown = #dropdown{id = ElementId}) ->
     wf:update(ElementId, [DropDown#dropdown{value = Tile, options = [#option{label = CVBin, value = CVBin} || {CVBin, _} <- TilesList]}]).
 
