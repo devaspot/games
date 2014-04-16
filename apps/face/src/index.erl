@@ -109,7 +109,6 @@ event(join) -> wf:wire(protocol:join(wf:to_list(?GAMEID)));
 event(take) -> wf:wire(protocol:take(wf:to_list(?GAMEID), wf:q(take_combo)));
 
 event(player_info) -> 
-    1/0,
     User = user(),
     wf:wire(protocol:player_info(
         wf:f("'~s'",[wf:to_list(User#user.id)]),wf:f("'~s'",[game_okey])));
@@ -198,7 +197,7 @@ event({server, {game_event, _, okey_tile_taken, Args}}) ->
     Im = get(okey_im),
     {_, PlayerId} = lists:keyfind(player, 1, Args),
     case lists:keyfind(revealed, 1, Args) of
-        {_, {_, C, V}} = TakenTile->
+        {_, {_, C, V}} ->
             if
                 Im == PlayerId ->
                     TilesList = [{wf:to_binary([wf:to_list(C), " ", wf:to_list(V)]), {C, V}} | get(game_okey_tiles)],
@@ -215,7 +214,7 @@ event({server, {game_event, _, okey_tile_taken, Args}}) ->
                     LeftPlayer =
                         #okey_player{right_pile_combo_id = RightPileComboId, right_pile = RightPile} = 
                         lists:keyfind(LeftLabelId, #okey_player.label_id, Players),
-                    UpdatedRightPile = lists:delete(TakenTile, RightPile),
+                    UpdatedRightPile = lists:keydelete({C, V}, 2, RightPile),
                     redraw_tiles(UpdatedRightPile, #dropdown{id = RightPileComboId}),
                     UpdatedPlayers = update_players(LeftPlayer#okey_player{right_pile = UpdatedRightPile}, Players),
                     put(okey_players, UpdatedPlayers);
