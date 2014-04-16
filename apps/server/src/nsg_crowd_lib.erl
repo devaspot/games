@@ -12,10 +12,13 @@
 
 create_users(A,B) ->
     ImagioUsers = fake_users:imagionary_users(),
-    [ begin U = #user{username = fake_users:ima_gio(N,ImagioUsers),
-                            id = fake_users:ima_gio(N,ImagioUsers),
-                            birth={1981,9,29}
-                           }, kvs:put(U) end || N <- lists:seq(A, B) ].
+    [ begin 
+        {Id,Name,Surname} = lists:nth(N,ImagioUsers),
+        U = #user{  username = Id,
+                    id = Id,
+                    names = Name,
+                    surnames = Surname,
+                    birth={1981,9,29} }, kvs:put(U) end || N <- lists:seq(A, B) ].
 
 virtual_users() ->
     case kvs:get(user,"maxim@synrc.com") of
@@ -23,12 +26,12 @@ virtual_users() ->
                 create_users(1,100), kvs:put(#user{id="maxim@synrc.com"});
         {ok,_} -> skip end,
 
-    {_, AllUsers} = lists:unzip(fake_users:imagionary_users()),
-    F = fun(UserId, Acc) ->
+    AllUsers = fake_users:imagionary_users(),
+    F = fun({UserId,_,_}, Acc) ->
         User = auth_server:get_user_info_by_user_id(UserId),
         case User of
-                    {ok, _} -> [UserId | Acc];
-                    {error,_} -> Acc
+                    {error,_} -> Acc;
+                    _ -> [UserId | Acc]
                 end
         end,
     lists:usort(lists:foldl(F, [], AllUsers)).
@@ -39,7 +42,7 @@ random_users(Num, AllUsers) ->
 
 random_users(0, Acc, _AllUsers, _AllUsersNum) -> Acc;
 random_users(N, Acc, AllUsers, AllUsersNum) ->
-    User = list_to_binary(lists:nth(crypto:rand_uniform(1, AllUsersNum + 1), AllUsers)),
+    User = lists:nth(crypto:rand_uniform(1, AllUsersNum + 1), AllUsers),
     case lists:member(User, Acc) of
         false -> random_users(N - 1, [User | Acc], AllUsers, AllUsersNum);
         true -> random_users(N, Acc, AllUsers, AllUsersNum)

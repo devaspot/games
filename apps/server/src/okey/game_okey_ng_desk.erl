@@ -404,7 +404,7 @@ handle_player_action(PlayerId, {reveal, Tash, TashPlaces}, ?STATE_DISCARD,
     end;
 
 handle_player_action(_PlayerId, _Action, _StateName, _StateData) ->
-    ?ERROR("OKEY_NG_DESK Invalid action passed. Player: ~p. Action: ~p. StateName: ~p.",
+    ?ERROR("OKEY_NG_DESK Invalid action passed. Player: ~p.~n Action: ~p. StateName: ~p.",
            [_PlayerId, _Action, _StateName]),
     {error, invalid_action}.
 

@@ -13,45 +13,32 @@
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 
 -define(SERVER, ?MODULE).
--define(SPARE_LOGINS, [#'PlayerInfo'{name = <<"Abe">>, surname="Kobo", login = <<"dunes">>, avatar_url = <<"/files/users/user_dunes/avatar/1-small.jpg">>},
-                       #'PlayerInfo'{name = <<"Herman">>, surname="Hesse", login = <<"wolves">>, avatar_url = <<"/files/users/user_wolves/avatar/1-small.jpg">>},
-                       #'PlayerInfo'{name = <<"Ernest">>, surname = <<"Hemingway">>, login = <<"oldman">>, avatar_url = <<"/files/users/user_oldman/avatar/1-small.jpg">>},
-                       #'PlayerInfo'{name = <<"Erich Maria">>, surname = <<"Remarque">>, login = <<"imwesten">>, avatar_url = <<"/files/users/user_imwesten/avatar/1-small.jpg">>}]).
+
+-define(SPARE_LOGINS, [
+    #'PlayerInfo'{name = <<"Albert">>, surname= <<"Einstein">>, login = <<"quantum">>, robot = true },
+    #'PlayerInfo'{name = <<"Marie">>, surname="Curie", login = <<"radio">>, robot = true },
+    #'PlayerInfo'{name = <<"Ilya">>, surname = <<"Prigogine">>, login = <<"synergetics">>, robot = true},
+    #'PlayerInfo'{name = <<"Mother">>, surname = <<"Teresa">>, login = <<"peace">>, robot = true}]).
 
 -record(state, {
           spare = ?SPARE_LOGINS,
           tokens
          }).
 
-%% definition of user from zealot/include/user.hrl
--record(user_info,
-        {username,
-         name,
-         surname,
-         age,
-	 avatar_url,
-         sex,
-         skill :: integer(),
-         score :: integer()}).
+spare() -> [ P#'PlayerInfo'{id =list_to_binary(binary_to_list(P#'PlayerInfo'.login) ++
+         integer_to_list(id_generator:get_id2()))} || P <- ?SPARE_LOGINS ].
 
 start_link() -> gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 store_token(GameId, Token, UserId) when is_list(Token) -> store_token(GameId, list_to_binary(Token), UserId);
 store_token(GameId, Token, UserId) when is_binary(Token) -> gen_server:call(?SERVER, {store_token, GameId, Token, UserId}).
 get_user_info(Token) when is_list(Token)  -> get_user_info(list_to_binary(Token));
 get_user_info(Token) when is_binary(Token) -> gen_server:call(?SERVER, {get_user_info, Token}).
-get_user_info(Token, Id) when is_list(Token) -> get_user_info(list_to_binary(Token), Id);
-get_user_info(Token, Id) when is_list(Id) -> get_user_info(Token, list_to_binary(Id));
-get_user_info(Token, Id) when is_binary(Token), is_binary(Id) -> gen_server:call(?SERVER, {get_user_info, Token, Id}).
 get_user_info_by_user_id(UserId) when is_list(UserId) -> get_user_info_by_user_id(list_to_binary(UserId));
 get_user_info_by_user_id(UserId) -> user_info(UserId).
-fake_credentials() -> gen_server:call(?SERVER, {fake_credentials}).
-robot_credentials() -> gen_server:call(?SERVER, {robot_credentials}).
 generate_token(Game,User) -> T = base64:encode(crypto:rand_bytes(100)), store_token(Game,T,User).
 
 init([]) ->
     Tokens = ets:new(tokens, [private, ordered_set, {keypos, #authtoken.token}]),
-    store_token(0,Tokens, <<?TEST_TOKEN>>, "maxim"),
-    store_token(0,Tokens, <<?TEST_TOKEN2>>, "alice"),
     {ok, #state{tokens = Tokens}}.
 
 handle_call({store_token, GameId, Token, UserId}, _From, #state{tokens = E} = State) ->
@@ -59,72 +46,60 @@ handle_call({store_token, GameId, Token, UserId}, _From, #state{tokens = E} = St
     {reply, Token, State};
 
 handle_call({get_user_info, Token}, _From, #state{tokens = E} = State) ->
-    gas:info("checking token: ~p", [Token]),
     case ets:lookup(E, Token) of
         [] ->
-            gas:info("token not found", []),
+            gas:info(?MODULE,"Token not found. Denied.", []),
             {reply, false, State};
         List ->
             {authtoken, _, UserId} = hd(List),
-            gas:info("token was registred, getting user info for ~p",[UserId]),
             Reply = case user_info(UserId) of
-                {ok, UserInfo} ->
-                    gas:info("..user info retrieved", []),
-                    UserInfo;
                 {error, not_found} ->
-                    gas:info("..no such user info, providing fake credentials", []),
-                    fake_credentials0(State#state.spare); %% for eunit tests. FIX
-                {badrpc, _} ->
-                    gas:info("..bad rpc, providing fake credentials", []),
-                    fake_credentials0(State#state.spare)  %% for eunit tests. FIX
+                    gas:info(?MODULE,"User is not in DB", []),
+                    user_info(#user{id = UserId });
+                UserInfo ->
+                    gas:info(?MODULE,"Registered User", []),
+                    UserInfo
             end,
             {reply, Reply, State}
     end;
 
-handle_call({get_user_info, Token, Id}, _From, #state{tokens = E} = State) ->
-    gas:info("checking token: ~p", [Token]),
-    case ets:lookup(E, Token) of
-        [] ->
-            gas:error("token not found", []),
-            {reply, false, State};
-        _List ->
-            Reply0 = fake_credentials0(State#state.spare),
-            Reply = Reply0#'PlayerInfo'{id = Id},
-            {reply, Reply, State}
-    end;
-
-
-handle_call({fake_credentials}, _From, #state{spare = Spare} = State) -> H = fake_credentials0(Spare), {reply, H, State};
-handle_call({robot_credentials}, _From, #state{spare = Spare} = State) -> H = fake_credentials0(Spare), {reply, H#'PlayerInfo'{robot = true}, State};
 handle_call(_Request, _From, State) -> Reply = ok, {reply, Reply, State}.
 handle_cast(_Msg, State) -> {noreply, State}.
 handle_info(_Info, State) -> {noreply, State}.
 terminate(_Reason, _State) -> ok.
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
 
-fake_credentials0(Spare) ->
-    Pos = crypto:rand_uniform(1, length(Spare)),
-    H0 = lists:nth(Pos, Spare),
+robot_credentials() ->
+    Pos = crypto:rand_uniform(1, length(?SPARE_LOGINS) + 1),
+    H0 = lists:nth(Pos, ?SPARE_LOGINS),
     Id = list_to_binary(binary_to_list(H0#'PlayerInfo'.login) ++
          integer_to_list(id_generator:get_id2())),
     H0#'PlayerInfo'{id = Id}.
 
 store_token(GameId, E, Token, UserId) ->
-    gas:info("storing token: ~p", [Token]),
+    gas:info(?MODULE,"Storing token: ~p", [Token]),
     Data = #authtoken{token = Token, id = UserId},
     ets:insert(E, Data).
 
-user_info(UserId) ->
+player_name(#'PlayerInfo'{login = Id, name = Name, surname = Surname}) ->
+    wf:to_binary([case Name of <<"undefined">> -> Id;
+              _ -> wf:to_list(Name) ++ case Surname of
+                     <<"undefined">> -> ""; _ -> " " ++ wf:to_list(Surname) end end]).
+
+user_info(#user{}=UserData) ->
+%    gas:info(?MODULE,"PlayerInfo by #user: ~p",[UserData]),
+    #'PlayerInfo'{id = wf:to_binary(UserData#user.id),
+        login = wf:to_binary(UserData#user.username),
+        name = wf:to_binary(UserData#user.names),
+        avatar_url = wf:to_binary(UserData#user.avatar),
+        skill = 0,
+        score = 0,
+        surname = wf:to_binary(UserData#user.surnames)};
+
+
+user_info(UserId) when is_list(UserId); is_binary(UserId) ->
     case kvs:get(user,UserId) of
         {ok, UserData} ->
-            gas:info("User Data: ~p",[UserData]),
-            {ok, #'PlayerInfo'{id = wf:to_binary(UserData#user.id),
-                               login = wf:to_binary(UserData#user.username),
-                               name = wf:to_binary(UserData#user.id),
-                               avatar_url = wf:to_binary(UserData#user.avatar),
-                               skill = 0,
-                               score = 0,
-                               surname = wf:to_binary(UserData#user.surnames)}};
-        Error ->
-            Error
-    end.
+%            gas:info(?MODULE,"User Data: ~p",[UserData]),
+            user_info(UserData);
+        Error -> Error end.

@@ -35,7 +35,7 @@ tavla_standalone_specs(GamesNum, VirtUsersPerTable) ->
        true ->
            F = fun(_) ->
                        GameId = game_manager:gen_game_id(),
-                       GameName = "Tavla/Crowd game - " ++ erlang:integer_to_list(GameId),
+                       GameName = "Tavla/Crowd game: " ++ erlang:integer_to_list(GameId),
                        Users = nsg_crowd_lib:random_users(VirtUsersPerTable, VirtualUsers),
 %%%                    Users = [robot],
                        TableParams = [

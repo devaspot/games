@@ -877,7 +877,7 @@ setup_tables(TableModule, Players, PlayersPerTable, TTable, Tour,
 %% setup_players(Registrants) -> Players
 setup_players(Registrants) ->
     F = fun(UserId, {Acc, PlayerId}) ->
-                {ok, UserInfo} = auth_server:get_user_info_by_user_id(UserId),
+                UserInfo = auth_server:get_user_info_by_user_id(UserId),
                 NewAcc = store_player(#player{id = PlayerId, user_id = UserId,
                                               user_info = UserInfo, status = active}, Acc),
                 {NewAcc, PlayerId + 1}

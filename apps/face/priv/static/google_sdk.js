@@ -3,7 +3,7 @@ function plusoneCallback(auth){
   else if(auth['access_token']) {
     gapi.client.load('oauth2', 'v2', function(){
       gapi.client.oauth2.userinfo.get().execute(function(oauthResp){
-            if(plusLogin) plusLogin(oauthResp);
+            if(plusLogin) {console.log(JSON.stringify(oauthResp)); plusLogin(oauthResp); }
      }); });
   } else if(auth['error']) { console.log('error'); }
 }

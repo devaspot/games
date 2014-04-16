@@ -719,16 +719,18 @@ del_seats_by_table_id(TabId, Seats) ->
         end,
     lists:foldl(F, Seats, find_seats_by_table_id(TabId, Seats)).
 
+spawn_bots(GameId, BotModule, 1) ->
+    [ spawn_bot(BotModule, GameId, auth_server:robot_credentials()) ];
 spawn_bots(GameId, BotModule, BotsNum) ->
-    [spawn_bot(BotModule, GameId) || _ <- lists:seq(1, BotsNum)].
+    [ spawn_bot(BotModule, GameId, PlayerInfo) 
+     || PlayerInfo <- lists:sublist(auth_server:spare(),BotsNum) ].
 
-spawn_bot(BotModule, GameId) ->
-    {NPid, UserInfo} = create_robot(BotModule, GameId),
+spawn_bot(BotModule, GameId, PlayerInfo) ->
+    {NPid, UserInfo} = create_robot(BotModule, GameId, PlayerInfo),
     BotModule:join_game(NPid),
-    UserInfo.
+    PlayerInfo.
 
-create_robot(BotModule, GameId) ->
-    UserInfo = auth_server:robot_credentials(),
+create_robot(BotModule, GameId, UserInfo) ->
     {ok, NPid} = BotModule:start(self(), UserInfo, GameId),
     BotModule:get_session(NPid), %% Hack for the game_tavla_bot. Creates a game session process.
     {NPid, UserInfo}.

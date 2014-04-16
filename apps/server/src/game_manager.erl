@@ -17,7 +17,8 @@ destroy_game(Pid,Sup) -> game_sup:stop_game(Sup,Pid).
 gen_game_id() ->
     PoolNum = wf:config(nsx_idgen,game_pool,5000000) div 1000000,
     PoolNumStr = integer_to_list(PoolNum),
-    nsm_db:next_id("game_id_pool_"++PoolNumStr, PoolNum*1000000 + 200, 1). %% 200 is reserved for lucky games and for already created games
+    PoolNum*1000000 + 200 + kvs:next_id("game_table", 1).
+     %% 200 is reserved for lucky games and for already created games
 
 create_game(GameId, GameFSM, Params) ->
     {ok, Pid} = create_game_monitor(GameId, GameFSM, Params),
@@ -448,6 +449,7 @@ start_tournament(TrnId,NumberOfTournaments,NumberOfPlayers,_Quota,_Tours,_Speed,
 %%                        false -> [lists:nth(N,RealPlayers)||N<-lists:seq(1,NumberOfPlayers)] end,
 
     RealPlayersNumber = length(RealPlayers),
+
     Registrants = if NumberOfPlayers == RealPlayersNumber -> RealPlayers;
                      NumberOfPlayers > RealPlayersNumber ->
                          RealPlayers ++ [list_to_binary(fake_users:ima_gio(N)) ||

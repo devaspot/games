@@ -19,10 +19,21 @@ surnames() ->
     "ozbek","ozcan","ozdemir","ozden","ozturk","pasa","polat","sezer","sahin","sen",
     "simsek","tekin","tosun","tunc","turan","unal","yalcin","yazici","yildirim","yilmaz"].
 
-ima_gio(N) -> {MD5,Name} = lists:nth(N,imagionary_users()), Name.
-ima_gio(N,L) -> {MD5,Name} = lists:nth(N,L), Name.
+ima_gio(N) -> {Id,Name,Surname} = lists:nth(N,imagionary_users()), Id.
+ima_gio(N,L) -> {Id,Name,Surname} = lists:nth(N,L), Id.
 
 imagionary_users() ->
-    List = [{crypto:md5(X++Y),X++"_"++Y}||X<-names(),Y<-surnames()],
+    List = [ begin
+        [HX|TX] = X, NX = [string:to_upper(HX)] ++ TX,
+        [HY|TY] = Y, NY = [string:to_upper(HY)] ++ TY,
+        {wf:to_binary(X++"_"++Y),wf:to_binary(NX),wf:to_binary(NY)}
+    end || X<-names(), Y<-surnames()],
     lists:keysort(1,List).
 
+fake_id() ->
+    FakeUsers = fake_users:imagionary_users(),
+    Pos = crypto:rand_uniform(1, length(FakeUsers)),
+    H0 = fake_users:ima_gio(Pos,FakeUsers),
+    Id = wf:to_binary(wf:to_list(H0) ++ wf:to_list(id_generator:get_id2())).
+
+fake_id(Login) -> wf:to_binary(wf:to_list(Login) ++ wf:to_list(id_generator:get_id2())).

@@ -8,7 +8,16 @@
 -include_lib("kvs/include/user.hrl").
 -jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2,logout/0,pause/2]).
 
-user() -> case wf:user() of undefined -> #user{id="maxim"}; U->U end.
+-define(GAMEID, 1000001).
+
+user() -> 
+    case wf:user() of undefined ->
+        Imagionary = fake_users:imagionary_users(),
+        {Id,Name,Surname} = lists:nth(crypto:rand_uniform(1,length(Imagionary)),Imagionary),
+        X = #user{id = fake_users:fake_id(Id),
+                  names = Name,
+                  surnames = Surname},
+        wf:user(X), X; U-> U end.
 
 join(Game) ->
     ws:send(bert:encodebuf(bert:tuple(
@@ -59,19 +68,17 @@ reveal(GameId, Color, Value, Hand) ->
              {hand, Hand}])))).
 
 pause(GameId, Action) ->
-    ws:send(
-      bert:encodebuf(
+    ws:send(bert:encodebuf(bert:tuple(
+        bert:atom("client"),
         bert:tuple(
-          bert:atom("client"),
-          bert:tuple(
             bert:atom("pause_game"),
             bert:atom("undefined"),
             GameId,
-            bert:atom(Action)
-           )
-         )
-       )
-     ).
+            bert:atom(Action))))).
+
+color(Id,Color) -> wf:wire(wf:f("document.querySelector('#~s').style.color = \"~s\";",[Id,Color])).
+unselect(Id) -> color(Id,black).
+select(Id) -> color(Id,red).
 
 redraw_tiles(undefined) -> [];
 redraw_tiles([{Tile, _}| _ ] = TilesList) ->
@@ -81,8 +88,15 @@ redraw_tiles([{Tile, _}| _ ] = TilesList) ->
         options = [#option{label = CVBin, value = CVBin} || {CVBin, _} <- TilesList]}]).
 
 redraw_players(Players) ->
-    [wf:update(LabelId, [#label{id = LabelId, body = PlayerLabel}]) 
-     || {LabelId, _, PlayerLabel}  <- Players].
+    User = user(),
+    [ begin PN = player_name(PI),
+        wf:update(LabelId, [#label{id = LabelId,
+        style= case User#user.id == Id of
+            true -> "font-weight: bold;";
+            _ -> "" end, body = <<" ",PN/binary>>}]) 
+     end || {LabelId, _, #'PlayerInfo'{id=Id}=PI} <- Players].
+
+player_name(PI) -> auth_server:player_name(PI).
 
 main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
@@ -129,24 +143,25 @@ body() ->
       #button{ id = player_info, body = <<"PlayerInfo">>, postback = player_info}
     ].
 
-event(terminate) -> wf:info("terminate");
-event(init) -> ok; %event(attach), event(join);
+event(terminate) -> wf:user(undefined), wf:info("terminate");
+event(init) -> event(attach), event(join);
 
 event(combo)  -> wf:info("Combo: ~p",[wf:q(discard_combo)]);
-event(join)   -> wf:wire(join("1000001"));
-event(take)   -> wf:wire(take("1000001", wf:q(take_combo)));
+event(join)   -> wf:wire(join(wf:to_list(?GAMEID)));
+event(take)   -> wf:wire(take(wf:to_list(?GAMEID), wf:q(take_combo)));
+
 event(player_info) -> 
     User = user(),
     wf:wire(player_info(wf:f("'~s'",[wf:to_list(User#user.id)]),wf:f("'~s'",[game_okey])));
+
 event(attach) -> 
     wf:info("ATTACH"),
     {ok,GamePid} = game_session:start_link(self()),
     wf:session(<<"game_pid">>,GamePid),
     User = user(),
-    Login = User#user.id,
-    put(okey_im, Login),
-    wf:info("Session User: ~p",[Login]),
-    Token = auth_server:generate_token(1000001,Login),
+    put(okey_im, User),
+    wf:info("Session User: ~p",[User]),
+    Token = auth_server:generate_token(?GAMEID,User),
     wf:wire(attach(wf:f("'~s'",[Token]))),
     ok;
 
@@ -155,9 +170,8 @@ event(discard) ->
     DiscardCombo = wf:q(discard_combo),
     case lists:keyfind(erlang:list_to_binary(DiscardCombo), 1, TilesList) of
     {_, {C, V}} ->
-        wf:wire(discard("1000001", erlang:integer_to_list(C), erlang:integer_to_list(V)));
+        wf:wire(discard(wf:to_list(?GAMEID), erlang:integer_to_list(C), erlang:integer_to_list(V)));
     false -> wf:info("Discard Combo: ~p",[DiscardCombo]) end;
-
 
 %event({binary,M}) -> {ok,<<"Hello">>};
 
@@ -168,27 +182,44 @@ event({client,Message}) ->
 
 event({server, {game_event, _, okey_game_started, Args}}) ->
     {_, Tiles} = lists:keyfind(tiles, 1, Args),
-    TilesList = [{erlang:list_to_binary([erlang:integer_to_list(C), " ",
-                 erlang:integer_to_list(V)]), {C, V}} || {_, C, V} <- Tiles],
+    TilesList = [{wf:to_binary([wf:to_list(C)," ",wf:to_list(V)]), {C, V}} || {_, C, V} <- Tiles],
     %%wf:info("tiles ~p", [TilesList]),
     put(game_okey_tiles, TilesList),
     put(game_okey_pause, resume),
     redraw_tiles(TilesList);
 
 event({server, {game_event, _, okey_game_player_state, Args}}) ->
+
+    {_, WhosMove} = lists:keyfind(whos_move, 1, Args),
+    Players = get(okey_players),
+    {X, _, _} = lists:keyfind(WhosMove, 2, Players),
+    case X of
+        null -> skip;
+        false -> skip;
+        X -> select(X), put(okey_turn_mark,X) end,
+
     {_, Tiles} = lists:keyfind(tiles, 1, Args),
-    TilesList =
-        [
-         {erlang:list_to_binary([erlang:integer_to_list(C), " ", erlang:integer_to_list(V)]), {C, V}}
-         || {_, C, V} <- Tiles
-        ],
+    TilesList = [{wf:to_binary([wf:to_list(C)," ",wf:to_list(V)]),{C, V}}|| {_, C, V} <- Tiles],
     redraw_tiles(TilesList),
     put(game_okey_tiles, TilesList);
+
+event({server, {game_event, _, okey_tile_taken, Args}}) ->
+    Im = get(okey_im),
+    {_, Player} = lists:keyfind(player, 1, Args),
+    if
+       Im == Player ->
+            case lists:keyfind(revealed, 1, Args) of
+                {_, {_, C, V}} ->
+                    TilesList = [{wf:to_binary([wf:to_list(C), " ", wf:to_list(V)]), {C, V}} | get(game_okey_tiles)],
+                    put(game_okey_tiles, TilesList),
+                    redraw_tiles(TilesList);
+                _ -> ok end;
+       true -> ok end;
 
 event({server, {game_event, _, okey_tile_discarded, Args}}) ->
     Im = get(okey_im),
 %%    Players = get(okey_players),
-    {_, Player} = (catch lists:keyfind(player, 1, Args)),
+    {_, Player} = lists:keyfind(player, 1, Args),
 %%    wf:info("++++ ~p", [Args]),
 
     if
@@ -202,23 +233,6 @@ event({server, {game_event, _, okey_tile_discarded, Args}}) ->
             ok
     end;
 
-event({server, {game_event, _, okey_tile_taken, Args}}) ->
-    Im = get(okey_im),
-    {_, Player} = lists:keyfind(player, 1, Args),
-    if
-       Im == Player ->
-            case lists:keyfind(revealed, 1, Args) of
-                {_, {_, C, V}} ->
-                    TilesList = [{erlang:list_to_binary([erlang:integer_to_list(C), " ",
-                                  erlang:integer_to_list(V)]), {C, V}} | get(game_okey_tiles)],
-                    put(game_okey_tiles, TilesList),
-                    redraw_tiles(TilesList);
-                _ ->
-                    ok
-            end;
-       true ->
-            ok
-    end;
 
 event({server,{game_event, Game, okey_turn_timeout, Args}}) ->
     wf:info("okey_turn_timeout ~p", [Args]),
@@ -230,64 +244,46 @@ event({server,{game_event, Game, okey_turn_timeout, Args}}) ->
             [{player, get(okey_im)}, {tile, TileDiscarded}]}});
 
 event({server, {game_event, _, okey_game_info, Args}}) ->
-%%    wf:info("okay_game_info ~p", [Args]),
+%%  wf:info("okay_game_info ~p", [Args]),
     {_, PlayersInfo} = lists:keyfind(players, 1, Args),
 
-%%          [p1right_combo, p2right_combo, p3right_combo],
+%%  [p1right_combo, p2right_combo, p3right_combo],
 
     Players = 
         lists:zipwith(
-          fun(LabelId, {PlayerId, PlayerLabel}) ->
-                  {LabelId, PlayerId, PlayerLabel}
-          end,
-          [player1, player2, player3, player4],
-          lists:map(
-            fun
-                (#'PlayerInfo'{id = Id, robot = true}) ->
-                    {Id, <<Id/binary, <<" R ">>/binary>>};
-                (#'PlayerInfo'{id = Id, robot = false}) ->
-                    {Id, <<Id/binary, <<" M ">>/binary>>}
-            end,
-            PlayersInfo
-           )
-         ),
-    wf:info("players ~p", [Players]),
+          fun(LabelId, #'PlayerInfo'{id = Id}=PI) -> {LabelId, Id, PI} end,
+          [player1, player2, player3, player4], PlayersInfo),
     put(okey_players, Players),
-%%    put(pkey_game_right, [{p1right_combo, []}, {p2right_combo, []}, {p3right_combo, []}]),
+
+%   wf:info("players ~p", [Players]),
+
+%%  put(pkey_game_right, [{p1right_combo, []}, {p2right_combo, []}, {p3right_combo, []}]),
     redraw_players(Players);
 
 event({server,{game_event, _, player_left, Args}}) ->
     {_, OldPlayerId} = lists:keyfind(player, 1, Args),
-    wf:info("++++ pi ~p", [lists:keyfind(replacement, 1, Args)]),
-    {_, #'PlayerInfo'{id = NewPlayerId, robot = IsRobot}} = lists:keyfind(replacement, 1, Args),
+    {_, PI} = lists:keyfind(replacement, 1, Args),
+    #'PlayerInfo'{id = NewPlayerId, robot = IsRobot} = PI,
     OldPlayers = get(okey_players),
 
-    wf:info("left ~p replacment ~p is_robot ~p old players ~p", [OldPlayerId, NewPlayerId, IsRobot, OldPlayers]),
     {ListId, _, _} = lists:keyfind(OldPlayerId, 2, OldPlayers),
 
-    PlayerMark = case IsRobot of true -> <<" R ">>; false -> <<" M ">> end,
-    NewPlayers = 
-        lists:sort(fun({E1, _, _}, {E2, _, _}) -> E1 < E2 end,
-                   [{ListId, NewPlayerId, <<NewPlayerId/binary, PlayerMark/binary>>} | lists:keydelete(OldPlayerId, 2, OldPlayers)]
-                  ),
-    wf:info("+++++ new players ~p", [NewPlayers]),
+    NewPlayers = lists:sort(fun({E1, _, _}, {E2, _, _}) -> E1 < E2 end,
+        [{ListId, NewPlayerId, PI} | lists:keydelete(OldPlayerId, 2, OldPlayers)]),
+
     put(okey_players, NewPlayers),
-    redraw_players(NewPlayers);
+    redraw_players(NewPlayers),
+
+    case get(okey_turn_mark) of undefined -> ok; X -> select(X) end;
 
 event({server,{game_event, _, okey_next_turn, Args}}) ->
     {player, PlayerId} = lists:keyfind(player, 1, Args),
-    wf:info("im ~p next turn players ~p ~p", [get(okey_im), PlayerId, get(okey_players)]),
+%    wf:info("im ~p next turn players ~p ~p", [get(okey_im), PlayerId, get(okey_players)]),
     {LabelId, _, _} = lists:keyfind(PlayerId, 2, get(okey_players)),
     case get(okey_turn_mark) of
-        undefined ->
-            ok;
-        OldLabelId -> 
-            wf:wire("document.querySelector('#" ++ 
-                     erlang:atom_to_list(OldLabelId) ++ "').style.color = \"black\";")
-    end,
-    wf:wire("document.querySelector('#" ++ erlang:atom_to_list(LabelId) 
-        ++ "').style.color = \"red\";"),
-
+        undefined -> ok;
+        OldLabelId -> unselect(OldLabelId) end,
+    select(LabelId),
     put(okey_turn_mark, LabelId);
 
 event(reveal) ->
@@ -299,7 +295,7 @@ event(reveal) ->
             Hand = [{C,V} || {_, {C, V}} <- lists:keydelete(Key, 2, TilesList) ],
             HandJS = "[[" ++ string:join([
                 wf:f("bert.tuple(bert.atom('OkeyPiece'),~p,~p)",[C,V]) || {C,V} <- Hand],",") ++ "],[]]",
-            RevealJS = reveal("1000001",wf:f("~p",[CD]),wf:f("~p",[VD]),HandJS),
+            RevealJS = reveal(wf:to_list(?GAMEID),wf:f("~p",[CD]),wf:f("~p",[VD]),HandJS),
             wf:info("RevealJS: ~p",[lists:flatten(RevealJS)]),
             wf:wire(RevealJS);
         _ ->
@@ -313,7 +309,7 @@ event({login,User}) -> wf:info("Login: ~p",[User]), kvs:put(User), wf:user(User)
 event(pause) ->
     Action  =
         case get(game_okey_pause) of 
-            resume -> 
+            X when X == resume orelse X == undefined -> 
                 put(game_okey_pause, pause),
                 wf:update(pause, [#button{id = pause, body = "Resume", postback = pause}]),
                 "pause";
@@ -322,7 +318,7 @@ event(pause) ->
                 wf:update(pause, [#button{id = pause, body = <<"Pause">>, postback = pause}]),
                 "resume"
         end,
-    wf:wire(pause("1000001", wf:f("~p", [Action])));
+    wf:wire(pause(wf:to_list(?GAMEID), wf:f("~p", [Action])));
 
 event(Event)  -> ok. %wf:info("Event: ~p", [Event]).
 
