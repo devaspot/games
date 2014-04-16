@@ -20,20 +20,14 @@
     #'PlayerInfo'{name = <<"Ilya">>, surname = <<"Prigogine">>, login = <<"synergetics">>, robot = true},
     #'PlayerInfo'{name = <<"Mother">>, surname = <<"Teresa">>, login = <<"peace">>, robot = true}]).
 
--record(state, {
-          spare = ?SPARE_LOGINS,
-          tokens
-         }).
+-record(state, {spare = ?SPARE_LOGINS,tokens}).
 
-spare() -> [ P#'PlayerInfo'{id =list_to_binary(binary_to_list(P#'PlayerInfo'.login) ++
-         integer_to_list(id_generator:get_id2()))} || P <- ?SPARE_LOGINS ].
+spare() -> [ P#'PlayerInfo'{id =wf:to_binary(wf:to_list(P#'PlayerInfo'.login) ++
+              wf:to_list(id_generator:get_id2()))} || P <- ?SPARE_LOGINS ].
 
 start_link() -> gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
-store_token(GameId, Token, UserId) when is_list(Token) -> store_token(GameId, list_to_binary(Token), UserId);
-store_token(GameId, Token, UserId) when is_binary(Token) -> gen_server:call(?SERVER, {store_token, GameId, Token, UserId}).
-get_user_info(Token) when is_list(Token)  -> get_user_info(list_to_binary(Token));
-get_user_info(Token) when is_binary(Token) -> gen_server:call(?SERVER, {get_user_info, Token}).
-get_user_info_by_user_id(UserId) when is_list(UserId) -> get_user_info_by_user_id(list_to_binary(UserId));
+store_token(GameId, Token, UserId) -> gen_server:call(?SERVER, {store_token, GameId, Token, UserId}).
+get_user_info(Token) -> gen_server:call(?SERVER, {get_user_info, Token}).
 get_user_info_by_user_id(UserId) -> user_info(UserId).
 generate_token(Game,User) -> T = base64:encode(crypto:rand_bytes(100)), store_token(Game,T,User).
 
@@ -72,8 +66,7 @@ code_change(_OldVsn, State, _Extra) -> {ok, State}.
 robot_credentials() ->
     Pos = crypto:rand_uniform(1, length(?SPARE_LOGINS) + 1),
     H0 = lists:nth(Pos, ?SPARE_LOGINS),
-    Id = list_to_binary(binary_to_list(H0#'PlayerInfo'.login) ++
-         integer_to_list(id_generator:get_id2())),
+    Id = wf:to_binary(wf:to_list(H0#'PlayerInfo'.login) ++ wf:to_list(id_generator:get_id2())),
     H0#'PlayerInfo'{id = Id}.
 
 store_token(GameId, E, Token, UserId) ->
@@ -97,7 +90,7 @@ user_info(#user{}=UserData) ->
         surname = wf:to_binary(UserData#user.surnames)};
 
 
-user_info(UserId) when is_list(UserId); is_binary(UserId) ->
+user_info(UserId) ->
     case kvs:get(user,UserId) of
         {ok, UserData} ->
 %            gas:info(?MODULE,"User Data: ~p",[UserData]),

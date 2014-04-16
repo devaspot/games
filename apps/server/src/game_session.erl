@@ -149,7 +149,7 @@ code_change(_OldVsn, State, _Extra) ->
 handle_client_request(#session_attach{token = Token}, _From,
                       #state{user = undefined} = State) ->
     gas:info(?MODULE,"Checking session token: ~p", [Token]),
-    case auth_server:get_user_info(Token) of
+    case auth_server:get_user_info(wf:to_binary(Token)) of
         false ->
             gas:error(?MODULE,"failed session attach: ~p", [Token]),
             {stop, normal, {error, invalid_token}, State};
