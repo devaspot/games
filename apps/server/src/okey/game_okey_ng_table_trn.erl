@@ -521,7 +521,7 @@ handle_player_action(#player{id = PlayerId, seat_num = SeatNum, user_id = UserId
                      #state{game_id = GameId, table_id = TableId} = StateData) ->
     {Keys,Values} = lists:unzip(Args),
     ExtAction = list_to_tuple([Action|Values]),
-    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Player <~p> (~p) submit the game action: ~p.",
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Player <~p> (~p)~n submit the game action: ~p.",
         [GameId, TableId, PlayerId, UserId, ExtAction]),
     do_action(SeatNum, ExtAction, From, StateName, StateData);
 
