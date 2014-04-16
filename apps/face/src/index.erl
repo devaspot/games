@@ -43,10 +43,10 @@ redraw_tiles([{Tile, _}| _ ] = TilesList, DropDown = #dropdown{id = ElementId}) 
 redraw_players(Players) ->
     User = user(),
     [ begin PN = player_name(PI),
-            wf:update(LabelId, [#label{id = LabelId,
+            wf:update(LabelId, #label{ id = LabelId,
                style= case User#user.id == Id of
                   true -> "font-weight: bold;";
-                  _ -> "" end, body = <<" ",PN/binary>>}]) 
+                  _ -> "" end, body = <<" ",PN/binary," ">>}) 
       end || #okey_player{label_id = LabelId, player_info =  #'PlayerInfo'{id = Id} = PI} <- Players].
 
 update_players(UpdatedPlayer = #okey_player{label_id = LabelId}, Players) ->
@@ -63,19 +63,19 @@ body() ->
     wf:wire(#api{name=plusLogin, tag=plus}),
     [ #panel{ id=history },
       #button{ id = plusloginbtn, body = <<"Login">>, postback=login_button},
-      #br{},
+      #label{ body = " Google"},#br{},#br{},
 
-      #label{ id = player1, body = "Player 1", style = "color=black;"},
-      #dropdown{ id = p1right_combo, options = []},
+      #label{ id = player1, body = "Player 1"},
+      #dropdown{ id = p1right_combo, options = []},#br{},
 
-      #label{ id = player2, body = "Player 2", style = "color=black;"},
-      #dropdown{ id = p2right_combo, options = []},
+      #label{ id = player2, body = "Player 2"},
+      #dropdown{ id = p2right_combo, options = []},#br{},
 
-      #label{ id = player3, body = "Player 3", style = "color=black;"},
-      #dropdown{ id = p3right_combo, options = []},
-
-      #label{ id = player4, body = "Player 4", style = "color=black;"},
-      #dropdown{ id = p4right_combo, options = []},
+      #label{ id = player3, body = "Player 3"},
+      #dropdown{ id = p3right_combo, options = []}, #br{},
+      
+      #label{ id = player4, body = "Player 4"},
+      #dropdown{ id = p4right_combo, options = []},#br{},
 
       #br{},
       #button{ id = attach, body = <<"Attach">>, postback = attach},
