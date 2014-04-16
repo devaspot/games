@@ -8,3 +8,5 @@ erl_crash.dump
 deps
 apps/**/ebin/**
 rels/web/devbox
+index.js
+protocol.js
