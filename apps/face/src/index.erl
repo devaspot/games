@@ -102,13 +102,14 @@ body() ->
       #button{ id = player_info, body = <<"PlayerInfo">>, postback = player_info}
     ].
 
-event(terminate) -> wf:user(undefined), wf:info("terminate");
+event(terminate) -> wf:info("terminate");
 event(init) -> event(attach), event(join);
 event(login_button) -> wf:wire(protocol:logout());
 event(join) -> wf:wire(protocol:join(wf:to_list(?GAMEID)));
 event(take) -> wf:wire(protocol:take(wf:to_list(?GAMEID), wf:q(take_combo)));
 
 event(player_info) -> 
+    1/0,
     User = user(),
     wf:wire(protocol:player_info(
         wf:f("'~s'",[wf:to_list(User#user.id)]),wf:f("'~s'",[game_okey])));

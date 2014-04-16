@@ -12,6 +12,8 @@
 -include_lib("db/include/scoring.hrl").
 -record(state, { game_tavla = 0, game_okey = 0 }).
 
+online() -> [X||X<-qlc:e(gproc:table()),element(1,X)=={p,l,broadcast}].
+
 destroy_game(Pid,Sup) -> game_sup:stop_game(Sup,Pid).
 
 gen_game_id() ->
