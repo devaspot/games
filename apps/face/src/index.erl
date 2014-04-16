@@ -13,7 +13,9 @@
           player_id,
           label_id,
           player_info,
-          right_pile_id
+          right_pile_combo_id,
+          right_pile = [],
+          left_label_id
         }
        ).
 
@@ -30,21 +32,28 @@ color(Id,Color) -> wf:wire(wf:f("document.querySelector('#~s').style.color = \"~
 unselect(Id) -> color(Id,black).
 select(Id) -> color(Id,red).
 
-redraw_tiles(undefined) -> [];
-redraw_tiles([{Tile, _}| _ ] = TilesList) ->
-    wf:update(discard_combo,
-        [#dropdown{id = discard_combo, postback = combo,
-        value = Tile, source = [discard_combo],
-        options = [#option{label = CVBin, value = CVBin} || {CVBin, _} <- TilesList]}]).
+
+redraw_discard_combo(TilesList) ->
+    redraw_tiles(TilesList, #dropdown{id = discard_combo, postback = combo, source = [discard_combo]}).
+
+redraw_tiles(undefined, _DropDown) -> [];
+redraw_tiles([{Tile, _}| _ ] = TilesList, DropDown = #dropdown{id = ElementId}) ->
+    wf:update(ElementId, [DropDown#dropdown{value = Tile, options = [#option{label = CVBin, value = CVBin} || {CVBin, _} <- TilesList]}]).
 
 redraw_players(Players) ->
     User = user(),
     [ begin PN = player_name(PI),
-        wf:update(LabelId, [#label{id = LabelId,
-        style= case User#user.id == Id of
-            true -> "font-weight: bold;";
-            _ -> "" end, body = <<" ",PN/binary>>}]) 
-     end || #okey_player{label_id = LabelId, player_info =  #'PlayerInfo'{id = Id} = PI} <- Players].
+            wf:update(LabelId, [#label{id = LabelId,
+               style= case User#user.id == Id of
+                  true -> "font-weight: bold;";
+                  _ -> "" end, body = <<" ",PN/binary>>}]) 
+      end || #okey_player{label_id = LabelId, player_info =  #'PlayerInfo'{id = Id} = PI} <- Players].
+
+update_players(UpdatedPlayer = #okey_player{label_id = LabelId}, Players) ->
+    lists:sort(
+      fun(#okey_player{label_id = E1}, #okey_player{label_id = E2}) -> E1 < E2 end,
+      [UpdatedPlayer | lists:keydelete(LabelId, #okey_player.label_id, Players)]
+     ).
 
 player_name(PI) -> auth_server:player_name(PI).
 
@@ -56,17 +65,17 @@ body() ->
       #button{ id = plusloginbtn, body = <<"Login">>, postback=login_button},
       #br{},
 
-%%      #dropdown{ id = p1right_combo, body = "0 0"},
       #label{ id = player1, body = "Player 1", style = "color=black;"},
+      #dropdown{ id = p1right_combo, options = []},
 
-%%      #dropdown{ id = p2right_combo, body = "0 0"},
       #label{ id = player2, body = "Player 2", style = "color=black;"},
+      #dropdown{ id = p2right_combo, options = []},
 
-%%      #dropdown{ id = p3right_combo, body = "0 0"},
       #label{ id = player3, body = "Player 3", style = "color=black;"},
+      #dropdown{ id = p3right_combo, options = []},
 
-%%      #dropdown{ id = p4right_combo, body = "0 0"},
       #label{ id = player4, body = "Player 4", style = "color=black;"},
+      #dropdown{ id = p4right_combo, options = []},
 
       #br{},
       #button{ id = attach, body = <<"Attach">>, postback = attach},
@@ -74,8 +83,8 @@ body() ->
       #dropdown{ id= take_combo, value="0",
                  options = 
                      [
-                      #option { label= <<"0">>, value= <<"0">> },
-                      #option { label= <<"1">>, value= <<"1">> }
+                      #option { label= <<"Table">>, value= <<"0">> },
+                      #option { label= <<"Left">>, value= <<"1">> }
                      ]
                },
       #button{ id=take, body = <<"Take">>, postback = take, source=[take_combo]},
@@ -165,7 +174,7 @@ event({server, {game_event, _, okey_game_started, Args}}) ->
     %%wf:info("tiles ~p", [TilesList]),
     put(game_okey_tiles, TilesList),
     put(game_okey_pause, resume),
-    redraw_tiles(TilesList);
+    redraw_discard_combo(TilesList);
 
 event({server, {game_event, _, okey_game_player_state, Args}}) ->
 
@@ -180,40 +189,69 @@ event({server, {game_event, _, okey_game_player_state, Args}}) ->
 
     {_, Tiles} = lists:keyfind(tiles, 1, Args),
     TilesList = [{wf:to_binary([wf:to_list(C)," ",wf:to_list(V)]),{C, V}}|| {_, C, V} <- Tiles],
-    redraw_tiles(TilesList),
+    redraw_discard_combo(TilesList),
     put(game_okey_tiles, TilesList);
 
 event({server, {game_event, _, okey_tile_taken, Args}}) ->
     wf:info("Taken: ~p",[Args]),
     Im = get(okey_im),
-    {_, Player} = lists:keyfind(player, 1, Args),
-    if
-       Im == Player ->
-            case lists:keyfind(revealed, 1, Args) of
-                {_, {_, C, V}} ->
+    {_, PlayerId} = lists:keyfind(player, 1, Args),
+    case lists:keyfind(revealed, 1, Args) of
+        {_, {_, C, V}} = TakenTile->
+            if
+                Im == PlayerId ->
                     TilesList = [{wf:to_binary([wf:to_list(C), " ", wf:to_list(V)]), {C, V}} | get(game_okey_tiles)],
                     wf:info("Tiles: ~p",[TilesList]),
                     put(game_okey_tiles, TilesList),
-                    redraw_tiles(TilesList);
-                _ -> ok end;
-       true -> ok end;
+                    redraw_discard_combo(TilesList);
+                true ->
+                    ok
+            end,
+            case lists:keyfind(pile, 1, Args) of
+                {_, 1} -> %% have taken from left
+                    Players = get(okey_players),
+                    #okey_player{left_label_id = LeftLabelId} = lists:keyfind(PlayerId, #okey_player.player_id, Players),
+                    LeftPlayer =
+                        #okey_player{right_pile_combo_id = RightPileComboId, right_pile = RightPile} = 
+                        lists:keyfind(LeftLabelId, #okey_player.label_id, Players),
+                    UpdatedRightPile = lists:delete(TakenTile, RightPile),
+                    redraw_tiles(UpdatedRightPile, #dropdown{id = RightPileComboId}),
+                    UpdatedPlayers = update_players(LeftPlayer#okey_player{right_pile = UpdatedRightPile}, Players),
+                    put(okey_players, UpdatedPlayers);
+                _ ->
+                    ok
+            end;
+        _ -> ok
+    end;
 
 event({server, {game_event, _, okey_tile_discarded, Args}}) ->
     Im = get(okey_im),
-%%    Players = get(okey_players),
-    {_, Player} = lists:keyfind(player, 1, Args),
+    {_, PlayerId} = lists:keyfind(player, 1, Args),
+    {_, {_, C, V}} = lists:keyfind(tile, 1, Args),
+
 %%    wf:info("++++ ~p", [Args]),
 
     if
-       Im == Player ->
-            {_, {_, C, V}} = lists:keyfind(tile, 1, Args),
+       Im == PlayerId ->
             TilesListOld = get(game_okey_tiles),
             TilesList = lists:keydelete({C, V}, 2, TilesListOld),
             put(game_okey_tiles, TilesList),
-            redraw_tiles(TilesList);
+            redraw_discard_combo(TilesList);
        true ->
             ok
-    end;
+    end,
+
+    Players = get(okey_players),
+
+    Player = 
+        #okey_player{right_pile_combo_id = RightPileComboId, right_pile = OldRightPile} = 
+        lists:keyfind(PlayerId, #okey_player.player_id, Players),
+
+    NewRightPile = [{wf:to_binary([wf:to_list(C), " ", wf:to_list(V)]), {C, V}} | OldRightPile],
+    redraw_tiles(NewRightPile, #dropdown{id = RightPileComboId}),
+    UpdatedPlayer = Player#okey_player{right_pile = NewRightPile},
+    UpdatedPlayers = update_players(UpdatedPlayer, Players),
+    put(okey_players, UpdatedPlayers);
 
 event({server,{game_event, Game, okey_turn_timeout, Args}}) ->
     wf:info("okey_turn_timeout ~p", [Args]),
@@ -227,19 +265,26 @@ event({server,{game_event, Game, okey_turn_timeout, Args}}) ->
 event({server, {game_event, _, okey_game_info, Args}}) ->
 %%  wf:info("okay_game_info ~p", [Args]),
     {_, PlayersInfo} = lists:keyfind(players, 1, Args),
-
-%%  [p1right_combo, p2right_combo, p3right_combo],
-
+    
+    PlayersTempl = 
+          [
+           #okey_player{label_id = player1, right_pile_combo_id = p1right_combo, left_label_id = player4},
+           #okey_player{label_id = player2, right_pile_combo_id = p2right_combo, left_label_id = player1},
+           #okey_player{label_id = player3, right_pile_combo_id = p3right_combo, left_label_id = player2},
+           #okey_player{label_id = player4, right_pile_combo_id = p4right_combo, left_label_id = player3}
+          ],
+    
     Players = 
         lists:zipwith(
-          fun(LabelId, #'PlayerInfo'{id = Id} = PI) -> 
-                  #okey_player{label_id = LabelId, player_id = Id, player_info = PI} end,
-          [player1, player2, player3, player4], PlayersInfo),
+          fun(Players, #'PlayerInfo'{id = Id} = PI) -> 
+                  Players#okey_player{player_id = Id, player_info = PI} end,
+          PlayersTempl,
+          PlayersInfo),
+
     put(okey_players, Players),
 
 %   wf:info("players ~p", [Players]),
 
-%%  put(pkey_game_right, [{p1right_combo, []}, {p2right_combo, []}, {p3right_combo, []}]),
     redraw_players(Players);
 
 event({server,{game_event, _, player_left, Args}}) ->
@@ -247,13 +292,8 @@ event({server,{game_event, _, player_left, Args}}) ->
     {_, PI} = lists:keyfind(replacement, 1, Args),
     #'PlayerInfo'{id = NewPlayerId} = PI,
     OldPlayers = get(okey_players),
-
-    #okey_player{label_id = LabelId} = lists:keyfind(OldPlayerId, #okey_player.player_id, OldPlayers),
-
-    NewPlayers = lists:sort(
-                   fun(#okey_player{label_id = E1}, #okey_player{label_id = E2}) -> E1 < E2 end,
-                   [#okey_player{label_id = LabelId, player_id = NewPlayerId, player_info = PI} | lists:keydelete(OldPlayerId, 2, OldPlayers)]
-                  ),
+    OldPlayer = lists:keyfind(OldPlayerId, #okey_player.player_id, OldPlayers),
+    NewPlayers = update_players(OldPlayer#okey_player{player_id = NewPlayerId, player_info = PI}, OldPlayers),
 
     put(okey_players, NewPlayers),
     redraw_players(NewPlayers),
