@@ -134,7 +134,7 @@ event(discard) ->
     false -> wf:info("Discard Combo: ~p",[DiscardCombo]) end;
 
 event(reveal) ->
-    TilesList = get(game_okey_tiles),
+    TilesList = case get(game_okey_tiles) of undefined -> []; T -> T end,
     Discarded = wf:q(discard_combo),
 
     case lists:keyfind(wf:to_binary(Discarded), 1, TilesList) of
@@ -179,20 +179,24 @@ event({server, {game_event, _, okey_game_started, Args}}) ->
     redraw_discard_combo(TilesList);
 
 event({server, {game_event, _, okey_game_player_state, Args}}) ->
+    case lists:keyfind(whos_move, 1, Args) of 
+        {_, null} ->
+            ok;
+        {_, WhosMove} ->
+            Players = get(okey_players),
+            #okey_player{label_id = X} = lists:keyfind(WhosMove, #okey_player.player_id, Players),
+            case X of
+                null -> skip;
+                false -> skip;
+                X -> select(X), put(okey_turn_mark,X) end,
 
-    {_, WhosMove} = lists:keyfind(whos_move, 1, Args),
-    Players = get(okey_players),
-    %%wf:info("++++ whos move ~p", [lists:keyfind(WhosMove, #okey_player.player_id, Players)]),
-    #okey_player{label_id = X} = lists:keyfind(WhosMove, #okey_player.player_id, Players),
-    case X of
-        null -> skip;
-        false -> skip;
-        X -> select(X), put(okey_turn_mark,X) end,
-
-    {_, Tiles} = lists:keyfind(tiles, 1, Args),
-    TilesList = [{wf:to_binary([wf:to_list(C)," ",wf:to_list(V)]),{C, V}}|| {_, C, V} <- Tiles],
-    redraw_discard_combo(TilesList),
-    put(game_okey_tiles, TilesList);
+            {_, Tiles} = lists:keyfind(tiles, 1, Args),
+            TilesList = [{wf:to_binary([wf:to_list(C)," ",wf:to_list(V)]),{C, V}}|| {_, C, V} <- Tiles],
+            redraw_discard_combo(TilesList),
+            put(game_okey_tiles, TilesList);
+        _ -> 
+            ok
+    end;
 
 event({server, {game_event, _, okey_tile_taken, Args}}) ->
     wf:info("Taken: ~p",[Args]),
