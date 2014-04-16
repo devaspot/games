@@ -1,12 +1,10 @@
 -module(index).
--compile({parse_transform, shen}).
 -compile(export_all).
 -include_lib("n2o/include/wf.hrl").
 -include("../../server/include/requests.hrl").
 -include("../../server/include/settings.hrl").
 -include_lib("avz/include/avz.hrl").
 -include_lib("kvs/include/user.hrl").
--jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2,logout/0,pause/2]).
 
 -define(GAMEID, 1000001).
 
@@ -18,63 +16,6 @@ user() ->
                   names = Name,
                   surnames = Surname},
         wf:user(X), X; U-> U end.
-
-join(Game) ->
-    ws:send(bert:encodebuf(bert:tuple(
-        bert:atom('client'),
-        bert:tuple(bert:atom("join_game"), Game)))).
-
-logout() ->
-    ws:send(bert:encodebuf(bert:tuple(
-        bert:atom('client'),
-        bert:tuple(bert:atom("logout"))))).
-
-attach(Token) ->
-    ws:send(bert:encodebuf(bert:tuple(
-        bert:atom('client'),
-        bert:tuple(bert:atom("session_attach"), Token)))).
-
-take(GameId,Place) ->
-    ws:send(bert:encodebuf(bert:tuple(
-        bert:atom('client'),
-        bert:tuple(bert:atom("game_action"),GameId,
-            bert:atom("okey_take"),[{pile,Place}])))).
-
-discard(GameId, Color, Value) ->
-    ws:send(bert:encodebuf(bert:tuple(
-        bert:atom('client'),
-        bert:tuple(
-            bert:atom("game_action"),
-            GameId,
-            bert:atom("okey_discard"),
-            [{tile, bert:tuple(bert:atom("OkeyPiece"), Color, Value)}])))).
-
-player_info(User,GameModule) ->
-    ws:send(bert:encodebuf(bert:tuple(
-        bert:atom('client'),
-        bert:tuple(bert:atom("get_player_stats"),bert:binary(User),bert:atom(GameModule))))).
-
-piece(Color,Value) ->
-    bert:tuple(bert:atom("OkeyPiece"), Color, Value).
-
-reveal(GameId, Color, Value, Hand) ->
-    ws:send(bert:encodebuf(bert:tuple(
-        bert:atom('client'),
-        bert:tuple(
-            bert:atom("game_action"),
-            GameId,
-            bert:atom("okey_reveal"),
-            [{discarded, bert:tuple(bert:atom("OkeyPiece"), Color, Value)},
-             {hand, Hand}])))).
-
-pause(GameId, Action) ->
-    ws:send(bert:encodebuf(bert:tuple(
-        bert:atom("client"),
-        bert:tuple(
-            bert:atom("pause_game"),
-            bert:atom("undefined"),
-            GameId,
-            bert:atom(Action))))).
 
 color(Id,Color) -> wf:wire(wf:f("document.querySelector('#~s').style.color = \"~s\";",[Id,Color])).
 unselect(Id) -> color(Id,black).
@@ -145,14 +86,14 @@ body() ->
 
 event(terminate) -> wf:user(undefined), wf:info("terminate");
 event(init) -> event(attach), event(join);
-
-event(combo)  -> wf:info("Combo: ~p",[wf:q(discard_combo)]);
-event(join)   -> wf:wire(join(wf:to_list(?GAMEID)));
-event(take)   -> wf:wire(take(wf:to_list(?GAMEID), wf:q(take_combo)));
+event(login_button) -> wf:wire(protocol:logout());
+event(join) -> wf:wire(protocol:join(wf:to_list(?GAMEID)));
+event(take) -> wf:wire(protocol:take(wf:to_list(?GAMEID), wf:q(take_combo)));
 
 event(player_info) -> 
     User = user(),
-    wf:wire(player_info(wf:f("'~s'",[wf:to_list(User#user.id)]),wf:f("'~s'",[game_okey])));
+    wf:wire(protocol:player_info(
+        wf:f("'~s'",[wf:to_list(User#user.id)]),wf:f("'~s'",[game_okey])));
 
 event(attach) -> 
     {ok,GamePid} = game_session:start_link(self()),
@@ -161,7 +102,7 @@ event(attach) ->
     put(okey_im, User#user.id),
     wf:info("Session User: ~p",[User]),
     Token = auth_server:generate_token(?GAMEID,User),
-    wf:wire(attach(wf:f("'~s'",[Token]))),
+    wf:wire(protocol:attach(wf:f("'~s'",[Token]))),
     ok;
 
 event(discard) -> 
@@ -169,8 +110,38 @@ event(discard) ->
     DiscardCombo = wf:q(discard_combo),
     case lists:keyfind(erlang:list_to_binary(DiscardCombo), 1, TilesList) of
     {_, {C, V}} ->
-        wf:wire(discard(wf:to_list(?GAMEID), wf:to_list(C), wf:to_list(V)));
+        wf:wire(protocol:discard(wf:to_list(?GAMEID), wf:to_list(C), wf:to_list(V)));
     false -> wf:info("Discard Combo: ~p",[DiscardCombo]) end;
+
+event(reveal) ->
+    TilesList = get(game_okey_tiles),
+    Discarded = wf:q(discard_combo),
+
+    case lists:keyfind(wf:to_binary(Discarded), 1, TilesList) of
+        {_, {CD, VD} = Key} ->
+            Hand = [{C,V} || {_, {C, V}} <- lists:keydelete(Key, 2, TilesList) ],
+            HandJS = "[[" ++ string:join([
+                wf:f("bert.tuple(bert.atom('OkeyPiece'),~p,~p)",[C,V]) || {C,V} <- Hand],",") ++ "],[]]",
+            RevealJS = protocol:reveal(wf:to_list(?GAMEID),wf:f("~p",[CD]),wf:f("~p",[VD]),HandJS),
+            wf:info("RevealJS: ~p",[lists:flatten(RevealJS)]),
+            wf:wire(RevealJS);
+        _ ->
+            wf:info("error discarded ~p", Discarded)
+    end;
+
+event(pause) ->
+    Action  =
+        case get(game_okey_pause) of 
+            X when X == resume orelse X == undefined -> 
+                put(game_okey_pause, pause),
+                wf:update(pause, [#button{id = pause, body = "Resume", postback = pause}]),
+                "pause";
+            pause ->
+                put(game_okey_pause, resume),
+                wf:update(pause, [#button{id = pause, body = <<"Pause">>, postback = pause}]),
+                "resume"
+        end,
+    wf:wire(protocol:pause(wf:to_list(?GAMEID), wf:f("~p", [Action])));
 
 %event({binary,M}) -> {ok,<<"Hello">>};
 
@@ -234,7 +205,6 @@ event({server, {game_event, _, okey_tile_discarded, Args}}) ->
             ok
     end;
 
-
 event({server,{game_event, Game, okey_turn_timeout, Args}}) ->
     wf:info("okey_turn_timeout ~p", [Args]),
     {_, TileTaken} = lists:keyfind(tile_taken, 1, Args),
@@ -287,39 +257,9 @@ event({server,{game_event, _, okey_next_turn, Args}}) ->
     select(LabelId),
     put(okey_turn_mark, LabelId);
 
-event(reveal) ->
-    TilesList = get(game_okey_tiles),
-    Discarded = wf:q(discard_combo),
 
-    case lists:keyfind(wf:to_binary(Discarded), 1, TilesList) of
-        {_, {CD, VD} = Key} ->
-            Hand = [{C,V} || {_, {C, V}} <- lists:keydelete(Key, 2, TilesList) ],
-            HandJS = "[[" ++ string:join([
-                wf:f("bert.tuple(bert.atom('OkeyPiece'),~p,~p)",[C,V]) || {C,V} <- Hand],",") ++ "],[]]",
-            RevealJS = reveal(wf:to_list(?GAMEID),wf:f("~p",[CD]),wf:f("~p",[VD]),HandJS),
-            wf:info("RevealJS: ~p",[lists:flatten(RevealJS)]),
-            wf:wire(RevealJS);
-        _ ->
-            wf:info("error discarded ~p", Discarded)
-    end;
-
-event(login_button) -> wf:wire(logout());
 event({register,User}) -> wf:info("Register: ~p",[User]), kvs:add(User), wf:user(User);
 event({login,User}) -> wf:info("Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
-
-event(pause) ->
-    Action  =
-        case get(game_okey_pause) of 
-            X when X == resume orelse X == undefined -> 
-                put(game_okey_pause, pause),
-                wf:update(pause, [#button{id = pause, body = "Resume", postback = pause}]),
-                "pause";
-            pause ->
-                put(game_okey_pause, resume),
-                wf:update(pause, [#button{id = pause, body = <<"Pause">>, postback = pause}]),
-                "resume"
-        end,
-    wf:wire(pause(wf:to_list(?GAMEID), wf:f("~p", [Action])));
 
 event(Event)  -> ok. %wf:info("Event: ~p", [Event]).
 
