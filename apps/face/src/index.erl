@@ -155,11 +155,10 @@ event(player_info) ->
     wf:wire(player_info(wf:f("'~s'",[wf:to_list(User#user.id)]),wf:f("'~s'",[game_okey])));
 
 event(attach) -> 
-    wf:info("ATTACH"),
     {ok,GamePid} = game_session:start_link(self()),
     wf:session(<<"game_pid">>,GamePid),
     User = user(),
-    put(okey_im, User),
+    put(okey_im, User#user.id),
     wf:info("Session User: ~p",[User]),
     Token = auth_server:generate_token(?GAMEID,User),
     wf:wire(attach(wf:f("'~s'",[Token]))),
@@ -170,7 +169,7 @@ event(discard) ->
     DiscardCombo = wf:q(discard_combo),
     case lists:keyfind(erlang:list_to_binary(DiscardCombo), 1, TilesList) of
     {_, {C, V}} ->
-        wf:wire(discard(wf:to_list(?GAMEID), erlang:integer_to_list(C), erlang:integer_to_list(V)));
+        wf:wire(discard(wf:to_list(?GAMEID), wf:to_list(C), wf:to_list(V)));
     false -> wf:info("Discard Combo: ~p",[DiscardCombo]) end;
 
 %event({binary,M}) -> {ok,<<"Hello">>};
@@ -204,6 +203,7 @@ event({server, {game_event, _, okey_game_player_state, Args}}) ->
     put(game_okey_tiles, TilesList);
 
 event({server, {game_event, _, okey_tile_taken, Args}}) ->
+    wf:info("Taken: ~p",[Args]),
     Im = get(okey_im),
     {_, Player} = lists:keyfind(player, 1, Args),
     if
@@ -211,6 +211,7 @@ event({server, {game_event, _, okey_tile_taken, Args}}) ->
             case lists:keyfind(revealed, 1, Args) of
                 {_, {_, C, V}} ->
                     TilesList = [{wf:to_binary([wf:to_list(C), " ", wf:to_list(V)]), {C, V}} | get(game_okey_tiles)],
+                    wf:info("Tiles: ~p",[TilesList]),
                     put(game_okey_tiles, TilesList),
                     redraw_tiles(TilesList);
                 _ -> ok end;
@@ -304,7 +305,7 @@ event(reveal) ->
 
 event(login_button) -> wf:wire(logout());
 event({register,User}) -> wf:info("Register: ~p",[User]), kvs:add(User), wf:user(User);
-event({login,User}) -> wf:info("Login: ~p",[User]), kvs:put(User), wf:user(User);
+event({login,User}) -> wf:info("Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
 
 event(pause) ->
     Action  =
