@@ -1,13 +1,12 @@
 -module(protocol).
 -compile({parse_transform, shen}).
 -compile(export_all).
--include_lib("n2o/include/wf.hrl").
 -jsmacro([take/2,attach/1,join/1,discard/3,player_info/2,reveal/4,piece/2,logout/0,pause/2]).
 
 attach(Token) -> ws:send(enc(tuple(atom('client'),tuple(atom("session_attach"), Token)))).
 join(Game) -> ws:send(enc(tuple(atom('client'),tuple(atom("join_game"), Game)))).
 logout() -> ws:send(enc(tuple(atom('client'),tuple(atom("logout"))))).
-pause(GameId, Action) -> ws:send(enc(tuple(atom("client"),tuple(atom("pause_game"),atom("undefined"),GameId,atom(Action))))).
+pause(GameId, Action) -> ws:send(enc(tuple(atom('client'),tuple(atom("pause_game"),atom('undefined'),GameId,atom(Action))))).
 take(GameId,Place) -> ws:send(enc(tuple(atom('client'),tuple(atom("game_action"),GameId,atom("okey_take"),[{pile,Place}])))).
 discard(GameId, Color, Value) -> ws:send(enc(tuple(atom('client'),tuple(atom("game_action"),GameId,atom("okey_discard"),
     [{tile,tuple(atom("OkeyPiece"), Color, Value)}])))).
