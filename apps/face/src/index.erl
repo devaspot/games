@@ -67,7 +67,7 @@ body() ->
       #button{ id = plusloginbtn, body = <<"Login">>, postback=login_button},
       #label{ body = " Google"},#br{},#br{},
 
-      #label{ id = gosterge, body="Gosterge: "}, #br{},#br{},
+      #label{ id = gosterge, body="Gosterge: "}, #br{},
 
       #label{ id = player1, body = "Player 1"},
       #dropdown{ id = p1right_combo, options = []},#br{},
@@ -83,7 +83,7 @@ body() ->
 
       #br{},
       #button{ id = attach, body = <<"Attach">>, postback = attach},
-      #button{ id = join, body = <<"Join">>, postback = join},
+      #button{ id = join, body = <<"Join">>, postback = join}, #br{},
       #dropdown{ id= take_combo, value="0",
                  options = 
                      [
@@ -101,7 +101,7 @@ body() ->
                      ]
                },
       #button{ id = discard, body = <<"Discard">>, postback = discard, source=[discard_combo]},
-      #button{ id = reveal, body = <<"Reveal">>, postback = reveal, source = [discard_combo]},
+      #button{ id = reveal, body = <<"Reveal">>, postback = reveal, source = [discard_combo]},#br{},
       #button{ id = is_saw_okey, body = <<"I Saw Okey">>, postback = i_saw_okey},
       #button{ id = pause, body = <<"Pause">>, postback = pause},
       #button{ id = player_info, body = <<"PlayerInfo">>, postback = player_info}
