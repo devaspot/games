@@ -193,7 +193,21 @@ event({server, {game_event, _, okey_game_player_state, Args}}) ->
             {_, Tiles} = lists:keyfind(tiles, 1, Args),
             TilesList = [{wf:to_binary([wf:to_list(C)," ",wf:to_list(V)]),{C, V}}|| {_, C, V} <- Tiles],
             redraw_discard_combo(TilesList),
-            put(game_okey_tiles, TilesList);
+            put(game_okey_tiles, TilesList),
+
+            {_, Piles} = lists:keyfind(piles, 1, Args),
+
+            UpdatedPlayers =
+                [
+                 begin
+                     Player = #okey_player{right_pile_combo_id = RightPileComboId} = lists:keyfind(PlayerId, #okey_player.player_id, Players),
+                     ConvertedPile = [{wf:to_binary([wf:to_list(C), " ", wf:to_list(V)]), {C, V}} || {_, C, V} <- Pile],
+                     redraw_tiles(ConvertedPile, #dropdown{id = RightPileComboId}),
+                     Player#okey_player{right_pile = ConvertedPile}
+                 end
+                 || {PlayerId, Pile} <- Piles
+                ],
+            put(okey_players, lists:sort(fun(#okey_player{label_id = E1}, #okey_player{label_id = E2}) -> E1 < E2 end, UpdatedPlayers));
         _ -> 
             ok
     end;

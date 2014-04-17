@@ -1140,11 +1140,9 @@ create_okey_game_player_state(PlayerId, ?STATE_PLAYING,
     #player{user_id = CurUserId} = get_player_by_seat_num(CurSeatNum, Players),
     Timeout = calc_timeout(TRef),
     F = fun(_, N) ->
-                Pile = case lists:keyfind(N, 1, Discarded) of
-                           {_, []} -> null;
-                           {_, [Tash|_]} -> tash_to_ext(Tash)
-                       end,
-                {Pile, next_seat_num(N)}
+                #player{user_id = UserId} = get_player_by_seat_num(N, Players),
+                {_, Tahes} = lists:keyfind(N, 1, Discarded),
+                {{UserId, [tash_to_ext(Tash) || Tash <- Tahes]}, next_seat_num(N)}
         end,
     {Piles, _} = lists:mapfoldl(F, prev_seat_num(SeatNum), lists:seq(1, ?SEATS_NUM)),
     GameState = statename_to_api_string(DeskStateName),
