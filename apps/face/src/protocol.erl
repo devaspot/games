@@ -14,5 +14,5 @@ discard(GameId, Color, Value) -> ws:send(enc(tuple(atom('client'),tuple(atom("ga
 player_info(User,GameModule) -> ws:send(enc(tuple(atom('client'),tuple(atom("get_player_stats"),bin(User),atom(GameModule))))).
 piece(Color,Value) -> tuple(atom("OkeyPiece"), Color, Value).
 reveal(GameId, Color, Value, Hand) ->
-    ws:send(enco(tuple(atom('client'),tuple(atom("game_action"),GameId,atom("okey_reveal"),
+    ws:send(enc(tuple(atom('client'),tuple(atom("game_action"),GameId,atom("okey_reveal"),
         [{discarded, tuple(atom("OkeyPiece"), Color, Value)},{hand, Hand}])))).
