@@ -19,6 +19,16 @@
         }
        ).
 
+
+-define(RESET_ELEMENTS, 
+        [
+         {gosterge, #label{ id = gosterge, body="Gosterge: "}},
+         {p1right_combo, #dropdown{ id = p1right_combo, options = []}},
+         {p2right_combo, #dropdown{ id = p2right_combo, options = []}},
+         {p3right_combo, #dropdown{ id = p3right_combo, options = []}},
+         {p4right_combo, #dropdown{ id = p4right_combo, options = []}}
+        ]).
+
 user() -> 
     case wf:user() of undefined ->
         Imagionary = fake_users:imagionary_users(),
@@ -296,6 +306,8 @@ event({server, {game_event, _, okey_game_info, Args}}) ->
 %%  wf:info("okay_game_info ~p", [Args]),
     {_, PlayersInfo} = lists:keyfind(players, 1, Args),
     
+    [wf:update(ElementId, [Element]) || {ElementId, Element} <- ?RESET_ELEMENTS],
+
     PlayersTempl = 
           [
            #okey_player{label_id = player1, right_pile_combo_id = p1right_combo, left_label_id = player4},
