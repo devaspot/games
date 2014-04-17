@@ -67,6 +67,8 @@ body() ->
       #button{ id = plusloginbtn, body = <<"Login">>, postback=login_button},
       #label{ body = " Google"},#br{},#br{},
 
+      #label{ id = gosterge, body="Gosterge: "}, #br{},#br{},
+
       #label{ id = player1, body = "Player 1"},
       #dropdown{ id = p1right_combo, options = []},#br{},
 
@@ -100,6 +102,7 @@ body() ->
                },
       #button{ id = discard, body = <<"Discard">>, postback = discard, source=[discard_combo]},
       #button{ id = reveal, body = <<"Reveal">>, postback = reveal, source = [discard_combo]},
+      #button{ id = is_saw_okey, body = <<"I Saw Okey">>, postback = i_saw_okey},
       #button{ id = pause, body = <<"Pause">>, postback = pause},
       #button{ id = player_info, body = <<"PlayerInfo">>, postback = player_info}
     ].
@@ -149,6 +152,10 @@ event(reveal) ->
             wf:info("error discarded ~p", Discarded)
     end;
 
+event(i_saw_okey) ->
+    wf:info("i_saw_okey!"),
+    wf:wire(protocol:i_saw_okey(wf:to_list(?GAMEID)));
+
 event(pause) ->
     Action  =
         case get(game_okey_pause) of 
@@ -174,6 +181,12 @@ event({server, {game_event, _, okey_game_started, Args}}) ->
     {_, Tiles} = lists:keyfind(tiles, 1, Args),
     TilesList = [{wf:to_binary([wf:to_list(C)," ",wf:to_list(V)]), {C, V}} || {_, C, V} <- Tiles],
     %%wf:info("tiles ~p", [TilesList]),
+    case lists:keyfind(gosterge, 1, Args) of
+        {_, {_, C, V}} ->
+            wf:update(gosterge, #label{id = gosterge, body = wf:to_binary(["Gosterge: ", wf:to_list(C), " ", wf:to_list(V)])});
+        _ ->
+            ok
+    end,
     put(game_okey_tiles, TilesList),
     put(game_okey_pause, resume),
     redraw_discard_combo(TilesList);
@@ -322,10 +335,9 @@ event({server,{game_event, _, okey_next_turn, Args}}) ->
     select(LabelId),
     put(okey_turn_mark, LabelId);
 
-
 event({register,User}) -> wf:info("Register: ~p",[User]), kvs:add(User), wf:user(User);
 event({login,User}) -> wf:info("Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
 
-event(_Event)  -> ok. %wf:info("Event: ~p", [Event]).
+event(_Event)  -> wf:info("Event: ~p", [_Event]).
 
 api_event(X,Y,Z) -> avz:api_event(X,Y,Z).
