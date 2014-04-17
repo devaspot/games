@@ -102,7 +102,8 @@ body() ->
                },
       #button{ id = discard, body = <<"Discard">>, postback = discard, source=[discard_combo]},
       #button{ id = reveal, body = <<"Reveal">>, postback = reveal, source = [discard_combo]},
-      #button{ id = is_saw_okey, body = <<"I Saw Okey">>, postback = i_saw_okey},
+      #button{ id = i_saw_okey, body = <<"I Saw Okey">>, postback = i_saw_okey},
+      #button{ id = i_have_8_tashes, body = <<"I have 8 Tashes">>, postback = i_have_8_tashes},
       #button{ id = pause, body = <<"Pause">>, postback = pause},
       #button{ id = player_info, body = <<"PlayerInfo">>, postback = player_info}
     ].
@@ -155,6 +156,10 @@ event(reveal) ->
 event(i_saw_okey) ->
     wf:info("i_saw_okey!"),
     wf:wire(protocol:i_saw_okey(wf:to_list(?GAMEID)));
+
+event(i_have_8_tashes) ->
+    wf:info("i_gave_8_tashes!"),
+    wf:wire(protocol:i_have_8_tashes(wf:to_list(?GAMEID)));
 
 event(pause) ->
     Action  =
