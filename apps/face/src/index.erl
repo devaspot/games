@@ -141,7 +141,7 @@ event(reveal) ->
         {_, {CD, VD} = Key} ->
             Hand = [{C,V} || {_, {C, V}} <- lists:keydelete(Key, 2, TilesList) ],
             HandJS = "[[" ++ string:join([
-                wf:f("bert.tuple(bert.atom('OkeyPiece'),~p,~p)",[C,V]) || {C,V} <- Hand],",") ++ "],[]]",
+                wf:f("tuple(atom('OkeyPiece'),~p,~p)",[C,V]) || {C,V} <- Hand],",") ++ "],[]]",
             RevealJS = protocol:reveal(wf:to_list(?GAMEID),wf:f("~p",[CD]),wf:f("~p",[VD]),HandJS),
             wf:info("RevealJS: ~p",[lists:flatten(RevealJS)]),
             wf:wire(RevealJS);
