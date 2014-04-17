@@ -19,6 +19,16 @@
         }
        ).
 
+
+-define(RESET_ELEMENTS, 
+        [
+         {gosterge, #label{ id = gosterge, body="Gosterge: "}},
+         {p1right_combo, #dropdown{ id = p1right_combo, options = []}},
+         {p2right_combo, #dropdown{ id = p2right_combo, options = []}},
+         {p3right_combo, #dropdown{ id = p3right_combo, options = []}},
+         {p4right_combo, #dropdown{ id = p4right_combo, options = []}}
+        ]).
+
 user() -> 
     case wf:user() of undefined ->
         Imagionary = fake_users:imagionary_users(),
@@ -103,6 +113,7 @@ body() ->
       #button{ id = discard, body = <<"Discard">>, postback = discard, source=[discard_combo]},
       #button{ id = reveal, body = <<"Reveal">>, postback = reveal, source = [discard_combo]},#br{},
       #button{ id = is_saw_okey, body = <<"I Saw Okey">>, postback = i_saw_okey},
+      #button{ id = i_have_8_tashes, body = <<"I have 8 Tashes">>, postback = i_have_8_tashes},
       #button{ id = pause, body = <<"Pause">>, postback = pause},
       #button{ id = player_info, body = <<"PlayerInfo">>, postback = player_info}
     ].
@@ -155,6 +166,10 @@ event(reveal) ->
 event(i_saw_okey) ->
     wf:info("i_saw_okey!"),
     wf:wire(protocol:i_saw_okey(wf:to_list(?GAMEID)));
+
+event(i_have_8_tashes) ->
+    wf:info("i_gave_8_tashes!"),
+    wf:wire(protocol:i_have_8_tashes(wf:to_list(?GAMEID)));
 
 event(pause) ->
     Action  =
@@ -291,6 +306,8 @@ event({server, {game_event, _, okey_game_info, Args}}) ->
 %%  wf:info("okay_game_info ~p", [Args]),
     {_, PlayersInfo} = lists:keyfind(players, 1, Args),
     
+    [wf:update(ElementId, [Element]) || {ElementId, Element} <- ?RESET_ELEMENTS],
+
     PlayersTempl = 
           [
            #okey_player{label_id = player1, right_pile_combo_id = p1right_combo, left_label_id = player4},
