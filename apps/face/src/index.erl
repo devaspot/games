@@ -213,15 +213,15 @@ event({server, {game_event, _, okey_game_player_state, Args}}) ->
     end;
 
 event({server, {game_event, _, okey_tile_taken, Args}}) ->
-    wf:info("Taken: ~p",[Args]),
     Im = get(okey_im),
+
     {_, PlayerId} = lists:keyfind(player, 1, Args),
     case lists:keyfind(revealed, 1, Args) of
         {_, {_, C, V}} ->
             if
                 Im == PlayerId ->
                     TilesList = [{wf:to_binary([wf:to_list(C), " ", wf:to_list(V)]), {C, V}} | get(game_okey_tiles)],
-                    wf:info("Tiles: ~p",[TilesList]),
+                    %%wf:info("Tiles: ~p",[TilesList]),
                     put(game_okey_tiles, TilesList),
                     redraw_discard_combo(TilesList);
                 true ->
@@ -249,8 +249,6 @@ event({server, {game_event, _, okey_tile_discarded, Args}}) ->
     {_, PlayerId} = lists:keyfind(player, 1, Args),
     {_, {_, C, V}} = lists:keyfind(tile, 1, Args),
 
-%%    wf:info("++++ ~p", [Args]),
-
     if
        Im == PlayerId ->
             TilesListOld = get(game_okey_tiles),
@@ -273,14 +271,8 @@ event({server, {game_event, _, okey_tile_discarded, Args}}) ->
     UpdatedPlayers = update_players(UpdatedPlayer, Players),
     put(okey_players, UpdatedPlayers);
 
-event({server,{game_event, Game, okey_turn_timeout, Args}}) ->
-    wf:info("okey_turn_timeout ~p", [Args]),
-    {_, TileTaken} = lists:keyfind(tile_taken, 1, Args),
-    event({server, {game_event, Game, okey_tile_taken,
-            [{player, get(okey_im)}, {revealed, TileTaken}]}}),
-    {_, TileDiscarded} = lists:keyfind(tile_discarded, 1, Args),
-    event({server, {game_event, Game, okey_tile_discarded,
-            [{player, get(okey_im)}, {tile, TileDiscarded}]}});
+event({server,{game_event, _Game, okey_turn_timeout, Args}}) ->
+    wf:info("okey_turn_timeout ~p", [Args]);
 
 event({server, {game_event, _, okey_game_info, Args}}) ->
 %%  wf:info("okay_game_info ~p", [Args]),
