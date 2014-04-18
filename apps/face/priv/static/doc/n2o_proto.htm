@@ -22,12 +22,12 @@ channel and want to hide the content of the message,
 that was generated on server. You can use BASE64 pickling mechanisms
 with optional AES/RIPEMD160 encrypting.
 
-<code>ws.send(bert.encodebuf(
-    bert.tuple(bert.atom('pickle'),
-    bert.binary('ddtake'),
-    bert.binary('g2gCaAVkAAJldmQABWluZGV4ZAAEdGFrZWsABH'+
+<code>ws.send(enc(
+    tuple(atom('pickle'),
+    binary('ddtake'),
+    binary('g2gCaAVkAAJldmQABWluZGV4ZAAEdGFrZWsABH'+
                  Rha2VkAAVldmVudGgDYgAABXViAAQKXmIAC3cK'),
-    [bert.tuple(bert.atom('ddtake'),'0')])));</code>
+    [tuple(atom('ddtake'),'0')])));</code>
 
 Where Base64 represents the N2O EVENT:
 
@@ -40,10 +40,10 @@ This request will return JSON with EVAL field only.</p>
 
 Client messages usually originated at client and represent the Client API Requests:
 
-<code>ws.send(bert.encodebuf(
-    bert.tuple(
-        bert.atom('client'),
-        bert.tuple(bert.atom('join_game'),1000001))));</code>
+<code>ws.send(enc(
+    tuple(
+        atom('client'),
+        tuple(atom('join_game'),1000001))));</code>
 
 <p>NOTE: This request may return JSON with EVAL and DATA fields.</p>
 
@@ -52,10 +52,10 @@ Client messages usually originated at client and represent the Client API Reques
 <p>When you want to receive BERT messages on client you usually ask the
 server by sending:</p>
 
-<code>ws.send(bert.encodebuf(
-    bert.tuple(
-        bert.atom('bert'),
-        bert.binary('API Request'));</code>
+<code>ws.send(enc(
+    tuple(
+        atom('bert'),
+        binary('API Request'));</code>
 
 <p>This messages could be handled as this:</p>
 
@@ -70,10 +70,10 @@ server by sending:</p>
 <p>When you need raw binary Blob on client side,
 for images or other raw data you can ask server like this:</p>
 
-<code>ws.send(bert.encodebuf(
-    bert.tuple(
-        bert.atom('binary'),
-        bert.binary('API Request'));</code>
+<code>ws.send(enc(
+    tuple(
+        atom('binary'),
+        binary('API Request'));</code>
 
 <p>And handle also in binary clause:</p>
 
@@ -96,10 +96,10 @@ server by sending <b>info</b> notifications directly to Web Socket process:
 
 <p>You can also send server messages from client relays:</p>
 
-<code>ws.send(bert.encodebuf(
-    bert.tuple(
-        bert.atom('server'),
-        bert.binary('Binary Message'));</code>
+<code>ws.send(enc(
+    tuple(
+        atom('server'),
+        binary('Binary Message'));</code>
 
 
 <p>NOTE: This request may return JSON with EVAL and DATA fields.</p>
@@ -125,18 +125,18 @@ to handle_web_socket(data) function if exists.</p>
 <h2><a name="p1.1">JSON enveloped BERT</a></h2>
 
 <p>Usually in DATA come <a href="http://bert-rpc.org">BERT</a> messages (Binary Erlang Term Format).
-<a href="https://github.com/synrc/n2o_scripts/blob/master/n2o/bert.js">BERT.js</a>
+<a href="https://github.com/synrc/n2o_scripts/blob/master/n2o/js">js</a>
 is used to decode Game Protocol message.</p>
 
 <code>function handle_web_socket(body) {
-    console.log(String(bert.decodebuf(body))); } </code>
+    console.log(String(dec(body))); } </code>
 
 <code style="background-color:white;margin-bottom:-5px;">E> Received: {message,"Hello"} </code>
 
 <h2><a name="">BERT binary</a></h2>
 
 <code>function handle_web_socket(body) {
-    console.log(String(bert.decodebuf(body))); } </code>
+    console.log(String(dec(body))); } </code>
 
 <h2><a name="p1.1">RAW binary</a></h2>
 

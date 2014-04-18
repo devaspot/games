@@ -18,10 +18,10 @@
 <p>Session Attach is the first message that should be
 sent from JavaScript client using Authorization token. For test purposes you can use following token:</p>
 
-<code>ws.send(bert.encodebuf(bert.tuple(
-    bert.atom('client'),
-    bert.tuple(
-        bert.atom('session_attach'),
+<code>ws.send(enc(tuple(
+    atom('client'),
+    tuple(
+        atom('session_attach'),
         'EBAs6dg2Xw6XuCdg8qiPmlBLgYJ6N4Ti0P+oGpWgY'+
         'z4NW4nBBUzTe/wAuLYtPnjFpsjCExxSpV78fipmsP'+
         'xcf+NGy+QKIM6rmVJhpnIlKf0bpFNuGaAPjZAWthh'+
@@ -33,9 +33,9 @@ sent from JavaScript client using Authorization token. For test purposes you can
 <p>After session established you can join the game table.
 You should specify existed ID of game table. 1000001 is permanent lobby game ID:</p>
 
-<code>ws.send(bert.encodebuf(bert.tuple(
-    bert.atom('client'),
-    bert.tuple(bert.atom('join_game'),1000001))));
+<code>ws.send(enc(tuple(
+    atom('client'),
+    tuple(atom('join_game'),1000001))));
 </code>
 
 <h2><a name="p1.1">Game Events</a></h2>
@@ -44,7 +44,7 @@ You should specify existed ID of game table. 1000001 is permanent lobby game ID:
 All messages from server to client are encoded as game events.
 You can make BERT huamn readable with:</P>
 
-<code>String(bert.decodebuf(raw))</code>
+<code>String(dec(raw))</code>
 
 <h3><a name="p1.1">Game Info</a></h3>
 
@@ -141,23 +141,23 @@ will mirror from server as DATA BERT event also.</P>
 
 <h3><a name="p1.1">Take</a></h3>
 
-<code>ws.send(bert.encodebuf(bert.tuple(
-    bert.atom('client'),
-    bert.tuple(
-        bert.atom('game_action'),
+<code>ws.send(enc(tuple(
+    atom('client'),
+    tuple(
+        atom('game_action'),
         1000001,
-        bert.atom('okey_take'),
+        atom('okey_take'),
         {'pile':0})))); </code>
 
 <h3><a name="p1.1">Discard</a></h3>
 
-<code>ws.send(bert.encodebuf(bert.tuple(
-    bert.atom('client'),
-    bert.tuple(
-        bert.atom('game_action'),
+<code>ws.send(enc(tuple(
+    atom('client'),
+    tuple(
+        atom('game_action'),
         1000001,
-        bert.atom('okey_discard'),
-        {'tile':bert.tuple(bert.atom('OkeyPiece'),1,9)}))));</code>
+        atom('okey_discard'),
+        {'tile':tuple(atom('OkeyPiece'),1,9)}))));</code>
 
 </div>
 
