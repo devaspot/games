@@ -9,7 +9,7 @@ function plusoneCallback(auth){
 }
 
 function render(){
-  gapi.signin.render('plusloginbtn', {
+  gapi.signin.render('pluslogin', {
     'callback':'plusoneCallback',
     'clientid':'146782506820.apps.googleusercontent.com',
     'cookiepolicy': 'http://synrc.com',

@@ -29,7 +29,7 @@ unselect(Id) -> color(Id,black).
 select(Id) -> color(Id,red).
 
 redraw_istaka(TilesList) ->
-    redraw_tiles(TilesList, #dropdown{id = discard_combo, postback = combo, source = [discard_combo]}).
+    redraw_tiles(TilesList, #dropdown{id = istaka, postback = combo, source = [istaka]}).
 
 redraw_tiles(undefined, _DropDown) -> [];
 redraw_tiles([] = _TilesList, DropDown = #dropdown{id = ElementId}) ->
@@ -60,36 +60,34 @@ main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
 body() ->
     wf:wire(#api{name=plusLogin, tag=plus}),
+
   [ #panel    { id = history },
-    #button   { id = plusloginbtn, body = "Login",   postback = login_button },
-    #label    { body = " Google"}, #br{}, #br{},
-    #label    { id = gosterge, body = "Gosterge"},   #br{},
-    #label    { id = player1,  body = "Seat 1"},     #dropdown{id=h1,options=[]}, #br{},
-    #label    { id = player2,  body = "Seat 2"},     #dropdown{id=h2,options=[]}, #br{},
-    #label    { id = player3,  body = "Seat 3"},     #dropdown{id=h3,options=[]}, #br{},
-    #label    { id = player4,  body = "Seat 4"},     #dropdown{id=h4,options=[]}, #br{},
-    #br{},
-    #button   { id = attach,   body = "Attach",      postback = attach },
-    #button   { id = join,     body = "Join",        postback = join },
-    #br{},
-    #dropdown { id = take_combo,      options = [
-      #option { label = "Table",      value = "0" },
-      #option { label = "Left",       value = "1" } ]},
-    #button   { id = take,     body = "Take",        postback = take,    source=[take_combo]},
-    #dropdown { id = discard_combo,   options = [],  postback = combo,   source=[discard_combo]},
-    #button   { id = discard,  body = "Discard",     postback = discard, source=[discard_combo]},
-    #button   { id = reveal,   body = "Reveal",      postback = reveal,  source=[discard_combo]}, 
-    #br{},
-    #button   { id = is_saw_okey,     body = "I Saw Okey",  postback = i_saw_okey},
-    #button   { id = i_have_8_tashes, body = "8 Tashes",    postback = i_have_8_tashes},
-    #button   { id = pause,           body = "Pause",       postback = pause},
-    #button   { id = player_info,     body = "PlayerInfo",  postback = player_info} ].
+    #button   { id = pluslogin,  body = "Login",       postback = login_button },
+    #label    { id = nothing,    body = " Google"},    #br{}, #br{},
+    #label    { id = gosterge,   body = "Gosterge"},   #br{},
+    #label    { id = player1,    body = "Seat 1"},     #dropdown{id=h1,options=[]}, #br{},
+    #label    { id = player2,    body = "Seat 2"},     #dropdown{id=h2,options=[]}, #br{},
+    #label    { id = player3,    body = "Seat 3"},     #dropdown{id=h3,options=[]}, #br{},
+    #label    { id = player4,    body = "Seat 4"},     #dropdown{id=h4,options=[]}, #br{}, #br{},
+    #button   { id = attach,     body = "Attach",      postback = attach },
+    #button   { id = join,       body = "Join",        postback = join }, #br{},
+    #dropdown { id = take_src,                         options = [
+                                                            #option{label="Table",value="0"},
+                                                            #option{label="Left",value="1"}]},
+    #button   { id = take,       body = "Take",        postback = take,    source=[take_src]},
+    #dropdown { id = istaka,                           postback = combo,   source=[istaka],options=[]},
+    #button   { id = discard,    body = "Discard",     postback = discard, source=[istaka]},
+    #button   { id = reveal,     body = "Reveal",      postback = reveal,  source=[istaka]}, #br{},
+    #button   { id = saw_okey,   body = "I Saw Okey",  postback = i_saw_okey},
+    #button   { id = have_8,     body = "8 Tashes",    postback = i_have_8_tashes},
+    #button   { id = pause,      body = "Pause",       postback = pause},
+    #button   { id = info,       body = "PlayerInfo",  postback = player_info} ].
 
 event(terminate) -> wf:info("terminate");
 event(init) -> event(attach), event(join);
 event(login_button) -> wf:wire(protocol:logout());
 event(join) -> wf:wire(protocol:join(wf:to_list(?GAMEID)));
-event(take) -> wf:wire(protocol:take(wf:to_list(?GAMEID), wf:q(take_combo)));
+event(take) -> wf:wire(protocol:take(wf:to_list(?GAMEID), wf:q(take_src)));
 
 event(player_info) -> 
     User = user(),
@@ -108,7 +106,7 @@ event(attach) ->
 
 event(discard) -> 
     TilesList = get(game_okey_tiles),
-    DiscardCombo = wf:q(discard_combo),
+    DiscardCombo = wf:q(istaka),
     case lists:keyfind(erlang:list_to_binary(DiscardCombo), 1, TilesList) of
     {_, {C, V}} ->
         wf:wire(protocol:discard(wf:to_list(?GAMEID), wf:to_list(C), wf:to_list(V)));
@@ -116,7 +114,7 @@ event(discard) ->
 
 event(reveal) ->
     TilesList = case get(game_okey_tiles) of undefined -> []; T -> T end,
-    Discarded = wf:q(discard_combo),
+    Discarded = wf:q(istaka),
 
     case lists:keyfind(wf:to_binary(Discarded), 1, TilesList) of
         {_, {CD, VD} = Key} ->
@@ -158,7 +156,8 @@ event({client,Message}) ->
     wf:info("Client: ~p", [Message]),
     case wf:session(<<"game_pid">>) of
         undefined -> skip;
-        GamePid -> game_session:process_request(GamePid, Message) end;
+        GamePid -> SyncRes = game_session:process_request(GamePid, Message),
+                   wf:info("Sync Result: ~p",[SyncRes]) end;
 
 event({server, {game_event, _, okey_game_started, Args}}) ->
     wf:info("Game Started: ~p", [Args]),
