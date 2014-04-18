@@ -13,7 +13,7 @@ route_prefix(<<"/ws/",P/binary>>) -> route(P);
 route_prefix(<<"/",P/binary>>) -> route(P);
 route_prefix(P) -> route(P).
 
-route(<<>>)              -> index;
-route(<<"index">>)       -> index;
+route(<<>>)              -> okey;
+route(<<"index">>)       -> okey;
 route(<<"favicon.ico">>) -> static_file;
-route(_) -> index.
+route(_) -> okey.
