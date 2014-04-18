@@ -280,9 +280,6 @@ event({server, {game_event, _, okey_game_info, Args}}) ->
         Players#player{id=Id,info=PI} end, PlayersTempl, PlayersInfo),
 
     put(okey_players, Players),
-
-%   wf:info("players ~p", [Players]),
-
     redraw_players(Players);
 
 event({server,{game_event, _, player_left, Args}}) ->
