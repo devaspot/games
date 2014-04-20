@@ -759,39 +759,53 @@ function loadFile(name, cont) {
 <code>
 templates/card.svg:
 
-&lt;g  xmlns="http://www.w3.org/2000/svg" id="Slot-{this.pos}"
+&lt;g  xmlns="http://www.w3.org/2000/svg" id="Slot-<font color=yellow>{this.pos}</font>"
     transform="translate(<font color=yellow>{this.x}</font>,<font color=yellow>{this.y}</font>)"&gt;mbership,
-    &lt;rect fill="#FFFFFF" x="0" y="0"
-          width="40" height="60" rx="4" style="display: inline;"/&gt;
+    &lt;rect fill="#FFFFFF" x="0" y="0" width="40" height="60" rx="4"/&gt;
     &lt;text dx="20" x="0" y="26.4873125"
           font-family="Lucida Grande" font-size="24"
           font-weight="bold" letter-spacing="-2" text-anchor="middle"
-          fill="<font color=yellow>{this.suit}</font>"&gt;<font color=yellow>{this.value}</font>&lt;/text&gt;.19\ AM.png healthy.png
+          fill="<font color=yellow>{this.suit}</font>"&gt;<font color=yellow>{this.value}</font>&lt;/text&gt;
     &lt;circle fill="<font color=yellow>{this.suit}</font>" cx="20" cy="43" r="7"&gt;
           &lt;animate begin="0" fill="freeze" attributeName="r"
                    values="4;5;6;7;8;6;5;4" dur="1s"
-                   calcMode="linear" repeatCount="indefinite"/&gt;&lt;/circle&gt;&lt;/g&gt;</code>
+                   calcMode="linear" repeatCount="indefinite"/&gt;&lt;/circle&gt;&lt;/g&gt;
+
+<svg id="Scene" width="200px" height="200px" viewBox="0 0 40 60">
+<g  xmlns="http://www.w3.org/2000/svg" id="Slot"
+    transform="translate(0,0)">
+    <rect fill="#FFFFFF" x="0" y="0"
+          width="40" height="60" rx="4"/>
+    <text dx="20" x="0" y="26.4873125"
+          font-family="Lucida Grande" font-size="24"
+          font-weight="bold" letter-spacing="-2" text-anchor="middle"
+          fill="#CE290F">12</text>
+    <circle id="Color-{this.pos}" fill="#CE290F" cx="20" cy="43" r="7">
+          <animate begin="0" fill="freeze" attributeName="r"
+                   values="4;5;6;7;8;6;5;4" dur="1s"
+                   calcMode="linear" repeatCount="indefinite"/></circle></g></svg>
+
+</code>
+
+<h1>Draw Deck</h1>
 
 <code>
+
+okey.js:
 
 var color = ['#CE290F','#3B5998','#48AF5E','#FFEC00'];
 
 function card(line,pos,col,v) {
     return template_engine(
         localStorage.getItem("card"),
-            {   pos: line + ',' + pos,
-                suit: color[col],
-                value: 1,
-                y: line*69,
-                x: pos*42 }); }
+            { pos: line + ',' + pos, suit: color[col], value: v, y: line*69, x: pos*42 }); }
 
 function svg(html) {
     var dom = new DOMParser().parseFromString(html, "text/xml");
     return dom.childNodes[0]; }
 
 function place_card(x,y,c,v) {
-    var name = "Slot-"+x+","+y;
-    var slot = document.getElementById(name);
+    var slot = document.getElementById("Slot-"+x+","+y);
     slot.parentNode.replaceChild(svg(card(x-1,y-1,c,v)),slot); }
 
 function rand(lo,hi) { return Math.floor((Math.random()*hi)+lo); }
