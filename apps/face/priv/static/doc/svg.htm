@@ -62,7 +62,7 @@ function loadFile(name, cont, element) {
         Mustafa-Discard        Center-Cards
                                You-Deck               Detailed-Houses
                                Stupid-Cards           Sky
-        Mustafa-+-Timer                               Sun
+        Mustafa-+-Timer        Deck-Cards             Sun
         You-+-Timer                                   City
         Gabrielo
         Alina
@@ -117,7 +117,7 @@ templates/Card.svg:
                    calcMode="linear" repeatCount="indefinite"/&gt;&lt;/circle&gt;&lt;/g&gt;
 
 function card(line,pos,col,v) { return template_engine(localStorage.getItem("templaes/Card.svg"),
-         { pos: line + ',' + pos, suit: color[col-1], value: v, y: line*69, x: pos*42 }); }
+         { pos: line + ',' + pos, suit: color[col-1], value: v, y: line*73, x: pos*43 }); }
 
 <svg id="Scene" width="200px" height="200px" viewBox="0 0 40 60">
 <g  xmlns="http://www.w3.org/2000/svg" id="Slot"
@@ -145,7 +145,7 @@ var color = ['#CE290F','#3B5998','#48AF5E','#FFEC00'];
 
 function rand(lo,hi) { return Math.floor((Math.random()*hi)+lo); }
 function drawCards() { for (var i=1;i<16;i++) { place_card(rand(1,2),i,rand(1,4),rand(1,13)); } }
-function place_card(x,y,c,v) { var slot = document.getElementById("Slot-"+x+","+y);
+function place_card(x,y,c,v) { var slot = document.getElementById("Slot-"+y+","+x);
          slot.parentNode.replaceChild(svg(card(x-1,y-1,c,v)),slot); }
 
 loadFile('templates/Card.svg', drawCards);
@@ -153,16 +153,16 @@ loadFile('templates/Card.svg', drawCards);
 <svg id="Scene" width="630px" height="200px" viewBox="-3 0 634 130">
     <rect id="Deck" fill="#AF7B58" x=-5 y=-2 width=635 height=133></rect>
     <rect id="Deck" fill="#BC8864" x=-5 y=62 width=635 height=5></rect>
-    <g id="Slot-1,1"/><g id="Slot-1,2"/><g id="Slot-1,3"/>
-    <g id="Slot-1,4"/><g id="Slot-1,5"/><g id="Slot-1,6"/>
-    <g id="Slot-1,7"/><g id="Slot-1,8"/><g id="Slot-1,9"/>
-    <g id="Slot-1,10"/><g id="Slot-1,11"/><g id="Slot-1,12"/>
-    <g id="Slot-1,13"/><g id="Slot-1,14"/><g id="Slot-1,15"/>
-    <g id="Slot-2,1"/><g id="Slot-2,2"/><g id="Slot-2,3"/>
-    <g id="Slot-2,4"/><g id="Slot-2,5"/><g id="Slot-2,6"/>
-    <g id="Slot-2,7"/><g id="Slot-2,8"/><g id="Slot-2,9"/>
-    <g id="Slot-2,10"/><g id="Slot-2,11"/><g id="Slot-2,12"/>
-    <g id="Slot-2,13"/><g id="Slot-2,14"/><g id="Slot-2,15"/>
+    <g id="1Slot-1,1"/> <g id="1Slot-1,2"/> <g id="1Slot-1,3"/>
+    <g id="1Slot-1,4"/> <g id="1Slot-1,5"/> <g id="1Slot-1,6"/>
+    <g id="1Slot-1,7"/> <g id="1Slot-1,8"/> <g id="1Slot-1,9"/>
+    <g id="1Slot-1,10"/><g id="1Slot-1,11"/><g id="1Slot-1,12"/>
+    <g id="1Slot-1,13"/><g id="1Slot-1,14"/><g id="1Slot-1,15"/>
+    <g id="1Slot-2,1"/> <g id="1Slot-2,2"/> <g id="1Slot-2,3"/>
+    <g id="1Slot-2,4"/> <g id="1Slot-2,5"/> <g id="1Slot-2,6"/>
+    <g id="1Slot-2,7"/> <g id="1Slot-2,8"/> <g id="1Slot-2,9"/>
+    <g id="1Slot-2,10"/><g id="1Slot-2,11"/><g id="1Slot-2,12"/>
+    <g id="1Slot-2,13"/><g id="1Slot-2,14"/><g id="1Slot-2,15"/>
 </svg>
 
 <script>
@@ -179,20 +179,27 @@ function card(line,pos,col,v) {
                 x: pos*42 }); }
 
 
-function place_card(x,y,c,v) { var slot = document.getElementById("Slot-"+x+","+y);
-         slot.parentNode.replaceChild(svg(card(x-1,y-1,c,v)),slot); }
+function place_card(x,y,c,v) { 
+         var slot = document.getElementById("Slot-"+y+","+x);
+         var slotSample = document.getElementById("1Slot-"+y+","+x);
+         slot.parentNode.replaceChild(svg(card(y-1,x-1,c,v)),slot);
+         slotSample.parentNode.replaceChild(svg(card(y-1,x-1,c,v)),slotSample); }
+
+function empty_card(x,y) { var slot = document.getElementById("Slot-"+y+","+x);
+         var html = '<g xmlns="http://www.w3.org/2000/svg" id="Slot-'+y+','+x+'"/>';
+         slot.parentNode.replaceChild(svg(html),slot); }
 
 function svg(html) { return new DOMParser().parseFromString(html, "text/xml").firstChild; }
 function rand(lo,hi) { return Math.floor((Math.random()*hi)+lo); }
-function drawCards() { for (var i=1;i<16;i++) { place_card(rand(1,2),i,rand(1,4),rand(1,13)); } }
+function drawCards() { for (var i=1;i<14;i++) { place_card(i,rand(1,2),rand(1,4),rand(1,13)); } }
 function reload(file, name) { var slot = document.getElementById(name);
          slot.parentNode.replaceChild(svg(localStorage.getItem(file)),slot);}
 function scaleScene() {
     reload("Kakaranet-7-Refined.svg", "Refined");
-    document.getElementById("Refined");
+    for (var i=1;i<14;i++) { empty_card(i,2); empty_card(i,1);}
+    loadFile('templates/Card.svg', drawCards);
     }
 
-loadFile('templates/Card.svg', drawCards);
 loadFile('Kakaranet-7-Refined.svg', scaleScene);
 
 </script>
