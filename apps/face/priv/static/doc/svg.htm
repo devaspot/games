@@ -729,7 +729,7 @@ function loadFile(name, cont) {
         Gifts
 </code>
 
-<h1>SVG Templates in localStorage</h1>
+<h1>SVG Templates Storage</h1>
 
 <code>
 
@@ -746,11 +746,13 @@ function template_engine(html, data) {
     code += 'return r.join("");';
     return new Function(code.replace(/[\r\t\n]/g, '')).apply(data); }
 
-function loadFile(name, cont) {
+function storeTemplate(name, cont) {
     var client = new XMLHttpRequest();
     client.open('GET', name, true);
     client.onload = function() { localStorage.setItem("card",client.responseText); (cont)(); }
     client.send(); }
+
+function svg(html) { return new DOMParser().parseFromString(html, "text/xml").childNodes[0]; }
 
 </code>
 
@@ -770,6 +772,9 @@ templates/card.svg:
           &lt;animate begin="0" fill="freeze" attributeName="r"
                    values="4;5;6;7;8;6;5;4" dur="1s"
                    calcMode="linear" repeatCount="indefinite"/&gt;&lt;/circle&gt;&lt;/g&gt;
+
+function card(line,pos,col,v) { return template_engine(localStorage.getItem("card"),
+         { pos: line + ',' + pos, suit: color[col-1], value: v, y: line*69, x: pos*42 }); }
 
 <svg id="Scene" width="200px" height="200px" viewBox="0 0 40 60">
 <g  xmlns="http://www.w3.org/2000/svg" id="Slot"
@@ -795,21 +800,10 @@ okey.js:
 
 var color = ['#CE290F','#3B5998','#48AF5E','#FFEC00'];
 
-function card(line,pos,col,v) {
-    return template_engine(
-        localStorage.getItem("card"),
-            { pos: line + ',' + pos, suit: color[col], value: v, y: line*69, x: pos*42 }); }
-
-function svg(html) {
-    var dom = new DOMParser().parseFromString(html, "text/xml");
-    return dom.childNodes[0]; }
-
-function place_card(x,y,c,v) {
-    var slot = document.getElementById("Slot-"+x+","+y);
-    slot.parentNode.replaceChild(svg(card(x-1,y-1,c,v)),slot); }
-
 function rand(lo,hi) { return Math.floor((Math.random()*hi)+lo); }
-function drawCards() { for (var i=1;i<16;i++) { place_card(1,i,rand(1,4),rand(1,13)); } }
+function drawCards() { for (var i=1;i<16;i++) { place_card(rand(1,2),i,rand(1,4),rand(1,13)); } }
+function place_card(x,y,c,v) { var slot = document.getElementById("Slot-"+x+","+y);
+         slot.parentNode.replaceChild(svg(card(x-1,y-1,c,v)),slot); }
 
 loadFile('templates/card.svg', drawCards);
 
@@ -830,32 +824,22 @@ loadFile('templates/card.svg', drawCards);
 
 <script>
 
-
-function color(c) {
-    switch(c) {
-        case 1: return '#CE290F';
-        case 2: return '#3B5998';
-        case 3: return '#48AF5E';
-        case 4: return '#FFEC00';
-        default: return ''; } }
+var color = ['#CE290F','#3B5998','#48AF5E','#FFEC00'];
 
 function card(line,pos,col,v) {
     return template_engine(
         localStorage.getItem("card"),
             {   pos: line + ',' + pos,
-                suit: color(col),
+                suit: color[col-1],
                 value: v,
                 y: line*69,
                 x: pos*42 }); }
 
-function svg(html) {
-    var dom = new DOMParser().parseFromString(html, "text/xml");
-    return dom.childNodes[0]; }
 
-function place_card(x,y,c,v) {
-    var slot = document.getElementById("Slot-"+x+","+y);
-    slot.parentNode.replaceChild(svg(card(x-1,y-1,c,v)),slot); }
+function place_card(x,y,c,v) { var slot = document.getElementById("Slot-"+x+","+y);
+         slot.parentNode.replaceChild(svg(card(x-1,y-1,c,v)),slot); }
 
+function svg(html) { return new DOMParser().parseFromString(html, "text/xml").childNodes[0]; }
 function rand(lo,hi) { return Math.floor((Math.random()*hi)+lo); }
 function drawCards() { for (var i=1;i<16;i++) { place_card(rand(1,2),i,rand(1,4),rand(1,13)); } }
 
