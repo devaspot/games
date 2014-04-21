@@ -123,15 +123,37 @@ corner cards placeholders with discarded Tash.</p>
 or from its neighbour <b>pile=1</b> you will be notified to update
 the <b>pile_height</b> cards left:</p>
 
-<code>{game_event,undefined,okey_tile_taken,
+<code>{game_event,GameId,okey_tile_taken,
     {player,<<"wolves1500121">>},{pile,0},
     {revealed,null},{pile_height,47}}</code>
 
 <p>You the card was taken by you, you can see it in <b>tile</b>:</p>
 
-<code>{game_event,undefined,okey_tile_discarded,
+<code>{game_event,GameId,okey_tile_discarded,
     {player,<<"dunes1500120">>},
         {tile,{OkeyPiece,1,1}},{timeouted,false}}</code>
+
+<h3><a name="p1.1">Timeout Notification</a></h3>
+
+<p>Send when player was inactive during 30 seconds (timeout by default). Server is automaticaly take and discard cards</p>
+
+<code>{game_event,GameId,okey_turn_timeout,[{tile_taken,{'OkeyPiece',2,4}},
+               {tile_discarded,{'OkeyPiece',2,4}}]}</code>
+
+<h3><a name="p1.1">Player Left Notification</a></h3>
+
+<p>Send when someone left the game and have replaced. Server will send additional information about new plyaer: is bot or is human - {bot_replaced,false} and {human_replaced,true} and new PlayerInfo in field replacment
+</p>
+
+<code>{game_event,GameId,player_left,
+       [{player,<<"radio1500012">>},
+        {bot_replaced,false},
+        {human_replaced,true},
+        {replacement,
+            {'PlayerInfo',<<"betul_dogan1500001">>,
+                <<"undefined">>,<<"Betul">>,<<"Dogan">>,
+                undefined,0,0,<<"undefined">>,false}}]}</code>
+
 
 <h2><a name="p1.1">Game Actions</a></h2>
 
@@ -145,7 +167,7 @@ Take a card from.<br/>
 Fields:
 <ul>
 <li><b>GameId</b>: current game id (by default use 1000001)</li>
-<li><b>{pile: From}</b>: from with pile take a card. values:  0 - from table, 1 - from pile of left player</li>
+<li><b>{pile: From}</b>: from which pile take a card. values:  0 - from table, 1 - from pile of left player</li>
 </ul>
 
 <code>ws.send(enc(tuple(atom('client'),tuple(atom('game_action'),GameId,
