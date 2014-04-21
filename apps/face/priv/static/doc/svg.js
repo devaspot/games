@@ -16,6 +16,16 @@ function handle_web_socket(body) {
                 place_card(i,rand(1,2),c,v);
             }
             break;
+        case 'okey_game_player_state': 
+            var a = dec(body).value[0][3][3].value[0][1];
+            console.log("Started: " + a.length);
+            for (var i=1;i<=a.length;i++) {
+                var c = a[i-1].value[0][1];
+                var v = a[i-1].value[0][2];
+                console.log("Card " + c + " " + v);
+                place_card(i,1,c,v);
+            }
+            break;
         case 'okey_tile_discarded':
             console.log(String(dec(body)));
             var player = dec(body).value[0][3][0].value[0][1];

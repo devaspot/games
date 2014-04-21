@@ -7,6 +7,7 @@
 -include_lib("kvs/include/user.hrl").
 
 -define(GAMEID, 1000001).
+%-define(GAMEID, 5000220).
 
 -record(player, {id, label, info, take, discard, history = []}).
 
