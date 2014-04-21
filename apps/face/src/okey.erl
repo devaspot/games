@@ -99,6 +99,7 @@ event(attach) ->
     wf:session(<<"game_pid">>,GamePid),
     User = user(),
     put(okey_im, User#user.id),
+    wf:wire(wf:f("document.user = '~s';",[User#user.id])),
     wf:info("Session User: ~p",[User]),
     Token = auth_server:generate_token(?GAMEID,User),
     wf:wire(protocol:attach(wf:f("'~s'",[Token]))),

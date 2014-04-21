@@ -5,57 +5,6 @@
 </head>
 <body>
 
-<script>var transition = {pid: '', port: '8000' };</script>
-<script>
-
-function handle_web_socket(body) {
-    switch (dec(body).value[0][2].value) {
-        case 'okey_game_started': {
-            var a = dec(body).value[0][3][0].value[0][1];
-            console.log("Cards  " + a.length);
-            console.log(a[0].value[0][1]);
-            console.log(a[2]);
-            for (var i=1;i<=a.length;i++) {
-                var c = a[i-1].value[0][1];
-                var v = a[i-1].value[0][2];
-                console.log("Card " + c + " " + v);
-                place_card(i,1,c,v);
-            }
-        }
-        default: console.log(String(dec(body)));
-    }
-}
-
-</script>
-
-<body>
-
-
-<script>
-
-function template_engine(html, data) {
-    var re = /{([^}]+)?}/g, code = 'var r=[];', cursor = 0;
-    var add = function(line,js) {
-        js? (code += 'r.push(' + line + ');') :
-            (code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");' : '');
-        return add; }
-    while(match = re.exec(html)) {
-        add(html.slice(cursor, match.index))(match[1],true);
-        cursor = match.index + match[0].length; }
-    add(html.substr(cursor, html.length - cursor));
-    code += 'return r.join("");';
-    return new Function(code.replace(/[\r\t\n]/g, '')).apply(data); }
-
-function loadFile(name, cont, element) {
-    if (localStorage.getItem(name) == null) {
-        var client = new XMLHttpRequest();
-        client.open('GET', name, true);
-        client.onload = function() {
-            localStorage.setItem(name,client.responseText); 
-            if (cont != null) (cont)(); else reload(name,element); }
-        client.send(); } else { if (cont != null) (cont)(); else reload(name,element); } }
-
-</script>
 <div class="threecol">
 
 <div class="left">
@@ -66,14 +15,30 @@ function loadFile(name, cont, element) {
 
 <br>
 
-<svg id="Refined" width="900px" height="450px" viewBox="200 0 1000 700" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xmlns:sketch="http://www.bohemiancoding.com/sketch/ns">
-</svg>
+<svg id="Refined" width="900px">Placeholder for SVG Game Scene</svg>
 
 <code>Refined and Distilled File to download: <a href="Kakaranet-7-Refined.svg">Kakaranet-7-Refined.svg</a></code>
 
 <p><font color=red style="font-weight:bold;">Please make sure your Vector Editor correctly opens this file!</font></p>
 
-<div id="history"></div><button id="pluslogin" type="button" data-gapiattached="true">Login</button><label id="nothing"> Google</label><br><br><label id="gosterge">Gosterge: 1 5</label><br><label id="player1"> Albert Einstein </label><select id="h1"></select><br><label id="player2"> Marie Curie </label><select id="h2"></select><br><label id="player3"> Ilya Prigogine </label><select id="h3"></select><br><label id="player4" style="font-weight: bold; color: red;"> Asena Simsek </label><select id="h4"></select><br><br><button id="attach" type="button">Attach</button><button id="join" type="button">Join</button><br><select id="take_src"><option label="Table" value="0">Table</option><option label="Left" value="1">Left</option></select><button id="take" type="button">Take</button><select id="istaka"><option label="1 2" value="1 2">1 2</option><option label="2 6" value="2 6">2 6</option><option label="3 7" value="3 7">3 7</option><option label="1 6" value="1 6">1 6</option><option label="1 8" value="1 8">1 8</option><option label="3 6" value="3 6">3 6</option><option label="2 5" value="2 5">2 5</option><option label="2 8" value="2 8">2 8</option><option label="1 13" value="1 13">1 13</option><option label="2 5" value="2 5">2 5</option><option label="4 3" value="4 3">4 3</option><option label="1 11" value="1 11">1 11</option><option label="1 13" value="1 13">1 13</option><option label="2 8" value="2 8">2 8</option><option label="2 1" value="2 1">2 1</option></select><button id="discard" type="button">Discard</button><button id="reveal" type="button">Reveal</button><br><button id="saw_okey" type="button">I Saw Okey</button><button id="have_8" type="button">8 Tashes</button><button id="pause" type="button">Pause</button><button id="info" type="button">PlayerInfo</button>
+<div style="display: none;" id="history">
+<button id="pluslogin" type="button" data-gapiattached="true">Login</button>
+<label id="nothing"> Google</label></div><label id="gosterge">Gosterge: 1 5</label><br>
+<label id="player1"> Albert Einstein </label><select id="h1"></select>
+<label id="player2"> Marie Curie </label><select id="h2"></select>
+<label id="player3"> Ilya Prigogine </label><select id="h3"></select>
+<label id="player4" style="font-weight: bold; color: red;"> Asena Simsek </label><select id="h4"></select><br>
+<button id="attach" type="button">Attach</button>
+<button id="join" type="button">Join</button>
+<select id="take_src"><option label="Table" value="0">Table</option><option label="Left" value="1">Left</option></select>
+<button id="take" type="button">Take</button>
+<select id="istaka"></select>
+<button id="discard" type="button">Discard</button>
+<button id="reveal" type="button">Reveal</button>
+<button id="saw_okey" type="button">I Saw Okey</button>
+<button id="have_8" type="button">8 Tashes</button>
+<button id="pause" type="button">Pause</button>
+<button id="info" type="button">PlayerInfo</button>
 
 <h1>Refined Object Names</h1>
 
@@ -100,7 +65,11 @@ function loadFile(name, cont, element) {
 
 </code>
 
-<h1>SVG Templates Storage</h1>
+<h1>SVG Templates and DOM Manipulation</h1>
+
+Here we using Simple Template Engine in 12 LOC.<br>
+SVG loader with localStorage caching in 9 LOC.<br>
+SVG DOM storing in 3 LOC<br>
 
 <code>
 
@@ -117,11 +86,19 @@ function template_engine(html, data) {
     code += 'return r.join("");';
     return new Function(code.replace(/[\r\t\n]/g, '')).apply(data); }
 
-function storeTemplate(name, cont) {
-    var client = new XMLHttpRequest();
-    client.open('GET', name, true);
-    client.onload = function() { localStorage.setItem("card",client.responseText); (cont)(); }
-    client.send(); }
+function reload_cont(cont,name,element) { if (null != cont) (cont)() else reload(name,element); }
+function reload(file, name) { var slot = document.getElementById(name);
+         slot.parentNode.replaceChild(svg(localStorage.getItem(file)),slot);}
+
+function loadFile(name,cont,element) {
+    if (localStorage.getItem(name) == null) {
+        var client = new XMLHttpRequest();
+        client.open('GET', name, true);
+        client.onload = function() {
+            localStorage.setItem(name,client.responseText); 
+            reload_cont(cont,name,element); }
+        client.send(); }
+    else reload_cont(cont,name,element); }
 
 function svg(html) { return new DOMParser().parseFromString(html, "text/xml").firstChild; }
 
@@ -132,20 +109,27 @@ function svg(html) { return new DOMParser().parseFromString(html, "text/xml").fi
 <code>
 templates/Card.svg:
 
-&lt;g  xmlns="http://www.w3.org/2000/svg" id="Slot-<font color=yellow>{this.pos}</font>"
+&lt;g  xmlns="http://www.w3.org/2000/svg" id="<font color=yellow>{this.name}</font>"
     transform="translate(<font color=yellow>{this.x}</font>,<font color=yellow>{this.y}</font>)"&gt;mbership,
     &lt;rect fill="#FFFFFF" x="0" y="0" width="40" height="60" rx="4"/&gt;
+    &lt;circle fill="<font color=yellow>{this.suit}</font>" cx="20" cy="43" r="7"&gt;
+          &lt;animate begin="0" fill="freeze" attributeName="r"
+                   values="4;5;6;7;8;6;5;4" dur="1s"
+                   calcMode="linear" repeatCount="indefinite"/&gt;&lt;/circle
     &lt;text dx="20" x="0" y="26.4873125"
           font-family="Lucida Grande" font-size="24"
           font-weight="bold" letter-spacing="-2" text-anchor="middle"
           fill="<font color=yellow>{this.suit}</font>"&gt;<font color=yellow>{this.value}</font>&lt;/text&gt;
-    &lt;circle fill="<font color=yellow>{this.suit}</font>" cx="20" cy="43" r="7"&gt;
-          &lt;animate begin="0" fill="freeze" attributeName="r"
-                   values="4;5;6;7;8;6;5;4" dur="1s"
-                   calcMode="linear" repeatCount="indefinite"/&gt;&lt;/circle&gt;&lt;/g&gt;
+                   &gt;&lt;/g&gt;
 
-function card(line,pos,col,v) { return template_engine(localStorage.getItem("templaes/Card.svg"),
-         { pos: line + ',' + pos, suit: color[col-1], value: v, y: line*73, x: pos*43 }); }
+function card(line,pos,col,v) {
+    return template_engine(
+        localStorage.getItem("templates/Card.svg"),
+            {   name: slotName(pos,line),
+                suit: color[col-1],
+                value: v,
+                y: (line-1)*69,
+                x: (pos-1)*42 }); }
 
 <svg id="Scene" width="200px" height="200px" viewBox="0 0 40 60">
 <g  xmlns="http://www.w3.org/2000/svg" id="Slot"
@@ -167,16 +151,23 @@ function card(line,pos,col,v) { return template_engine(localStorage.getItem("tem
 
 <code>
 
-okey.js:
-
 var color = ['#CE290F','#3B5998','#48AF5E','#FFEC00'];
+var slotName = slotNameDef;
+
+function slotNameDef(x,y) { return "Slot-"+y+","+x; }
+
+function place_card(x,y,c,v) { 
+    var slot = document.getElementById(slotName(x,y));
+    slot.parentNode.replaceChild(svg(card(y,x,c,v)),slot); }
 
 function rand(lo,hi) { return Math.floor((Math.random()*hi)+lo); }
-function drawCards() { for (var i=1;i<16;i++) { place_card(rand(1,2),i,rand(1,4),rand(1,13)); } }
-function place_card(x,y,c,v) { var slot = document.getElementById("Slot-"+y+","+x);
-         slot.parentNode.replaceChild(svg(card(x-1,y-1,c,v)),slot); }
+function slotName1(x,y) { return "1Slot-"+y+","+x; }
+function drawSampleCards() {
+    slotName = slotName1;
+    for (var i=1;i<15;i++) { place_card(i,rand(1,2),rand(1,4),rand(1,13)); }
+    slotName = slotNameDef; }
 
-loadFile('templates/Card.svg', drawCards);
+loadFile('templates/Card.svg', drawSampleCards);
 
 <svg id="Scene" width="630px" height="200px" viewBox="-3 0 634 130">
     <rect id="Deck" fill="#AF7B58" x=-5 y=-2 width=635 height=133></rect>
@@ -193,45 +184,6 @@ loadFile('templates/Card.svg', drawCards);
     <g id="1Slot-2,13"/><g id="1Slot-2,14"/><g id="1Slot-2,15"/>
 </svg>
 
-<script>
-
-var color = ['#CE290F','#3B5998','#48AF5E','#FFEC00'];
-
-function card(line,pos,col,v) {
-    return template_engine(
-        localStorage.getItem("templates/Card.svg"),
-            {   pos: line + ',' + pos,
-                suit: color[col-1],
-                value: v,
-                y: line*69,
-                x: pos*42 }); }
-
-
-function place_card(x,y,c,v) { 
-         var slot = document.getElementById("Slot-"+y+","+x);
-         var slotSample = document.getElementById("1Slot-"+y+","+x);
-         slot.parentNode.replaceChild(svg(card(y-1,x-1,c,v)),slot);
-         slotSample.parentNode.replaceChild(svg(card(y-1,x-1,c,v)),slotSample); }
-
-function empty_card(x,y) { var slot = document.getElementById("Slot-"+y+","+x);
-         var html = '<g xmlns="http://www.w3.org/2000/svg" id="Slot-'+y+','+x+'"/>';
-         slot.parentNode.replaceChild(svg(html),slot); }
-
-function svg(html) { return new DOMParser().parseFromString(html, "text/xml").firstChild; }
-function rand(lo,hi) { return Math.floor((Math.random()*hi)+lo); }
-function drawCards() { for (var i=1;i<15;i++) { place_card(i,rand(1,2),rand(1,4),rand(1,13)); } }
-function reload(file, name) { var slot = document.getElementById(name);
-         slot.parentNode.replaceChild(svg(localStorage.getItem(file)),slot);}
-function scaleScene() {
-    reload("Kakaranet-7-Refined.svg", "Refined");
-    for (var i=1;i<15;i++) { empty_card(i,2); empty_card(i,1);}
-//    loadFile('templates/Card.svg', drawCards);
-    }
-
-loadFile('Kakaranet-7-Refined.svg', scaleScene);
-
-</script>
-
 </code>
 
 <h1>Mustafa</h1>
@@ -246,16 +198,6 @@ loadFile('Kakaranet-7-Refined.svg', scaleScene);
 </code>
 
 <button id="MustafaSelection" style="font-size:28pt;">Toggle Mustafa Selection</button>
-
-<script>
-
-loadFile('templates/Mustafa-Persona.svg', null, "Mustafa-Persona-Sample");
-loadFile('templates/Mustafa-Selection.svg', null, "Mustafa-Selection-Sample");
-
-document.getElementById("MustafaSelection").addEventListener('click',function() { 
-var style = document.getElementById("Mustafa-Selection-Sample").style;
-if (style.display == 'none') style.display = 'block'; else style.display = 'none';
-});</script>
 
 <code style="font-size: 6pt;">
 
@@ -340,6 +282,8 @@ XML елементами, як це є в WPF наприклад. Тут спр�
 </div>
 
 </div>
+
+<script src='svg.js' type='text/javascript' charset='utf-8'></script>
 
 <script src='../nitrogen/bullet.js' type='text/javascript' charset='utf-8'></script>
 <script src='../nitrogen/n2o.js' type='text/javascript' charset='utf-8'></script>

@@ -1,13 +1,13 @@
 
-<g  xmlns="http://www.w3.org/2000/svg" id="Slot-{this.pos}"
+<g  xmlns="http://www.w3.org/2000/svg" id="{this.name}"
     transform="translate({this.x},{this.y})">
-    <rect id="Card-{this.pos}" fill="#FFFFFF" x="0" y="0"
+    <rect fill="#FFFFFF" x="0" y="0"
           width="40" height="60" rx="4" style="display: inline;"/>
-    <text id="Value-{this.pos}" dx="20" x="0" y="26.4873125"
-          font-family="Lucida Grande" font-size="24"
-          font-weight="bold" letter-spacing="-2" text-anchor="middle"
-          fill="{this.suit}">{this.value}</text>
-    <circle id="Color-{this.pos}" fill="{this.suit}" cx="20" cy="43" r="7">
+    <circle fill="{this.suit}" cx="20" cy="43" r="7">
           <animate begin="0" fill="freeze" attributeName="r"
                    values="4;5;6;7;8;6;5;4" dur="1s"
-                   calcMode="linear" repeatCount="indefinite"/></circle></g>
+                   calcMode="linear" repeatCount="indefinite"/></circle>
+    <text dx="20" x="0" y="26.4873125"
+          font-family="Lucida Grande" font-size="24"
+          font-weight="bold" letter-spacing="-2" text-anchor="middle"
+          fill="{this.suit}">{this.value}</text></g>
