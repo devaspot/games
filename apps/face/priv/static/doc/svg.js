@@ -83,6 +83,7 @@ function template_engine(html, data) {
 function reload(file, name) { var slot = document.getElementById(name);
          slot.parentNode.replaceChild(svg(localStorage.getItem(file)),slot);}
 
+
 function reload_cont(cont,name,element) { if (null != cont) (cont)(); else reload(name,element); }
 
 function loadFile(name,cont,element) {
@@ -95,7 +96,15 @@ function loadFile(name,cont,element) {
         client.send(); }
     else reload_cont(cont,name,element); }
 
-function svg(html) { return new DOMParser().parseFromString(html, "text/xml").firstChild; }
+function svg(html) {
+    return new DOMParser().parseFromString(html, "text/xml").firstChild;
+}
+
+function svgBulk() {
+    var res = [];
+    var node =  new DOMParser().parseFromString(html, "text/xml").firstChild;
+    for (var i=0;i<node.childnode.length;i++) { var child = childNodes.item(i);
+        if (child.tagName != undefined) res.push(child); } }
 
 // The Card
 
@@ -159,48 +168,51 @@ function findCardOnTable(c,v) {
     console.log("Card Not Found");
     return ""; }
 
+
+function loadAppend(file, animation, name) { 
+    loadFile(file, function() {
+        var slot = document.getElementById(name);
+        var r = template_engine(localStorage.getItem(file),{'name': animation});
+        document.getElementById(name).appendChild(svg(r)); }); }
+
+function loadAnimationForButton(a, b) { return loadAppend('templates/ButtonAnimation.svg', a, b); }
+
 // TODO: Rollout Monadic Chain here
 
 loadFile('templates/Card.svg', function() { 
     loadFile('Kakaranet-7-Refined.svg', function() {
-        loadScene();
-        loadFile('templates/PlayShow.svg', function() {
-            document.getElementById("Play").appendChild(
-            svg(localStorage.getItem("templates/PlayShow.svg"))); 
-        });
-        loadFile('templates/PlayHide.svg', function() {
-            document.getElementById("Play").appendChild(
-            svg(localStorage.getItem("templates/PlayHide.svg"))); 
-        });
-        loadFile('templates/CreateShow.svg', function() {
-            document.getElementById("Create").appendChild(
-            svg(localStorage.getItem("templates/CreateShow.svg"))); 
-        });
-        loadFile('templates/CreateHide.svg', function() {
-            document.getElementById("Create").appendChild(
-            svg(localStorage.getItem("templates/CreateHide.svg"))); 
-        });
 
+        loadScene();
+
+        var a = [{button: "Create", pathes: ["CreateShow", "CreateHide"]},
+                 {button: "Play",   pathes: ["PlayShow",   "PlayHide"]}];
+
+        for (var y=0;y<a.length;y++) for (var x=0;x<a[y].pathes.length;x++)
+            loadAnimationForButton(a[y].pathes[x],a[y].button);
 
         document.getElementById("Right-Menu").setAttribute('onclick', 'onRightMenu(evt)');
-        document.getElementById("Play").setAttribute('onclick', 'onRightMenuDown(evt)');
-        document.getElementById("Create").setAttribute('onclick', 'onRightMenuDown(evt)');
+        document.getElementById("Play")      .setAttribute('onclick', 'onRightMenuDown(evt)');
+        document.getElementById("Create")    .setAttribute('onclick', 'onRightMenuDown(evt)');
 
     });
 });
 
-function onRightMenu(evt) { ["PlayShow","CreateShow"].map(function (x) { document.getElementById(x).beginElement(); }); }
-function onRightMenuDown(evt) { ["PlayHide","CreateHide"].map(function (x) { document.getElementById(x).beginElement(); }); }
+function onRightMenu(evt) {
+    ["PlayShow","CreateShow"].map(function (x) {
+        document.getElementById(x+"-Motion").beginElement(); }); }
 
+function onRightMenuDown(evt) {
+    ["PlayHide","CreateHide"].map(function (x) {
+        document.getElementById(x+"-Motion").beginElement(); }); }
 
 // SVG Samples for svg.htm
 
-loadFile('templates/Mustafa-Persona.svg', null, "Mustafa-Persona-Sample");
+loadFile('templates/Mustafa-Persona.svg',   null, "Mustafa-Persona-Sample");
 loadFile('templates/Mustafa-Selection.svg', null, "Mustafa-Selection-Sample");
 
-document.getElementById("MustafaSelection").addEventListener('click', function() { 
+document.getElementById("MustafaSelection").addEventListener('click', function() {
     var style = document.getElementById("Mustafa-Selection-Sample").style;
-    if (style.display == 'none') style.display = 'block'; 
+    if (style.display == 'none') style.display = 'block';
                             else style.display = 'none'; });
 
 function slotName1(x,y) { return "1Slot-"+y+","+x; }
