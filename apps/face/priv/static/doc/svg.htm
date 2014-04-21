@@ -31,6 +31,7 @@
 <label id="player4" style="font-weight: bold; color: red;"> Asena Simsek </label><select id="h4"></select><br>
 <button id="attach" type="button">Attach</button>
 <button id="join" type="button">Join</button>
+<select id="games_ids"></select>
 <select id="take_src"><option label="Table" value="0">Table</option><option label="Left" value="1">Left</option></select>
 <button id="take" type="button">Take</button>
 <select id="istaka"></select>
@@ -116,12 +117,12 @@ templates/Card.svg:
     &lt;circle fill="<font color=yellow>{this.suit}</font>" cx="20" cy="43" r="7"&gt;
           &lt;animate begin="0" fill="freeze" attributeName="r"
                    values="4;5;6;7;8;6;5;4" dur="1s"
-                   calcMode="linear" repeatCount="indefinite"/&gt;&lt;/circle
+                   calcMode="linear" repeatCount="indefinite"/&gt;&lt;/circle&gt;
     &lt;text dx="20" x="0" y="26.4873125"
           font-family="Lucida Grande" font-size="24"
           font-weight="bold" letter-spacing="-2" text-anchor="middle"
           fill="<font color=yellow>{this.suit}</font>"&gt;<font color=yellow>{this.value}</font>&lt;/text&gt;
-                   &gt;&lt;/g&gt;
+                 &lt;/g&gt;
 
 function card(line,pos,col,v) {
     return template_engine(
