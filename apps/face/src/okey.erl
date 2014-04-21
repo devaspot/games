@@ -191,9 +191,7 @@ event({server, {game_event, _, okey_game_started, Args}}) ->
     case lists:keyfind(gosterge, 1, Args) of
         {_, {_, C, V}} ->
             wf:update(gosterge, #label{id = gosterge, body = wf:to_binary(["Gosterge: ", wf:to_list(C), " ", wf:to_list(V)])});
-        _ ->
-            ok
-    end,
+        _ -> ok end,
     put(game_okey_tiles, TilesList),
     put(game_okey_pause, resume),
     redraw_istaka(TilesList);
@@ -210,6 +208,11 @@ event({server, {game_event, _, okey_game_player_state, Args}}) ->
                 null -> skip;
                 false -> skip;
                 X -> select(X), put(okey_turn_mark,X) end,
+
+            case lists:keyfind(gosterge, 1, Args) of
+                {_, {_, C, V}} ->
+                    wf:update(gosterge, #label{id = gosterge, body = wf:to_binary(["Gosterge: ", wf:to_list(C), " ", wf:to_list(V)])});
+                _ -> ok end,
 
             {_, Tiles} = lists:keyfind(tiles, 1, Args),
             TilesList = [tash(C, V)|| {_, C, V} <- Tiles],
@@ -287,6 +290,14 @@ event({server, {game_event, _, okey_tile_discarded, Args}}) ->
 
 event({server,{game_event, _Game, okey_turn_timeout, Args}}) ->
     wf:info("Turn Timeout: ~p", [Args]);
+
+%%event({server, {game_paused, _, _Gameid, Action, Who, _}}) ->
+%%    Im = get(okey_im),
+%%    
+%%    if Im =/= Who ->
+%%            put(game_okey_pause, Action),
+%%            wf:update(pause, [#button{id = pause, body = case Action of pause -> "Resume"; resume -> "Pause" end, postback = pause}]);
+%%       true -> ok end;
 
 event({server, {game_event, _, okey_game_info, Args}}) ->
     wf:info("Game Info: ~p", [Args]),
