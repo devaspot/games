@@ -1,5 +1,5 @@
 
-var transition = {pid: '', port: '8000' };
+var transition = {pid: '', port: '8080' };
 
 // BERT Protocol
 
@@ -13,7 +13,7 @@ function handle_web_socket(body) {
                 var c = a[i-1].value[0][1];
                 var v = a[i-1].value[0][2];
                 console.log("Card " + c + " " + v);
-                place_card(i,1,c,v);
+                place_card(i,rand(1,2),c,v);
             }
             break;
         case 'okey_tile_discarded':
