@@ -3,7 +3,7 @@ var transition = {pid: '', port: '8080' };
 
 // BERT Protocol
 
-var players = [0,"Gabrielo","Mustafa","Alina","Me"];
+var players = ["Gabrielo","Mustafa","Alina","Me"];
 
 function handle_web_socket(body) {
 //    console.log(dec(body).value[0][2].value);
@@ -11,9 +11,9 @@ function handle_web_socket(body) {
         case 'okey_game_info': 
             var a = dec(body).value[0][3][0].value[0][1];
             console.log("Players: " + a.length);
-            for (var i=1;i<=a.length;i++) {
-                var c = a[i-1].value[0][3].value;
-                var v = a[i-1].value[0][4].value;
+            for (var i=0;i<a.length;i++) {
+                var c = a[i].value[0][3].value;
+                var v = a[i].value[0][4].value;
                 setPlayerName(players[i],c + " " + v);
                 console.log("Player: " + c + " " + v);
             }
