@@ -193,6 +193,8 @@ loadFile('templates/Card.svg', function() {
         document.getElementById("Right-Menu").setAttribute('onclick', 'onRightMenu(evt)');
         document.getElementById("Play")      .setAttribute('onclick', 'onRightMenuDown(evt)');
         document.getElementById("Create")    .setAttribute('onclick', 'onRightMenuDown(evt)');
+        
+//        onRightMenuDown();
 
     });
 });
