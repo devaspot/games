@@ -137,22 +137,81 @@ the <b>pile_height</b> cards left:</p>
 
 <p>Game Actions is something that you can send only from client to server.
 But for debugging purposes during development phase your game actions
-will mirror from server as DATA BERT event also.</P>
+will mirror from server as DATA BERT event also.</p>
 
 <h3><a name="p1.1">Take</a></h3>
 
-<code>ws.send(enc(tuple(atom('client'),tuple(atom('game_action'),1000001,
-    atom('okey_take'),{'pile':0})))); </code>
+Take a card from.<br/>
+Fields:
+<ul>
+<li><b>GameId</b>: current game id (by default use 1000001)</li>
+<li><b>{pile: From}</b>: from with pile take a card. values:  0 - from table, 1 - from pile of left player</li>
+</ul>
+
+<code>ws.send(enc(tuple(atom('client'),tuple(atom('game_action'),GameId,
+    atom('okey_take'),{'pile': From}))));</code>
 
 <h3><a name="p1.1">Discard</a></h3>
+
+Discard card from a hand.<br/>
+Fields:
+<ul>
+<li><b>GameId</b>: current game id (by default use 1000001)</li>
+<li><b>{'tile':tuple(atom('OkeyPiece'),Color,Vaue)}</b>: card description (#'OkeyPieces'{} record)<br>
+ when <b>Colour</b>  is card colour, number from 1 to 4, <b>Value</b> is card value, number from 1 to 13</li>
+</ul>
 
 <code>ws.send(enc(tuple(
     atom('client'),
     tuple(
         atom('game_action'),
-        1000001,
+        GameId,
         atom('okey_discard'),
-        {'tile':tuple(atom('OkeyPiece'),1,9)}))));</code>
+        {'tile':tuple(atom('OkeyPiece'),Color,Vaue)}))));</code>
+
+
+<h3><a name="p1.1">Pause/Resume</a></h3>
+
+Game pause or resume.<br/>
+Fields:
+<ul>
+<li><b>GameId</b>: current game id (by default use 1000001)</li>
+<li><b>Action</b>: Send action. Value 'pause' or 'resume'</li>
+</ul>
+
+<code>ws:send(enc(tuple(atom('client'),
+    tuple(atom("pause_game"),atom('undefined'),GameId,
+    atom(Action)))));</code>
+
+<h3><a name="p1.1">Reveal</a></h3>
+
+Reveal a card:
+Fields:
+<ul>
+<li><b>GameId</b>: current game id (by default use 1000001)</li>
+<li><b>{discarded, tuple(atom("OkeyPiece"), Color, Value)}</b>: a card with you want reveal, (#'OkeyPieces'{} record)<br/>
+  when <b>Colour</b>  is card colour, number from 1 to 4, <b>Value</b> is card value, number from 1 to 13</li>
+<li><b>{hand, Hand}</b>: rest of hand, without revealed card<br>
+  value - two lists in lists (upper and lower rows) of tuple(atom("OkeyPiece"), Color, Value) or 'null' if card doesn't exist<br/>
+</ul>
+
+<code>ws:send(enc(tuple(atom('client'),tuple(atom("game_action"),
+    GameId,atom("okey_reveal"),
+    [{discarded, tuple(atom("OkeyPiece"), Color, Value)},{hand, Hand}]))));</code>
+
+<h3><a name="p1.1">I Saw Okey</a></h3>
+
+Send by player when he sees Gosterge. (not tested fully)
+
+<code>ws:send(enc(tuple(atom('client'),
+    tuple(atom("game_action"),GameId,atom("okey_i_saw_okey"),[]))));</code>
+
+<h3><a name="p1.1">I Have 8 Tashes</a></h3>
+
+Send by player when he has 8 tashes. (not tested fully)
+
+<code>ws:send(enc(tuple(atom('client'),
+    tuple(atom("game_action"),GameId,atom("okey_i_have_8_tashes"),[]))));</code>
 
 </div>
 
