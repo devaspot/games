@@ -70,7 +70,8 @@ body() ->
     #label    { id = player3,    body = "Seat 3"},     #dropdown{id=h3,options=[]}, #br{},
     #label    { id = player4,    body = "Seat 4"},     #dropdown{id=h4,options=[]}, #br{}, #br{},
     #button   { id = attach,     body = "Attach",      postback = attach },
-    #button   { id = join,       body = "Join",        postback = join }, #br{},
+    #button   { id = join,       body = "Join",        postback = join, source = [games_ids]},
+    #dropdown { id = games_ids,  postback = combo,     options = []}, #br{},
     #dropdown { id = take_src,                         options = [
                                                             #option{label="Table",value="0"},
                                                             #option{label="Left",value="1"}]},
@@ -84,10 +85,34 @@ body() ->
     #button   { id = info,       body = "PlayerInfo",  postback = player_info} ].
 
 event(terminate) -> wf:info("terminate");
-event(init) -> event(attach), event(join);
+
+event(init) -> 
+    GamesIds = 
+        case game_manager:get_all_games_ids() of
+            [] ->
+                [?GAMEID];
+            List ->
+                List
+        end,
+    
+    wf:update(games_ids, 
+              [
+               #dropdown{id = games_ids, value = ?GAMEID, options = 
+                             [#option{label = wf:to_list(GameId), value = wf:to_list(GameId)} || GameId <- GamesIds]
+                        }
+              ]
+             ),
+    
+    event(attach),
+    event(join);
+
 event(login_button) -> wf:wire(protocol:logout());
-event(join) -> wf:wire(protocol:join(wf:to_list(?GAMEID)));
-event(take) -> wf:wire(protocol:take(wf:to_list(?GAMEID), wf:q(take_src)));
+event(join) -> 
+    GameId = get(okey_game_id),
+    wf:wire(protocol:join(wf:to_list(GameId)));
+event(take) -> 
+    GameId = get(okey_game_id),
+    wf:wire(protocol:take(wf:to_list(GameId), wf:q(take_src)));
 
 event(player_info) -> 
     User = user(),
@@ -100,28 +125,32 @@ event(attach) ->
     User = user(),
     put(okey_im, User#user.id),
     wf:info("Session User: ~p",[User]),
-    Token = auth_server:generate_token(?GAMEID,User),
+    GameId = case wf:q(games_ids) of undefined -> ?GAMEID; Res -> Res end,
+    put(okey_game_id, GameId),
+    Token = auth_server:generate_token(GameId,User),
     wf:wire(protocol:attach(wf:f("'~s'",[Token]))),
     ok;
 
 event(discard) -> 
     TilesList = get(game_okey_tiles),
     DiscardCombo = wf:q(istaka),
+    GameId = get(okey_game_id),
     case lists:keyfind(erlang:list_to_binary(DiscardCombo), 1, TilesList) of
     {_, {C, V}} ->
-        wf:wire(protocol:discard(wf:to_list(?GAMEID), wf:to_list(C), wf:to_list(V)));
+        wf:wire(protocol:discard(wf:to_list(GameId), wf:to_list(C), wf:to_list(V)));
     false -> wf:info("Discard Combo: ~p",[DiscardCombo]) end;
 
 event(reveal) ->
     TilesList = case get(game_okey_tiles) of undefined -> []; T -> T end,
     Discarded = wf:q(istaka),
+    GameId = get(okey_game_id),
 
     case lists:keyfind(wf:to_binary(Discarded), 1, TilesList) of
         {_, {CD, VD} = Key} ->
             Hand = [{C,V} || {_, {C, V}} <- lists:keydelete(Key, 2, TilesList) ],
             HandJS = "[[" ++ string:join([
                 wf:f("tuple(atom('OkeyPiece'),~p,~p)",[C,V]) || {C,V} <- Hand],",") ++ "],[]]",
-            RevealJS = protocol:reveal(wf:to_list(?GAMEID),wf:f("~p",[CD]),wf:f("~p",[VD]),HandJS),
+            RevealJS = protocol:reveal(wf:to_list(GameId),wf:f("~p",[CD]),wf:f("~p",[VD]),HandJS),
             wf:info("RevealJS: ~p",[lists:flatten(RevealJS)]),
             wf:wire(RevealJS);
         _ ->
@@ -130,11 +159,13 @@ event(reveal) ->
 
 event(i_saw_okey) ->
     wf:info("i_saw_okey!"),
-    wf:wire(protocol:i_saw_okey(wf:to_list(?GAMEID)));
+    GameId = get(okey_game_id),
+    wf:wire(protocol:i_saw_okey(wf:to_list(GameId)));
 
 event(i_have_8_tashes) ->
     wf:info("i_gave_8_tashes!"),
-    wf:wire(protocol:i_have_8_tashes(wf:to_list(?GAMEID)));
+    GameId = get(okey_game_id),
+    wf:wire(protocol:i_have_8_tashes(wf:to_list(GameId)));
 
 event(pause) ->
     Action  =
@@ -148,7 +179,8 @@ event(pause) ->
                 wf:update(pause, [#button{id = pause, body = <<"Pause">>, postback = pause}]),
                 "resume"
         end,
-    wf:wire(protocol:pause(wf:to_list(?GAMEID), wf:f("~p", [Action])));
+    GameId = get(okey_game_id),
+    wf:wire(protocol:pause(wf:to_list(GameId), wf:f("~p", [Action])));
 
 %event({binary,M}) -> {ok,<<"Hello">>};
 
