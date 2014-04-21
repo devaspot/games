@@ -21,11 +21,11 @@
     .small_infoblock { font-family: Calibri, Lucida Sans Unicode; font-size:8pt; }
     .block  { background-color: #EEEEEE; padding-top:6;padding-bottom:10;padding-right:10;padding-left:10;}
 
-.threecol { float:left; }
+.threecol { width:1300px; float:left; }
 .left { float:left; }
 .hints { width:59px;float:left;margin-right:6px; }
 .main { width:843px;float:left;margin-right:26px; margin-left: 50px; }
-.contents { font-size: 19pt; width:170px;float:left; }
+.contents { font-size: 19pt; width:200px;float:left; }
 
 code { background-color: lightblue; margin: 15px 0px 20px 20px;
        padding: 15px 30px 20px 20px; display: inline-block;
