@@ -6,6 +6,8 @@
 finish(State, Ctx) -> {ok, State, Ctx}.
 init(State, Ctx) -> 
     Path = wf:path(Ctx#context.req),
+	wf:info("ROute: ~p",[Path]),
+    
     Module = route_prefix(Path),
     {ok, State, Ctx#context{path=Path,module=Module}}.
 

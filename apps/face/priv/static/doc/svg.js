@@ -105,7 +105,7 @@ function rand(lo,hi) { return Math.floor((Math.random()*hi)+lo); }
 function loadScene() {
     reload("Kakaranet-7-Refined.svg", "Refined");
     for (var i=1;i<15;i++) { empty_card(i,2); empty_card(i,1); }
-    loadFile('templates/Card.svg', drawSampleCards); }
+    drawSampleCards(); }
 
 function findPlace() {
     for (var y=1;y<3;y++) for (var x=1;x<15;x++) {
@@ -129,7 +129,11 @@ function findCardOnTable(c,v) {
     console.log("Card Not Found");
     return ""; }
 
-loadFile('Kakaranet-7-Refined.svg', loadScene);
+// Monadic Chain here
+
+loadFile('templates/Card.svg', function() { 
+  loadFile('Kakaranet-7-Refined.svg', loadScene); 
+});
 
 // SVG Samples for svg.htm
 
