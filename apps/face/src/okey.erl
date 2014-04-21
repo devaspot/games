@@ -93,7 +93,7 @@ event(init) ->
       List -> List end,
     
     wf:update(games_ids,#dropdown{id = games_ids, value = ?GAMEID, options = 
-      [#option{label = wf:to_list(GameId), value = wf:to_list(GameId)} || GameId <- GamesIds]})),
+      [#option{label = wf:to_list(GameId), value = wf:to_list(GameId)} || GameId <- GamesIds]}),
     
     event(attach),
     event(join);
