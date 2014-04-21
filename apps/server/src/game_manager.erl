@@ -14,6 +14,9 @@
 
 online() -> [X||X<-qlc:e(gproc:table()),element(1,X)=={p,l,broadcast}].
 
+get_all_games_ids() ->
+    [GameId || {_, _, #game_table{id = GameId, game_type = game_okey}} <- qlc:e(gproc:table())].
+
 destroy_game(Pid,Sup) -> game_sup:stop_game(Sup,Pid).
 
 gen_game_id() ->
