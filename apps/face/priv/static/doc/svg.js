@@ -134,7 +134,7 @@ function rand(lo,hi) { return Math.floor((Math.random()*hi)+lo); }
 
 function loadScene() {
     reload("Kakaranet-7-Refined.svg", "Refined");
-    for (var i=1;i<15;i++) { empty_card(i,2); empty_card(i,1); }
+    for (var i=1;i<16;i++) { empty_card(i,2); empty_card(i,1); }
     drawSampleCards(); }
 
 function findPlace() {

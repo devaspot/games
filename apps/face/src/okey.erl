@@ -30,13 +30,14 @@ unselect(Id) -> color(Id,black).
 select(Id) -> color(Id,red).
 
 redraw_istaka(TilesList) ->
-    redraw_tiles(TilesList, #dropdown{id = istaka, postback = combo, source = [istaka]}).
+    redraw_tiles(TilesList, #dropdown{id = "istaka", postback = combo, source = [istaka]}).
 
 redraw_tiles(undefined, _DropDown) -> [];
 redraw_tiles([] = _TilesList, DropDown = #dropdown{id = ElementId}) ->
     wf:update(ElementId, [DropDown#dropdown{value = [], options = []}]);
 redraw_tiles([{Tile, _}| _ ] = TilesList, DropDown = #dropdown{id = ElementId}) ->
-    wf:update(ElementId, [DropDown#dropdown{value = Tile, options = [#option{label = CVBin, value = CVBin} || {CVBin, _} <- TilesList]}]).
+    wf:update(ElementId, [DropDown#dropdown{value = Tile,
+             options = [#option{label = CVBin, value = CVBin} || {CVBin, _} <- TilesList]}]).
 
 redraw_players(Players) ->
     User = user(),
@@ -188,12 +189,15 @@ event({server, {game_event, _, okey_game_started, Args}}) ->
     wf:info("Game Started: ~p", [Args]),
     {_, Tiles} = lists:keyfind(tiles, 1, Args),
     TilesList = [tash(C, V) || {_, C, V} <- Tiles],
+    wf:info("Tile List: ~p",[TilesList]),
     case lists:keyfind(gosterge, 1, Args) of
         {_, {_, C, V}} ->
+            wf:info("Gosterge: ~p ~p",[C,V]),
             wf:update(gosterge, #label{id = gosterge, body = wf:to_binary(["Gosterge: ", wf:to_list(C), " ", wf:to_list(V)])});
         _ -> ok end,
     put(game_okey_tiles, TilesList),
     put(game_okey_pause, resume),
+    wf:info("Istaka on Started:"),
     redraw_istaka(TilesList);
 
 event({server, {game_event, _, okey_game_player_state, Args}}) ->
@@ -216,6 +220,7 @@ event({server, {game_event, _, okey_game_player_state, Args}}) ->
 
             {_, Tiles} = lists:keyfind(tiles, 1, Args),
             TilesList = [tash(C, V)|| {_, C, V} <- Tiles],
+            wf:info("Istaka on State"),
             redraw_istaka(TilesList),
             put(game_okey_tiles, TilesList),
 
