@@ -159,11 +159,39 @@ function findCardOnTable(c,v) {
     console.log("Card Not Found");
     return ""; }
 
-// Monadic Chain here
+// TODO: Rollout Monadic Chain here
 
 loadFile('templates/Card.svg', function() { 
-  loadFile('Kakaranet-7-Refined.svg', loadScene); 
+    loadFile('Kakaranet-7-Refined.svg', function() {
+        loadScene();
+        loadFile('templates/PlayShow.svg', function() {
+            document.getElementById("Play").appendChild(
+            svg(localStorage.getItem("templates/PlayShow.svg"))); 
+        });
+        loadFile('templates/PlayHide.svg', function() {
+            document.getElementById("Play").appendChild(
+            svg(localStorage.getItem("templates/PlayHide.svg"))); 
+        });
+        loadFile('templates/CreateShow.svg', function() {
+            document.getElementById("Create").appendChild(
+            svg(localStorage.getItem("templates/CreateShow.svg"))); 
+        });
+        loadFile('templates/CreateHide.svg', function() {
+            document.getElementById("Create").appendChild(
+            svg(localStorage.getItem("templates/CreateHide.svg"))); 
+        });
+
+
+        document.getElementById("Right-Menu").setAttribute('onclick', 'onRightMenu(evt)');
+        document.getElementById("Play").setAttribute('onclick', 'onRightMenuDown(evt)');
+        document.getElementById("Create").setAttribute('onclick', 'onRightMenuDown(evt)');
+
+    });
 });
+
+function onRightMenu(evt) { ["PlayShow","CreateShow"].map(function (x) { document.getElementById(x).beginElement(); }); }
+function onRightMenuDown(evt) { ["PlayHide","CreateHide"].map(function (x) { document.getElementById(x).beginElement(); }); }
+
 
 // SVG Samples for svg.htm
 
