@@ -24,8 +24,8 @@
 .threecol { float:left; }
 .left { float:left; }
 .hints { width:59px;float:left;margin-right:6px; }
-.main { width:743px;float:left;margin-right:26px; margin-left: 50px; }
-.contents { font-size: 19pt; width:270px;float:left; }
+.main { width:843px;float:left;margin-right:26px; margin-left: 50px; }
+.contents { font-size: 19pt; width:170px;float:left; }
 
 code { background-color: lightblue; margin: 15px 0px 20px 20px;
        padding: 15px 30px 20px 20px; display: inline-block;

@@ -31,8 +31,7 @@ apps: $(APPS)
 .PHONY: apps
 
 apps/*/ebin/%.app: apps/*/src/%.app.src | apps/*/ebin/
-	@erl -noshell \
-	-eval 'case file:consult("$<") of {ok,_} -> ok ; \
+	@erl -noshell -eval 'case file:consult("$<") of {ok,_} -> ok ; \
 	{error,{_,_,M}} -> io:format("$<: ~s~s\n",M), halt(1) end.' \
 	-s init stop
 	cp $< $@

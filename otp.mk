@@ -22,6 +22,7 @@ delete-deps get-deps compile clean update-deps:
 $(RUN_DIR) $(LOG_DIR):
 	mkdir -p $(RUN_DIR) & mkdir -p $(LOG_DIR)
 console: .applist
+	echo $(APPS)
 	ERL_LIBS=$(ERL_LIBS) erl $(ERL_ARGS) -eval \
 		'[ok = application:ensure_started(A, permanent) || A <- $(shell cat .applist)]'
 start: $(RUN_DIR) $(LOG_DIR) .applist

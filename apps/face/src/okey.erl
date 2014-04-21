@@ -7,6 +7,7 @@
 -include_lib("kvs/include/user.hrl").
 
 -define(GAMEID, 1000001).
+%-define(GAMEID, 5000220).
 
 -record(player, {id, label, info, take, discard, history = []}).
 
@@ -124,6 +125,7 @@ event(attach) ->
     wf:session(<<"game_pid">>,GamePid),
     User = user(),
     put(okey_im, User#user.id),
+    wf:wire(wf:f("document.user = '~s';",[User#user.id])),
     wf:info("Session User: ~p",[User]),
     GameId = case wf:q(games_ids) of undefined -> ?GAMEID; Res -> Res end,
     put(okey_game_id, GameId),

@@ -16,4 +16,3 @@ static-link:
 	ln -s ../../../../deps/n2o_scripts/n2o $(APP)
 
 include otp.mk
-include erl.mk
