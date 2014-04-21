@@ -3,26 +3,38 @@ var transition = {pid: '', port: '8080' };
 
 // BERT Protocol
 
+var players = [0,"Gabrielo","Mustafa","Alina","Me"];
+
 function handle_web_socket(body) {
-    console.log(dec(body).value[0][2].value);
+//    console.log(dec(body).value[0][2].value);
     switch (dec(body).value[0][2].value) {
+        case 'okey_game_info': 
+            var a = dec(body).value[0][3][0].value[0][1];
+            console.log("Players: " + a.length);
+            for (var i=1;i<=a.length;i++) {
+                var c = a[i-1].value[0][3].value;
+                var v = a[i-1].value[0][4].value;
+                setPlayerName(players[i],c + " " + v);
+                console.log("Player: " + c + " " + v);
+            }
+            break;
         case 'okey_game_started': 
             var a = dec(body).value[0][3][0].value[0][1];
-            console.log("Started: " + a.length);
+//            console.log("Cards: " + a.length);
             for (var i=1;i<=a.length;i++) {
                 var c = a[i-1].value[0][1];
                 var v = a[i-1].value[0][2];
-                console.log("Card " + c + " " + v);
+//                console.log("Card: " + c + " " + v);
                 place_card(i,rand(1,2),c,v);
             }
             break;
-        case 'okey_game_player_state': 
+        case 'okey_game_player_state':  /// these two messages should be combined
             var a = dec(body).value[0][3][3].value[0][1];
-            console.log("Started: " + a.length);
+//            console.log("Cards: " + a.length);
             for (var i=1;i<=a.length;i++) {
                 var c = a[i-1].value[0][1];
                 var v = a[i-1].value[0][2];
-                console.log("Card " + c + " " + v);
+                console.log("Card: " + c + " " + v);
                 place_card(i,1,c,v);
             }
             break;
@@ -102,6 +114,14 @@ function card(line,pos,col,v) {
 
 // Game Scene
 
+function setPlayerName(e, playerName) {
+    var dx = (document.getElementById(e).attributes['fill'].value == "#FFFFFF") ? 65 : 20;
+    document.getElementById(e).setAttribute("y",27);
+    document.getElementById(e).setAttribute("x",dx);
+    document.getElementById(e).textContent = playerName;
+    document.getElementById(e+"-Pad").setAttribute('width',
+        document.getElementById(e).getBBox().width + 45); }
+
 function place_card(x,y,c,v) { 
          var slot = document.getElementById(slotName(x,y));
          slot.parentNode.replaceChild(svg(card(y,x,c,v)),slot); }
@@ -161,3 +181,4 @@ function drawSampleCards() {
     slotName = slotName1;
     for (var i=1;i<15;i++) { place_card(i,rand(1,2),rand(1,4),rand(1,13)); }
     slotName = slotNameDef; }
+
