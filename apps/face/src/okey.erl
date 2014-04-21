@@ -88,21 +88,12 @@ body() ->
 event(terminate) -> wf:info("terminate");
 
 event(init) -> 
-    GamesIds = 
-        case game_manager:get_all_games_ids() of
-            [] ->
-                [?GAMEID];
-            List ->
-                List
-        end,
+    GamesIds = case game_manager:get_all_games_ids() of
+      [] -> [?GAMEID];
+      List -> List end,
     
-    wf:update(games_ids, 
-              [
-               #dropdown{id = games_ids, value = ?GAMEID, options = 
-                             [#option{label = wf:to_list(GameId), value = wf:to_list(GameId)} || GameId <- GamesIds]
-                        }
-              ]
-             ),
+    wf:update(games_ids,#dropdown{id = games_ids, value = ?GAMEID, options = 
+      [#option{label = wf:to_list(GameId), value = wf:to_list(GameId)} || GameId <- GamesIds]})),
     
     event(attach),
     event(join);
