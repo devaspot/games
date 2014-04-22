@@ -5,7 +5,7 @@
 -include_lib("server/include/log.hrl").
 
 names() ->
-   ["pinar","betul","eda","lale","ilgin","alp","ayberk","vural","ozan","doruk",
+   ["pinar","betul","eda","lale","ilgin","alp","ayberk","mehmet","ozan","doruk",
     "duman","boran","dursun","taner","uzay","ali","musa","halit","yusuf","isa",
     "asena","aysu","konca","ceren","oylum","filiz","ezgi","ece","sevil","damla",
     "bahar","arzu","dilara","esra","leyla","jale","fatma","irem","yasmin","zeynep",
@@ -13,7 +13,7 @@ names() ->
 
 surnames() ->
    ["ozcelik","acar","ozgur","ozkan","tez","ustel",
-    "mehmet","akbulut","arslan","avci","ayhan","basturk","caglar","celik","cetinkaya","demir",
+    "vural","akbulut","arslan","avci","ayhan","basturk","caglar","celik","cetinkaya","demir",
     "dikmen","acar","dogan","ekinci","elmas","erdem","erdogan","guler","gunes","ilhan",
     "inan","karaca","karadag","kaya","kemal","keskin","koc","korkmaz","mestafa","osman",
     "ozbek","ozcan","ozdemir","ozden","ozturk","pasa","polat","sezer","sahin","sen",
