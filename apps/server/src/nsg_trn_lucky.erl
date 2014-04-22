@@ -24,6 +24,8 @@
 -include_lib("server/include/log.hrl").
 -include_lib("server/include/basic_types.hrl").
 -include_lib("db/include/table.hrl").
+-include_lib("db/include/scoring.hrl").
+-include_lib("db/include/transaction.hrl").
 
 %% --------------------------------------------------------------------
 %% External exports
@@ -88,6 +90,8 @@
 
 -define(STATE_INIT, state_init).
 -define(STATE_PROCESSING, state_processing).
+
+-define(TOURNAMENT_TYPE, lucky).
 
 -define(TABLE_STATE_INITIALIZING, initializing).
 -define(TABLE_STATE_READY, ready).
@@ -357,13 +361,26 @@ handle_table_message(TableId, {table_created, Relay}, ?STATE_PROCESSING,
                                                     reg_requests = NewRegRequests}};
 
 
-handle_table_message(TableId, {round_finished, NewScoringState, _RoundScore, _TotalScore},
+handle_table_message(TableId, {round_finished, NewScoringState, RoundScore, _TotalScore},
                      ?STATE_PROCESSING,
-                     #state{game_id = GameId, tables = Tables, table_module = TableModule
-                           } = StateData)
+                     #state{game_id = GameId, tables = Tables, table_module = TableModule,
+                           game_mode = GameMode, game = GameType, seats = Seats} = StateData)
   when is_integer(TableId) ->
     gas:info(?MODULE,"TRN_LUCKY <~p> The <round_finished> notification received from table: ~p.",
           [GameId, TableId]),
+
+    gas:info(?MODULE, "TR_LUCKY, <~p> Round score ~p Total score ~p", [GameId, RoundScore, _TotalScore]),
+
+    SeatsList = find_seats_by_table_id(TableId, Seats),
+
+    %% Add score per round
+    UsersPoints = lists:flatten(
+        [ begin
+              #seat{player_id = PlayerId, is_bot = Bot} =lists:keyfind(Seat, #seat.seat_num, SeatsList),
+              case Bot of true -> []; false -> {PlayerId, Points} end
+          end|| {Seat, Points} <- RoundScore]),
+    add_points_to_accounts(UsersPoints, GameId, GameType, GameMode),
+
     #table{pid = TablePid} = Table = fetch_table(TableId, Tables),
     TRef = erlang:send_after(?REST_TIMEOUT, self(), {rest_timeout, TableId}),
     NewTable = Table#table{scoring_state = NewScoringState, state = ?TABLE_STATE_FINISHED, timer = TRef},
@@ -745,3 +762,22 @@ send_to_table(TabMod, TabPid, Message) ->
 get_param(ParamId, Params) ->
     {_, Value} = lists:keyfind(ParamId, 1, Params),
     Value.
+
+%% add_points_to_accounts(Points, GameId, GameType, GameMode) -> ok
+%% Types: Points = [{UserId, GamePoints}]
+add_points_to_accounts(Points, GameId, GameType, GameMode) ->
+    TI = #ti_game_event{game_name = GameType, game_mode = GameMode,
+                        id = GameId, double_points = 1,
+                        type = game_end, tournament_type = ?TOURNAMENT_TYPE},
+    [begin
+         if GamePoints =/= 0 ->
+                 kvs:add(#transaction{
+                            id=kvs:next_id(transaction,1),
+                            feed_id={game_points,UserId},
+                            amount=GamePoints,
+                            comment=TI});
+
+            true -> do_nothing
+         end
+     end || {UserId, GamePoints} <- Points],
+    ok.
