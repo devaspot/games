@@ -200,6 +200,7 @@ loadFile('templates/Card.svg', function() {
 });
 
 function onRightMenu(evt) {
+    localStorage.clear();
     ["PlayShow","CreateShow"].map(function (x) {
         document.getElementById(x+"-Motion").beginElement(); }); }
 
