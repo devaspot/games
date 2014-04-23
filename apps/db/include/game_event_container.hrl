@@ -6,7 +6,9 @@
 -record(game_event_container,
         {
           ?ITERATOR(feed),
-          time,
+          game_id,
+          timestamp,
+          event,
           game_event
         }).
 

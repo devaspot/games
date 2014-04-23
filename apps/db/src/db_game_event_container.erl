@@ -5,5 +5,5 @@
 
 metainfo() ->
     #schema{name=kvs,tables=[
-        #table{name=game_event_container,fields=record_info(fields,game_event_container)}
+        #table{name=game_event_container,fields=record_info(fields,game_event_container), keys=[game_id, event]}
     ]}.
