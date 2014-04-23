@@ -3,18 +3,12 @@
 
 -include_lib("kvs/include/kvs.hrl").
 
--record(event_log, {?ITERATOR(feed),
+-record(game_log,  {?CONTAINER, protocol_stat=[] }).
+-record(event_log, {?ITERATOR(game_log),
     game_id,
     timestamp,
     user,
     event,
     game_event}).
-
--record(game_log, {?ITERATOR(feed),
-    game_type,
-    game_id,
-    user,
-    aggregations % [{attach,Count},{join,Count},{}]
-    }).
 
 -endif.

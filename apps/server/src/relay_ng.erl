@@ -318,6 +318,10 @@ handle_table_message({to_client, PlayerId, Msg}, #state{subscribers = Subscriber
     Recepients = find_subscribers_by_player_id(PlayerId, Subscribers),
     gas:info(?MODULE,"RELAY_NG Send table message to player's (~p) sessions: ~p. Message: ~p",
           [PlayerId, Recepients, Msg]),
+
+    %handle_log(PlayerId,Players,Event,State),
+
+
     [Pid ! {relay_event, SubscrId, Msg} || #subscriber{id = SubscrId, pid = Pid} <- Recepients],
     {noreply, State};
 

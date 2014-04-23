@@ -26,7 +26,7 @@ handle_call(_Request, _From, State) ->
     {reply, Reply, State}.
 handle_cast({log_event, PI, #game_event{game = GameId, event = EventName, args = Args} = Event, GameState}, #state{history = History} = State) ->
 
-    Container = 
+    EventLogEntry = 
         #event_log{
            feed_id = {GameId, PI#'PlayerInfo'.id},
            id = {timestamp(), GameId, PI#'PlayerInfo'.id},
@@ -35,8 +35,17 @@ handle_cast({log_event, PI, #game_event{game = GameId, event = EventName, args =
            timestamp = calendar:now_to_universal_time(erlang:now()),
            game_event = Event},
 
-    gas:info(?MODULE, "Event Log: ~p", [Container]),
-    kvs:add(Container),
+    gas:info(?MODULE, "Event Log: ~p", [EventLogEntry]),
+    kvs:add(EventLogEntry),
+
+    {ok,GL} = kvs:get(game_log,{GameId, PI#'PlayerInfo'.id}),
+    ProtocolStats = GL#game_log.protocol_stat,
+    PS = case is_list(ProtocolStats) of true -> ProtocolStats; _ -> [] end,
+    Stats = case lists:keyfind(EventName,1,PS) of
+        {EventName,Count} -> lists:keyreplace(EventName,1,PS,{EventName,Count+1});
+        false -> [{EventName,1}|PS] end,
+    kvs:put(GL#game_log{protocol_stat=Stats}),
+
     {noreply, State#state{history = [Event | History]}};
 handle_cast(clear_history, State) -> {noreply, State#state{history = []}};
 handle_cast(_Msg, State) -> gas:info(?MODULE, "Event Log: cast message ~p", [_Msg]), {noreply, State}.
