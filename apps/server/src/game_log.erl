@@ -14,7 +14,7 @@ start_link() -> gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 mypid() -> gen_server:call(?SERVER, mypid).
 clear_history() -> gen_server:cast(?SERVER, clear_history).
 get_history() -> gen_server:call(?SERVER, get_history).
-put(Event,State) -> gen_server:cast(?SERVER, {log_event, Event, State}).
+put(PI,Event,State) -> gen_server:cast(?SERVER, {log_event, PI, Event, State}).
 timestamp() -> {MegaSec, Sec, MiliSec} = erlang:now(), MegaSec * 1000 * 1000 * 1000  + Sec * 1000 + MiliSec.
 
 init([]) -> {ok, #state{}}.
@@ -24,13 +24,12 @@ handle_call(_Request, _From, State) ->
     gas:info(?MODULE, "Event Log: call message ~p from ~p", [_Request, _From]),
     Reply = ok,
     {reply, Reply, State}.
-handle_cast({log_event, #game_event{game = GameId, event = EventName, args = Args} = Event, GameState}, #state{history = History} = State) ->
-    PlayerId = case lists:keyfind(player, 1, Args) of {_, Id} -> Id; _ -> <<"unknow">> end,
+handle_cast({log_event, PI, #game_event{game = GameId, event = EventName, args = Args} = Event, GameState}, #state{history = History} = State) ->
 
     Container = 
         #event_log{
-           feed_id = {GameId, PlayerId},
-           id = {timestamp(), GameId, PlayerId},
+           feed_id = {GameId, PI#'PlayerInfo'.id},
+           id = {timestamp(), GameId, PI#'PlayerInfo'.id},
            game_id = GameId,
            event = EventName,
            timestamp = calendar:now_to_universal_time(erlang:now()),

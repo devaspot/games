@@ -961,9 +961,8 @@ send_to_client_ge(Relay, PlayerId, Msg, #okey_state{players=Players,game_id = Ga
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"SEND CLIENT ~p",[Event]),
     case get_player(PlayerId, Players) of
-        {ok, #player{info=#'PlayerInfo'{robot=false}}} ->
-             gas:info("SAVE: ~p~n",[(get_player(PlayerId,Players))]),
-             game_log:put(Event,State);
+        {ok, #player{info=#'PlayerInfo'{robot=false}=PlayerInfo}} ->
+             game_log:put(PlayerInfo,Event,State);
         _ -> ok end,
     ?RELAY:table_message(Relay, {to_client, PlayerId, Event}).
 
