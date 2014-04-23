@@ -22,7 +22,7 @@
          terminate/2, code_change/3]).
 
 %% api
--export([mypid/0, clear_history/0, get_history/0]).
+-export([mypid/0, clear_history/0, get_history/0, log_event/1]).
 
 -define(SERVER, ?MODULE).
 
@@ -50,7 +50,9 @@ clear_history() ->
 
 get_history() ->
     gen_server:call(?SERVER, get_history).
-    
+
+log_event(Event) ->
+    gen_server:cast(?SERVER, {log_event, Event}).
 
 %%%===================================================================
 %%% gen_server callbacks
@@ -103,6 +105,24 @@ handle_call(_Request, _From, State) ->
 %%                                  {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
+handle_cast({log_event, #game_event{game = GameId, event = EventName, args = Args} = Event}, #state{history = History} = State) ->
+
+    PlayerId = case lists:keyfind(player, 1, Args) of {_, Id} -> Id; _ -> <<"unknow">> end,
+    
+    Container = 
+        #game_event_container{
+           feed_id = {GameId, PlayerId},
+           id = {timestamp(), GameId, PlayerId},
+           game_id = GameId,
+           event = EventName,
+           timestamp = calendar:now_to_universal_time(erlang:now()), %% date in universal time
+           game_event = Event},
+ 
+    gas:info(?MODULE, ">>>>>>>>>>>>>>>>> Container ~p", [Container]),
+    
+    kvs:add(Container), %% will be spamming kvs
+
+    {noreply, State#state{history = [Event | History]}};
 handle_cast(clear_history, State) ->
     {noreply, State#state{history = []}};
 handle_cast(_Msg, State) ->
@@ -119,10 +139,25 @@ handle_cast(_Msg, State) ->
 %%                                   {stop, Reason, State}
 %% @end
 %%--------------------------------------------------------------------
-handle_info({relay_event, _Ref, Event}, #state{history = History} = State) ->
-%%    Container = #game_event_container{id = erlang:now(), time = erlang:now(), game_event = Event},
-%%    kvs:add(Container), %% will be spamming kvs, remarked 
-    {noreply, State#state{history = [Event | History]}};
+
+%%handle_info({relay_event, _Ref, #game_event{game = GameId, event = Event, args = Args} = GameEvent},
+%%            #state{history = History} = State) ->
+%%    
+%%    {_, PlayerId} = lists:keyfind(player, 1, Args),
+%%    
+%%    Container = 
+%%        #game_event_container{
+%%           feed_id = {GameId, PlayerId},
+%%           id = {timestamp(), GameId, PlayerId},
+%%           game_id = GameId,
+%%           event = Event,
+%%           timestamp = calendar:now_to_universal_time(erlang:now()), %% date in universal time
+%%           game_event = GameEvent},
+%% 
+%%    gas:info(?MODULE, ">>>>>>>>>>>>>>>>> Container ~p", [Container]),
+%%    
+%%    kvs:add(Container), %% will be spamming kvs
+%%    {noreply, State#state{history = [Event | History]}};
 handle_info(_Info, State) ->
     gas:info(?MODULE, ">>>>>>>>>>>>>>>>> info message ~p", [_Info]),
     {noreply, State}.
@@ -155,3 +190,8 @@ code_change(_OldVsn, State, _Extra) ->
 %%%===================================================================
 %%% Internal functions
 %%%===================================================================
+
+
+timestamp() ->
+    {MegaSec, Sec, MiliSec} = erlang:now(),
+    MegaSec * 1000 * 1000 * 1000  + Sec * 1000 + MiliSec.

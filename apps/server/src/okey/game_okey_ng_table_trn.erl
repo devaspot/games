@@ -170,7 +170,7 @@ init([GameId, TableId, Params]) ->
 
     Players = init_players(PlayersInfo),
     RelayParams = [{players, [{PlayerId, UserInfo#'PlayerInfo'.id} || {PlayerId, UserInfo, _, _} <- PlayersInfo]},
-                   {observers_allowed, true},
+                   {observers_allowed, false},
                    {table, {?MODULE, self()}}],
     {ok, Relay} = ?RELAY:start(RelayParams),
 
@@ -1013,18 +1013,21 @@ send_to_subscriber_ge(Relay, SubscrId, Msg, #state{game_id = GameId} = _StateDat
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"SEND SUB ~p",[Event]),
+    game_observer:log_event(Event),
     ?RELAY:table_message(Relay, {to_subscriber, SubscrId, Event}).
 
 send_to_client_ge(Relay, PlayerId, Msg, #state{game_id = GameId} = _StateData) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"SEND CLIENT ~p",[Event]),
+    game_observer:log_event(Event),
     ?RELAY:table_message(Relay, {to_client, PlayerId, Event}).
 
 relay_publish_ge(Relay, Msg, #state{game_id = GameId} = _StateData) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"RELAY PUBLISH ~p",[Event]),
+    game_observer:log_event(Event),
     relay_publish(Relay, Event).
 
 relay_publish(Relay, Msg) ->
