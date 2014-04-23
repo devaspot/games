@@ -1,13 +1,8 @@
 -module(game_session).
 -behaviour(gen_server).
 
--include_lib("server/include/social_actions.hrl").
--include_lib("server/include/logging.hrl").
--include_lib("server/include/games.hrl").
--include_lib("server/include/classes.hrl").
 -include_lib("server/include/requests.hrl").
 -include_lib("server/include/settings.hrl").
--include_lib("server/include/log.hrl").
 
 -export([start_link/1]).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).

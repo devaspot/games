@@ -10,7 +10,6 @@
 %% --------------------------------------------------------------------
 %% Include files
 %% --------------------------------------------------------------------
--include_lib("server/include/log.hrl").
 -include_lib("server/include/basic_types.hrl").
 -include_lib("server/include/settings.hrl").
 -include_lib("server/include/game_okey.hrl").
@@ -399,7 +398,7 @@ handle_parent_message(stop, _StateName, StateData) ->
 
 handle_parent_message(Message, StateName,
                       #okey_state{game_id = GameId, table_id = TableId} = StateData) ->
-    ?ERROR("OKEY_NG_TABLE_TRN <~p,~p> Unexpected parent message received in state <~p>: ~p. State: ~p. Stopping.",
+    gas:error(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Unexpected parent message received in state <~p>: ~p. State: ~p. Stopping.",
            [GameId, TableId, StateName, Message, StateName]),
     {stop, unexpected_parent_message, StateData}.
 
@@ -465,7 +464,7 @@ handle_relay_message({subscriber_added, PlayerId, SubscrId} = Msg, StateName,
     {next_state, StateName, StateData};
 
 handle_relay_message(Message, StateName, #okey_state{game_id = GameId, table_id = TableId} = StateData) ->
-    ?ERROR("OKEY_NG_TABLE_TRN <~p,~p> Unknown relay message received in state <~p>: ~p. State: ~p. Stopping.",
+    gas:error(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Unknown relay message received in state <~p>: ~p. State: ~p. Stopping.",
            [GameId, TableId, StateName, Message]),
     {next_state, StateName, StateData}.
 

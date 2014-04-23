@@ -56,7 +56,6 @@
 %% --------------------------------------------------------------------
 %% Include files
 %% --------------------------------------------------------------------
--include_lib("server/include/log.hrl").
 
 %% --------------------------------------------------------------------
 %% External exports
@@ -404,7 +403,7 @@ handle_player_action(PlayerId, {reveal, Tash, TashPlaces}, ?STATE_DISCARD,
     end;
 
 handle_player_action(_PlayerId, _Action, _StateName, _StateData) ->
-    ?ERROR("OKEY_NG_DESK Invalid action passed. Player: ~p.~n Action: ~p. StateName: ~p.",
+    gas:error(?MODULE,"OKEY_NG_DESK Invalid action passed. Player: ~p.~n Action: ~p. StateName: ~p.",
            [_PlayerId, _Action, _StateName]),
     {error, invalid_action}.
 

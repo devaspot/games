@@ -21,7 +21,6 @@
 %% --------------------------------------------------------------------
 %% Include files
 %% --------------------------------------------------------------------
--include_lib("server/include/log.hrl").
 -include_lib("server/include/basic_types.hrl").
 -include_lib("db/include/table.hrl").
 -include_lib("db/include/scoring.hrl").
@@ -346,7 +345,7 @@ code_change(_OldVsn, StateName, StateData, _Extra) ->
 
 
 handle_client_message(Message, StateName, #state{game_id = GameId} = StateData) ->
-    ?ERROR("TRN_STANDALONE <~p> Unhandled client message received in "
+    gas:error(?MODULE,"TRN_STANDALONE <~p> Unhandled client message received in "
            "state <~p>: ~p.", [GameId, StateName, Message]),
     {next_state, StateName, StateData}.
 
@@ -460,14 +459,14 @@ handle_table_message(TableId, {response, RequestId, Response},
             handle_table_response(TableId, ReqContext, Response, StateName,
                                   StateData#state{tab_requests = NewTabRequests});
         error ->
-            ?ERROR("TRN_STANDALONE <~p> Table <~p> sent a response for unknown request. "
+            gas:error(?MODULE,"TRN_STANDALONE <~p> Table <~p> sent a response for unknown request. "
                    "RequestId: ~p. Response", []),
             {next_state, StateName, StateData#state{tab_requests = NewTabRequests}}
     end;
 
 
 handle_table_message(TableId, Message, StateName, #state{game_id = GameId} = StateData) ->
-    ?ERROR("TRN_STANDALONE <~p> Unhandled table message received from table <~p> in "
+    gas:error(?MODULE,"TRN_STANDALONE <~p> Unhandled table message received from table <~p> in "
            "state <~p>: ~p.", [GameId, TableId, StateName, Message]),
     {next_state, StateName, StateData}.
 
@@ -510,7 +509,7 @@ handle_table_response(_TableId, {replace_player, PlayerId, TableId, SeatNum}, ok
 
 handle_table_response(TableId, RequestContext, Response, StateName,
                       #state{game_id = GameId} = StateData) ->
-    ?ERROR("TRN_STANDALONE <~p> Unhandled 'table response' received from table <~p> "
+    gas:error(?MODULE,"TRN_STANDALONE <~p> Unhandled 'table response' received from table <~p> "
            "in state <~p>. Request context: ~p. Response: ~p.",
            [GameId, TableId, StateName, RequestContext, Response]),
     {next_state, StateName, StateData}.
@@ -575,7 +574,7 @@ handle_client_request({join, UserInfo}, From, StateName,
     end;
 
 handle_client_request(Request, From, StateName, #state{game_id = GameId} = StateData) ->
-    ?ERROR("TRN_STANDALONE <~p> Unhandled client request received from ~p in "
+    gas:error(?MODULE,"TRN_STANDALONE <~p> Unhandled client request received from ~p in "
            "state <~p>: ~p.", [GameId, From, StateName, Request]),
     {reply, {error, unexpected_request}, StateName, StateData}.
 

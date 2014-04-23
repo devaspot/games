@@ -4,7 +4,6 @@
 -module(game_tavla_ng_scoring).
 
 -include_lib("eunit/include/eunit.hrl").
--include_lib("server/include/log.hrl").
 
 %%
 %% Exported Functions

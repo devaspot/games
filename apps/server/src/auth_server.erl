@@ -1,8 +1,6 @@
 -module(auth_server).
 
--include_lib("server/include/conf.hrl").
 -include_lib("server/include/settings.hrl").
--include_lib("server/include/log.hrl").
 -include_lib("server/include/authtoken.hrl").
 -include_lib("server/include/requests.hrl").
 -include_lib("kvs/include/user.hrl").

@@ -10,7 +10,6 @@
 %% --------------------------------------------------------------------
 %% Include files
 %% --------------------------------------------------------------------
--include_lib("server/include/log.hrl").
 -include_lib("server/include/basic_types.hrl").
 -include_lib("server/include/settings.hrl").
 -include_lib("server/include/game_tavla.hrl").
@@ -493,7 +492,7 @@ handle_parent_message({table_state_event, _PlayerId, SubscrId, StateEvent}, Stat
 
 handle_parent_message(Message, StateName,
                       #tavla_state{game_id = GameId, table_id = TableId} = StateData) ->
-    ?ERROR("TAVLA_NG_TABLE <~p,~p> Unexpected parent message received in state <~p>: ~p. Stopping.",
+    gas:error(?MODULE,"TAVLA_NG_TABLE <~p,~p> Unexpected parent message received in state <~p>: ~p. Stopping.",
            [GameId, TableId, StateName, Message]),
     {stop, unexpected_parent_message, StateData}.
 
@@ -561,7 +560,7 @@ handle_relay_message({subscriber_added, PlayerId, SubscrId} = Msg, StateName,
     {next_state, StateName, StateData};
 
 handle_relay_message(Message, StateName, #tavla_state{game_id = GameId, table_id = TableId} = StateData) ->
-    ?ERROR("TAVLA_NG_TABLE <~p,~p> Unknown relay message received in state <~p>: ~p. State: ~p. Stopping.",
+    gas:error(?MODULE,"TAVLA_NG_TABLE <~p,~p> Unknown relay message received in state <~p>: ~p. State: ~p. Stopping.",
            [GameId, TableId, StateName, Message]),
     {next_state, StateName, StateData}.
 

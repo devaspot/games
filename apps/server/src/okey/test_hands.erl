@@ -8,7 +8,6 @@
 
 -module(test_hands).
 
--include_lib("server/include/logging.hrl").
 -include_lib("server/include/requests.hrl").
 -include_lib("server/include/game_okey.hrl").
 
@@ -19,9 +18,9 @@
 
 -spec set_pieces(list() | undefined) -> ok.
 set_pieces(P) ->
-    ?PP("pieces ~p", [P]),
+    gas:info(?MODULE,"pieces ~p", [P]),
     A = kakaconfig:set([games, okey, debug_next_round_pieces], P),
-    ?PP("set result: ~p", [A]),
+    gas:info(?MODULE,"set result: ~p", [A]),
     ok.
 
 -spec clear() -> ok.
@@ -104,7 +103,7 @@ are_hands_proper_test() ->
     Ideal = lists:sort([A] ++ lists:flatten(LL1) ++ L2),
     Set1 = lists:sort(set_1()),
     Set2 = lists:sort(set_2()),
-    ?DP("~nIdeal -- Set1 = ~p~nSet1 -- Ideal = ~p~n", [Ideal -- Set1, Set1 -- Ideal]),
-    ?DP("~nIdeal -- Set2 = ~p~nSet2 -- Ideal = ~p~n", [Ideal -- Set2, Set2 -- Ideal]),
+    gas:info(?MODULE,"~nIdeal -- Set1 = ~p~nSet1 -- Ideal = ~p~n", [Ideal -- Set1, Set1 -- Ideal]),
+    gas:info(?MODULE,"~nIdeal -- Set2 = ~p~nSet2 -- Ideal = ~p~n", [Ideal -- Set2, Set2 -- Ideal]),
     true = Ideal == Set1,
     true = Ideal == Set2.

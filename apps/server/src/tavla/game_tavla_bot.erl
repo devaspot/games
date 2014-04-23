@@ -6,8 +6,6 @@
 -export([start/3, start_link/3, robot_init/1, init_state/2, join_game/1, get_session/1,
          send_message/2, call_rpc/2, do_skip/2, do_rematch/1, first_move_table/0, follow_board/3 ]).
 
--include_lib("server/include/log.hrl").
--include_lib("server/include/conf.hrl").
 -include_lib("server/include/basic_types.hrl").
 -include_lib("server/include/requests.hrl").
 -include_lib("server/include/game_tavla.hrl").

@@ -2,7 +2,6 @@
 -compile(export_all).
 -include_lib("db/include/config.hrl").
 -include_lib("kvs/include/user.hrl").
--include_lib("server/include/log.hrl").
 
 names() ->
    ["pinar","betul","eda","lale","ilgin","alp","ayberk","mehmet","ozan","doruk",

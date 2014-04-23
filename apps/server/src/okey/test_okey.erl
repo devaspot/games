@@ -1,12 +1,8 @@
 -module(test_okey).
 
 -include_lib("eunit/include/eunit.hrl").
--include_lib("server/include/log.hrl").
 -include_lib("server/include/settings.hrl").
--include_lib("server/include/conf.hrl").
--include_lib("server/include/kamf.hrl").
 -include_lib("server/include/requests.hrl").
--include_lib("server/include/classes.hrl").
 -include_lib("server/include/game_okey.hrl").
 
 %% debug
@@ -187,7 +183,7 @@ start_test_game_t(MultiOwner, CreateMode, RevealMode) ->
     process_flag(trap_exit, true),
     Ids = [<<"radistao">>,<<"paul">>,<<"kunthar">>,<<"gleber">>],
     Host = localhost,
-    Port = ?LISTEN_PORT,
+    Port = 9000,
     Owner = self(),
     Rematch = 0,
     case CreateMode of

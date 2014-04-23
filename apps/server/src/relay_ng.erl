@@ -36,7 +36,6 @@
 %% Include files
 %% --------------------------------------------------------------------
 -include_lib("server/include/basic_types.hrl").
--include_lib("server/include/log.hrl").
 
 %% --------------------------------------------------------------------
 %% External exports

@@ -21,7 +21,6 @@
 %% --------------------------------------------------------------------
 %% Include files
 %% --------------------------------------------------------------------
--include_lib("server/include/log.hrl").
 -include_lib("server/include/basic_types.hrl").
 -include_lib("db/include/table.hrl").
 -include_lib("db/include/transaction.hrl").
@@ -457,7 +456,7 @@ handle_table_message(TableId, {response, RequestId, Response},
             handle_table_response(TableId, ReqContext, Response, StateName,
                                   StateData#state{tab_requests = NewTabRequests});
         error ->
-            ?ERROR("TRN_ELIMINATION <~p> Table <~p> sent a response for unknown request. "
+            gas:error(?MODULE,"TRN_ELIMINATION <~p> Table <~p> sent a response for unknown request. "
                    "RequestId: ~p. Response", []),
             {next_state, StateName, StateData#state{tab_requests = NewTabRequests}}
     end;

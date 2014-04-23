@@ -1,11 +1,7 @@
 -module(test_tavla).
 -author('Maxim Sokhatsky <maxim@synrc.com').
 
--include_lib("server/include/conf.hrl").
--include_lib("server/include/log.hrl").
--include_lib("server/include/kamf.hrl").
 -include_lib("server/include/requests.hrl").
--include_lib("server/include/classes.hrl").
 -include_lib("server/include/game_tavla.hrl").
 -include_lib("server/include/settings.hrl").
 
@@ -41,7 +37,7 @@ start() ->
 fire_starter(MultiOwner, CreateMode, RevealMode) ->
     process_flag(trap_exit, true),
     Host = localhost,
-    Port = ?LISTEN_PORT,
+    Port = 9000,
     Owner = self(),
     Rematch = 1,
     case CreateMode of

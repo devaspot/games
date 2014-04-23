@@ -8,8 +8,6 @@
 -include_lib("server/include/basic_types.hrl").
 -include_lib("server/include/game_okey.hrl").
 -include_lib("server/include/game_tavla.hrl").
--include_lib("server/include/log.hrl").
--include_lib("server/include/games.hrl").
 -include_lib("db/include/transaction.hrl").
 -include_lib("db/include/scoring.hrl").
 

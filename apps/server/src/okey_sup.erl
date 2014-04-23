@@ -1,8 +1,6 @@
 -module(okey_sup).
 -behaviour(supervisor).
 -export([start_link/0, stop/0]).
--include_lib("server/include/conf.hrl").
--include_lib("server/include/log.hrl").
 -export([init/1, start/0, start_game/3]).
 -define(SERVER, ?MODULE).
 

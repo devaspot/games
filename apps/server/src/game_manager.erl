@@ -4,10 +4,8 @@
 -compile(export_all).
 -export([init/1, start/0, start_link/0, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -include_lib("server/include/requests.hrl").
--include_lib("server/include/conf.hrl").
 -include_lib("db/include/table.hrl").
 -include_lib("db/include/tournaments.hrl").
--include_lib("server/include/log.hrl").
 -include_lib("stdlib/include/qlc.hrl").
 -include_lib("db/include/scoring.hrl").
 -record(state, { game_tavla = 0, game_okey = 0 }).
@@ -346,7 +344,7 @@ create_elimination_trn(GameType, Params, Registrants) ->
     Awards        = proplists:get_value(awards, Params),
     RegistrantsNum = length(Registrants),
     if RegistrantsNum =/= PlayersNumber ->
-           ?ERROR("create_elimination_trn/3 Error: Wrong number of the registrants: ~p (required: ~p). ",
+           gas:error(?MODULE,"create_elimination_trn/3 Error: Wrong number of the registrants: ~p (required: ~p). ",
                   [RegistrantsNum, PlayersNumber]),
            exit(wrong_registrants_number);
        true -> do_nothing

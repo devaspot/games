@@ -1,7 +1,6 @@
 -module(known_records).
 
 -include("types.hrl").
--include("classes.hrl").
 -include("requests.hrl").
 -include("game_okey.hrl").
 -include("game_tavla.hrl").
