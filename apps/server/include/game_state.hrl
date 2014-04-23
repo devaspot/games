@@ -46,6 +46,8 @@
          % scoring
          scoring_state        :: term()).
 
+-record(table_state, {?GAME_STATE}).
+
 -record(okey_state, {?GAME_STATE,
          reveal_confirmation_timeout    :: integer(),
          reveal_confirmation  :: boolean(),
