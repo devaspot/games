@@ -171,6 +171,7 @@
           }).
 
 -record(okey_turn_timeout, {
+          player :: 'PlayerId'(),
           tile_taken = null :: #'OkeyPiece'{} | null,
           tile_discarded    :: #'OkeyPiece'{}
           }).

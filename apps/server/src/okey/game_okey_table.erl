@@ -252,7 +252,7 @@ handle_parent_message({register_player, RequestId, UserInfo, PlayerId, SeatNum},
     {next_state, StateName, StateData#okey_state{players = NewPlayers}};
 
 handle_parent_message({replace_player, RequestId, UserInfo, PlayerId, SeatNum}, StateName,
-                      #okey_state{game_id = GameId, table_id = TableId, players = Players,
+                      #okey_state{table_id = TableId, players = Players,
                              parent = Parent, relay = Relay} = StateData) ->
     #'PlayerInfo'{id = UserId, robot = IsBot} = UserInfo,
     #player{id = OldPlayerId} = get_player_by_seat_num(SeatNum, Players),
@@ -266,7 +266,7 @@ handle_parent_message({replace_player, RequestId, UserInfo, PlayerId, SeatNum}, 
     {next_state, StateName, StateData#okey_state{players = NewPlayers2}};
 
 handle_parent_message(start_round, StateName,
-                      #okey_state{game_id = GameId, game_mode = GameMode, cur_round = CurRound,
+                      #okey_state{game_mode = GameMode, cur_round = CurRound,
                              gosterge_finish_allowed = GostergeFinishAllowed,
                              start_seat = LastStartSeat, players = Players,
                              relay = Relay, turn_timeout = TurnTimeout,
@@ -361,7 +361,7 @@ handle_parent_message(show_round_result, StateName,
 
 %% Results = [{PlayerId, Position, Score, Status}] Status = winner | loser | eliminated | none
 handle_parent_message({show_series_result, Results}, StateName,
-                      #okey_state{game_id = GameId, relay = Relay, players = Players,
+                      #okey_state{relay = Relay, players = Players,
                              next_series_confirmation = Confirm} = StateData) ->
     Msg = create_okey_series_ended(Results, Players, Confirm),
     relay_publish_ge(Relay, Msg, StateData),
@@ -369,7 +369,7 @@ handle_parent_message({show_series_result, Results}, StateName,
 
 %% Results = [{UserId, Position, Score, Status}] Status = active | eliminated
 handle_parent_message({tour_result, TourNum, Results}, StateName,
-                      #okey_state{game_id = GameId, relay = Relay, tournament_table = TTable} = StateData) ->
+                      #okey_state{relay = Relay, tournament_table = TTable} = StateData) ->
     NewTTable = [{TourNum, Results} | TTable],
     Msg = create_okey_tour_result(TourNum, Results),
     relay_publish_ge(Relay, Msg, StateData),
@@ -696,7 +696,7 @@ do_game_action(SeatNum, GameAction, From, StateName,
 
 
 process_game_events(Events, #okey_state{desk_state = DeskState, players = Players,
-                                   game_id = GameId, relay = Relay, timeout_timer = OldTRef,
+                                   relay = Relay, timeout_timer = OldTRef,
                                    round_timeout = RoundTimeout, round_timer = RoundTRef,
                                    turn_timeout = TurnTimeout} = StateData) ->
     NewDeskState = handle_desk_events(Events, DeskState, Players, Relay, StateData), %% Track the desk and send game events to clients
@@ -847,13 +847,13 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
                 NewDiscarded = lists:keyreplace(SeatNum, 1, Discarded, {SeatNum, [Tash | Pile]}),
                 DeskState#desk_state{hands = NewHands, discarded = NewDiscarded, state = state_take};
             {auto_take_discard, SeatNum, Tash} ->    %% Injected event
-                #player{id = PlayerId} = get_player_by_seat_num(SeatNum, Players),
-                Msg = create_okey_turn_timeout(Tash, Tash),
+                #player{id = PlayerId, user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
+                Msg = create_okey_turn_timeout(UserId, Tash, Tash),
                 send_to_client_ge(Relay, PlayerId, Msg, StateData),
                 DeskState;
             {auto_discard, SeatNum, Tash} ->         %% Injected event
-                #player{id = PlayerId} = get_player_by_seat_num(SeatNum, Players),
-                Msg = create_okey_turn_timeout(null, Tash),
+                #player{id = PlayerId, user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
+                Msg = create_okey_turn_timeout(UserId, null, Tash),
                 send_to_client_ge(Relay, PlayerId, Msg, StateData),
                 DeskState;
             {next_player, SeatNum} ->
@@ -1396,11 +1396,13 @@ create_okey_revealed(SeatNum, DiscardedTash, TashPlaces, Players) ->
                    hand = TashPlacesExt}.
 
 
-create_okey_turn_timeout(null, TashDiscarded) ->
-    #okey_turn_timeout{tile_taken = null,
+create_okey_turn_timeout(UserId, null, TashDiscarded) ->
+    #okey_turn_timeout{player = UserId,
+                       tile_taken = null,
                        tile_discarded = tash_to_ext(TashDiscarded)};
-create_okey_turn_timeout(TashTaken, TashDiscarded) ->
-    #okey_turn_timeout{tile_taken = tash_to_ext(TashTaken),
+create_okey_turn_timeout(UserId, TashTaken, TashDiscarded) ->
+    #okey_turn_timeout{player = UserId,
+                       tile_taken = tash_to_ext(TashTaken),
                        tile_discarded = tash_to_ext(TashDiscarded)}.
 
 create_game_paused_pause(UserId, GameId) ->
