@@ -363,21 +363,18 @@ handle_table_message(TableId, {table_created, Relay}, ?STATE_PROCESSING,
 handle_table_message(TableId, {round_finished, NewScoringState, RoundScore, _TotalScore},
                      ?STATE_PROCESSING,
                      #state{game_id = GameId, tables = Tables, table_module = TableModule,
-                           game_mode = GameMode, game = GameType, seats = Seats} = StateData)
+                           game_mode = GameMode, game = GameType, players = Players} = StateData)
   when is_integer(TableId) ->
     gas:info(?MODULE,"TRN_LUCKY <~p> The <round_finished> notification received from table: ~p.",
           [GameId, TableId]),
 
-    gas:info(?MODULE, "TR_LUCKY, <~p> Round score ~p Total score ~p", [GameId, RoundScore, _TotalScore]),
-
-    SeatsList = find_seats_by_table_id(TableId, Seats),
-
     %% Add score per round
     UsersPoints = lists:flatten(
         [ begin
-              #seat{player_id = PlayerId, is_bot = Bot} =lists:keyfind(Seat, #seat.seat_num, SeatsList),
-              case Bot of true -> []; false -> {PlayerId, Points} end
-          end|| {Seat, Points} <- RoundScore]),
+              case midict:find(PlayerId, Players) of 
+                  {ok, #player{id = UserId, is_bot = false}} -> {UserId, Points};
+                  _Error -> gas:info(?MODULE, "get_player_info_by_user_id ~p", [_Error]), [] end
+          end|| {PlayerId, Points} <- RoundScore]),
     add_points_to_accounts(UsersPoints, GameId, GameType, GameMode),
 
     #table{pid = TablePid} = Table = fetch_table(TableId, Tables),
@@ -767,7 +764,7 @@ get_param(ParamId, Params) ->
 add_points_to_accounts(Points, GameId, GameType, GameMode) ->
     TI = #ti_game_event{game_name = GameType, game_mode = GameMode,
                         id = GameId, double_points = 1,
-                        type = game_end, tournament_type = ?TOURNAMENT_TYPE},
+                        type = game_end, tournament_type = ?TOURNAMENT_TYPE},    
     [begin
          if GamePoints =/= 0 -> ok;
 
