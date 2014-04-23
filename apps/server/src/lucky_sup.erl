@@ -40,7 +40,7 @@ init([]) ->
                   {mode, normal}, % Common table for several real players
                   {seats, 4},
 %%%                  {quota_per_round, Quota},
-                  {table_module, game_okey_ng_table_trn},
+                  {table_module, game_okey_table},
                   {bot_module, game_okey_bot},
                   {table_params, OkeyTableParams}
                  ],

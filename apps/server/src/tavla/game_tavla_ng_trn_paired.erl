@@ -119,7 +119,7 @@
 -define(STATE_SHOW_TOUR_RESULT, state_show_tour_result).
 -define(STATE_FINISHED, state_finished).
 
--define(TAB_MOD, game_okey_ng_table_trn).
+-define(TAB_MOD, game_okey_table).
 
 -define(TABLE_STATE_INITIALIZING, initializing).
 -define(TABLE_STATE_READY, ready).

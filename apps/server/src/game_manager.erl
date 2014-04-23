@@ -208,7 +208,7 @@ create_standalone_game(Game, Params, Users) ->
                           {kakush_for_loser, KakushForLoser},
                           {win_game_points, WinGamePoints},
                           {mul_factor, MulFactor},
-                          {table_module, game_okey_ng_table_trn},
+                          {table_module, game_okey_table},
                           {bot_module, game_okey_bot},
                           {bots_replacement_mode, BotsReplacementMode},
                           {table_params, TableParams},
@@ -385,7 +385,7 @@ create_elimination_trn(GameType, Params, Registrants) ->
                          {speed, Speed},
                          {awards, Awards},
                          {trn_id, TrnId},
-                         {table_module, game_okey_ng_table_trn},
+                         {table_module, game_okey_table},
                          {demo_mode, false},
                          {table_params, TableParams}
                         ]);
