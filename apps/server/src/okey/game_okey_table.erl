@@ -950,26 +950,31 @@ init_players([{PlayerId, UserInfo, SeatNum, _StartPoints} | PlayersInfo], Player
     init_players(PlayersInfo, NewPlayers).
 
 %%=================================================================
-send_to_subscriber_ge(Relay, SubscrId, Msg, #okey_state{game_id = GameId} = State) ->
+
+handle_log(PlayerId,Players,Event,State) ->
+    case get_player(PlayerId, Players) of
+        {ok, #player{info=#'PlayerInfo'{robot=false}=PlayerInfo}} ->
+             game_log:put(PlayerInfo,Event,State);
+        _ -> ok end.
+
+send_to_subscriber_ge(Relay, SubscrId, Msg, #okey_state{players=Players,game_id = GameId} = State) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
-    gas:info(?MODULE,"SEND SUB ~p",[Event]),
+    gas:info(?MODULE,"SUBSCRIBER ~p",[SubscrId]),
     ?RELAY:table_message(Relay, {to_subscriber, SubscrId, Event}).
 
 send_to_client_ge(Relay, PlayerId, Msg, #okey_state{players=Players,game_id = GameId} = State) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"SEND CLIENT ~p",[Event]),
-    case get_player(PlayerId, Players) of
-        {ok, #player{info=#'PlayerInfo'{robot=false}=PlayerInfo}} ->
-             game_log:put(PlayerInfo,Event,State);
-        _ -> ok end,
+    handle_log(PlayerId,Players,Event,State),
     ?RELAY:table_message(Relay, {to_client, PlayerId, Event}).
 
-relay_publish_ge(Relay, Msg, #okey_state{game_id = GameId} = State) ->
+relay_publish_ge(Relay, Msg, #okey_state{players=Players,game_id = GameId} = State) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
-    gas:info(?MODULE,"RELAY PUBLISH ~p",[Event]),
+    gas:info(?MODULE,"RELAYX PUBLISH ~p",[Event]),
+    [ handle_log(Id,Players,Event,State) || {_,#player{id=Id},_} <- midict:to_list(Players)],
     relay_publish(Relay, Event).
 
 relay_publish(Relay, Msg) ->
