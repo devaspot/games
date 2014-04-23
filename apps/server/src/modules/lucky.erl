@@ -15,7 +15,7 @@
 %%%          to refer to a table directly - without pointing to a tournament.
 %%%          Type: integer()
 
--module(nsg_trn_lucky).
+-module(lucky).
 
 -behaviour(gen_fsm).
 %% --------------------------------------------------------------------
@@ -365,8 +365,8 @@ handle_table_message(TableId, {round_finished, NewScoringState, RoundScore, _Tot
                      #state{game_id = GameId, tables = Tables, table_module = TableModule,
                            game_mode = GameMode, game = GameType, players = Players} = StateData)
   when is_integer(TableId) ->
-    gas:info(?MODULE,"TRN_LUCKY <~p> The <round_finished> notification received from table: ~p.",
-          [GameId, TableId]),
+    gas:info(?MODULE,"TRN_LUCKY <~p> The <round_finished> received from table: ~p~nScore: ~p.",
+          [GameId, TableId,RoundScore]),
 
     %% Add score per round
     UsersPoints = lists:flatten(
@@ -766,13 +766,13 @@ add_points_to_accounts(Points, GameId, GameType, GameMode) ->
                         id = GameId, double_points = 1,
                         type = game_end, tournament_type = ?TOURNAMENT_TYPE},    
     [begin
-         if GamePoints =/= 0 -> ok;
+         if GamePoints =/= 0 ->
 
-%                 kvs:add(#transaction{
-%                            id=kvs:next_id(transaction,1),
-%                            feed_id={game_points,UserId},
-%                            amount=GamePoints,
-%                            comment=TI});
+                 kvs:add(#transaction{
+                            id=kvs:next_id(transaction,1),
+                            feed_id={game_points,UserId},
+                            amount=GamePoints,
+                            comment=TI});
 
             true -> do_nothing
          end

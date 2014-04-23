@@ -21,9 +21,9 @@ init([]) ->
     AuthServer = {auth_server, {auth_server, start_link, []}, Restart, Shutdown, worker, [auth_server]},
     GameLog = {game_log, {game_log, start_link, []}, Restart, Shutdown, worker, [game_log]},
     GameStats = {game_stats, {game_stats, start_link, []}, Restart, Shutdown, worker, [game_stats]},
-    GameManager = {game_manager, {game_manager, start_link, []}, Restart, Shutdown, worker, [game_manager]},
+    %GameManager = {game_manager, {game_manager, start_link, []}, Restart, Shutdown, worker, [game_manager]},
     TavlaSup = {tavla_sup, {tavla_sup, start_link, []}, Restart, Shutdown, supervisor, [tavla_sup]},
     OkeySup = {okey_sup, {okey_sup, start_link, []}, Restart, Shutdown, supervisor, [okey_sup]},
     LuckySup = {lucky_sup, {lucky_sup, start_link, []}, Restart, Shutdown, supervisor, [lucky_sup]},
-    {ok, {SupFlags, [IdGen,GameManager,LuckySup,AuthServer,GameLog,GameStats,TavlaSup,OkeySup]}}.
+    {ok, {SupFlags, [IdGen,LuckySup,AuthServer,GameLog,GameStats,TavlaSup,OkeySup]}}.
 

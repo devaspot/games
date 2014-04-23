@@ -79,8 +79,8 @@ okey_standalone_specs(GamesNum, VirtUsersPerTable) ->
                                  {common_params, CommonParams} %% This data will used for the gproc register
                                 ],
                        {GameId,
-                        {nsg_trn_standalone, start_link, [GameId, Params]},
-                        _Restart = permanent, _Shutdown = 2000, worker, [nsg_trn_standalone]}
+                        {standalone, start_link, [GameId, Params]},
+                        _Restart = permanent, _Shutdown = 2000, worker, [standalone]}
                end,
            lists:map(F, lists:seq(1, GamesNum))
     end.

@@ -15,7 +15,7 @@
 %%%          to refer to a table directly - without pointing to a tournament.
 %%%          Type: integer()
 
--module(nsg_trn_elimination).
+-module(elimination).
 
 -behaviour(gen_fsm).
 %% --------------------------------------------------------------------

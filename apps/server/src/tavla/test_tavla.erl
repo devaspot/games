@@ -67,7 +67,7 @@ attach_and_join(Owner, Host, Port, GameId, OwnId, Rematch, Mode) ->
             <<"maxim">> -> ?TEST_TOKEN;
             <<"alice">> -> ?TEST_TOKEN2
     end,
-    #'PlayerInfo'{id = Id} = ?TCM:call_rpc(S1, #session_attach_debug{token = TT, id = OwnId}) ,
+    #'PlayerInfo'{id = Id} = ?TCM:call_rpc(S1, #session_attach{token = TT}) ,
     log(connected),
     #'TableInfo'{game = _Atom} = ?TCM:call_rpc(S1, #join_game{game = GameId}) ,
     State = #state{conn = S1, gid = GameId, uid = Id, acker_fun = standard_acker(Owner)},

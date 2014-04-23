@@ -33,7 +33,6 @@ fields(game_paused) ->             record_info(fields, game_paused);
 fields(disconnect) ->              record_info(fields, disconnect);
 fields(player_left) ->             record_info(fields, player_left);
 fields(okey_debug) ->              record_info(fields, okey_debug);
-fields(session_attach_debug) ->    record_info(fields, session_attach_debug);
 fields('OkeyPiece') ->             record_info(fields, 'OkeyPiece');
 fields('OkeySeriesResult') ->      record_info(fields, 'OkeySeriesResult');
 fields('OkeyGameResults') ->       record_info(fields, 'OkeyGameResults');

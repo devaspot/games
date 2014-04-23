@@ -44,8 +44,8 @@ init([]) ->
                   {bot_module, game_okey_bot},
                   {table_params, OkeyTableParams}
                  ],
-    OkeySpec = {okey_lucky, {nsg_trn_lucky, start_link, [OkeyGameId, OkeyParams]},
-                  Restart, Shutdown, worker, [nsg_trn_lucky]},
+    OkeySpec = {okey_lucky, {lucky, start_link, [OkeyGameId, OkeyParams]},
+                  Restart, Shutdown, worker, [lucky]},
 
 
     TavlaTableParams = [{mult_factor, 1},
@@ -76,11 +76,8 @@ init([]) ->
                    {bot_module, game_tavla_bot},
                    {table_params, TavlaTableParams}
                   ],
-    TavlaSpec = {tavla_lucky, {nsg_trn_lucky, start_link, [TavlaGameId, TavlaParams]},
-                  Restart, Shutdown, worker, [nsg_trn_lucky]},
-
-%%     TavlaSpec = {tavla_lucky, {fl_lucky, start_link, [TavlaGameId,[{game_type, game_tavla}, {mode, normal}]]}, 
-%%                   Restart, Shutdown, worker, [fl_lucky]},
+    TavlaSpec = {tavla_lucky, {lucky, start_link, [TavlaGameId, TavlaParams]},
+                  Restart, Shutdown, worker, [lucky]},
 
     {ok, { SupFlags, [OkeySpec, TavlaSpec]} }.
 

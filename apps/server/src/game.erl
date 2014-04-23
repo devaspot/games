@@ -1,14 +1,11 @@
--module(game_manager).
--behaviour(gen_server).
+-module(game).
 -author('Maxim Sokhatsky <maxim@synrc.com>').
 -compile(export_all).
--export([init/1, start/0, start_link/0, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
 -include_lib("server/include/requests.hrl").
 -include_lib("db/include/table.hrl").
 -include_lib("db/include/tournaments.hrl").
 -include_lib("stdlib/include/qlc.hrl").
 -include_lib("db/include/scoring.hrl").
--record(state, { game_tavla = 0, game_okey = 0 }).
 
 online() -> [X||X<-qlc:e(gproc:table()),element(1,X)=={p,l,broadcast}].
 
@@ -54,33 +51,16 @@ counter(Game) -> PL = supervisor:count_children(case Game of game_okey -> okey_s
                       game_tavla -> Res;
                       _ -> 0 end.
 
-start() -> gen_server:start({local, ?MODULE}, ?MODULE, [], []).
-start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, [], []).
-stop(Ref) -> gen_server:cast(Ref, stop).
-
-init([]) -> {ok,#state{}}.
-
-handle_call({get_relay, Topic}, _From, State) -> Res = get_relay_pid(Topic), {reply, Res, State};
-handle_call({game_counter, FSM}, _From, State) ->
-    {reply, case FSM of game_tavla -> State#state.game_tavla; game_okey -> State#state.game_okey; _ -> 0 end, State};
-handle_call(Event, From, State) -> {stop, {unknown_call, Event, From}, State}.
-handle_cast(stop, State) -> {stop, normal, State};
-handle_cast(Event, State) -> {stop, {unknown_cast, Event}, State}.
-handle_info({'DOWN', _, process, Pid, Reason}, State) -> {noreply, State};
-handle_info(Info, State) -> {stop, {unknown_info, Info}, State}.
-terminate(_Reason, _State) -> ok.
-code_change(_OldVsn, State, _Extra) -> {ok, State}.
-
 game_sup_domain(Module, Params) ->
     case Module of
         game_tavla_ng_trn_paired -> tavla_sup;
-        nsg_trn_standalone ->
+        standalone ->
             case proplists:get_value(game, Params) of
                 game_okey -> okey_sup;
                 game_tavla -> tavla_sup;
                 _ -> game_sup
             end;
-        nsg_trn_elimination ->
+        elimination ->
             case proplists:get_value(game_type, Params) of
                 game_okey -> okey_sup;
                 game_tavla -> tavla_sup;
@@ -194,7 +174,7 @@ create_standalone_game(Game, Params, Users) ->
                            {gosterge_finish_allowed, GostergeFinishAllowed}
                          ],
 
-            create_game(GameId, nsg_trn_standalone,
+            create_game(GameId, standalone,
                          [{game, Game},
                           {game_mode, GameMode},
                           {game_name, TableName},
@@ -251,7 +231,7 @@ create_standalone_game(Game, Params, Users) ->
                            {tables_num, 1}
                          ],
 
-            create_game(GameId, nsg_trn_standalone,
+            create_game(GameId, standalone,
                          [{game, Game},
                           {game_mode, GameMode},
                           {game_name, TableName},
@@ -349,7 +329,7 @@ create_elimination_trn(GameType, Params, Registrants) ->
            exit(wrong_registrants_number);
        true -> do_nothing
     end,
-    {ok, Plan} = nsg_matrix_elimination:get_plan(GameType, QuotaPerRound, PlayersNumber, Tours),
+    {ok, Plan} = matrix:get_plan(GameType, QuotaPerRound, PlayersNumber, Tours),
     case GameType of
         game_okey ->
             Rounds = 10,
@@ -371,7 +351,7 @@ create_elimination_trn(GameType, Params, Registrants) ->
                            {social_actions_enabled, false},
                            {mult_factor, 1}
                          ],
-            create_game(TrnId, nsg_trn_elimination,
+            create_game(TrnId, elimination,
                         [{game_type, GameType},
                          {game_mode, GameMode},
                          {registrants, Registrants},
@@ -407,7 +387,7 @@ create_elimination_trn(GameType, Params, Registrants) ->
                            {tables_num, 1}
                          ],
 
-            create_game(TrnId, nsg_trn_elimination,
+            create_game(TrnId, elimination,
                         [{game_type, GameType},
                          {game_mode, GameMode},
                          {registrants, Registrants},

@@ -1,64 +1,18 @@
 -include("basic_types.hrl").
 -include("types.hrl").
 
--record(session_attach, {
-          token :: string() %% shared secret, stored in auth_server
-         }).
-
--record(session_attach_debug, {
-          token :: string(), %% shared secret, stored in auth_server
-          id :: string()
-         }).
-
--record(login, {
-          username :: string(),
-          password :: string()
-         }).
-
+-record(session_attach, {token}).
+-record(login, {username, password}).
 -record(logout, {}).
+-record(join_game, {game}).
+-record(get_game_info, {game}).
+-record(get_player_info, {player_id :: 'PlayerId'() | 0}).
+-record(get_player_stats, {player_id :: 'PlayerId'() | 0, game_type :: binary()}).
+-record(subscribe_player_rels, {players :: list()}).
+-record(unsubscribe_player_rels, {players :: list()}).
+-record(chat, {chat_id :: 'GameId'(),message :: string()}).
+-record(game_action, { game :: 'GameId'(), action :: any(), args = [] :: proplist()}).
 
--record(join_game, {
-          game :: 'GameId'()
-         }).
-
--record(rematch, {
-          game :: 'GameId'()
-         }).
-
--record(get_game_info, {
-          game :: 'GameId'()
-         }).
-
--record(get_player_info, {
-          player_id :: 'PlayerId'() | 0 %% 0 stands for currently logged in user
-         }).
-
--record(get_player_stats, {
-          player_id :: 'PlayerId'() | 0, %% 0 stands for currently logged in user
-          game_type :: binary()
-         }).
-
--record(subscribe_player_rels, {
-          players :: list()
-         }).
-
--record(unsubscribe_player_rels, {
-          players :: list()
-         }).
-
--record(chat, {
-          chat_id :: 'GameId'(),
-          message :: string()
-         }).
-
--record(game_action, {
-          game      :: 'GameId'(),
-          action    :: any(),
-          args = [] :: proplist()
-         }).
-%%%
-%%% Events, passed via #KakaMessage
-%%%
 -record(game_event, {
           game      :: 'GameId'(),
           event     :: any(),

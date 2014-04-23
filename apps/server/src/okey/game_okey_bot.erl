@@ -239,7 +239,6 @@ okey_client_loop(State) ->
                     okey_client_loop(State#state{hand = Hand1, gosterge = Gosterge});
                 {_, game_finished} ->
                     gas:info(?MODULE,"init bot: finished", []),
-                     okey_client_rematch(State),
                     okey_client_loop(State);
                 {_, do_okey_ready} ->
                     gas:info(?MODULE,"init bot: ready", []),
@@ -284,14 +283,6 @@ okey_client_round(<<"next_round">>, State) ->
 %    State2 = get_hand(State),
     okey_client_loop(State).
 
-okey_client_rematch(State) ->
-    S = State#state.conn,
-    GameId = State#state.gid,
-    gas:info(?MODULE,"sending rematch", []),
-    A = call_rpc(S, #rematch{game = GameId}),
-    gas:info(?MODULE,"rematch result: ~p", [A]),
-    ok = A,
-    okey_client_rematch2(State).
 
 okey_client_rematch2(State) ->
     S = State#state.conn,

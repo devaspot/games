@@ -3,11 +3,7 @@
   {description, "KKN Game Server"},
   {vsn, "1"},
   {registered, []},
-  {applications, [
-                  kernel,
-                  gproc,
-                  stdlib,db
-                 ]},
-  {mod, { nsg_games_app, []}},
+  {applications, [kernel,gproc,stdlib,db]},
+  {mod, { game_app, []}},
   {env, []}
  ]}.

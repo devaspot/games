@@ -3,8 +3,7 @@
 -behaviour(gen_server).
 
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--export([start/3, start_link/3, robot_init/1, init_state/2, join_game/1, get_session/1,
-         send_message/2, call_rpc/2, do_skip/2, do_rematch/1, first_move_table/0, follow_board/3 ]).
+-compile(export_all).
 
 -include_lib("server/include/basic_types.hrl").
 -include_lib("server/include/requests.hrl").
@@ -551,11 +550,6 @@ find_move(Color, OppColor, Die, Tactic, Board, [{Cell, No} | Rest]) ->
 %%                                  end, [], lists:sublist(lists:zip(Board,lists:seq(0,27)),1,27)  ).
 
 % actions
-
-do_rematch(State) ->
-    S = State#state.conn,
-    GameId = State#state.gid,
-    ok = call_rpc(S, #rematch{game = GameId}).
 
 say_ready(State,TableId) ->
     S = State#state.conn,

@@ -5,7 +5,7 @@
 %%% Created : Feb 15, 2013
 %%% -------------------------------------------------------------------
 
--module(nsg_matrix_elimination).
+-module(matrix).
 
 -export([get_plan/4,
          get_prize_fund/4,

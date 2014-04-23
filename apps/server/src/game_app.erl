@@ -1,4 +1,4 @@
--module(nsg_games_app).
+-module(game_app).
 -behaviour(application).
 -export([start/2, start/0, stop/0, stop/1]).
 -include_lib("eunit/include/eunit.hrl").
