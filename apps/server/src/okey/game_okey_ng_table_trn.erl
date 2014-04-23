@@ -312,7 +312,7 @@ handle_parent_message({replace_player, RequestId, UserInfo, PlayerId, SeatNum}, 
     relay_kick_player(Relay, OldPlayerId),
     relay_register_player(Relay, UserId, PlayerId),
     ReplaceMsg = create_player_left(SeatNum, UserInfo, Players),
-    relay_publish_ge(Relay, GameId, ReplaceMsg),
+    relay_publish_ge(Relay, ReplaceMsg, StateData),
     parent_confirm_replacement(Parent, TableId, RequestId),
     {next_state, StateName, StateData#state{players = NewPlayers2}};
 
@@ -369,17 +369,17 @@ handle_parent_message(start_round, StateName,
                                    round_timer = RoundTRef,
                                    set_timer = NewSetTRef},
 
-    {ok, ObserverPid} = game_observer:mypid(),
+%%    {ok, ObserverPid} = game_observer:mypid(),
 
     [begin
-         ?RELAY:subscribe(Relay, ObserverPid, PlayerId, observer),
+%%         ?RELAY:subscribe(Relay, ObserverPid, PlayerId, observer),
          GameInfoMsg = create_okey_game_info(NewStateData),
-         send_to_client_ge(Relay, PlayerId, GameId, GameInfoMsg),
+         send_to_client_ge(Relay, PlayerId, GameInfoMsg, NewStateData),
          GameStartedMsg = create_okey_game_started(SeatNum, DeskState, NewCurRound, NewStateData),
-         send_to_client_ge(Relay, PlayerId, GameId, GameStartedMsg)
+         send_to_client_ge(Relay, PlayerId, GameStartedMsg, NewStateData)
      end || #player{id = PlayerId, seat_num = SeatNum} <- find_connected_players(Players)],
     CurSeatNum = DeskState#desk_state.cur_seat,
-    relay_publish_ge(Relay, GameId, create_okey_next_turn(CurSeatNum, Players)),
+    relay_publish_ge(Relay, create_okey_next_turn(CurSeatNum, Players), NewStateData),
     {next_state, ?STATE_PLAYING, NewStateData};
 
 handle_parent_message(show_round_result, StateName,
@@ -407,7 +407,7 @@ handle_parent_message(show_round_result, StateName,
                   create_okey_round_ended_gosterge_finish(Winner, RoundScore, TotalScore,
                                                           AchsPoints, StateData)
           end,
-    relay_publish_ge(Relay, GameId, Msg),
+    relay_publish_ge(Relay, Msg, StateData),
     {next_state, StateName, StateData#state{}};
 
 %% Results = [{PlayerId, Position, Score, Status}] Status = winner | loser | eliminated | none
@@ -415,7 +415,7 @@ handle_parent_message({show_series_result, Results}, StateName,
                       #state{game_id = GameId, relay = Relay, players = Players,
                              next_series_confirmation = Confirm} = StateData) ->
     Msg = create_okey_series_ended(Results, Players, Confirm),
-    relay_publish_ge(Relay, GameId, Msg),
+    relay_publish_ge(Relay, Msg, StateData),
     {next_state, StateName, StateData#state{}};
 
 %% Results = [{UserId, Position, Score, Status}] Status = active | eliminated
@@ -423,7 +423,7 @@ handle_parent_message({tour_result, TourNum, Results}, StateName,
                       #state{game_id = GameId, relay = Relay, tournament_table = TTable} = StateData) ->
     NewTTable = [{TourNum, Results} | TTable],
     Msg = create_okey_tour_result(TourNum, Results),
-    relay_publish_ge(Relay, GameId, Msg),
+    relay_publish_ge(Relay, Msg, StateData),
     {next_state, StateName, StateData#state{tournament_table = NewTTable}};
 
 handle_parent_message({playing_tables_num, Num}, StateName,
@@ -501,13 +501,13 @@ handle_relay_message({subscriber_added, PlayerId, SubscrId} = Msg, StateName,
     if PlayerIdIsValid ->
 
         GI = create_okey_game_info(StateData),
-        send_to_subscriber_ge(Relay, SubscrId, GameId, GI),
+        send_to_subscriber_ge(Relay, SubscrId, GI, StateData),
 
            PlState = create_okey_game_player_state(PlayerId, StateName, StateData),
-           send_to_subscriber_ge(Relay, SubscrId, GameId, PlState),
+           send_to_subscriber_ge(Relay, SubscrId, PlState, StateData),
            relay_allow_broadcast_for_player(Relay, PlayerId),
            if TTable =/= undefined ->
-                  [send_to_subscriber_ge(Relay, SubscrId, GameId, create_okey_tour_result(TurnNum, Results))
+                  [send_to_subscriber_ge(Relay, SubscrId, create_okey_tour_result(TurnNum, Results), StateData)
                      || {TurnNum, Results} <- lists:sort(TTable)];
               true -> do_nothing
            end;
@@ -750,7 +750,7 @@ process_game_events(Events, #state{desk_state = DeskState, players = Players,
                                    game_id = GameId, relay = Relay, timeout_timer = OldTRef,
                                    round_timeout = RoundTimeout, round_timer = RoundTRef,
                                    turn_timeout = TurnTimeout} = StateData) ->
-    NewDeskState = handle_desk_events(Events, DeskState, Players, Relay, GameId), %% Track the desk and send game events to clients
+    NewDeskState = handle_desk_events(Events, DeskState, Players, Relay, StateData), %% Track the desk and send game events to clients
     #desk_state{state = DeskStateName} = NewDeskState,
     case DeskStateName of
         state_finished ->
@@ -841,10 +841,10 @@ finalize_round(#state{desk_state = #desk_state{finish_reason = FinishReason,
 
 %% handle_desk_events(Events, DeskState, Players) -> NextStateData
 %% Tracks the desk state and sends events to clients
-handle_desk_events([], DeskState, _Players, _Relay, _GameId) ->
+handle_desk_events([], DeskState, _Players, _Relay, _StateData) ->
     DeskState;
 
-handle_desk_events([Event | Events], DeskState, Players, Relay, GameId) ->
+handle_desk_events([Event | Events], DeskState, Players, Relay, #state{} = StateData) ->
     #desk_state{cur_seat = CurSeatNum,
                 hands = Hands,
                 discarded = Discarded,
@@ -854,36 +854,36 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, GameId) ->
         case Event of
             {has_gosterge, SeatNum} ->
                 Msg = create_okey_player_has_gosterge(SeatNum, Players),
-                relay_publish_ge(Relay, GameId, Msg),
+                relay_publish_ge(Relay, Msg, StateData),
                 DeskState#desk_state{has_gosterge = SeatNum};
             {has_8_tashes, SeatNum, Value} ->
                 Msg = create_okey_player_has_8_tashes(SeatNum, Value, Players),
-                relay_publish_ge(Relay, GameId, Msg),
+                relay_publish_ge(Relay, Msg, StateData),
                 DeskState#desk_state{have_8_tashes = [SeatNum | Have8Tashes]};
             {saw_okey, SeatNum} ->
                 Msg = create_okey_disable_okey(SeatNum, CurSeatNum, Players),
-                relay_publish_ge(Relay, GameId, Msg),
+                relay_publish_ge(Relay, Msg, StateData),
                 DeskState;
             {taked_from_discarded, SeatNum, Tash} ->
                 PrevSeatNum = prev_seat_num(SeatNum),
                 {_, [Tash | NewPile]} = lists:keyfind(PrevSeatNum, 1, Discarded),
                 Msg = create_okey_tile_taken_discarded(SeatNum, Tash, length(NewPile), Players),
-                relay_publish_ge(Relay, GameId, Msg),
+                relay_publish_ge(Relay, Msg, StateData),
                 NewDiskarded = lists:keyreplace(PrevSeatNum, 1, Discarded, {PrevSeatNum, NewPile}),
                 {_, Hand} = lists:keyfind(SeatNum, 1, Hands),
                 NewHands = lists:keyreplace(SeatNum, 1, Hands, {SeatNum, [Tash | Hand]}),
                 DeskState#desk_state{hands = NewHands, discarded = NewDiskarded, state = state_discard};
             {taked_from_table, SeatNum, Tash} ->
                 [Tash | NewDeck] = Deck,
-                [ send_to_client_ge(Relay, Id, GameId,
-                    create_okey_tile_taken_table(CSN, CurSeatNum, Tash, length(NewDeck), Players))
+                [ send_to_client_ge(Relay, Id,
+                    create_okey_tile_taken_table(CSN, CurSeatNum, Tash, length(NewDeck), Players), StateData)
                 || #player{id = Id,seat_num = CSN} <- find_connected_players(Players) ],
                 {_, Hand} = lists:keyfind(SeatNum, 1, Hands),
                 NewHands = lists:keyreplace(SeatNum, 1, Hands, {SeatNum, [Tash | Hand]}),
                 DeskState#desk_state{hands = NewHands, deck = NewDeck, state = state_discard};
             {tash_discarded, SeatNum, Tash} ->
                 Msg = create_okey_tile_discarded(SeatNum, Tash, false, Players),
-                relay_publish_ge(Relay, GameId, Msg),
+                relay_publish_ge(Relay, Msg, StateData),
                 {_, Hand} = lists:keyfind(SeatNum, 1, Hands),
                 NewHands = lists:keyreplace(SeatNum, 1, Hands, {SeatNum, lists:delete(Tash, Hand)}),
                 {_, Pile} = lists:keyfind(SeatNum, 1, Discarded),
@@ -891,7 +891,7 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, GameId) ->
                 DeskState#desk_state{hands = NewHands, discarded = NewDiscarded, state = state_take};
             {tash_discarded_timeout, SeatNum, Tash} -> %% Injected event
                 Msg = create_okey_tile_discarded(SeatNum, Tash, true, Players),
-                relay_publish_ge(Relay, GameId, Msg),
+                relay_publish_ge(Relay, Msg, StateData),
                 {_, Hand} = lists:keyfind(SeatNum, 1, Hands),
                 NewHands = lists:keyreplace(SeatNum, 1, Hands, {SeatNum, lists:delete(Tash, Hand)}),
                 {_, Pile} = lists:keyfind(SeatNum, 1, Discarded),
@@ -900,23 +900,23 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, GameId) ->
             {auto_take_discard, SeatNum, Tash} ->    %% Injected event
                 #player{id = PlayerId} = get_player_by_seat_num(SeatNum, Players),
                 Msg = create_okey_turn_timeout(Tash, Tash),
-                send_to_client_ge(Relay, PlayerId, GameId, Msg),
+                send_to_client_ge(Relay, PlayerId, Msg, StateData),
                 DeskState;
             {auto_discard, SeatNum, Tash} ->         %% Injected event
                 #player{id = PlayerId} = get_player_by_seat_num(SeatNum, Players),
                 Msg = create_okey_turn_timeout(null, Tash),
-                send_to_client_ge(Relay, PlayerId, GameId, Msg),
+                send_to_client_ge(Relay, PlayerId, Msg, StateData),
                 DeskState;
             {next_player, SeatNum} ->
                 Msg = create_okey_next_turn(SeatNum, Players),
-                relay_publish_ge(Relay, GameId, Msg),
+                relay_publish_ge(Relay, Msg, StateData),
                 DeskState#desk_state{cur_seat = SeatNum, state = state_take};
             no_winner_finish ->
                 DeskState#desk_state{state = state_finished,
                                      finish_reason = tashes_out};
             {reveal, SeatNum, RevealedTashes, DiscardedTash} ->
                 Msg = create_okey_revealed(SeatNum, DiscardedTash, RevealedTashes, Players),
-                relay_publish_ge(Relay, GameId, Msg),
+                relay_publish_ge(Relay, Msg, StateData),
                 DeskState#desk_state{state = state_finished,
                                      finish_reason = reveal,
                                      finish_info = {SeatNum, RevealedTashes, DiscardedTash}};
@@ -925,7 +925,7 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, GameId) ->
                                      finish_reason = gosterge_finish,
                                      finish_info = SeatNum}
         end,
-    handle_desk_events(Events, NewDeskState, Players, Relay, GameId).
+    handle_desk_events(Events, NewDeskState, Players, Relay, StateData).
 
 %%===================================================================
 init_scoring(GameType, PlayersInfo, Rounds) ->
@@ -1009,19 +1009,19 @@ init_players([{PlayerId, UserInfo, SeatNum, _StartPoints} | PlayersInfo], Player
     init_players(PlayersInfo, NewPlayers).
 
 %%=================================================================
-send_to_subscriber_ge(Relay, SubscrId, GameId, Msg) ->
+send_to_subscriber_ge(Relay, SubscrId, Msg, #state{game_id = GameId} = _StateData) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"SEND SUB ~p",[Event]),
     ?RELAY:table_message(Relay, {to_subscriber, SubscrId, Event}).
 
-send_to_client_ge(Relay, PlayerId, GameId, Msg) ->
+send_to_client_ge(Relay, PlayerId, Msg, #state{game_id = GameId} = _StateData) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"SEND CLIENT ~p",[Event]),
     ?RELAY:table_message(Relay, {to_client, PlayerId, Event}).
 
-relay_publish_ge(Relay, GameId, Msg) ->
+relay_publish_ge(Relay, Msg, #state{game_id = GameId} = _StateData) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"RELAY PUBLISH ~p",[Event]),
