@@ -525,8 +525,8 @@ reg_player_at_new_table(User, From,
     gas:info(?MODULE,"TRN_LUCKY <~p> New table created: ~p.", [GameId, TableId]),
 
     NewPlayers = reg_player(#player{id = PlayerId, user_id = UserId, is_bot = IsBot}, Players),
-    F2 = fun({PlId, #'PlayerInfo'{id = UId}, _SNum, _Points}, Acc) ->
-                 reg_player(#player{id = PlId, user_id = UId, is_bot = true}, Acc)
+    F2 = fun({PlId, #'PlayerInfo'{id = UId, robot=Bot}, _SNum, _Points}, Acc) ->
+                 reg_player(#player{id = PlId, user_id = UId, is_bot = Bot}, Acc)
          end,
     NewPlayers2 = lists:foldl(F2, NewPlayers, RobotsRegData),
     gas:info(?MODULE,"TRN_LUCKY <~p> User ~p registered as player <~p>.", [GameId, UserId, PlayerId]),
@@ -769,12 +769,13 @@ add_points_to_accounts(Points, GameId, GameType, GameMode) ->
                         id = GameId, double_points = 1,
                         type = game_end, tournament_type = ?TOURNAMENT_TYPE},
     [begin
-         if GamePoints =/= 0 ->
-                 kvs:add(#transaction{
-                            id=kvs:next_id(transaction,1),
-                            feed_id={game_points,UserId},
-                            amount=GamePoints,
-                            comment=TI});
+         if GamePoints =/= 0 -> ok;
+
+%                 kvs:add(#transaction{
+%                            id=kvs:next_id(transaction,1),
+%                            feed_id={game_points,UserId},
+%                            amount=GamePoints,
+%                            comment=TI});
 
             true -> do_nothing
          end

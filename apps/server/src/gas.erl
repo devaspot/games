@@ -2,7 +2,7 @@
 -compile(export_all).
 
 %-define(ALLOWED, [gas,nsg_trn_lucky,game_session,game_manager,game_okey_table]).
--define(ALLOWED, [gas,auth_server]).
+-define(ALLOWED, [gas,auth_server,nsg_trn_lucky,game_log]).
 
 log(Module, String, Args, Fun) ->
     case lists:member(Module,?ALLOWED) of

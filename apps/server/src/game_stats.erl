@@ -180,14 +180,12 @@ assign_points(RawResults, GameInfo) ->
             true -> do_nothing  % no statistics for robots
          end,
          if not Robot ->
-                if KakushPoints /= 0 ->
+                if KakushPoints /= 0 -> 
         kvs:add(#transaction{id=kvs:next_id(transaction,1),feed_id={kakush,UserId},comment=game_end});
-%                       ok = nsm_accounts:transaction(UserId, ?CURRENCY_KAKUSH, KakushPoints, TI#ti_game_event{type = game_end});
                    true -> ok
                 end,
                 if GamePoints /= 0 ->
         kvs:add(#transaction{id=kvs:next_id(transaction,1),feed_id={game_points,UserId},comment=game_end});
-%                        ok = nsm_accounts:transaction(UserId, ?CURRENCY_GAME_POINTS, GamePoints, TI#ti_game_event{type = game_end});
                    true -> ok
                 end;
             true -> do_nothing %% no points for robots

@@ -122,10 +122,6 @@ init([GameId, TableId, Params]) ->
                    {table, {?MODULE, self()}}],
     {ok, Relay} = ?RELAY:start(RelayParams),
 
-%%    {ok, ObserverPid} = game_observer:mypid(),
-%%    [begin gas:info(?MODULE,"OKEY_TABLE subscribe observer to player ~p", [PI]), 
-%%               ?RELAY:subscribe(Relay, ObserverPid, PlayerId, observer) end|| {PlayerId, #'PlayerInfo'{robot = false}, _, _} = PI <- PlayersInfo],
-
     gas:info(?MODULE,"OKEY_NG_TABLE_TRN_DBG <~p,~p> Set timeout: ~p, round timeout: ~p.", [GameId, TableId, SetTimeout, RoundTimeout]),
     gas:info(?MODULE,"OKEY_NG_TABLE_TRN_DBG <~p,~p> PlayersInfo: ~p.", [GameId, TableId, PlayersInfo]),
     gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Started.", [GameId, TableId]),
@@ -317,10 +313,7 @@ handle_parent_message(start_round, StateName,
                                    round_timer = RoundTRef,
                                    set_timer = NewSetTRef},
 
-%%    {ok, ObserverPid} = game_observer:mypid(),
-
     [begin
-%%         ?RELAY:subscribe(Relay, ObserverPid, PlayerId, observer),
          GameInfoMsg = create_okey_game_info(NewStateData),
          send_to_client_ge(Relay, PlayerId, GameInfoMsg, NewStateData),
          GameStartedMsg = create_okey_game_started(SeatNum, DeskState, NewCurRound, NewStateData),
@@ -957,25 +950,27 @@ init_players([{PlayerId, UserInfo, SeatNum, _StartPoints} | PlayersInfo], Player
     init_players(PlayersInfo, NewPlayers).
 
 %%=================================================================
-send_to_subscriber_ge(Relay, SubscrId, Msg, #okey_state{game_id = GameId} = _StateData) ->
+send_to_subscriber_ge(Relay, SubscrId, Msg, #okey_state{game_id = GameId} = State) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"SEND SUB ~p",[Event]),
-    game_observer:log_event(Event),
     ?RELAY:table_message(Relay, {to_subscriber, SubscrId, Event}).
 
-send_to_client_ge(Relay, PlayerId, Msg, #okey_state{game_id = GameId} = _StateData) ->
+send_to_client_ge(Relay, PlayerId, Msg, #okey_state{players=Players,game_id = GameId} = State) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"SEND CLIENT ~p",[Event]),
-    game_observer:log_event(Event),
+    case get_player(PlayerId, Players) of
+        {ok, #player{info=#'PlayerInfo'{robot=false}}} ->
+             gas:info("SAVE: ~p~n",[(get_player(PlayerId,Players))]),
+             game_log:put(Event,State);
+        _ -> ok end,
     ?RELAY:table_message(Relay, {to_client, PlayerId, Event}).
 
-relay_publish_ge(Relay, Msg, #okey_state{game_id = GameId} = _StateData) ->
+relay_publish_ge(Relay, Msg, #okey_state{game_id = GameId} = State) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"RELAY PUBLISH ~p",[Event]),
-    game_observer:log_event(Event),
     relay_publish(Relay, Event).
 
 relay_publish(Relay, Msg) ->
