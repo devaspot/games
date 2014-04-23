@@ -298,8 +298,6 @@ okey_client_rematch2(State) ->
     GameId = State#state.gid,
     gas:info(?MODULE,"rematch loop receive", []),
     receive
-        #game_rematched{game = GI} when GameId == GI ->
-            gas:info(?MODULE,"#game_rematched{game = GameId}", []);
         #game_event{event = <<"player_left">>, args = Args} ->
             gas:info(?MODULE,"#game_event{event = <<\"player_left\">>, args = Args}", []),
             Replaced = proplists:get_value(bot_replaced, Args, false) orelse

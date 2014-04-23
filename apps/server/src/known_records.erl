@@ -12,9 +12,7 @@
 fields(T) when is_tuple(T) ->  fields(element(1, T));
 
 fields(game_action) ->             record_info(fields, game_action);
-fields(match_me) ->                record_info(fields, match_me);
 fields(join_game) ->               record_info(fields, join_game);
-fields(rematch) ->                 record_info(fields, rematch);
 fields(get_game_info) ->           record_info(fields, get_game_info);
 fields(dummy_player_change) ->     record_info(fields, dummy_player_change);
 fields(login) ->                   record_info(fields, login);
@@ -26,9 +24,6 @@ fields(subscribe_player_rels) ->   record_info(fields, subscribe_player_rels);
 fields(unsubscribe_player_rels) -> record_info(fields, unsubscribe_player_rels);
 fields('PlayerInfo') ->            record_info(fields, 'PlayerInfo');
 fields('TableInfo') ->             record_info(fields, 'TableInfo');
-fields(game_matched) ->            record_info(fields, game_matched);
-fields(game_rematched) ->          record_info(fields, game_rematched);
-fields(game_crashed) ->            record_info(fields, game_crashed);
 fields(game_event) ->              record_info(fields, game_event);
 fields(chat_msg) ->                record_info(fields, chat_msg);
 fields(social_action) ->           record_info(fields, social_action);
@@ -37,8 +32,6 @@ fields(pause_game) ->              record_info(fields, pause_game);
 fields(game_paused) ->             record_info(fields, game_paused);
 fields(disconnect) ->              record_info(fields, disconnect);
 fields(player_left) ->             record_info(fields, player_left);
-fields(fastping) ->                record_info(fields, fastping);
-fields(slowping) ->                record_info(fields, slowping);
 fields(okey_debug) ->              record_info(fields, okey_debug);
 fields(session_attach_debug) ->    record_info(fields, session_attach_debug);
 fields('OkeyPiece') ->             record_info(fields, 'OkeyPiece');

@@ -1,8 +1,5 @@
 -include("basic_types.hrl").
 -include("types.hrl").
-%%% Contains list of API requests, that can be made, using KamfRequest call
-%%% Name of record corresponds to method, memebers to params
-%%% All this requests are processed by session
 
 -record(session_attach, {
           token :: string() %% shared secret, stored in auth_server
@@ -19,17 +16,6 @@
          }).
 
 -record(logout, {}).
-
--record(match_me, {
-          game_type :: binary()
-         }).
-
--record(match_found, {
-          ref       :: any(),          %% request ref
-          game_id   :: 'GameId'(),     %% id of game
-          is_replacing = false :: boolean(), %% id of game
-          pid       :: pid()           %% relay, session should connect to
-         }).
 
 -record(join_game, {
           game :: 'GameId'()
@@ -77,20 +63,6 @@
           game      :: 'GameId'(),
           event     :: any(),
           args = [] :: proplist()
-         }).
-
--record(game_matched, {
-          ref  :: any(),
-          is_replacing = false :: boolean,
-          game :: 'GameId'()
-         }).
-
--record(game_rematched, {
-          game :: 'GameId'()
-         }).
-
--record(game_crashed, {
-          game :: 'GameId'()
          }).
 
 -record(dummy_player_change, {
@@ -152,12 +124,3 @@
           game_status       :: atom()
          }).
 
-%%% tests
--record(getobjecttypefromserver, {}).
--record(getstringtypefromserver, {}).
--record(getintegertypefromserver, {}).
--record(getmixedtypesfromserver, {}).
--record('some_named_object', {name1, name2, name3}).
-
--record(fastping, {}).
--record(slowping, {}).

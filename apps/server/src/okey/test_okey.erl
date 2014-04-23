@@ -161,14 +161,6 @@ alt_play_3_players_1_bot() ->
 %
 %   [ wait_for(C) || C <- Clients ].
 
-%test_match_me_random_reveal() ->
-%    MultiOwner = self(),
-%    process_flag(trap_exit, true),
-%    Clients = [ proc_lib:spawn_link(fun() -> 
-%			 start_test_game_t(MultiOwner, match_me, normal)
-%		end) || _ <- lists:seq(1, 1) ],
-%
- %   [ wait_for(C) || C <- Clients ].
 
 test_social_actions() ->
     MultiOwner = self(),
@@ -188,27 +180,6 @@ start_test_game_t(MultiOwner, CreateMode, RevealMode) ->
     Rematch = 0,
     case CreateMode of
 
-        join_game_player_replacement ->
-
-            ReplacementId = <<"kate">>,
-
-            {ok, GameId, _} = game_manager:create_table(game_okey, 
-					 [{allow_replacement, true}, {deny_robots, true},
-					  {sets, 1}, {rounds, 2}], Ids),
-
-            Clients0 = [ proc_lib:spawn_link(fun() -> 
-				  init_with_join_game(Owner, Host, Port, GameId, Id, 0, RevealMode) 
-		       end) || Id <- Ids ],
-
-            Replacement = proc_lib:spawn_link(fun() ->
-				   init_with_match_me_replaceable(Owner, Host, Port, ReplacementId, 0, RevealMode) 
-			  end),
-
-            gas:info(?MODULE,"replacement players pid: ~p", [Replacement]),
-
-            Others = [],
-            Clients = Clients0 ++ [Replacement] ++ Others,
-            Orders = [#bo{pid = 2, event = game_ended, event_no = 1, order = stop}];
 
         join_game_robots ->
 
@@ -288,31 +259,15 @@ start_test_game_t(MultiOwner, CreateMode, RevealMode) ->
         test_social_actions ->
             SenderFun = fun send_and_receive_social_action/2,
             ReceiverFun = fun receive_social_action/3,
-            MyIds = [<<"radistao">>,<<"paul">>,<<"kunthar">>,<<"gleber">>],
+            {ok, GameId, _} = game_manager:create_table(game_okey, [{game_mode, countdown}, {gosterge_finish, true}], Ids),
             A = #bo{pid = 1, event = got_hand, event_no = 1, order = {do_and_continue, SenderFun, [<<"paul">>]}},
             B = #bo{pid = 2, event = got_hand, event_no = 1, order = {do_and_continue, ReceiverFun, [<<"radistao">>, <<"paul">>]}},
             C = #bo{pid = 3, event = got_hand, event_no = 1, order = {do_and_continue, ReceiverFun, [<<"radistao">>, <<"paul">>]}},
             D = #bo{pid = 4, event = got_hand, event_no = 1, order = {do_and_continue, ReceiverFun, [<<"radistao">>, <<"paul">>]}},
             Orders = [A, B, C, D],
-            Clients = [ proc_lib:spawn_link(fun() -> init_with_match_me(Owner, Host, Port, Id, 0, RevealMode)
-                                            end) || Id <- MyIds ];
+            Clients = [ proc_lib:spawn_link(fun() -> init_with_join_game(Owner, Host, Port, Id, GameId,0, RevealMode)
+                                            end) || Id <- Ids ]
 
-        match_me ->
-            Orders = [],
-            Clients = [ proc_lib:spawn_link(fun() -> timer:sleep(crypto:rand_uniform(0, 300)),
-                                                     init_with_match_me(Owner, Host, Port, Id, Rematch, RevealMode)
-                                            end) || Id <- Ids ];
-
-        match_me_disconnect ->
-            DisconnectOrNot = kakamath:variate(lists:duplicate(3, true) ++
-                                                   lists:duplicate(4, false)),
-            IdsDisconnect = [<<"radistao">>,<<"paul">>,<<"kunthar">>,<<"gleber">>,<<"sustel">>,<<"peter">>,<<"christian">>],
-            Tasks = kakamath:variate(lists:zip(DisconnectOrNot, IdsDisconnect)),
-            Orders = [],
-            Clients = [ proc_lib:spawn_link(fun() ->
-                                  timer:sleep(crypto:rand_uniform(0, 300)),
-                                  init_with_match_me_disconnect(Owner, Host, Port, Id, Rematch, RevealMode, Play)
-                        end) || {Play, Id} <- Tasks ]
 
     end,
     conductor(Orders, Clients),
@@ -351,65 +306,6 @@ init_with_join_game_observe(_Owner, Host, Port, GameId, OwnId, Mode, EJoinResult
     ok = ?TCM:flush_events(?FLUSH_DELAY),
     ok = ?TCM:close(S1).
 
-init_with_match_me(Owner, Host, Port, OwnId, Rematch, Mode) ->
-    put(mode, Mode),
-    log(started),
-    S1 = ?TCM:connect(Host, Port),
-    TT = ?TEST_TOKEN,
-    #'PlayerInfo'{id = Id} = ?TCM:call_rpc(S1, #session_attach_debug{token = TT, id = OwnId}) ,
-    log(connected),
-    Stats = tc:call_rpc(S1, #get_player_stats{game_type = <<"okey">>, player_id = Id}),
-    #'PlayerOkeyStats'{level = _Level} = Stats,
-    ZZZ = tc:call_rpc(S1, #match_me{game_type = <<"okey">>}) ,
-    GameId =
-        receive
-            #'game_matched'{} = Rec->
-                log(matched),
-                Rec#game_matched.game
-        after ?BT -> erlang:error({server_timeout, self(), ZZZ, "game_matched"})
-        end,
-    State = #state{conn = S1, gid = GameId, uid = Id, acker_fun = standard_acker(Owner)},
-    play_set(State, Rematch).
-
-init_with_match_me_replaceable(_Owner, Host, Port, OwnId, _Rematch, RevealMode) ->
-    put(mode, RevealMode),
-    log(started),
-    S1 = ?TCM:connect(Host, Port),
-    #'PlayerInfo'{id = Id} = ?TCM:call_rpc(S1, #session_attach_debug{token = ?TEST_TOKEN, id = OwnId}),
-    log(connected),
-    Stats = ?TCM:call_rpc(S1, #get_player_stats{game_type = <<"okey">>, player_id = Id}),
-    #'PlayerOkeyStats'{level = _Level} = Stats,
-    gas:info(?MODULE,"match me replaceable 2", []),
-    ZZZ = ?TCM:call_rpc(S1, #match_me{game_type = <<"okey">>}),
-    gas:info(?MODULE,"match me replaceable status: ~p", [ZZZ]),
-    GameId =
-        receive
-            #'game_matched'{} = Rec ->
-                gas:info(?MODULE,"got game_matched: ~p", [Rec]),
-                true = Rec#game_matched.is_replacing,
-                log(matched),
-                Rec#game_matched.game
-        after ?BT -> erlang:error({server_timeout, self(), ZZZ, "game_matched"})
-        end,
-    State = #state{conn = S1, gid = GameId, uid = Id},
-    gas:info(?MODULE,"picking up game", []),
-    pickup_game(State).
-
-init_with_match_me_disconnect(Owner, Host, Port, OwnId, Rematch, Mode, false) ->
-    gas:info(?MODULE,"player discon normal", []),
-    init_with_match_me(Owner, Host, Port, OwnId, Rematch, Mode);
-init_with_match_me_disconnect(_Owner, Host, Port, OwnId, _Rematch, _Mode, true) ->
-    gas:info(?MODULE,"player discon bad", []),
-    S1 = ?TCM:connect(Host, Port),
-    TT = ?TEST_TOKEN,
-    #'PlayerInfo'{id = Id} = ?TCM:call_rpc(S1, #session_attach_debug{token = TT, id = OwnId}) ,
-    log(connected),
-    Stats = ?TCM:call_rpc(S1, #get_player_stats{game_type = <<"okey">>, player_id = Id}) ,
-    #'PlayerOkeyStats'{level = _Level} = Stats,
-    _ZZZ = ?TCM:call_rpc(S1, #match_me{game_type = <<"okey">>}) ,
-    log(disconnected),
-    ok = ?TCM:flush_events(?FLUSH_DELAY),
-    ok = ?TCM:close(S1).
 
 pickup_game(S0) ->
     Id = S0#state.uid,
@@ -454,7 +350,6 @@ pickup_game(S0) ->
     case {Turn, GameState} of
         {_, <<"game_finished">>} ->
             gas:info(?MODULE,"init bot finished", []),
-            okey_client_rematch(State),
             play_set(State, 0);
         {_, <<"do_okey_ready">>} ->
             gas:info(?MODULE,"init bot wait", []),
@@ -518,7 +413,6 @@ play_set(State0, Rematch) ->
             ok;
         {X, _} when X == Sets ->
             gas:info(?MODULE,"ID: ~p, last set, do rematch", [State0#state.uid]),
-            okey_client_rematch(State),
             play_set(State, Rematch-1);
         _ ->
             gas:info(?MODULE,"ID: ~p,  play next set", [State0#state.uid]),
@@ -562,18 +456,6 @@ get_series_ended(Id)->
     after ?BT -> erlang:error({server_timeout, "okey_series_ended"})
     end.
 
-okey_client_rematch(State) ->
-    S1 = State#state.conn, GameId = State#state.gid, Id = State#state.uid,
-    get_series_ended(Id),
-    RematchR = ?TCM:call_rpc(S1, #rematch{game = GameId}) ,
-    gas:info(?MODULE,"ID: ~p; rematch result: ~p", [Id, RematchR]),
-    <<"ok">> = RematchR,
-    receive
-        #game_rematched{game = GameId} ->
-            gas:info(?MODULE,"#game_rematched{game = GameId}", []),
-            log(game_rematched)
-    after ?BT -> erlang:error({server_timeout, "game_rematched"})
-    end.
 
 say_ready(State) ->
     S1 = State#state.conn,
@@ -681,8 +563,6 @@ okey_client_loop(State) ->
             gas:info(?MODULE,"ID: ~p game ended, good_shot: ~p, reason: ~p", [Id, GS, Reason]),
             NextAction;
         #player_left{} ->
-            okey_client_loop(State);
-        #'game_event'{event = <<"game_rematched">>, args = _Args} ->
             okey_client_loop(State);
         #'game_event'{event = <<"okey_game_started">>, args = _Args} ->
             okey_client_loop(State);
