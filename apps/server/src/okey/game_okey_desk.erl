@@ -50,7 +50,7 @@
 %%  {reveal, SeatNum, TashPlaces, DicardedTash}
 %%  {gosterge_finish, SeatNum}
 
--module(game_okey_ng_desk).
+-module(game_okey_desk).
 
 -behaviour(gen_fsm).
 %% --------------------------------------------------------------------

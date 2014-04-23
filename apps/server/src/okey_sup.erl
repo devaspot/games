@@ -74,7 +74,7 @@ okey_standalone_specs(GamesNum, VirtUsersPerTable) ->
                                  {kakush_for_loser, 1},
                                  {win_game_points, 1},
                                  {mul_factor, 1},
-                                 {table_module, game_okey_ng_table_trn},
+                                 {table_module, game_okey_table},
                                  {bot_module, game_okey_bot},
                                  {bots_replacement_mode, enabled},
                                  {table_params, TableParams},
