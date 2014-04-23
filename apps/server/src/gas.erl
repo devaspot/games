@@ -1,10 +1,11 @@
 -module(gas).
 -compile(export_all).
 
--define(ALLOWED, [gas,auth_server,nsg_trn_lucky,game_log]).
+log_modules() -> [].
+-define(ALLOWED, (wf:config(server,log_modules,gas))).
 
 log(Module, String, Args, Fun) ->
-    case lists:member(Module,?ALLOWED) of
+    case lists:member(Module,?ALLOWED:log_modules()) of
          true -> error_logger:Fun(String, Args);
          false -> skip end.
 

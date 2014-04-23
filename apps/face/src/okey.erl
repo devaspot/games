@@ -86,7 +86,7 @@ body() ->
     #button   { id = pause,      body = "Pause",       postback = pause},
     #button   { id = info,       body = "PlayerInfo",  postback = player_info} ].
 
-event(terminate) -> wf:info("terminate");
+event(terminate) -> wf:info(?MODULE,"terminate");
 
 event(init) -> 
     GamesIds = case game_manager:get_all_games_ids() of
@@ -118,7 +118,7 @@ event(attach) ->
     User = user(),
     put(okey_im, User#user.id),
     wf:wire(wf:f("document.user = '~s';",[User#user.id])),
-    wf:info("Session User: ~p",[User]),
+    wf:info(?MODULE,"Session User: ~p",[User]),
     GameId = case wf:q(games_ids) of undefined -> ?GAMEID; Res -> Res end,
     put(okey_game_id, GameId),
     Token = auth_server:generate_token(GameId,User),
@@ -132,7 +132,7 @@ event(discard) ->
     case lists:keyfind(erlang:list_to_binary(DiscardCombo), 1, TilesList) of
     {_, {C, V}} ->
         wf:wire(protocol:discard(wf:to_list(GameId), wf:to_list(C), wf:to_list(V)));
-    false -> wf:info("Discard Combo: ~p",[DiscardCombo]) end;
+    false -> wf:info(?MODULE,"Discard Combo: ~p",[DiscardCombo]) end;
 
 event(reveal) ->
     TilesList = case get(game_okey_tiles) of undefined -> []; T -> T end,
@@ -145,19 +145,19 @@ event(reveal) ->
             HandJS = "[[" ++ string:join([
                 wf:f("tuple(atom('OkeyPiece'),~p,~p)",[C,V]) || {C,V} <- Hand],",") ++ "],[]]",
             RevealJS = protocol:reveal(wf:to_list(GameId),wf:f("~p",[CD]),wf:f("~p",[VD]),HandJS),
-            wf:info("RevealJS: ~p",[lists:flatten(RevealJS)]),
+            wf:info(?MODULE,"RevealJS: ~p",[lists:flatten(RevealJS)]),
             wf:wire(RevealJS);
         _ ->
-            wf:info("error discarded ~p", Discarded)
+            wf:info(?MODULE,"error discarded ~p", Discarded)
     end;
 
 event(i_saw_okey) ->
-    wf:info("i_saw_okey!"),
+    wf:info(?MODULE,"i_saw_okey!"),
     GameId = get(okey_game_id),
     wf:wire(protocol:i_saw_okey(wf:to_list(GameId)));
 
 event(i_have_8_tashes) ->
-    wf:info("i_gave_8_tashes!"),
+    wf:info(?MODULE,"i_gave_8_tashes!"),
     GameId = get(okey_game_id),
     wf:wire(protocol:i_have_8_tashes(wf:to_list(GameId)));
 
@@ -179,29 +179,29 @@ event(pause) ->
 %event({binary,M}) -> {ok,<<"Hello">>};
 
 event({client,Message}) ->
-    wf:info("Client: ~p", [Message]),
+    wf:info(?MODULE,"Client: ~p", [Message]),
     case wf:session(<<"game_pid">>) of
         undefined -> skip;
         GamePid -> SyncRes = game_session:process_request(GamePid, Message),
-                   wf:info("Sync Result: ~p",[SyncRes]) end;
+                   wf:info(?MODULE,"Sync Result: ~p",[SyncRes]) end;
 
 event({server, {game_event, _, okey_game_started, Args}}) ->
-    wf:info("Game Started: ~p", [Args]),
+    wf:info(?MODULE,"Game Started: ~p", [Args]),
     {_, Tiles} = lists:keyfind(tiles, 1, Args),
     TilesList = [tash(C, V) || {_, C, V} <- Tiles],
-    wf:info("Tile List: ~p",[TilesList]),
+    wf:info(?MODULE,"Tile List: ~p",[TilesList]),
     case lists:keyfind(gosterge, 1, Args) of
         {_, {_, C, V}} ->
-            wf:info("Gosterge: ~p ~p",[C,V]),
+            wf:info(?MODULE,"Gosterge: ~p ~p",[C,V]),
             wf:update(gosterge, #label{id = gosterge, body = wf:to_binary(["Gosterge: ", wf:to_list(C), " ", wf:to_list(V)])});
         _ -> ok end,
     put(game_okey_tiles, TilesList),
     put(game_okey_pause, resume),
-    wf:info("Istaka on Started:"),
+    wf:info(?MODULE,"Istaka on Started:"),
     redraw_istaka(TilesList);
 
 event({server, {game_event, _, okey_game_player_state, Args}}) ->
-    wf:info("Player State: ~p", [Args]),
+    wf:info(?MODULE,"Player State: ~p", [Args]),
     case lists:keyfind(whos_move, 1, Args) of 
         {_, null} -> ok;
         {_, WhosMove} ->
@@ -220,7 +220,7 @@ event({server, {game_event, _, okey_game_player_state, Args}}) ->
 
             {_, Tiles} = lists:keyfind(tiles, 1, Args),
             TilesList = [tash(C, V)|| {_, C, V} <- Tiles],
-            wf:info("Istaka on State"),
+            wf:info(?MODULE,"Istaka on State"),
             redraw_istaka(TilesList),
             put(game_okey_tiles, TilesList),
 
@@ -243,7 +243,7 @@ event({server, {game_event, _, okey_game_player_state, Args}}) ->
        _ -> ok end;
 
 event({server, {game_event, _, okey_tile_taken, Args}}) ->
-    wf:info("Taken: ~p", [Args]),
+    wf:info(?MODULE,"Taken: ~p", [Args]),
     Im = get(okey_im),
 
     {_, PlayerId} = lists:keyfind(player, 1, Args),
@@ -251,7 +251,7 @@ event({server, {game_event, _, okey_tile_taken, Args}}) ->
         {_, {_, C, V}} ->
             if  Im == PlayerId ->
                 TilesList = [ tash(C, V) | get(game_okey_tiles)],
-                %%wf:info("Tiles: ~p",[TilesList]),
+                %%wf:info(?MODULE,"Tiles: ~p",[TilesList]),
                 put(game_okey_tiles, TilesList),
                 redraw_istaka(TilesList);
                 true -> ok end,
@@ -271,7 +271,7 @@ event({server, {game_event, _, okey_tile_taken, Args}}) ->
        _ -> ok end;
 
 event({server, {game_event, _, okey_tile_discarded, Args}}) ->
-    wf:info("Discarded: ~p", [Args]),
+    wf:info(?MODULE,"Discarded: ~p", [Args]),
     Im = get(okey_im),
     {_, PlayerId}  = lists:keyfind(player, 1, Args),
     {_, {_, C, V}} = lists:keyfind(tile, 1, Args),
@@ -294,7 +294,7 @@ event({server, {game_event, _, okey_tile_discarded, Args}}) ->
     put(okey_players, UpdatedPlayers);
 
 event({server,{game_event, _Game, okey_turn_timeout, Args}}) ->
-    wf:info("Turn Timeout: ~p", [Args]);
+    wf:info(?MODULE,"Turn Timeout: ~p", [Args]);
 
 %%event({server, {game_paused, _, _Gameid, Action, Who, _}}) ->
 %%    Im = get(okey_im),
@@ -305,7 +305,7 @@ event({server,{game_event, _Game, okey_turn_timeout, Args}}) ->
 %%       true -> ok end;
 
 event({server, {game_event, _, okey_game_info, Args}}) ->
-    wf:info("Game Info: ~p", [Args]),
+    wf:info(?MODULE,"Game Info: ~p", [Args]),
     {_, PlayersInfo} = lists:keyfind(players, 1, Args),
 
     [wf:update(ElementId, [Element]) || {ElementId, Element} <- ?RESET_ELEMENTS],
@@ -323,7 +323,7 @@ event({server, {game_event, _, okey_game_info, Args}}) ->
     redraw_players(Players);
 
 event({server,{game_event, _, player_left, Args}}) ->
-    wf:info("Player Left: ~p", [Args]),
+    wf:info(?MODULE,"Player Left: ~p", [Args]),
     {_, OldPlayerId} = lists:keyfind(player, 1, Args),
     {_, PI} = lists:keyfind(replacement, 1, Args),
     #'PlayerInfo'{id = NewPlayerId} = PI,
@@ -337,7 +337,7 @@ event({server,{game_event, _, player_left, Args}}) ->
     case get(okey_turn_mark) of undefined -> ok; X -> select(X) end;
 
 event({server,{game_event, _, okey_next_turn, Args}}) ->
-    wf:info("Next Turn: ~p", [Args]),
+    wf:info(?MODULE,"Next Turn: ~p", [Args]),
     {player, PlayerId} = lists:keyfind(player, 1, Args),
     #player{label = LabelId} = lists:keyfind(PlayerId, #player.id, get(okey_players)),
     case get(okey_turn_mark) of
@@ -346,9 +346,9 @@ event({server,{game_event, _, okey_next_turn, Args}}) ->
     select(LabelId),
     put(okey_turn_mark, LabelId);
 
-event({register,User}) -> wf:info("Register: ~p",[User]), kvs:add(User), wf:user(User);
-event({login,User}) -> wf:info("Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
+event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), kvs:add(User), wf:user(User);
+event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
 
-event(_Event)  -> wf:info("Event: ~p", [_Event]).
+event(_Event)  -> wf:info(?MODULE,"Event: ~p", [_Event]).
 
 api_event(X,Y,Z) -> avz:api_event(X,Y,Z).
