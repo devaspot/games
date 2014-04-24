@@ -25,10 +25,6 @@ loop(BotPid) ->
     gas:info("TEST OKEY NG listen to air"),
     
     receive 
-        {server, Msg} -> 
-            gas:info("TEST OKEY NG receive msg ~p", [Msg]),
-            game_okey_bot:sendmessage(BotPid, Msg),
-            loop(BotPid);
         {'DOWN', _MonitorRef, _Type, _Object, _Info} -> ok;
         UnknowMsg -> wf:info("Unknow message: ~p", [UnknowMsg]), loop(BotPid)
     end.

@@ -63,7 +63,6 @@ handle_call({server, Msg0}, _From, #state{uid = UId, bot = BPid} = State) ->
     {reply, ok, State};
 
 handle_call({call_rpc, Msg}, From, #state{game_session = GameSession} = State) ->
-    io:format("msg ~p~n", [Msg]),
     gas:info(?MODULE,"OKEY BOT: call_rpc ~p",[Msg]),
     RR = State#state.running_requests,
     Id = State#state.request_id + 1,
@@ -77,8 +76,7 @@ handle_call({call_rpc, Msg}, From, #state{game_session = GameSession} = State) -
                                           gas:info(?MODULE,"                        REPLY: ~p",[Answer]),
                                           {reply, Id, Answer}
                                       catch
-                                          Err:Reason ->
-                                              gas:info(?MODULE," OKEY BOT crash with resason: ~p ~p ~p",[Err, Reason, erlang:get_stacktrace()]),
+                                          _Err:Reason ->
                                               {reply, Id, {error, Reason}}
                                       end,
                                 gen_server:call(Self, Res)
