@@ -4,12 +4,8 @@
 -include_lib("server/include/requests.hrl").
 -include_lib("server/include/settings.hrl").
 
--export([start_link/1]).
+-compile(export_all).
 -export([init/1, handle_call/3, handle_cast/2, handle_info/2, terminate/2, code_change/3]).
--export([process_request/2, process_request/3]).
--export([bot_session_attach/2]).
-
--define(SERVER, ?MODULE).
 
 -record(state, {
           user = undefined,
@@ -31,37 +27,19 @@
           role = viewer :: atom()      %% [viewer, player, ghost]
          }).
 
-start_link(RPC) when is_pid(RPC) ->
-    gen_server:start_link(?MODULE, [RPC], []).
+start_link(RPC) when is_pid(RPC) -> gen_server:start_link(?MODULE, [RPC], []).
+bot_session_attach(Pid, UserInfo) -> gen_server:cast(Pid, {bot_session_attach, UserInfo}).
+process_request(Pid, Msg) -> gen_server:call(Pid, {client_request, Msg}).
+process_request(Pid, Source, Msg) -> gen_server:call(Pid, {client_request, Msg}).
+send_message_to_player(Pid, Message) -> Pid ! {server,Message}, ok.
 
-bot_session_attach(Pid, UserInfo) ->
-    gen_server:cast(Pid, {bot_session_attach, UserInfo}).
-
-process_request(Pid, Msg) ->
-    gas:info(?MODULE,"Client Request: ~p to: ~p",[Msg,Pid]),
-    gen_server:call(Pid, {client_request, Msg}).
-
-process_request(Pid, Source, Msg) ->
-    gas:info(?MODULE,"Client Request ~p to: ~p from: ~p",[Msg,Pid,Source]),
-    gen_server:call(Pid, {client_request, Msg}).
-
-send_message_to_player(Pid, Message) ->
-    gas:info(?MODULE,"Server Response ~p to ~p",[Message,Pid]),
-    Pid ! {server,Message}, ok.
-
-init([RPC]) ->
-    MonRef = erlang:monitor(process, RPC),
-    {ok, #state{rpc = RPC, rpc_mon = MonRef}}.
-
-handle_call({client_request, Request}, From, State) ->
-    handle_client_request(Request, From, State);
-
+init([RPC]) -> MonRef = erlang:monitor(process, RPC), {ok, #state{rpc = RPC, rpc_mon = MonRef}}.
+handle_call({client_request, Request}, From, State) -> handle_client_request(Request, From, State);
 handle_call(Request, From, State) ->
-    gas:info(?MODULE,"Unrecognized call: ~p", [Request]),
+    gas:info(?MODULE,"Unrecognized call: ~p from ~p", [Request,From]),
     {stop, {unknown_call, From, Request}, State}.
 
 handle_cast({bot_session_attach, UserInfo}, State = #state{user = undefined}) ->
-%    gas:info(?MODULE,"bot session attach", []),
     {noreply, State#state{user = UserInfo}};
 
 handle_cast(Msg, State) ->
@@ -76,11 +54,10 @@ handle_info({relay_kick, SubscrId, Reason}, State) ->
     handle_relay_kick(Reason, SubscrId, State);
 
 handle_info({'DOWN', MonitorRef, _Type, _Object, _Info} = Msg, State = #state{rpc_mon = MonitorRef}) ->
-    gas:info("connection closed, shutting down session:~p", [Msg]),
+    gas:info(?MODULE, "connection closed, shutting down session:~p", [Msg]),
     {stop, normal, State};
 
-handle_info({'DOWN', OtherRef, process, _Object, Info} = _Msg,
-            #state{games = Games, rpc = RPC} = State) ->
+handle_info({'DOWN', OtherRef, process, _Object, Info} = _Msg, #state{games = Games, rpc = RPC} = State) ->
     case lists:keyfind(OtherRef, #participation.ref, Games) of
         #participation{} ->
             gas:info(?MODULE,"The table is down: ~p", [Info]),
@@ -89,9 +66,7 @@ handle_info({'DOWN', OtherRef, process, _Object, Info} = _Msg,
                 #disconnect{reason_id = <<"tableDown">>,
                     reason = <<"The table you are playing on is unexpectedly down.">>}),
             {stop, table_down, State};
-        _ ->
-            {noreply, State}
-    end;
+        _ -> {noreply, State} end;
 
 handle_info(Info, State) ->
     gas:info(?MODULE,"Unrecognized info: ~p", [Info]),
@@ -108,8 +83,7 @@ code_change(_OldVsn, State, _Extra) ->
 
 %%===================================================================
 
-handle_client_request(#session_attach{token = Token}, _From,
-                      #state{user = undefined} = State) ->
+handle_client_request(#session_attach{token = Token}, _From, #state{user = undefined} = State) ->
     gas:info(?MODULE,"Checking session token: ~p", [Token]),
     case auth_server:get_user_info(wf:to_binary(Token)) of
         false ->
@@ -117,8 +91,7 @@ handle_client_request(#session_attach{token = Token}, _From,
             {stop, normal, {error, invalid_token}, State};
         UserInfo ->
             gas:info(?MODULE,"successfull session attach. Your user info: ~p", [UserInfo]),
-            {reply, UserInfo, State#state{user = UserInfo}}
-    end;
+            {reply, UserInfo, State#state{user = UserInfo}} end;
 
 handle_client_request(_, _From, #state{user = undefined} = State) ->
     gas:info(?MODULE,"Unknown session call", []),
@@ -129,8 +102,13 @@ handle_client_request(#logout{}, _From, State) ->
     {stop, normal, ok, State};
 
 handle_client_request(#player_stats{player_id = PlayerId, game_type = GameModule}, _From, #state{rpc = RPC} = State) ->
-    % TODO add here everything about player statistic
-    Res = <<"everything player stats :)">>, %GameModule:get_player_stats(PlayerId),
+    Res = #'PlayerStats'{
+        id=PlayerId,
+        game=GameModule,
+        per_flavour=[{{lucky,standard},crypto:rand_uniform(7,108)},
+                     {{standalone,evenodd},crypto:rand_uniform(7,108)},
+                     {{standalone,color},crypto:rand_uniform(7,108)},
+                     {{elimination,color},crypto:rand_uniform(7,108)}]},
     gas:info(?MODULE,"Get player stats: ~p", [Res]),
     send_message_to_player(RPC, Res),
     {reply, Res, State};

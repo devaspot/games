@@ -18,4 +18,6 @@
           robot = false :: boolean()
          }).
 
+-record('PlayerStats', {id,game,per_flavour}).
+
 -endif.

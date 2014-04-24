@@ -8,7 +8,7 @@ attach(Token) -> ws:send(enc(tuple(atom('client'),tuple(atom("session_attach"), 
 join(Game) -> ws:send(enc(tuple(atom('client'),tuple(atom("join_game"), Game)))).
 logout() -> ws:send(enc(tuple(atom('client'),tuple(atom("logout"))))).
 pause(GameId, Action) -> ws:send(enc(tuple(atom('client'),tuple(atom("pause_game"),atom('undefined'),GameId,atom(Action))))).
-player_info(User,GameModule) -> ws:send(enc(tuple(atom('client'),tuple(atom("get_player_stats"),bin(User),atom(GameModule))))).
+player_info(User,GameModule) -> ws:send(enc(tuple(atom('client'),tuple(atom("player_stats"),bin(User),atom(GameModule))))).
 
 take(GameId,Place) -> ws:send(enc(tuple(atom('client'),tuple(atom("game_action"),GameId,atom("okey_take"),[{pile,Place}])))).
 discard(GameId, Color, Value) -> ws:send(enc(tuple(atom('client'),tuple(atom("game_action"),GameId,atom("okey_discard"),
