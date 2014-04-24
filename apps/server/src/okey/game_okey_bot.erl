@@ -1,7 +1,7 @@
 -module(game_okey_bot).
 -behaviour(gen_server).
 
--export([start/3, start_link/3, robot_init/1]).
+-export([start/3, start/4, start_link/3, start_link/4, robot_init/1]).
 -export([init_state/2, join_game/1, get_session/1]).
 -export([send_message/2]).
 -export([call_rpc/2]).
@@ -9,6 +9,8 @@
 
 -include_lib("server/include/requests.hrl").
 -include_lib("server/include/game_okey.hrl").
+
+-define(GAME_SESSION, game_session).
 
 -record(state, {
         is_robot = true :: boolean(),
@@ -27,7 +29,8 @@
         bot :: pid(),
         okey_disable = false :: boolean(),
         running_requests = dict:new() :: any(),
-        request_id = 0
+        request_id = 0,
+        game_session = ?GAME_SESSION
     }).
 
 send_message(Pid, Message) -> gen_server:call(Pid, {server, Message}).
@@ -36,13 +39,21 @@ get_session(Pid) -> gen_server:call(Pid, get_session).
 init_state(Pid, Situation) -> gen_server:cast(Pid, {init_state, Situation}).
 join_game(Pid) -> gen_server:cast(Pid, join_game).
 start(Owner, PlayerInfo, GameId) -> gen_server:start(?MODULE, [Owner, PlayerInfo, GameId], []).
+start(Owner, PlayerInfo, GameId, GameSession) -> gen_server:start(?MODULE, [Owner, PlayerInfo, GameId, GameSession], []).
 start_link(Owner, PlayerInfo, GameId) -> gen_server:start_link(?MODULE, [Owner, PlayerInfo, GameId], []).
+start_link(Owner, PlayerInfo, GameId, GameSession) -> gen_server:start_link(?MODULE, [Owner, PlayerInfo, GameId, GameSession], []).
 
 init([Owner, PlayerInfo, GameId]) ->
-    {ok, SPid} = game_session:start_link(self()),
-    game_session:bot_session_attach(SPid, PlayerInfo),
+    {ok, SPid} = ?GAME_SESSION:start_link(self()),
+    ?GAME_SESSION:bot_session_attach(SPid, PlayerInfo),
     UId = PlayerInfo#'PlayerInfo'.id,
     gas:info(?MODULE,"BOTMODULE ~p started with game_session pid ~p", [UId,SPid]),
+    {ok, #state{user = PlayerInfo, uid = UId, owner = Owner, gid = GameId, session = SPid, game_session = ?GAME_SESSION}};
+init([Owner, PlayerInfo, GameId, GameSession]) ->
+    {ok, SPid} = GameSession:start_link(self()),
+    GameSession:bot_session_attach(SPid, PlayerInfo),
+    UId = PlayerInfo#'PlayerInfo'.id,
+    gas:info(?MODULE,"BOTMODULE ~p started with game_session pid ~p game session ~p", [UId, SPid, GameSession]),
     {ok, #state{user = PlayerInfo, uid = UId, owner = Owner, gid = GameId, session = SPid}}.
 
 handle_call({server, Msg0}, _From, #state{uid = UId, bot = BPid} = State) ->
@@ -51,20 +62,23 @@ handle_call({server, Msg0}, _From, #state{uid = UId, bot = BPid} = State) ->
     BPid ! Msg,
     {reply, ok, State};
 
-handle_call({call_rpc, Msg}, From, State) ->
+handle_call({call_rpc, Msg}, From, #state{game_session = GameSession} = State) ->
+    io:format("msg ~p~n", [Msg]),
+    gas:info(?MODULE,"OKEY BOT: call_rpc ~p",[Msg]),
     RR = State#state.running_requests,
     Id = State#state.request_id + 1,
     Self = self(),
     RR1 = dict:store(Id, From, RR),
     proc_lib:spawn_link(fun() ->
                                 Res = try
-                                          Answer = game_session:process_request(State#state.session, "OKEY BOT", Msg),
-%                            		  gas:info(?MODULE,"Process Request from OKEY BOT:",[]),
-%                            		  gas:info(?MODULE,"                      REQUEST: ~p",[Msg]),
-%                            		  gas:info(?MODULE,"                        REPLY: ~p",[Answer]),
+                                          Answer = GameSession:process_request(State#state.session, "OKEY BOT", Msg),
+                                          gas:info(?MODULE,"Process Request from OKEY BOT:",[]),
+                                          gas:info(?MODULE,"                      REQUEST: ~p",[Msg]),
+                                          gas:info(?MODULE,"                        REPLY: ~p",[Answer]),
                                           {reply, Id, Answer}
                                       catch
-                                          _Err:Reason ->
+                                          Err:Reason ->
+                                              gas:info(?MODULE," OKEY BOT crash with resason: ~p ~p ~p",[Err, Reason, erlang:get_stacktrace()]),
                                               {reply, Id, {error, Reason}}
                                       end,
                                 gen_server:call(Self, Res)
@@ -268,19 +282,12 @@ do_challenge(State) ->
     gas:info(?MODULE,"ID: ~p challenge result: ~p", [State#state.uid, ZZZ]),
     ok.
 
-okey_client_round(<<"done">>, State = #state{}) ->
-    %% series of sets ended, do rematch, if needed.
-    okey_client_loop(State);
-%%    S = State#state.conn,
-%%    call_rpc(S, #logout{});
-    %okey_client_rematch(State),
-    %init_set(State);
-okey_client_round(<<"next_set">>, State = #state{}) ->
-    %% set ended, wait for new set info
-    okey_client_loop(State);
-okey_client_round(<<"next_round">>, State) ->
+okey_client_round(next_round, State) ->
     %% round ended, wait for new round info
 %    State2 = get_hand(State),
+    okey_client_loop(State);
+okey_client_round(UnknowAction, State) ->
+    gas:info(?MODULE,"OKEY BOT unknow action ~p", [UnknowAction]),
     okey_client_loop(State).
 
 
