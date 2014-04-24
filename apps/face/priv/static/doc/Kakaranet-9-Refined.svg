@@ -659,13 +659,13 @@
                 <g id="Alina-Name" transform="translate(670.000000, 161.000000)">
                     <rect id="Alina-Pad" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="116" height="39" rx="8"></rect>
                     <text id="Alina" fill="#48AF5E" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal">
-                        <tspan x="29.9241" y="26.7344" fill="#000000">Alina</tspan>
+                        <tspan x="29.9241" y="26.7344">Alina</tspan>
                     </text>
                 </g>
                 <g id="Gabrielo-Name" transform="translate(246.000000, 151.000000)">
                     <rect id="Gabrielo-Pad" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="145" height="39" rx="8"></rect>
                     <text id="Gabrielo" fill="#48AF5E" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal">
-                        <tspan x="26.5916" y="27.7344" fill="#000000">Gabrielo</tspan>
+                        <tspan x="26.5916" y="27.7344">Gabrielo</tspan>
                     </text>
                 </g>
                 <g id="Mustafa-Name" transform="translate(444.000000, 80.000000)">
@@ -678,7 +678,7 @@
                     </g>
                     <rect id="Mustafa-Pad" fill="#517ECE" sketch:type="MSShapeGroup" x="42" y="0" width="145" height="38" rx="8"></rect>
                     <text id="Mustafa" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal">
-                        <tspan x="67.9998" y="25.7344" fill="#000000">Mustafa</tspan>
+                        <tspan x="67.9998" y="25.7344">Mustafa</tspan>
                     </text>
                 </g>
                 <g id="Me-Name" transform="translate(429.000000, 416.000000)">
@@ -691,7 +691,7 @@
                         </text>
                     </g>
                     <text id="Me" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal">
-                        <tspan x="69.9998" y="27.7344" fill="#000000">Me</tspan>
+                        <tspan x="69.9998" y="27.7344">Me</tspan>
                     </text>
                 </g>
                 <g id="Left-Menu" transform="translate(0.000000, 545.000000)" sketch:type="MSShapeGroup">
