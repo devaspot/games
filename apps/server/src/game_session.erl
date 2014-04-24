@@ -309,7 +309,7 @@ handle_client_request(#join_game{game = GameId}, _From,
             {reply, {error, already_joined}, State};
         false ->
             gas:info(?MODULE,"Requesting main relay info...",[]),
-            case game_manager:get_relay_mod_pid(GameId) of
+            case game:get_relay_mod_pid(GameId) of
                 {FLMod, FLPid} ->
                     gas:info(?MODULE,"Found the game: ~p. Trying to register...",[{FLMod, FLPid}]),
                     case FLMod:reg(FLPid, User) of
@@ -320,8 +320,7 @@ handle_client_request(#join_game{game = GameId}, _From,
                             Part = #participation{ref = Ref, game_id = GameId, reg_num = RegNum,
                                                   rel_module = RMod, rel_pid = RPid,
                                                   tab_module = TMod, tab_pid = TPid, role = player},
-                            Res = #'TableInfo'{}, % FIXME: The client should accept 'ok' responce
-                            {reply, Res, State#state{games = [Part | State#state.games]}};
+                            {reply, ok, State#state{games = [Part | State#state.games]}};
                         {error, finished} ->
                             gas:info(?MODULE,"The game is finished: ~p.",[GameId]),
                             ok = send_message_to_player(RPC, #disconnect{reason_id = <<"gameFinished">>,
@@ -403,7 +402,7 @@ handle_relay_kick({rejoin, GameId}, _SubscrId,
                   #state{user = User, games = Games, rpc = RPC} = State) ->
     gas:info(?MODULE,"Requesting main relay info...",[]),
     UserId = User#'PlayerInfo'.id,
-    case game_manager:get_relay_mod_pid(GameId) of
+    case game:get_relay_mod_pid(GameId) of
         {FLMod, FLPid} ->
             gas:info(?MODULE,"Found the game: ~p. Trying to register...",[{FLMod, FLPid}]),
             case FLMod:reg(FLPid, User) of

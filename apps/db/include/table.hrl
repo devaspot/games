@@ -1,50 +1,44 @@
 -ifndef(TABLE_HRL).
 -define(TABLE_HRL, "table.hrl").
 
--include("../../server/include/types.hrl").
 -include_lib("kvs/include/kvs.hrl").
 
--record(game_table, 
-        {
-          ?ITERATOR(feed),
+-record(game_table, {?ITERATOR(feed),
           name,
           gameid,
           trn_id,
           game_type,
-          rounds :: integer() | 'undefined' | '_',
-          sets :: integer() | 'undefined' | '_',
-          owner :: username_type() | '_',
+          rounds,
+          sets,
+          owner,
           timestamp,
-          users = [] :: [username_type()] | '_',
-          users_options = [] :: [username_type()] | '_',
+          users = [],
+          users_options = [],
           game_mode,
           game_options,
           game_speed,
           friends_only,
-          invited_users = [] :: [username_type()] | '_',
-          private :: boolean() | '_',
+          invited_users = [],
+          private :: boolean(),
           feel_lucky = false :: boolean(),
           creator,
           age_limit,
-          groups_only = [] :: [id_type()] | '_',
+          groups_only = [],
           gender_limit,
           location_limit = "",
           paid_only,
-          deny_robots = false :: boolean() | '_',
+          deny_robots = false :: boolean(),
           slang,
           deny_observers,
-          gosterge_finish = false :: boolean() | '_',
+          gosterge_finish = false :: boolean(),
           double_points = 1 :: integer(),
           game_state,
-          game_process :: pid() | '_',
+          game_process :: pid(),
           game_module :: atom(),
-          pointing_rules :: any() | '_', %% #pointing_rule{}
-          pointing_rules_ex :: [] | '_', %% [#pointing_rule{}] - list of additional pointing rules,
-          %% for example IFeelLucky for okey game
-          game_process_monitor :: reference() | '_',
-
+          pointing_rules :: any(),
+          pointing_rules_ex :: [], %% [#pointing_rule{}] - list of additional pointing rules,
+          game_process_monitor :: reference(),
           tournament_type = simple :: simple | paired | paired_lobby | tournament,
-          robots_replacement_allowed = true :: boolean()
-        }).
+          robots_replacement_allowed = true :: boolean()}).
 
 -endif.

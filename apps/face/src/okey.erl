@@ -7,7 +7,6 @@
 -include_lib("kvs/include/user.hrl").
 
 -define(GAMEID, 1000001).
-%-define(GAMEID, 5000220).
 
 -record(player, {id, label, info, take, discard, history = []}).
 
@@ -89,7 +88,7 @@ body() ->
 event(terminate) -> wf:info(?MODULE,"terminate");
 
 event(init) -> 
-    GamesIds = case game_manager:get_all_games_ids() of
+    GamesIds = case game:get_all_games_ids() of
       [] -> [?GAMEID];
       List -> List end,
     

@@ -1402,8 +1402,7 @@ create_player_left(SeatNum, UserInfo, Players) ->
     #player{user_id = OldUserId} = get_player_by_seat_num(SeatNum, Players),
     IsBot = UserInfo#'PlayerInfo'.robot,
     #player_left{player = OldUserId,
-                 human_replaced = not IsBot, %% XXX WTF?
-                 bot_replaced = IsBot,       %% XXX WTF?
+                 human_replaced = not IsBot,
                  replacement = UserInfo}.
 
 

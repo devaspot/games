@@ -330,23 +330,23 @@ handle_parent_message(show_round_result, StateName,
     gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> RoundScore: ~p Total score: ~p.", [GameId, TableId, RoundScore, TotalScore]),
     Msg = case FinishInfo of
               {win_reveal, Revealer, WrongRejects, _RevealWithColor, _RevealWithOkey, _RevealWithPairs} ->
-                  create_okey_round_ended_reveal(Revealer, true, WrongRejects, RoundScore,
-                                                 TotalScore, AchsPoints, StateData);
+                  create_okey_round_ended_reveal(
+                    Revealer, true, WrongRejects, RoundScore, TotalScore, AchsPoints, StateData);
               {fail_reveal, Revealer} ->
-                  create_okey_round_ended_reveal(Revealer, false, [], RoundScore,
-                                                 TotalScore, AchsPoints, StateData);
+                  create_okey_round_ended_reveal(
+                    Revealer, false, [], RoundScore, TotalScore, AchsPoints, StateData);
               tashes_out ->
-                  create_okey_round_ended_tashes_out(RoundScore, TotalScore, AchsPoints,
-                                                     StateData);
+                  create_okey_round_ended_tashes_out(
+                    RoundScore, TotalScore, AchsPoints, StateData);
               timeout ->
-                  create_okey_round_ended_tashes_out(RoundScore, TotalScore, AchsPoints,
-                                                     StateData);
+                  create_okey_round_ended_tashes_out(
+                    RoundScore, TotalScore, AchsPoints, StateData);
               set_timeout ->
-                  create_okey_round_ended_tashes_out(RoundScore, TotalScore, AchsPoints,
-                                                     StateData);
+                  create_okey_round_ended_tashes_out(
+                    RoundScore, TotalScore, AchsPoints, StateData);
               {gosterge_finish, Winner} ->
-                  create_okey_round_ended_gosterge_finish(Winner, RoundScore, TotalScore,
-                                                          AchsPoints, StateData)
+                  create_okey_round_ended_gosterge_finish(
+                    Winner, RoundScore, TotalScore, AchsPoints, StateData)
           end,
     relay_publish_ge(Relay, Msg, StateData),
     {next_state, StateName, StateData#okey_state{}};
@@ -1228,8 +1228,7 @@ create_player_left(SeatNum, UserInfo, Players) ->
     #player{user_id = OldUserId} = get_player_by_seat_num(SeatNum, Players),
     IsBot = UserInfo#'PlayerInfo'.robot,
     #player_left{player = OldUserId,
-                 human_replaced = not IsBot, %% XXX WTF?
-                 bot_replaced = IsBot,       %% XXX WTF?
+                 human_replaced = not IsBot,
                  replacement = UserInfo}.
 
 
@@ -1270,6 +1269,36 @@ create_okey_tile_discarded(SeatNum, Tash, Timeouted, Players) ->
     #okey_tile_discarded{player = UserId,
                          tile = tash_to_ext(Tash),
                          timeouted = Timeouted}.
+
+% OKEY GAME RESULTS
+
+game_results(
+    Reason,
+    Revealer, RevealerWin, WrongRejects, RoundScore,
+    TotalScore, PlayersAchsPoints,
+    State=#okey_state{
+        game_id=GameId,
+        players=Players}) ->
+
+    [begin
+
+        #player{user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
+        IsWinner = if SeatNum == Revealer -> RevealerWin; true -> not RevealerWin end,
+        GoodShot = if SeatNum == Revealer -> RevealerWin; true -> not lists:member(SeatNum, WrongRejects) end,
+        {_, PlayerScoreTotal} = lists:keyfind(SeatNum, 1, TotalScore),
+        {_, PlayerScoreRound} = lists:keyfind(SeatNum, 1, RoundScore),
+
+        player_result(Reason,GameId,UserId,IsWinner,PlayerScoreRound)
+
+    end || SeatNum <- lists:seq(1, ?SEATS_NUM)],
+
+    ok.
+
+player_result(Reason,GameId,UserId,IsWinner,PlayerScoreRound) ->
+
+    
+
+    ok.
 
 create_okey_round_ended_reveal(Revealer, RevealerWin, WrongRejects, RoundScore, TotalScore, PlayersAchsPoints,
                         #okey_state{players = Players}) ->

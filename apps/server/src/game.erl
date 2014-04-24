@@ -4,8 +4,8 @@
 -include_lib("server/include/requests.hrl").
 -include_lib("db/include/table.hrl").
 -include_lib("db/include/tournaments.hrl").
--include_lib("stdlib/include/qlc.hrl").
 -include_lib("db/include/scoring.hrl").
+-include_lib("stdlib/include/qlc.hrl").
 
 online() -> [X||X<-qlc:e(gproc:table()),element(1,X)=={p,l,broadcast}].
 
@@ -17,7 +17,7 @@ destroy_game(Pid,Sup) -> game_sup:stop_game(Sup,Pid).
 gen_game_id() ->
     PoolNum = wf:config(nsx_idgen,game_pool,5000000) div 1000000,
     PoolNumStr = integer_to_list(PoolNum),
-    PoolNum*1000000 + 200 + kvs:next_id("game_table", 1).
+    PoolNum*1000000 + 200 + kvs:next_id(game_table, 1).
      %% 200 is reserved for lucky games and for already created games
 
 create_game(GameId, GameFSM, Params) ->
@@ -33,7 +33,7 @@ rank_table(GameId) ->
     end.
 
 get_lucky_pid(Sup) ->
-    [X]=game_manager:get_lucky_table(Sup),
+    [X]=game:get_lucky_table(Sup),
     X#game_table.game_process.
 get_relay_pid(GameId) -> case get_tables(GameId) of [] -> undefined;
     [#game_table{game_process = P} | _] -> gas:info(?MODULE,"GameRelay: ~p",[P]), P end.
@@ -109,7 +109,7 @@ get_tournament(TrnId) ->
 
 %% stress_test(NumberOfRooms) ->
 %%     OkeyPlayers = [begin
-%%           {ok,GameId,A} = game_manager:create_table(game_okey,[{table_name,"okey maxim and alice + 2 robots"},
+%%           {ok,GameId,A} = game:create_table(game_okey,[{table_name,"okey maxim and alice + 2 robots"},
 %%                           {speed,normal},
 %%                           {rounds,80},
 %%                           {sets,1},

@@ -131,7 +131,7 @@ robot_init_loop(State) -> % receiving messages from relay
     receive
         join_game ->
             case call_rpc(S, #join_game{game = GameId}) of
-                #'TableInfo'{game = _Atom} -> tavla_client_loop(State);
+                ok -> tavla_client_loop(State);
                 _Err -> gas:info(?MODULE,"ID: ~p failed take with msg ~p", [Id, _Err]),
                         erlang:error(robot_cant_join_game)
             end

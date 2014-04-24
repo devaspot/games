@@ -764,9 +764,11 @@ get_param(ParamId, Params) ->
 add_points_to_accounts(Points, GameId, GameType, GameMode) ->
     TI = #ti_game_event{game_name = GameType, game_mode = GameMode,
                         id = GameId, double_points = 1,
-                        type = game_end, tournament_type = ?TOURNAMENT_TYPE},    
+                        type = game_end, tournament_type = lucky},    
     [begin
          if GamePoints =/= 0 ->
+         
+                %{UserId,game_points,GameType,GameMode,TournamentType}
 
                  kvs:add(#transaction{
                             id=kvs:next_id(transaction,1),

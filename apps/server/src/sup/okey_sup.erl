@@ -32,7 +32,7 @@ okey_standalone_specs(GamesNum, VirtUsersPerTable) ->
            [];
        true ->
            F = fun(_) ->
-                       GameId = game_manager:gen_game_id(),
+                       GameId = game:gen_game_id(),
                        GameName = "Okey/Crowd game - " ++ erlang:integer_to_list(GameId),
                        Users = nsg_crowd_lib:random_users(VirtUsersPerTable, VirtualUsers),
 %%%                      Users = [robot, robot, robot],

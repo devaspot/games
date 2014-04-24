@@ -45,7 +45,7 @@ fire_starter(MultiOwner, CreateMode, RevealMode) ->
          join_game_humans ->
 
             Humans = [<<"maxim">>,<<"alice">>], % see authored users in auth_server.erl
-            {ok, GameId, _A} = game_manager:create_table(game_tavla, [{deny_robots,true},{rounds, 1}], Humans),
+            {ok, GameId, _A} = game:create_table(game_tavla, [{deny_robots,true},{rounds, 1}], Humans),
             gas:info(?MODULE,"created table for Tavla Game: gameid ~p",[{GameId,_A}]),
             Clients = [ proc_lib:spawn_link(fun() -> 
                                  timer:sleep(crypto:rand_uniform(0, 10)),
@@ -69,7 +69,7 @@ attach_and_join(Owner, Host, Port, GameId, OwnId, Rematch, Mode) ->
     end,
     #'PlayerInfo'{id = Id} = ?TCM:call_rpc(S1, #session_attach{token = TT}) ,
     log(connected),
-    #'TableInfo'{game = _Atom} = ?TCM:call_rpc(S1, #join_game{game = GameId}) ,
+    ok = ?TCM:call_rpc(S1, #join_game{game = GameId}) ,
     State = #state{conn = S1, gid = GameId, uid = Id, acker_fun = standard_acker(Owner)},
     play_round(State, Rematch),
     log(finished),

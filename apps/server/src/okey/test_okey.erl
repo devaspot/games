@@ -185,7 +185,7 @@ start_test_game_t(MultiOwner, CreateMode, RevealMode) ->
 
             Robots = [robot,robot,robot],
             Humans = [<<"paul">>],%<<"radistao">>, <<"paul">>],
-            {ok, GameId, _A} = game_manager:create_table(game_okey, [{sets,2}, {rounds,20},{game_mode,color}], Robots ++ Humans),
+            {ok, GameId, _A} = game:create_table(game_okey, [{sets,2}, {rounds,20},{game_mode,color}], Robots ++ Humans),
 
 	    gas:info(?MODULE,"created table for Okey Game: gameid ~p",[{GameId,_A}]),
 
@@ -200,7 +200,7 @@ start_test_game_t(MultiOwner, CreateMode, RevealMode) ->
 
         join_game ->
 
-            {ok, GameId, _} = game_manager:create_table(game_okey, [{game_mode, color}, {sets, 2}, {rounds, 2}], Ids),
+            {ok, GameId, _} = game:create_table(game_okey, [{game_mode, color}, {sets, 2}, {rounds, 2}], Ids),
 
             Orders = [],
 
@@ -212,7 +212,7 @@ start_test_game_t(MultiOwner, CreateMode, RevealMode) ->
 
         join_game_new ->
 
-            {ok, GameId, _} = game_manager:create_table(game_okey, [{game_mode, color}, {sets, 2}, {rounds, 2}], Ids),
+            {ok, GameId, _} = game:create_table(game_okey, [{game_mode, color}, {sets, 2}, {rounds, 2}], Ids),
 
             Clients = [ proc_lib:spawn_link(fun() -> 
 			         timer:sleep(crypto:rand_uniform(0, 300)),
@@ -222,7 +222,7 @@ start_test_game_t(MultiOwner, CreateMode, RevealMode) ->
             Orders = [#bo{pid = 2, event = game_ended, event_no = 2, order = stop}];
 
         join_game_countdown ->
-            {ok, GameId, _} = game_manager:create_table(game_okey, [{game_mode, countdown}, {gosterge_finish, true}], Ids),
+            {ok, GameId, _} = game:create_table(game_okey, [{game_mode, countdown}, {gosterge_finish, true}], Ids),
             Orders = [#bo{pid = 2, event = game_ended, event_no = 10, order = stop}],
             Clients = [ proc_lib:spawn_link(fun() -> 
 			      timer:sleep(crypto:rand_uniform(0, 300)),
@@ -230,11 +230,11 @@ start_test_game_t(MultiOwner, CreateMode, RevealMode) ->
 
         join_game_observer ->
 
-             L = [{true, #'TableInfo'{}}, {false, {error, <<"this_game_is_private">>}}],
+             L = [{true, ok}, {false, {error, <<"this_game_is_private">>}}],
 
             lists:map(fun({Setting, ExpectedAnswer}) ->
 
-                    {ok, GameId, _} = game_manager:create_table(game_okey, [{observers, Setting}, 
+                    {ok, GameId, _} = game:create_table(game_okey, [{observers, Setting}, 
 								{game_mode, standard}, {sets, 1}, {rounds, 1}], Ids),
 
                     Bots = [ proc_lib:spawn_link(fun() -> 
@@ -259,7 +259,7 @@ start_test_game_t(MultiOwner, CreateMode, RevealMode) ->
         test_social_actions ->
             SenderFun = fun send_and_receive_social_action/2,
             ReceiverFun = fun receive_social_action/3,
-            {ok, GameId, _} = game_manager:create_table(game_okey, [{game_mode, countdown}, {gosterge_finish, true}], Ids),
+            {ok, GameId, _} = game:create_table(game_okey, [{game_mode, countdown}, {gosterge_finish, true}], Ids),
             A = #bo{pid = 1, event = got_hand, event_no = 1, order = {do_and_continue, SenderFun, [<<"paul">>]}},
             B = #bo{pid = 2, event = got_hand, event_no = 1, order = {do_and_continue, ReceiverFun, [<<"radistao">>, <<"paul">>]}},
             C = #bo{pid = 3, event = got_hand, event_no = 1, order = {do_and_continue, ReceiverFun, [<<"radistao">>, <<"paul">>]}},
@@ -282,8 +282,7 @@ init_with_join_game(Owner, Host, Port, GameId, OwnId, Rematch, Mode) ->
     log(connected),
     Stats = ?TCM:call_rpc(S1, #get_player_stats{game_type = <<"okey">>, player_id = Id}) ,
     #'PlayerOkeyStats'{} = Stats,
-    #'TableInfo'{game = Atom} = ?TCM:call_rpc(S1, #join_game{game = GameId}) ,
-    <<"okey">> = Atom,
+    ok = ?TCM:call_rpc(S1, #join_game{game = GameId}) ,
     State = #state{conn = S1, gid = GameId, uid = Id, acker_fun = standard_acker(Owner)},
     play_set(State, Rematch),
     log(finished),

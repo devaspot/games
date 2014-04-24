@@ -1,11 +1,9 @@
 -ifndef(BASIC_TYPES).
 -define(BASIC_TYPES, true).
--type 'tag'()        :: any().
--type 'PlayerId'()   :: any().
+
+-type 'PlayerId'()   :: any() | 0.
 -type 'GameId'()     :: any().
--type 'ChatId'()     :: any().
 -type 'SocialActionEnum'() :: integer().
-%-type proplist()     :: list(tuple(atom(), any())).
 -type 'MonitorRef'() :: reference().
 
 -record('PlayerInfo', {
