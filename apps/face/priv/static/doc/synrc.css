@@ -32,3 +32,13 @@ code { background-color: lightblue; margin: 15px 0px 20px 20px;
        white-space: pre; }
 
 .numbox { padding-left:10px;padding-right:10px;padding-top:10px;padding-bottom:10px;background-color:black;color:white; }
+
+@font-face {
+    font-family: "Exo 2";
+        src: url("http://synrc.com/fonts/nokiapuretextlight-webfont.eot?v=3"); /* IE9 */
+        src: url("http://synrc.com/fonts/nokiapuretextlight-webfont.eot?v=3") format("eot"), /* IE6-IE8 */
+             url("http://synrc.com/fonts/nokiapuretextlight-webfont.woff?v=3") format("truetype"), /* Mordern browsers */
+             url("http://synrc.com/fonts/nokiapuretextlight-webfont.ttf?v=3") format("truetype"); /* Safari, Android, iOS */
+    font-weight: 200;
+    font-style: normal;
+}
