@@ -11,7 +11,7 @@ Kakaranet Game Server
 Credits
 -------
 
-Sinan Ustel
-Ahmet Tez
+* Sinan Ustel
+* Ahmet Tez
 
 OM A HUM
