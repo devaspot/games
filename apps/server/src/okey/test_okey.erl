@@ -280,7 +280,7 @@ init_with_join_game(Owner, Host, Port, GameId, OwnId, Rematch, Mode) ->
     TT = ?TEST_TOKEN,
     #'PlayerInfo'{id = Id} = ?TCM:call_rpc(S1, #session_attach{token = TT}) ,
     log(connected),
-    Stats = ?TCM:call_rpc(S1, #get_player_stats{game_type = <<"okey">>, player_id = Id}) ,
+    Stats = ?TCM:call_rpc(S1, #player_stats{game_type = <<"okey">>, player_id = Id}) ,
     #'PlayerOkeyStats'{} = Stats,
     ok = ?TCM:call_rpc(S1, #join_game{game = GameId}) ,
     State = #state{conn = S1, gid = GameId, uid = Id, acker_fun = standard_acker(Owner)},
@@ -296,7 +296,7 @@ init_with_join_game_observe(_Owner, Host, Port, GameId, OwnId, Mode, EJoinResult
     TT = ?TEST_TOKEN,
     #'PlayerInfo'{id = Id} = ?TCM:call_rpc(S1, #session_attach{token = TT}) ,
     log(connected),
-    Stats = ?TCM:call_rpc(S1, #get_player_stats{game_type = <<"okey">>, player_id = Id}) ,
+    Stats = ?TCM:call_rpc(S1, #player_stats{game_type = <<"okey">>, player_id = Id}) ,
     #'PlayerOkeyStats'{} = Stats,
     JR = ?TCM:call_rpc(S1, #join_game{game = GameId}) ,
     gas:info(?MODULE,"JR: ~p, expected result: ~p", [JR, EJoinResult]),
@@ -831,7 +831,7 @@ send_and_receive_social_action(State, Recipient) ->
 
 receive_social_action(_State, Sender, Recipient) ->
     receive
-        #social_action_msg{type = Type, initiator = I, recipient = R} ->
+        #social_event{type = Type, initiator = I, recipient = R} ->
             true = Type == 0,
             true = Sender == I,
             true = Recipient == R

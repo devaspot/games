@@ -75,39 +75,6 @@ handle_info({relay_kick, SubscrId, Reason}, State) ->
     gas:info(?MODULE,"Recived a kick notification from the table: ~p", [Reason]),
     handle_relay_kick(Reason, SubscrId, State);
 
-handle_info({delivery, ["user_action", Action, Who, Whom], _} = Notification,
-            #state{rels_players = RelsPlayers, user = User, rpc = RPC } = State) ->
-    gas:info(?MODULE,"Handle_info/2 Delivery: ~p", [Notification]),
-    UserId = User#'PlayerInfo'.id,
-    case list_to_binary(Who) of
-        UserId ->
-            PlayerId = list_to_binary(Whom),
-            case lists:member(PlayerId, RelsPlayers) of
-                true ->
-                    Type = case Action of
-                               "subscribe" -> ?SOCIAL_ACTION_SUBSCRIBE;
-                               "unsubscribe" -> ?SOCIAL_ACTION_UNSUBSCRIBE;
-                               "block" -> ?SOCIAL_ACTION_BLOCK;
-                               "unblock" -> ?SOCIAL_ACTION_UNBLOCK
-                           end,
-                    Msg = #social_action_msg{initiator = UserId,
-                                             recipient = PlayerId,
-                                             type = Type
-                                            },
-
-                    % TODO: put real db change notification from users:343 module here
-                    %       wf:send_db_subscription_change
-                    %       should be additionaly subscribed in bg feed worker binded to USER_EXCHANGE
-
-                    ok = send_message_to_player(RPC, Msg);
-                false ->
-                    do_nothing
-            end;
-        _ ->
-            do_nothing
-    end,
-    {noreply, State};
-
 handle_info({'DOWN', MonitorRef, _Type, _Object, _Info} = Msg, State = #state{rpc_mon = MonitorRef}) ->
     gas:info("connection closed, shutting down session:~p", [Msg]),
     {stop, normal, State};
@@ -157,16 +124,13 @@ handle_client_request(_, _From, #state{user = undefined} = State) ->
     gas:info(?MODULE,"Unknown session call", []),
     {reply, {error, do_session_attach_first}, State};
 
-handle_client_request(#get_game_info{}, _From, State) ->
-    gas:info(?MODULE,"Session get game info", []),
-    {reply, {error, not_implemented}, State};
-
 handle_client_request(#logout{}, _From, State) ->
     gas:info(?MODULE,"Logout", []),
     {stop, normal, ok, State};
 
-handle_client_request(#get_player_stats{player_id = PlayerId, game_type = GameModule}, _From, #state{rpc = RPC} = State) ->
-    Res = GameModule:get_player_stats(PlayerId),
+handle_client_request(#player_stats{player_id = PlayerId, game_type = GameModule}, _From, #state{rpc = RPC} = State) ->
+    % TODO add here everything about player statistic
+    Res = <<"everything player stats :)">>, %GameModule:get_player_stats(PlayerId),
     gas:info(?MODULE,"Get player stats: ~p", [Res]),
     send_message_to_player(RPC, Res),
     {reply, Res, State};
@@ -174,7 +138,7 @@ handle_client_request(#get_player_stats{player_id = PlayerId, game_type = GameMo
 handle_client_request(#chat{chat_id = GameId, message = Msg0}, _From,
                       #state{user = User, games = Games} = State) ->
     gas:info(?MODULE,"Chat", []),
-    Msg = #chat_msg{chat = GameId, content = Msg0,
+    Msg = #chat_event{chat = GameId, content = Msg0,
                     author_id = User#'PlayerInfo'.id,
                     author_nick = User#'PlayerInfo'.login
                    },
@@ -187,42 +151,12 @@ handle_client_request(#chat{chat_id = GameId, message = Msg0}, _From,
           end,
     {reply, Res, State};
 
-handle_client_request(#social_action_msg{type=Type, initiator=P1, recipient=P2}, _From,
-                      #state{user = User} = State) when User =/= undefined ->
-    UserIdBin = User#'PlayerInfo'.id,
-    gas:info(?MODULE,"Social action msg from ~p to ~p (casted by ~p)", [P1, P2, UserIdBin]),
-    UserId = binary_to_list(UserIdBin),
-    case Type of
-        ?SOCIAL_ACTION_SUBSCRIBE ->
-            Subject = binary_to_list(P2),
-            nsm_users:subscribe_user(UserId, Subject),
-            {reply, ok, State};
-        ?SOCIAL_ACTION_UNSUBSCRIBE ->
-            Subject = binary_to_list(P2),
-            nsm_users:remove_subscribe(UserId, Subject),
-            {reply, ok, State};
-        ?SOCIAL_ACTION_BLOCK ->
-            Subject = binary_to_list(P2),
-            wf:send(["subscription", "user", UserId, "block_user"], {Subject}),
-            {reply, ok, State};
-        ?SOCIAL_ACTION_UNBLOCK ->
-            Subject = binary_to_list(P2),
-            wf:send(["subscription", "user", UserId, "unblock_user"], {Subject}),
-            {reply, ok, State};
-        ?SOCIAL_ACTION_LOVE ->
-            {reply, ok, State};
-        ?SOCIAL_ACTION_HAMMER ->
-            {reply, ok, State};
-        UnknownAction ->
-            gas:error(?MODULE,"Unknown social action msg from ~p to ~p: ~w", [P1,P2, UnknownAction]),
-            {reply, {error, unknown_action}, State}
-    end;
 
 handle_client_request(#social_action{} = Msg, _From,
                       #state{user = User, games = Games} = State) ->
     gas:info(?MODULE,"Social action", []),
     GameId = Msg#social_action.game,
-    Res = #social_action_msg{type = Msg#social_action.type,
+    Res = #social_event{type = Msg#social_action.type,
                              game = GameId,
                              recipient = Msg#social_action.recipient,
                              initiator = User#'PlayerInfo'.id},
@@ -234,71 +168,6 @@ handle_client_request(#social_action{} = Msg, _From,
                   RMod:publish(Srv, Res)
           end,
     {reply, Ans, State};
-
-
-handle_client_request(#subscribe_player_rels{players = Players}, _From,
-            #state{user = User, rels_notif_channel = RelsChannel,
-                   rels_players = RelsPlayers, rpc = RPC} = State) ->
-    gas:info(?MODULE,"Subscribe player relations notifications: ~p", [Players]),
-    UserId = User#'PlayerInfo'.id,
-    UserIdStr = binary_to_list(UserId),
-    %% Create subscription if we need
-    NewRelsChannel =
-        if RelsChannel == undefined ->
-%               {ok, Channel} = nsx_msg:subscribe_for_user_actions(UserIdStr, self()),
-%               Channel;
-                RelsChannel;
-           true ->
-               RelsChannel
-        end,
-    %% Add players relations to which we need to common list
-    F = fun(PlayerId, Acc) ->
-                case lists:member(PlayerId, Acc) of
-                    true -> Acc;
-                    false -> [PlayerId | Acc]
-                end
-        end,
-    NewRelsPlayers = lists:foldl(F, RelsPlayers, Players),
-
-    %% Notify the client about current state of subscription relations.
-    %% (Blocking relations state should be "false" at the start)
-    F2 =
-        fun(PlayerId) ->
-                PlayerIdStr = binary_to_list(PlayerId),
-                Type = case nsm_users:is_user_subscr(UserIdStr, PlayerIdStr) of
-                           true -> ?SOCIAL_ACTION_SUBSCRIBE;
-                           false -> ?SOCIAL_ACTION_UNSUBSCRIBE
-                       end,
-                Msg = #social_action_msg{initiator = UserId,
-                                         recipient = PlayerId,
-                                         type = Type},
-                ok = send_message_to_player(RPC, Msg)
-        end,
-    lists:foreach(F2, Players),
-    NewState = State#state{rels_players = NewRelsPlayers,
-                           rels_notif_channel = NewRelsChannel},
-    {reply, ok, NewState};
-
-
-handle_client_request(#unsubscribe_player_rels{players = Players}, _From,
-                      #state{rels_notif_channel = RelsChannel,
-                             rels_players = RelsPlayers
-                            } = State) ->
-    gas:info(?MODULE,"Unsubscribe player relations notifications", []),
-    %% Remove players from common list
-    NewRelsPlayers = RelsPlayers -- Players,
-
-    %% Remove subscription if we don't need it now
-    NewRelsChannel =
-        if NewRelsPlayers == [] -> nsm_mq_channel:close(RelsChannel),
-               undefined;
-           true ->
-               RelsChannel
-        end,
-    NewState = State#state{rels_players = NewRelsPlayers,
-                           rels_notif_channel = NewRelsChannel},
-    {reply, ok, NewState};
-
 
 handle_client_request(#join_game{game = GameId}, _From,
                       #state{user = User, rpc = RPC, games = Games} = State) ->

@@ -1,21 +1,18 @@
+
 -include("basic_types.hrl").
 
 -record(session_attach, {token}).
 -record(login, {username, password}).
 -record(logout, {}).
 -record(join_game, {game}).
--record(get_game_info, {game}).
--record(get_player_info, {player_id :: 'PlayerId'() | 0}).
--record(get_player_stats, {player_id :: 'PlayerId'() | 0, game_type}).
--record(subscribe_player_rels, {players :: list()}).
--record(unsubscribe_player_rels, {players :: list()}).
--record(chat,          {chat_id :: 'GameId'(),message :: string()}).
--record(game_action,   { game :: 'GameId'(), action :: any(), args = []}).
+-record(player_stats, {player_id :: 'PlayerId'() | 0, game_type}).
+-record(chat, {chat_id :: 'GameId'(), message :: string()}).
+-record(game_action, {game :: 'GameId'(), action, args = []}).
+-record(social_action, {game :: 'GameId'(), type, recipient::'PlayerId'()}).
 
--record(game_event,    {game :: 'GameId'(), event, args = [] }).
--record(chat_msg,      {chat :: 'GameId'(), content, author_id::'PlayerId'(),author_nick::string() }).
--record(social_action, {game :: 'GameId'(),type,recipient::'PlayerId'()}).
--record(social_action_msg, {type,game::'GameId'(),initiator::'PlayerId'(),recipient::'PlayerId'()}).
+-record(game_event, {game :: 'GameId'(), event, args = [] }).
+-record(chat_event, {chat :: 'GameId'(), content, author_id::'PlayerId'(),author_nick::string() }).
+-record(social_event, {type,game::'GameId'(),initiator::'PlayerId'(),recipient::'PlayerId'()}).
 -record(pause_game, {table_id :: integer(),game :: 'GameId'(),action}).
 -record(game_paused, {table_id :: integer(), game :: 'GameId'(),action,who :: 'PlayerId'(),retries}).
 -record(disconnect, {reason_id,reason}).
