@@ -128,6 +128,7 @@ function setPlayerName(e, playerName) {
     document.getElementById(e).setAttribute("y",27);
     document.getElementById(e).setAttribute("x",dx);
     document.getElementById(e).textContent = playerName;
+    console.log("Bounding Box: "  + document.getElementById(e).getBBox().width);
     document.getElementById(e+"-Pad").setAttribute('width',
         document.getElementById(e).getBBox().width + 45); }
 
@@ -142,7 +143,7 @@ function empty_card(x,y) { var slot = document.getElementById(slotName(x,y));
 function rand(lo,hi) { return Math.floor((Math.random()*hi)+lo); }
 
 function loadScene() {
-    reload("Kakaranet-7-Refined.svg", "Refined");
+    reload("Kakaranet-9-Refined.svg", "Refined");
     for (var i=1;i<16;i++) { empty_card(i,2); empty_card(i,1); }
     drawSampleCards(); }
 
@@ -180,7 +181,7 @@ function loadAnimationForButton(a, b) { return loadAppend('templates/ButtonAnima
 // TODO: Rollout Monadic Chain here
 
 loadFile('templates/Card.svg', function() { 
-    loadFile('Kakaranet-7-Refined.svg', function() {
+    loadFile('Kakaranet-9-Refined.svg', function() {
 
         loadScene();
 
