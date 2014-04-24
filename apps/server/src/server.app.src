@@ -1,7 +1,7 @@
 {application, server,
  [
   {description, "KKN Game Server"},
-  {vsn, "1"},
+  {vsn, "3"},
   {registered, []},
   {applications, [kernel,gproc,stdlib,db]},
   {mod, { game_app, []}},

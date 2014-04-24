@@ -323,5 +323,3 @@ handle_relay_kick(Reason, _SubscrId, #state{rpc = RPC} = State) ->
 get_relay(GameId, GameList) ->
     lists:keyfind(GameId, #participation.game_id, GameList).
 
-% TODO: flush message to web socket process
-

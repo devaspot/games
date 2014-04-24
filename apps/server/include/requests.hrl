@@ -1,5 +1,6 @@
-
 -include("basic_types.hrl").
+
+% actions are being instantiated from client to server
 
 -record(session_attach, {token}).
 -record(login, {username, password}).
@@ -9,6 +10,8 @@
 -record(chat, {chat_id :: 'GameId'(), message :: string()}).
 -record(game_action, {game :: 'GameId'(), action, args = []}).
 -record(social_action, {game :: 'GameId'(), type, recipient::'PlayerId'()}).
+
+% event notifications from server to client
 
 -record(game_event, {game :: 'GameId'(), event, args = [] }).
 -record(chat_event, {chat :: 'GameId'(), content, author_id::'PlayerId'(),author_nick::string() }).
