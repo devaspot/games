@@ -958,11 +958,16 @@ init_players([{PlayerId, UserInfo, SeatNum, _StartPoints} | PlayersInfo], Player
 
 %%=================================================================
 
-handle_log(PlayerId,Players,Event,#okey_state{game_id=GameId}=State) ->
-    case get_player(PlayerId, Players) of
-        {ok, #player{info=#'PlayerInfo'{robot=false,id=User}=PlayerInfo}} ->
-             game_log:update_stats(User,User,Event,#game_event.event,State);
-        _ -> ok end.
+handle_log(User,#game_event{}=Event,
+    #okey_state{game_id=GameId,tournament_type=GameKind,game_mode=GameMode,speed=Speed,rounds=Rounds}=State) ->
+%    case get_player(PlayerId, Players) of
+%        {ok, #player{info=#'PlayerInfo'{robot=false,id=User}=PlayerInfo}} ->
+             ProtocolEvent = #protocol_event{
+                feed_id=User,module=GameKind,speed=Speed,rounds=Rounds,user=User,type=GameMode,
+                id=game_log:timestamp(),
+                event=Event#game_event.event,game_event=Event},
+             game_log:update_stats(User,ProtocolEvent,#protocol_event.event,State).
+%        _ -> ok end.
 
 send_to_subscriber_ge(Relay, SubscrId, Msg, #okey_state{players=Players,game_id = GameId} = State) ->
     [Name|List] = tuple_to_list(Msg),
@@ -975,7 +980,9 @@ send_to_client_ge(Relay, PlayerId, Msg, #okey_state{players=Players,game_id = Ga
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"SEND CLIENT ~p",[Event]),
     game_log:protocol_event(table,Event,State),
-    handle_log(PlayerId,Players,Event,State),
+    case get_player(PlayerId, Players) of
+        {ok, #player{user_id=User}} -> handle_log(User,Event,State);
+        _ -> skip end,
     ?RELAY:table_message(Relay, {to_client, PlayerId, Event}).
 
 relay_publish_ge(Relay, Msg, #okey_state{players=Players,game_id = GameId} = State) ->
@@ -983,7 +990,7 @@ relay_publish_ge(Relay, Msg, #okey_state{players=Players,game_id = GameId} = Sta
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"RELAYX PUBLISH ~p",[Event]),
     game_log:protocol_event(table,Event,State),
-    [ handle_log(Id,Players,Event,State) || {_,#player{id=Id},_} <- midict:to_list(Players)],
+    [ handle_log(UserId,Event,State) || {_,#player{id=Id,user_id=UserId},_} <- midict:to_list(Players)],
     relay_publish(Relay, Event).
 
 relay_publish(Relay, Msg) ->

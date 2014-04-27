@@ -13,9 +13,9 @@ start_link() -> gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 mypid() -> gen_server:call(?SERVER, mypid).
 clear_history() -> gen_server:cast(?SERVER, clear_history).
 get_history() -> gen_server:call(?SERVER, get_history).
-protocol_event(PI,Event,State) -> gen_server:cast(?SERVER, {protocol_event, PI, Event, State}).
+protocol_event(User,Event,State) -> gen_server:cast(?SERVER, {protocol_event, User, Event, State}).
 reveal_event(User,Event,State) -> gen_server:cast(?SERVER, {reveal_event, User, Event, State}).
-update_stats(Key,User,Event,Pos,State) -> gen_server:cast(?SERVER, {update_stats, Key, User, Event, Pos, State}).
+update_stats(User,Event,Pos,State) -> gen_server:cast(?SERVER, {update_stats, User, Event, Pos, State}).
 timestamp() -> {MegaSec, Sec, MiliSec} = erlang:now(), MegaSec * 1000 * 1000 * 1000  + Sec * 1000 + MiliSec.
 
 init([]) -> {ok, #state{}}.
@@ -53,15 +53,15 @@ handle_cast({protocol_event, UserId,
 
     gas:info(?MODULE, "Event Log: ~p", [EventLogEntry]),
     kvs:add(EventLogEntry),
-    update_container_stats(Key, UserId, Event,#protocol_event.event,State),
+    update_container_stats(UserId, EventLogEntry,#protocol_event.event,GameState),
 
     {noreply, State};
-handle_cast({update_stats, Key, User, Event, Pos, GameState}, State) ->
-    update_container_stats(Key, User, Event,Pos, GameState),
+handle_cast({update_stats, User, Event, Pos, GameState}, State) ->
+    update_container_stats(User, Event, Pos, GameState),
     {noreply, State};
 handle_cast({reveal_event, User, Event, GameState}, State) ->
     kvs:add(Event),
-    update_container_stats(element(#container_event.id,Event), User, Event, #reveal_event.reason, GameState),
+    update_container_stats(User, Event, #reveal_event.reason, GameState),
     {noreply, State};
 handle_cast(clear_history, State) -> {noreply, State#state{history = []}};
 handle_cast(_Msg, State) -> gas:info(?MODULE, "Event Log: cast message ~p", [_Msg]), {noreply, State}.
@@ -69,7 +69,7 @@ handle_info(_Info, State) -> gas:info(?MODULE, "Event Log: info message ~p", [_I
 terminate(_Reason, _State) -> ok.
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
 
-update_container_stats(Key,User,Event,Pos,GameState) ->
+update_container_stats(User,Event,Pos,GameState) ->
     {Date,Time} = calendar:local_time(),
 
     GameKind = element(#table_state.tournament_type,GameState),
@@ -79,18 +79,19 @@ update_container_stats(Key,User,Event,Pos,GameState) ->
     Rounds = element(#table_state.rounds,GameState),
 
     ContainerName = element(#container_event.container,Event),
-    Container = case kvs:get(ContainerName,Key) of
+    FeedId = element(#container_event.feed_id,Event),
+    Container = case kvs:get(ContainerName,FeedId) of
         {ok,GL} -> GL;
         _ ->
             NC = list_to_tuple([ContainerName|proplists:get_value(ContainerName, kvs:containers())]),
-            C1 = setelement(#container_log.id, NC, Key),
-            C2 = setelement(#container_log.speed, C1, Speed),
+            C1 = setelement(#container_log.id,     NC, FeedId),
+            C2 = setelement(#container_log.speed,  C1, Speed),
             C3 = setelement(#container_log.rounds, C2, Rounds),
-            C4 = setelement(#container_log.type, C3, GameMode),
+            C4 = setelement(#container_log.type,   C3, GameMode),
             C5 = setelement(#container_log.module, C4, GameKind),
-            C6 = setelement(#container_log.date, C5, Date),
-            C7 = setelement(#container_log.time, C6, Time),
-            C8 = setelement(#container_log.user, C7, User),
+            C6 = setelement(#container_log.date,   C5, Date),
+            C7 = setelement(#container_log.time,   C6, Time),
+            C8 = setelement(#container_log.user,   C7, User),
             C8
 
             end,
