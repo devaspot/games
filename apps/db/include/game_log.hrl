@@ -4,6 +4,7 @@
 -include_lib("kvs/include/kvs.hrl").
 
 -record(game_log,  {?CONTAINER, protocol_stat=[] }).
+-record(reveal_log,  {?CONTAINER, reveal_stat=[] }).
 -record(event_log, {?ITERATOR(game_log),
     game_id,
     timestamp,

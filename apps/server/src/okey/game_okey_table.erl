@@ -330,23 +330,29 @@ handle_parent_message(show_round_result, StateName,
     gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> RoundScore: ~p Total score: ~p.", [GameId, TableId, RoundScore, TotalScore]),
     Msg = case FinishInfo of
               {win_reveal, Revealer, WrongRejects, _RevealWithColor, _RevealWithOkey, _RevealWithPairs} ->
-                  create_okey_round_ended_reveal(
-                    Revealer, true, WrongRejects, RoundScore, TotalScore, AchsPoints, StateData);
+                    round_results(win_reveal,Revealer,true,WrongRejects,RoundScore,TotalScore,AchsPoints,StateData);
+%                  create_okey_round_ended_reveal(
+%                    Revealer, true, WrongRejects, RoundScore, TotalScore, AchsPoints, StateData);
               {fail_reveal, Revealer} ->
-                  create_okey_round_ended_reveal(
-                    Revealer, false, [], RoundScore, TotalScore, AchsPoints, StateData);
+                    round_results(fail_reveal,Revealer,false,[],RoundScore,TotalScore,AchsPoints,StateData);
+%                  create_okey_round_ended_reveal(
+%                    Revealer, false, [], RoundScore, TotalScore, AchsPoints, StateData);
               tashes_out ->
-                  create_okey_round_ended_tashes_out(
-                    RoundScore, TotalScore, AchsPoints, StateData);
+                    round_results(tashes_out,[],false,[],RoundScore,TotalScore,AchsPoints,StateData);
+%                  create_okey_round_ended_tashes_out(
+%                    RoundScore, TotalScore, AchsPoints, StateData);
               timeout ->
-                  create_okey_round_ended_tashes_out(
-                    RoundScore, TotalScore, AchsPoints, StateData);
+                    round_results(timeout,[],false,[],RoundScore,TotalScore,AchsPoints,StateData);
+%                  create_okey_round_ended_tashes_out(
+%                    RoundScore, TotalScore, AchsPoints, StateData);
               set_timeout ->
-                  create_okey_round_ended_tashes_out(
-                    RoundScore, TotalScore, AchsPoints, StateData);
+                    round_results(timeout,[],false,[],RoundScore,TotalScore,AchsPoints,StateData);
+%                  create_okey_round_ended_tashes_out(
+%                    RoundScore, TotalScore, AchsPoints, StateData);
               {gosterge_finish, Winner} ->
-                  create_okey_round_ended_gosterge_finish(
-                    Winner, RoundScore, TotalScore, AchsPoints, StateData)
+                    round_results(gosterge_finish,Winner,true,[],RoundScore,TotalScore,AchsPoints,StateData)
+%                  create_okey_round_ended_gosterge_finish(
+%                    Winner, RoundScore, TotalScore, AchsPoints, StateData)
           end,
     relay_publish_ge(Relay, Msg, StateData),
     {next_state, StateName, StateData#okey_state{}};
@@ -1272,7 +1278,7 @@ create_okey_tile_discarded(SeatNum, Tash, Timeouted, Players) ->
 
 % OKEY GAME RESULTS
 
-game_results(
+round_results(
     Reason,
     Revealer, RevealerWin, WrongRejects, RoundScore,
     TotalScore, PlayersAchsPoints,

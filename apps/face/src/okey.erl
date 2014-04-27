@@ -61,7 +61,7 @@ main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
 body() ->
     wf:wire(#api{name=plusLogin, tag=plus}),
-
+%    wf:cookie("user",(user())#user.id),
   [ #panel    { id = history },
     #button   { id = pluslogin,  body = "Login",       postback = login_button },
     #label    { id = nothing,    body = " Google"},    #br{}, #br{},
@@ -107,7 +107,10 @@ event(take) ->
     wf:wire(protocol:take(wf:to_list(GameId), wf:q(take_src)));
 
 event(player_info) -> 
+    wf:info(?MODULE,"Cowboy Cookies: ~p",[wf:cookies_req(?REQ)]),
+%    wf:info(?MODULE,"Cookie Reqt: ~p",[wf:cookie("Name","Value","/",0,?REQ)]),
     User = user(),
+    wf:cookie(<<"user">>,<<"macim">>,<<"/ws/">>,24 * 60 * 60),
     wf:wire(protocol:player_info(
         wf:f("'~s'",[wf:to_list(User#user.id)]),wf:f("'~s'",[game_okey])));
 
