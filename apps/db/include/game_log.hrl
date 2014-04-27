@@ -2,14 +2,18 @@
 -define(GAME_LOG_HRL, "game_log.hrl").
 
 -include_lib("kvs/include/kvs.hrl").
+-define(LOG_HEADER, game_id, date, time, user, module, type, speed, rounds).
+-define(CONTAINER_LOG, ?CONTAINER, ?LOG_HEADER, stats=[]).
+-record(container_log, {?CONTAINER_LOG}).
+-record(container_event, {?ITERATOR(container_log), ?LOG_HEADER }).
 
--record(game_log,  {?CONTAINER, protocol_stat=[] }).
--record(reveal_log,  {?CONTAINER, reveal_stat=[] }).
--record(event_log, {?ITERATOR(game_log),
-    game_id,
-    timestamp,
-    user,
-    event,
-    game_event}).
+-record(series_log,  {?CONTAINER_LOG}).
+-record(series_event,  {?ITERATOR(series_log),?LOG_HEADER}).
+
+-record(reveal_log,  {?CONTAINER_LOG}).
+-record(reveal_event,  {?ITERATOR(reveal_log), ?LOG_HEADER, reason, winner, score, total}).
+
+-record(protocol_log,  {?CONTAINER_LOG}).
+-record(protocol_event, {?ITERATOR(protocol_log), ?LOG_HEADER, event, game_event}).
 
 -endif.

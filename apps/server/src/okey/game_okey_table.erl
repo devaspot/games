@@ -15,6 +15,7 @@
 -include_lib("server/include/game_okey.hrl").
 -include_lib("server/include/game_state.hrl").
 -include_lib("server/include/requests.hrl").
+-include_lib("db/include/game_log.hrl").
 
 %% --------------------------------------------------------------------
 %% External exports
@@ -338,15 +339,15 @@ handle_parent_message(show_round_result, StateName,
 %                  create_okey_round_ended_reveal(
 %                    Revealer, false, [], RoundScore, TotalScore, AchsPoints, StateData);
               tashes_out ->
-                    round_results(tashes_out,[],false,[],RoundScore,TotalScore,AchsPoints,StateData);
+                    round_results(tashes_out,none,false,[],RoundScore,TotalScore,AchsPoints,StateData);
 %                  create_okey_round_ended_tashes_out(
 %                    RoundScore, TotalScore, AchsPoints, StateData);
               timeout ->
-                    round_results(timeout,[],false,[],RoundScore,TotalScore,AchsPoints,StateData);
+                    round_results(timeout,none,false,[],RoundScore,TotalScore,AchsPoints,StateData);
 %                  create_okey_round_ended_tashes_out(
 %                    RoundScore, TotalScore, AchsPoints, StateData);
               set_timeout ->
-                    round_results(timeout,[],false,[],RoundScore,TotalScore,AchsPoints,StateData);
+                    round_results(timeout,none,false,[],RoundScore,TotalScore,AchsPoints,StateData);
 %                  create_okey_round_ended_tashes_out(
 %                    RoundScore, TotalScore, AchsPoints, StateData);
               {gosterge_finish, Winner} ->
@@ -957,10 +958,10 @@ init_players([{PlayerId, UserInfo, SeatNum, _StartPoints} | PlayersInfo], Player
 
 %%=================================================================
 
-handle_log(PlayerId,Players,Event,State) ->
+handle_log(PlayerId,Players,Event,#okey_state{game_id=GameId}=State) ->
     case get_player(PlayerId, Players) of
-        {ok, #player{info=#'PlayerInfo'{robot=false}=PlayerInfo}} ->
-             game_log:put(PlayerInfo,Event,State);
+        {ok, #player{info=#'PlayerInfo'{robot=false,id=User}=PlayerInfo}} ->
+             game_log:update_stats(User,User,Event,#game_event.event,State);
         _ -> ok end.
 
 send_to_subscriber_ge(Relay, SubscrId, Msg, #okey_state{players=Players,game_id = GameId} = State) ->
@@ -973,6 +974,7 @@ send_to_client_ge(Relay, PlayerId, Msg, #okey_state{players=Players,game_id = Ga
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"SEND CLIENT ~p",[Event]),
+    game_log:protocol_event(table,Event,State),
     handle_log(PlayerId,Players,Event,State),
     ?RELAY:table_message(Relay, {to_client, PlayerId, Event}).
 
@@ -980,6 +982,7 @@ relay_publish_ge(Relay, Msg, #okey_state{players=Players,game_id = GameId} = Sta
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"RELAYX PUBLISH ~p",[Event]),
+    game_log:protocol_event(table,Event,State),
     [ handle_log(Id,Players,Event,State) || {_,#player{id=Id},_} <- midict:to_list(Players)],
     relay_publish(Relay, Event).
 
@@ -1283,10 +1286,14 @@ round_results(
     Revealer, RevealerWin, WrongRejects, RoundScore,
     TotalScore, PlayersAchsPoints,
     State=#okey_state{
+        tournament_type=GameKind,
+        game_mode=GameMode,
+        speed=Speed,
+        rounds=Rounds,
         game_id=GameId,
         players=Players}) ->
 
-    [begin
+    Results = [begin
 
         #player{user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
         IsWinner = if SeatNum == Revealer -> RevealerWin; true -> not RevealerWin end,
@@ -1294,17 +1301,26 @@ round_results(
         {_, PlayerScoreTotal} = lists:keyfind(SeatNum, 1, TotalScore),
         {_, PlayerScoreRound} = lists:keyfind(SeatNum, 1, RoundScore),
 
-        player_result(Reason,GameId,UserId,IsWinner,PlayerScoreRound)
+        RE = #reveal_event{
+            id = game_log:timestamp(),
+            user = UserId,
+            module = GameKind,
+            speed = Speed,
+            rounds = Rounds,
+            type = GameMode,
+            reason = Reason,
+            winner = IsWinner,
+            score = PlayerScoreRound,
+            total = PlayerScoreTotal},
+        game_log:reveal_event(UserId,RE,State),
+        RE
 
     end || SeatNum <- lists:seq(1, ?SEATS_NUM)],
 
-    ok.
-
-player_result(Reason,GameId,UserId,IsWinner,PlayerScoreRound) ->
-
-    
-
-    ok.
+    #okey_round_ended{
+        reason = Reason,
+        results = Results,
+        next_action = next_round}.
 
 create_okey_round_ended_reveal(Revealer, RevealerWin, WrongRejects, RoundScore, TotalScore, PlayersAchsPoints,
                         #okey_state{players = Players}) ->
