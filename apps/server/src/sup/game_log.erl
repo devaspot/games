@@ -74,27 +74,28 @@ update_container_stats(User,Event,Pos,GameState) ->
 
     GameKind = element(#table_state.tournament_type,GameState),
     GameMode = element(#table_state.game_mode,GameState),
-    GameId = element(#table_state.game_id,GameState),
-    Speed = element(#table_state.speed,GameState),
-    Rounds = element(#table_state.rounds,GameState),
+    GameId   = element(#table_state.game_id,GameState),
+    Speed    = element(#table_state.speed,GameState),
+    Rounds   = element(#table_state.rounds,GameState),
 
     ContainerName = element(#container_event.container,Event),
     FeedId = element(#container_event.feed_id,Event),
-    Container = case kvs:get(ContainerName,FeedId) of
+    NC = case kvs:get(ContainerName,FeedId) of
         {ok,GL} -> GL;
-        _ ->
-            NC = list_to_tuple([ContainerName|proplists:get_value(ContainerName, kvs:containers())]),
-            C1 = setelement(#container_log.id,     NC, FeedId),
-            C2 = setelement(#container_log.speed,  C1, Speed),
-            C3 = setelement(#container_log.rounds, C2, Rounds),
-            C4 = setelement(#container_log.type,   C3, GameMode),
-            C5 = setelement(#container_log.module, C4, GameKind),
-            C6 = setelement(#container_log.date,   C5, Date),
-            C7 = setelement(#container_log.time,   C6, Time),
-            C8 = setelement(#container_log.user,   C7, User),
-            C8
+        _ -> list_to_tuple([ContainerName|proplists:get_value(ContainerName, kvs:containers())]) end,
 
-            end,
+    C1 = setelement(#container_log.id,     NC, FeedId),
+    C2 = setelement(#container_log.speed,  C1, Speed),
+    C3 = setelement(#container_log.rounds, C2, Rounds),
+    C4 = setelement(#container_log.type,   C3, GameMode),
+    C5 = setelement(#container_log.module, C4, GameKind),
+    C6 = setelement(#container_log.date,   C5, Date),
+    C7 = setelement(#container_log.time,   C6, Time),
+    C8 = setelement(#container_log.user,   C7, User),
+    C9 = setelement(#container_log.stats,  C8, []),
+
+    Container = C9,
+
     ContainerStats = element(#container_log.stats, Container),
     EventName = element(Pos,Event),
     PS = case is_list(ContainerStats) of true -> ContainerStats; _ -> [] end,
