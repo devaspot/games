@@ -1310,6 +1310,7 @@ round_results(
 
         RE = #reveal_event{
             id = game_log:timestamp(),
+            feed_id = UserId,
             user = UserId,
             module = GameKind,
             speed = Speed,
@@ -1319,7 +1320,10 @@ round_results(
             winner = IsWinner,
             score = PlayerScoreRound,
             total = PlayerScoreTotal},
-        game_log:reveal_event(UserId,RE,State),
+        case {SeatNum == Revealer,Revealer} of
+            {false,none} -> game_log:reveal_event(UserId,RE,State);
+            {true,_} -> game_log:reveal_event(UserId,RE,State);
+            {false,_} -> skip end,
         RE
 
     end || SeatNum <- lists:seq(1, ?SEATS_NUM)],
