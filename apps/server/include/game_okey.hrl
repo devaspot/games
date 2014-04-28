@@ -189,7 +189,8 @@
          }).
 
 -record(okey_round_ended, {
-          good_shot         :: boolean(),
+%          good_shot         :: boolean(),
+          round,
           reason            :: atom(),
           results           :: #'OkeyGameResults'{},
           next_action       :: atom() | binary()

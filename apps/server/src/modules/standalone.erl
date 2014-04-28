@@ -22,6 +22,7 @@
 %% Include files
 %% --------------------------------------------------------------------
 -include_lib("server/include/basic_types.hrl").
+-include_lib("kvs/include/user.hrl").
 -include_lib("db/include/table.hrl").
 -include_lib("db/include/scoring.hrl").
 -include_lib("db/include/transaction.hrl").
@@ -1018,7 +1019,10 @@ prepare_ends_note_points(SeriesResult, Points, Players) ->
 prepare_users_prize_points(Points, Players) ->
     [{user_id_to_string(get_user_id(PlayerId, Players)), K, G} || {PlayerId, K, G} <- Points].
 
-is_paid(UserId) -> nsm_accounts:user_paid(UserId).
+is_paid(UserId) -> 
+    case kvs:get(user,UserId) of
+        {ok,#user{status=paid}} -> true;
+        _ -> false end.
 
 deduct_quota(GameId, GameType, GameMode, Amount, MulFactor, UsersIds) ->
     RealAmount = Amount * MulFactor,

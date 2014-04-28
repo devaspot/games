@@ -1292,6 +1292,7 @@ round_results(
         tournament_type=GameKind,
         game_mode=GameMode,
         speed=Speed,
+        cur_round=Round,
         rounds=Rounds,
         game_id=GameId,
         players=Players}) ->
@@ -1329,6 +1330,7 @@ round_results(
     end || SeatNum <- lists:seq(1, ?SEATS_NUM)],
 
     #okey_round_ended{
+        round = Round,
         reason = Reason,
         results = Results,
         next_action = next_round}.
@@ -1337,11 +1339,14 @@ create_okey_series_ended(Results, Players, Confirm,
     #okey_state{tournament_type=GameKind,game_mode=GameMode,speed=Speed,rounds=Rounds}=GameState) ->
     {Date,Time} = calendar:local_time(),
     [begin
-        #player{user_id = UserId} = fetch_player(PlayerId, Players),
-        Event = #series_event{result=Status,user=UserId,date=Date,time=Time,score=Score,
-            speed=Speed,rounds=Rounds,feed_id={GameMode,Speed,Rounds,UserId},
-            id=game_log:timestamp()},
-        game_log:series_event(UserId,Event,GameState)
+        #player{user_id = UserId,is_bot=IsBot} = fetch_player(PlayerId, Players),
+        case IsBot of
+            false ->
+                Event = #series_event{result=Status,user=UserId,date=Date,time=Time,score=Score,
+                    speed=Speed,rounds=Rounds,feed_id={GameMode,Speed,Rounds,UserId},
+                    id=game_log:timestamp()},
+                game_log:series_event(UserId,Event,GameState);
+            _ -> skip end
     end || {PlayerId, Position, Score, Status} <- Results],
     #okey_series_ended{standings = Results}.
 

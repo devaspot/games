@@ -6,7 +6,12 @@
 -include_lib("avz/include/avz.hrl").
 -include_lib("kvs/include/user.hrl").
 
--define(GAMEID, 1000001).
+-define(GAMEID, game_form()).
+
+game_form() ->
+    case wf:qs(<<"game">>) of
+        undefined -> 1000001;
+        X -> wf:to_integer(X) end.
 
 -record(player, {id, label, info, take, discard, history = []}).
 

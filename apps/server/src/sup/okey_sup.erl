@@ -46,7 +46,7 @@ okey_standalone_specs(GamesNum, VirtUsersPerTable) ->
                                       {set_timeout, infinity},
                                       {speed, fast},
                                       {game_type, standard},
-                                      {rounds, 10},
+                                      {rounds, 1},
                                       {reveal_confirmation, true},
                                       {next_series_confirmation, no_exit},
                                       {pause_mode, normal},
@@ -54,7 +54,7 @@ okey_standalone_specs(GamesNum, VirtUsersPerTable) ->
                                       {gosterge_finish_allowed, undefined}
                                      ],
                        CommonParams = [{speed, fast},
-                                       {rounds,10},
+                                       {rounds,1},
                                        {double_points, 1},
                                        {game_mode,standard},
                                        {slang, false},
