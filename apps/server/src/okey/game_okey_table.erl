@@ -362,7 +362,7 @@ handle_parent_message(show_round_result, StateName,
 handle_parent_message({show_series_result, Results}, StateName,
                       #okey_state{relay = Relay, players = Players,
                              next_series_confirmation = Confirm} = StateData) ->
-    Msg = create_okey_series_ended(Results, Players, Confirm),
+    Msg = create_okey_series_ended(Results, Players, Confirm, StateData),
     relay_publish_ge(Relay, Msg, StateData),
     {next_state, StateName, StateData#okey_state{}};
 
@@ -1333,21 +1333,17 @@ round_results(
         results = Results,
         next_action = next_round}.
 
-create_okey_series_ended(Results, Players, Confirm) ->
-    Standings = [begin
-                     #player{user_id = UserId} = fetch_player(PlayerId, Players),
-                     Winner = case Status of    %% TODO: Implement in the client support of all statuses
-                                  winner -> <<"true">>;
-                                  _ -> <<"none">>
-                              end,
-                     #'OkeySeriesResult'{player_id = UserId, place = Position, score = Score,
-                                         winner = Winner}
-                 end || {PlayerId, Position, Score, Status} <- Results],
-    DialogType = if Confirm -> yes_no;
-                    true -> ok
-                 end,
-    #okey_series_ended{standings = Standings,
-                       dialog_type = DialogType}.
+create_okey_series_ended(Results, Players, Confirm,
+    #okey_state{tournament_type=GameKind,game_mode=GameMode,speed=Speed,rounds=Rounds}=GameState) ->
+    {Date,Time} = calendar:local_time(),
+    [begin
+        #player{user_id = UserId} = fetch_player(PlayerId, Players),
+        Event = #series_event{result=Status,user=UserId,date=Date,time=Time,score=Score,
+            speed=Speed,rounds=Rounds,feed_id={GameMode,Speed,Rounds,UserId},
+            id=game_log:timestamp()},
+        game_log:series_event(UserId,Event,GameState)
+    end || {PlayerId, Position, Score, Status} <- Results],
+    #okey_series_ended{standings = Results}.
 
 create_okey_tour_result(TurnNum, Results) ->
     Records = [begin

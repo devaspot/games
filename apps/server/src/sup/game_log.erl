@@ -14,6 +14,7 @@ mypid() -> gen_server:call(?SERVER, mypid).
 clear_history() -> gen_server:cast(?SERVER, clear_history).
 get_history() -> gen_server:call(?SERVER, get_history).
 protocol_event(User,Event,State) -> gen_server:cast(?SERVER, {protocol_event, User, Event, State}).
+series_event(User,Event,State) -> gen_server:cast(?SERVER, {series_event, User, Event, State}).
 reveal_event(User,Event,State) -> gen_server:cast(?SERVER, {reveal_event, User, Event, State}).
 update_stats(User,Event,Pos,State) -> gen_server:cast(?SERVER, {update_stats, User, Event, Pos, State}).
 timestamp() -> {MegaSec, Sec, MiliSec} = erlang:now(), MegaSec * 1000 * 1000 * 1000  + Sec * 1000 + MiliSec.
@@ -62,6 +63,16 @@ handle_cast({update_stats, User, Event, Pos, GameState}, State) ->
 handle_cast({reveal_event, User, Event, GameState}, State) ->
     kvs:add(Event),
     update_container_stats(User, Event, #reveal_event.reason, GameState),
+    {ok, SE} = kvs:get(reveal_log,Event#reveal_event.feed_id),
+    Skill = case SE#reveal_log.skill of X when is_integer(X) -> X; _ -> 0 end,
+    kvs:put(SE#reveal_log{skill=Skill+1}),
+    {noreply, State};
+handle_cast({series_event, User, Event, GameState}, State) ->
+    kvs:add(Event),
+    update_container_stats(User, Event, #series_event.result, GameState),
+    {ok, SE} = kvs:get(series_log,Event#series_event.feed_id),
+    Score = case SE#series_log.score of X when is_integer(X) -> X; _ -> 0 end,
+    kvs:put(SE#series_log{score=Score+Event#series_event.score}),
     {noreply, State};
 handle_cast(clear_history, State) -> {noreply, State#state{history = []}};
 handle_cast(_Msg, State) -> gas:info(?MODULE, "Event Log: cast message ~p", [_Msg]), {noreply, State}.

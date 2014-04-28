@@ -7,10 +7,10 @@
 -record(container_log, {?CONTAINER_LOG}).
 -record(container_event, {?ITERATOR(container_log), ?LOG_HEADER }).
 
--record(series_log,  {?CONTAINER_LOG}).
--record(series_event,  {?ITERATOR(series_log),?LOG_HEADER}).
+-record(series_log,  {?CONTAINER_LOG, score }).
+-record(series_event,  {?ITERATOR(series_log),?LOG_HEADER, result, score}).
 
--record(reveal_log,  {?CONTAINER_LOG}).
+-record(reveal_log,  {?CONTAINER_LOG, skill }).
 -record(reveal_event,  {?ITERATOR(reveal_log), ?LOG_HEADER, reason, winner, score, total}).
 
 -record(protocol_log,  {?CONTAINER_LOG}).
