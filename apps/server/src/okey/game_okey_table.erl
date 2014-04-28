@@ -1296,6 +1296,8 @@ round_results(
         game_id=GameId,
         players=Players}) ->
 
+    {Date,Time} = calendar:local_time(),
+
     Results = [begin
 
         #player{user_id = UserId,is_bot=IsBot} = get_player_by_seat_num(SeatNum, Players),
@@ -1311,6 +1313,8 @@ round_results(
             module = GameKind,
             speed = Speed,
             rounds = Rounds,
+            date = Date,
+            time = Time,
             type = GameMode,
             reason = Reason,
             winner = IsWinner,

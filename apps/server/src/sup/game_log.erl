@@ -92,9 +92,8 @@ update_container_stats(User,Event,Pos,GameState) ->
     C6 = setelement(#container_log.date,   C5, Date),
     C7 = setelement(#container_log.time,   C6, Time),
     C8 = setelement(#container_log.user,   C7, User),
-    C9 = setelement(#container_log.stats,  C8, []),
 
-    Container = C9,
+    Container = C8,
 
     ContainerStats = element(#container_log.stats, Container),
     EventName = element(Pos,Event),
