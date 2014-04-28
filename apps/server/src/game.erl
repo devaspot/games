@@ -2,10 +2,12 @@
 -author('Maxim Sokhatsky <maxim@synrc.com>').
 -compile(export_all).
 -include_lib("server/include/requests.hrl").
+-include_lib("db/include/game_log.hrl").
 -include_lib("db/include/table.hrl").
 -include_lib("db/include/tournaments.hrl").
 -include_lib("db/include/scoring.hrl").
 -include_lib("stdlib/include/qlc.hrl").
+-include_lib("stdlib/include/ms_transform.hrl").
 
 online() -> [X||X<-qlc:e(gproc:table()),element(1,X)=={p,l,broadcast}].
 
@@ -474,3 +476,26 @@ qlc_id_creator(Id,Creator,Owner) ->
     qlc:e(qlc:q([Val || {{_,_,_Key},_,Val=#game_table{gameid = _GameId, id = _Id, 
                             owner = _Owner, creator = _Creator}} <- 
              gproc:table(props), Id == _Id, Creator == _Creator, Owner ==_Owner])).
+
+campaigns(reveal) -> campaigns(reveal,{2014,4,27},{2014,4,30});
+campaigns(series) -> campaigns(series,{2014,4,27},{2014,4,30}).
+
+campaigns(series,From,To) ->
+    {atomic,Res}=mnesia:transaction(fun() -> mnesia:select(series_event,
+        ets:fun2ms(fun (#series_event{date=T}=S) when T > From, T < To -> S end)) end),
+    lists:keysort(2,lists:foldr(fun series_aggregate/2,[],Res));
+
+campaigns(reveal,From,To) ->
+    {atomic,Res}=mnesia:transaction(fun() -> mnesia:select(reveal_event,
+        ets:fun2ms(fun (#reveal_event{date=T}=S) when T > From, T < To -> S end)) end),
+    lists:keysort(2,lists:foldr(fun reveal_aggregate/2,[],Res)).
+
+series_aggregate(#series_event{score = Count, user = Item}, Acc) ->
+    case lists:keyfind(Item,1,Acc) of
+        {Item,Sum} -> lists:keyreplace(Item,1,Acc,{Item,Count+Sum});
+        false -> [{Item,Count}|Acc] end.
+
+reveal_aggregate(#reveal_event{score = Count, user = Item}, Acc) ->
+    case lists:keyfind(Item,1,Acc) of
+        {Item,Sum} -> lists:keyreplace(Item,1,Acc,{Item,Count+Sum});
+        false -> [{Item,Count}|Acc] end.
