@@ -108,7 +108,8 @@ function svgBulk() {
 
 // The Card
 
-var color = ['#CE290F','#3B5998','#48AF5E','#FFEC00'];
+//var color = ['#CE290F','#3B5998','#48AF5E','#FFEC00'];
+var color = ['#DE3F26','#606060','#48AF5E','#FFC800'];
 var slotName = slotNameDef;
 function slotNameDef(x,y) { return "Slot-"+y+","+x; }
 
