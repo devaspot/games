@@ -1,6 +1,7 @@
 -module(known_records).
 
 -include("requests.hrl").
+-include_lib("db/include/game_log.hrl"). 
 -include("game_okey.hrl").
 -include("game_tavla.hrl").
 
@@ -17,6 +18,7 @@ fields(logout) ->                  record_info(fields, logout);
 fields(chat) ->                    record_info(fields, chat);
 fields(stats_action) ->             record_info(fields, stats_action);
 fields(stats_event) ->            record_info(fields, stats_event);
+fields(reveal_event) ->            record_info(fields, reveal_event);
 fields('PlayerInfo') ->            record_info(fields, 'PlayerInfo');
 fields(game_event) ->              record_info(fields, game_event);
 fields(chat_event) ->                record_info(fields, chat_event);
