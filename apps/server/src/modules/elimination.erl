@@ -1032,30 +1032,6 @@ spawn_table(TableModule, GameId, TableId, Params) -> TableModule:start(GameId, T
 
 send_to_table(TableModule, TabPid, Message) -> TableModule:parent_message(TabPid, Message).
 
-%% table_parameters(ParentMod, ParentPid, Speed) -> Proplist
-%% table_parameters(ParentMod, ParentPid, Speed, GameType, Tours) ->
-%%     [
-%%      {parent, {ParentMod, ParentPid}},
-%%      {seats_num, 4},
-%% %%     {players, []},
-%%      {table_name, ""},
-%%      {mult_factor, 1},
-%%      {slang_allowed, false},
-%%      {observers_allowed, false},
-%%      {tournament_type, elimination},
-%%      {turn_timeout, get_timeout(turn, Speed)},
-%%      {reveal_confirmation_timeout, get_timeout(reveal_confirmation, Speed)},
-%%      {ready_timeout, get_timeout(ready, Speed)},
-%%      {round_timeout, get_timeout(round, Speed)},
-%%      {set_timeout, get_timeout(tour, Tours)},
-%%      {speed, Speed},
-%%      {game_type, GameType},
-%%      {rounds, ?ROUNDS_PER_TOUR},
-%%      {reveal_confirmation, true},
-%%      {next_series_confirmation, no},
-%%      {pause_mode, disabled},
-%%      {social_actions_enabled, false}
-%%     ].
 
 get_param(ParamId, Params) ->
     {_, Value} = lists:keyfind(ParamId, 1, Params),
