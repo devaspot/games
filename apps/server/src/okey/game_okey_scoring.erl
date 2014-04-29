@@ -2,22 +2,9 @@
 %% Created: Oct 23, 2012
 %% Description:
 -module(game_okey_scoring).
-
-
-%%
-%% Include files
-%%
 -include_lib("eunit/include/eunit.hrl").
-
-%%
-%% Exported Functions
-%%
--export([
-         init/3,
-         last_round_result/1,
-         chanak/1,
-         round_finished/6
-        ]).
+-compile(export_all).
+-export([init/3]).
 
 -type normal_tash() :: {integer(), integer()}.
 -type tash() :: false_okey | normal_tash().
@@ -59,6 +46,10 @@
          finish_info      :: term(),    %% FinishInfo
          chanak           :: integer()  %% Defined only for evenodd and color mode
         }).
+
+modes() -> [standard,evenodd,color,countdown].
+rounds() -> [1,2,3]. %10,20,40,80,undefined].
+speeds() -> [slow,normal,fast,undefined].
 
 %%
 %% API Functions

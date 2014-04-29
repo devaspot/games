@@ -101,14 +101,8 @@ handle_client_request(#logout{}, _From, State) ->
     gas:info(?MODULE,"Logout", []),
     {stop, normal, ok, State};
 
-handle_client_request(#player_stats{player_id = PlayerId, game_type = GameModule}, _From, #state{rpc = RPC} = State) ->
-    Res = #'PlayerStats'{
-        id=PlayerId,
-        game=GameModule,
-        per_flavour=[{{lucky,standard},crypto:rand_uniform(7,108)},
-                     {{standalone,evenodd},crypto:rand_uniform(7,108)},
-                     {{standalone,color},crypto:rand_uniform(7,108)},
-                     {{elimination,color},crypto:rand_uniform(7,108)}]},
+handle_client_request(#stats_action{player_id = PlayerId, game_type = GameModule}, _From, #state{rpc = RPC} = State) ->
+    Res = game:get_player_info(GameModule, PlayerId),
     gas:info(?MODULE,"Get player stats: ~p", [Res]),
     send_message_to_player(RPC, Res),
     {reply, Res, State};

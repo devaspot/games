@@ -499,3 +499,21 @@ reveal_aggregate(#reveal_event{score = Count, user = Item}, Acc) ->
     case lists:keyfind(Item,1,Acc) of
         {Item,Sum} -> lists:keyreplace(Item,1,Acc,{Item,Count+Sum});
         false -> [{Item,Count}|Acc] end.
+
+get_player_info(_,User) ->
+    Okey = game_okey_scoring,
+    Scoring = [ begin 
+        case kvs:get(series_log,{M,S,R,User}) of
+       {ok,#series_log{type=M,speed=S,rounds=R,stats=Res}} ->
+            Win = case lists:keyfind(winner,1,Res) of {_,Num1} -> Num1; _ -> 0 end,
+            Los = case lists:keyfind(looser,1,Res) of {_,Num2} -> Num2; _ -> 0 end,
+            [{M,S,R,{Win,Los}}];
+       _ -> [] end end || M <- Okey:modes(), S <- Okey:speeds(), R <- Okey:rounds() ],
+    Games=lists:flatten(Scoring),
+    {ok,Reveals}=kvs:get(reveal_log,User),
+    {ok,Protocol}=kvs:get(protocol_log,User),
+    #stats_event{
+        player_id=User,
+        games=Games,
+        reveals=Reveals#reveal_log.stats,
+        protocol=Protocol#protocol_log.stats}.

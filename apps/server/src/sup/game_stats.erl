@@ -218,3 +218,5 @@ calc_points(KakushPerWinner, KakushPerLoser, WinGamePoints, Paid, Robot, Winner)
        Paid andalso Winner -> {KakushPerWinner, WinGamePoints};
        Paid -> {KakushPerLoser, 0}
     end.
+
+get_player_stats() -> ok.
