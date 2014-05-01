@@ -15,7 +15,7 @@ And open it in browser [http://localhost:8000](http://localhost:8000)
 Credits
 -------
 
-* Roman Dayneko
-* Maxim Sokhatsky
+* Sinan Ustel
+* Ahmet Tez
 
 OM A HUM
