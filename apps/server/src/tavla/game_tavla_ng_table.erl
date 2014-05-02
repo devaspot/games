@@ -55,7 +55,7 @@
 -define(STATE_PAUSE, state_pause).
 -define(STATE_SET_FINISHED, state_set_finished).
 
--define(RELAY, relay_ng).
+-define(RELAY, relay).
 -define(DESK, game_tavla_ng_desk).
 -define(SCORING, game_tavla_ng_scoring).
 -define(LIB, game_tavla_lib).

@@ -23,7 +23,7 @@
         user :: #'PlayerInfo'{},
         uid :: 'PlayerId'(),
         owner :: pid(),
-        owner_mon :: 'MonitorRef'(),
+        owner_mon,
         session :: pid(),
         gid :: 'GameId'(),
         bot :: pid(),

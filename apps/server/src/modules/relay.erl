@@ -29,7 +29,7 @@
 %% {relay_kick, SubscrId, Reason}
 %% {relay_event, SubscrId, Event}
 
--module(relay_ng).
+-module(relay).
 
 -behaviour(gen_server).
 %% --------------------------------------------------------------------

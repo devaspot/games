@@ -10,6 +10,7 @@
 -record(chat, {chat_id :: 'GameId'(), message :: string()}).
 -record(game_action, {game :: 'GameId'(), action, args = []}).
 -record(social_action, {game :: 'GameId'(), type, recipient::'PlayerId'()}).
+-record(pause_game, {table_id :: integer(),game :: 'GameId'(),action}).
 
 % event notifications from server to client
 
@@ -17,7 +18,6 @@
 -record(chat_event, {chat :: 'GameId'(), content, author_id::'PlayerId'(),author_nick::string() }).
 -record(social_event, {type,game::'GameId'(),initiator::'PlayerId'(),recipient::'PlayerId'()}).
 -record(stats_event, {player_id :: 'PlayerId'(), games, reveals, protocol}).
--record(pause_game, {table_id :: integer(),game :: 'GameId'(),action}).
 -record(game_paused, {table_id :: integer(), game :: 'GameId'(),action,who :: 'PlayerId'(),retries}).
 -record(disconnect, {reason_id,reason}).
 -record(player_left, {player :: 'PlayerId'(),human_replaced=false,replacement::'PlayerId'()}).

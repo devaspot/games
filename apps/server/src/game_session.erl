@@ -230,7 +230,7 @@ handle_relay_message(Msg, _SubscrId, #state{rpc = RPC} = State) ->
 %% because the user for example was moved to another table.
 handle_relay_kick({rejoin, GameId}, _SubscrId,
                   #state{user = User, games = Games, rpc = RPC} = State) ->
-    gas:info(?MODULE,"Requesting main relay info...",[]),
+    gas:info(?MODULE,"Rejoin request from relay. GameId ~p User ~p",[GameId,User#'PlayerInfo'.id]),
     register_user_by_module(RPC,User,GameId,State);
 
 handle_relay_kick(Reason, _SubscrId, #state{rpc = RPC} = State) ->

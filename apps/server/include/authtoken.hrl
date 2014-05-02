@@ -1,5 +1,2 @@
--record(authtoken, {
-          token :: string(),
-          id    :: 'PlayerId'()
-          }).
+-record(authtoken, {token :: string(), id}).
 

@@ -59,7 +59,7 @@
 
 -define(HAND_SIZE, 14).
 -define(SEATS_NUM, 4).
--define(RELAY, relay_ng).
+-define(RELAY, relay).
 -define(DESK, game_okey_desk).
 -define(SCORING, game_okey_scoring).
 
