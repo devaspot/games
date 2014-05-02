@@ -256,14 +256,19 @@ players_achivements(Mode, Seats, Hands, WhoHasGosterge, Has8Tashes, FinishInfo) 
              end || SeatNum <- Seats]
     end.
 
+%% TODO: make Finish Info more Universal
+        % FinishInfo :: {Reason, Revealer, RevealerWon, WrongRejects, RevealInfo}
+        % RevealInfo :: {ColorReveal, OkeyReveal, PairsReveal}
 
-%% finish_info(GameMode, FinishReason, Gosterge) ->
+%% finish_info(GameMode, FinishReason, Gosterge) -> 
 %%      tashes_out |
 %%      timeout |
 %%      set_timeout |
 %%      {win_reveal, Revealer, WrongRejects, RevealWithColor, RevealWithOkey, RevealWithPairs} |
 %%      {fail_reveal, Revealer} |
 %%      {gosterge_finish, Winner}
+
+
 finish_info(GameMode, FinishReason, Gosterge) ->
     case FinishReason of
         tashes_out -> tashes_out;

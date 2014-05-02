@@ -330,32 +330,14 @@ handle_parent_message(show_round_result, StateName,
                              game_id = GameId, table_id = TableId} = StateData) ->
     {FinishInfo, RoundScore, AchsPoints, TotalScore} = ?SCORING:last_round_result(ScoringState),
     gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> RoundScore: ~p Total score: ~p.", [GameId, TableId, RoundScore, TotalScore]),
-    Msg = case FinishInfo of
-              {win_reveal, Revealer, WrongRejects, _RevealWithColor, _RevealWithOkey, _RevealWithPairs} ->
-                    round_results(win_reveal,Revealer,true,WrongRejects,RoundScore,TotalScore,AchsPoints,StateData);
-%                  create_okey_round_ended_reveal(
-%                    Revealer, true, WrongRejects, RoundScore, TotalScore, AchsPoints, StateData);
-              {fail_reveal, Revealer} ->
-                    round_results(fail_reveal,Revealer,false,[],RoundScore,TotalScore,AchsPoints,StateData);
-%                  create_okey_round_ended_reveal(
-%                    Revealer, false, [], RoundScore, TotalScore, AchsPoints, StateData);
-              tashes_out ->
-                    round_results(tashes_out,none,false,[],RoundScore,TotalScore,AchsPoints,StateData);
-%                  create_okey_round_ended_tashes_out(
-%                    RoundScore, TotalScore, AchsPoints, StateData);
-              timeout ->
-                    round_results(timeout,none,false,[],RoundScore,TotalScore,AchsPoints,StateData);
-%                  create_okey_round_ended_tashes_out(
-%                    RoundScore, TotalScore, AchsPoints, StateData);
-              set_timeout ->
-                    round_results(timeout,none,false,[],RoundScore,TotalScore,AchsPoints,StateData);
-%                  create_okey_round_ended_tashes_out(
-%                    RoundScore, TotalScore, AchsPoints, StateData);
-              {gosterge_finish, Winner} ->
-                    round_results(gosterge_finish,Winner,true,[],RoundScore,TotalScore,AchsPoints,StateData)
-%                  create_okey_round_ended_gosterge_finish(
-%                    Winner, RoundScore, TotalScore, AchsPoints, StateData)
-          end,
+    {Reason,Revealer,RevealerWon,WrongRejects} = case FinishInfo of
+        {win_reveal, R, Wrong, _Color, _Okey, _Pairs} -> {win_reveal,R,true,Wrong};
+        {fail_reveal, R} -> {fail_reveal,R,false,[]};
+        tashes_out -> {tashes_out,none,false,[]};
+        timeout -> {timeout,none,false,[]};
+        set_timeout -> {timeout,none,false,[]};
+        {gosterge_finish, Winner} -> {gosterge_finish,Winner,true,[]} end,
+    Msg = round_results(Reason,Revealer,RevealerWon,WrongRejects,RoundScore,TotalScore,AchsPoints,StateData),
     relay_publish_ge(Relay, Msg, StateData),
     {next_state, StateName, StateData#okey_state{}};
 
