@@ -1,8 +1,8 @@
 -module(okey).
 -compile(export_all).
 -include_lib("n2o/include/wf.hrl").
--include("../../server/include/requests.hrl").
--include("../../server/include/settings.hrl").
+-include_lib("server/include/requests.hrl").
+-include_lib("server/include/settings.hrl").
 -include_lib("avz/include/avz.hrl").
 -include_lib("kvs/include/user.hrl").
 
