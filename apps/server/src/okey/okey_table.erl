@@ -61,6 +61,7 @@
 -define(SEATS_NUM, 4).
 -define(RELAY, relay).
 -define(DESK, okey_desk).
+-define(GAME_STATS, game_log).
 -define(SCORING, okey_scoring).
 
 %% ====================================================================
@@ -961,8 +962,8 @@ init_players([{PlayerId, UserInfo, SeatNum, _StartPoints} | PlayersInfo], Player
 handle_log(User,#game_event{}=Event,
     #okey_state{game_id=GameId,tournament_type=GameKind,game_mode=GameMode,speed=Speed,rounds=Rounds}=State) ->
     ProtocolEvent = #protocol_event{feed_id=User,module=GameKind,speed=Speed,rounds=Rounds,user=User,
-        type=GameMode,id=game_log:timestamp(),event=Event#game_event.event,game_event=Event},
-    game_log:update_stats(User,ProtocolEvent,#protocol_event.event,State).
+        type=GameMode,id=?GAME_STATS:timestamp(),event=Event#game_event.event,game_event=Event},
+    ?GAME_STATS:update_stats(User,ProtocolEvent,#protocol_event.event,State).
 
 send_to_subscriber_ge(Relay, SubscrId, Msg, #okey_state{players=Players,game_id = GameId} = State) ->
     [Name|List] = tuple_to_list(Msg),
@@ -974,7 +975,7 @@ send_to_client_ge(Relay, PlayerId, Msg, #okey_state{players=Players,game_id = Ga
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"SEND CLIENT ~p",[Event]),
-    game_log:protocol_event(table,Event,State),
+    ?GAME_STATS:protocol_event(table,Event,State),
     case get_player(PlayerId, Players) of
         {ok, #player{user_id=User,is_bot=false}} -> handle_log(User,Event,State);
         _ -> skip end,
@@ -984,7 +985,7 @@ relay_publish_ge(Relay, Msg, #okey_state{players=Players,game_id = GameId} = Sta
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
     gas:info(?MODULE,"RELAYX PUBLISH ~p",[Event]),
-    game_log:protocol_event(table,Event,State),
+    ?GAME_STATS:protocol_event(table,Event,State),
     [ handle_log(UserId,Event,State) 
     || {_,#player{id=Id,user_id=UserId,is_bot=false},_} <- midict:to_list(Players)],
     relay_publish(Relay, Event).
@@ -1308,7 +1309,7 @@ round_results(
         {_, PlayerScoreRound} = lists:keyfind(SeatNum, 1, RoundScore),
 
         RE = #reveal_event{
-            id = game_log:timestamp(),
+            id = ?GAME_STATS:timestamp(),
             feed_id = UserId,
             user = UserId,
             module = GameKind,
@@ -1322,8 +1323,8 @@ round_results(
             score = PlayerScoreRound,
             total = PlayerScoreTotal},
         case {SeatNum == Revealer,Revealer,IsBot} of
-            {_,none,_} -> game_log:reveal_event(UserId,RE,State);
-            {true,_,false}  -> game_log:reveal_event(UserId,RE,State);
+            {_,none,_} -> ?GAME_STATS:reveal_event(UserId,RE,State);
+            {true,_,false}  -> ?GAME_STATS:reveal_event(UserId,RE,State);
             _ -> skip end,
         RE
 
@@ -1344,8 +1345,8 @@ create_okey_series_ended(Results, Players, Confirm,
             false ->
                 Event = #series_event{result=Status,user=UserId,date=Date,time=Time,score=Score,
                     speed=Speed,rounds=Rounds,feed_id={GameMode,Speed,Rounds,UserId},
-                    id=game_log:timestamp()},
-                game_log:series_event(UserId,Event,GameState);
+                    id=?GAME_STATS:timestamp()},
+                ?GAME_STATS:series_event(UserId,Event,GameState);
             _ -> skip end
     end || {PlayerId, Position, Score, Status} <- Results],
     #okey_series_ended{standings = Results}.
