@@ -4,7 +4,7 @@
 -compile(export_all).
 -include_lib ("n2o/include/wf.hrl").
 -include("users.hrl").
--define(APP, face).
+-define(APP, web).
 
 start_link() -> supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
@@ -17,7 +17,7 @@ init([]) ->
     {ok, _} = cowboy:start_http(http, 100, [{port, wf:config(n2o,transition_port,8080)}],
                                            [{env, [{dispatch, dispatch_rules()}]}]),
 
-    PrivDir = code:priv_dir(face),
+    PrivDir = code:priv_dir(?APP),
 
     {ok, _} = cowboy:start_https(https, 100, [
         {port, wf:config(n2o,port,8443)},

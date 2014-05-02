@@ -1,4 +1,4 @@
-{application, face,
+{application, web,
  [
   {description, "KKN Web Site"},
   {vsn, "1"},
