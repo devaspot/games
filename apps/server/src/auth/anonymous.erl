@@ -1,4 +1,4 @@
--module(fake_users).
+-module(anonymous).
 -compile(export_all).
 -include_lib("db/include/config.hrl").
 -include_lib("kvs/include/user.hrl").
@@ -30,9 +30,47 @@ imagionary_users() ->
     lists:keysort(1,List).
 
 fake_id() ->
-    FakeUsers = fake_users:imagionary_users(),
+    FakeUsers = imagionary_users(),
     Pos = crypto:rand_uniform(1, length(FakeUsers)),
-    H0 = fake_users:ima_gio(Pos,FakeUsers),
+    H0 = ima_gio(Pos,FakeUsers),
     Id = wf:to_binary(wf:to_list(H0) ++ wf:to_list(id_generator:get_id2())).
 
 fake_id(Login) -> wf:to_binary(wf:to_list(Login) ++ wf:to_list(id_generator:get_id2())).
+
+create_users(A,B) ->
+    ImagioUsers = imagionary_users(),
+    [ begin 
+        {Id,Name,Surname} = lists:nth(N,ImagioUsers),
+        U = #user{  username = Id,
+                    id = Id,
+                    names = Name,
+                    surnames = Surname,
+                    birth={1981,9,29} }, kvs:put(U) end || N <- lists:seq(A, B) ].
+
+virtual_users() ->
+    case kvs:get(user,"maxim@synrc.com") of
+        {aborted,_} -> kvs:join(), kvs:init_db(),
+                create_users(1,100), kvs:put(#user{id="maxim@synrc.com"});
+        {ok,_} -> skip end,
+
+    AllUsers = imagionary_users(),
+    F = fun({UserId,_,_}, Acc) ->
+        User = auth_server:get_user_info_by_user_id(UserId),
+        case User of
+                    {error,_} -> Acc;
+                    _ -> [UserId | Acc]
+                end
+        end,
+    lists:usort(lists:foldl(F, [], AllUsers)).
+
+random_users(Num, AllUsers) ->
+    AllUsersNum = length(AllUsers),
+    random_users(Num, [], AllUsers, AllUsersNum).
+
+random_users(0, Acc, _AllUsers, _AllUsersNum) -> Acc;
+random_users(N, Acc, AllUsers, AllUsersNum) ->
+    User = lists:nth(crypto:rand_uniform(1, AllUsersNum + 1), AllUsers),
+    case lists:member(User, Acc) of
+        false -> random_users(N - 1, [User | Acc], AllUsers, AllUsersNum);
+        true -> random_users(N, Acc, AllUsers, AllUsersNum)
+    end.

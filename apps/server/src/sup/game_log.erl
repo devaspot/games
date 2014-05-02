@@ -67,7 +67,8 @@ handle_cast({reveal_event, User, Event, GameState}, State) ->
     update_container_stats(User, Event, #reveal_event.reason, GameState),
     {ok, SE} = kvs:get(reveal_log,Event#reveal_event.feed_id),
     Skill = case SE#reveal_log.skill of X when is_integer(X) -> X; _ -> 0 end,
-    kvs:put(SE#reveal_log{skill=Skill+1}),
+    Score = case SE#reveal_log.score of X1 when is_integer(X1) -> X1; _ -> 0 end,
+    kvs:put(SE#reveal_log{skill=Skill+1,score=Score+Event#reveal_event.score}),
     {noreply, State};
 handle_cast({series_event, User, Event, GameState}, State) ->
     kvs:add(Event),

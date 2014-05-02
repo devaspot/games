@@ -1,4 +1,4 @@
--module(test_tavla).
+-module(tavla_test).
 -author('Maxim Sokhatsky <maxim@synrc.com').
 
 -include_lib("server/include/requests.hrl").

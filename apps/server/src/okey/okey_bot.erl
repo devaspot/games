@@ -1,4 +1,4 @@
--module(game_okey_bot).
+-module(okey_bot).
 -behaviour(gen_server).
 
 -export([start/3, start/4, start_link/3, start_link/4, robot_init/1]).
@@ -101,7 +101,7 @@ handle_cast(join_game, State) ->
     Mon = erlang:monitor(process, State#state.owner),
     UId = State#state.uid,
     GId = State#state.gid,
-    BPid = proc_lib:spawn_link(game_okey_bot, robot_init, [#state{gid = GId, uid = UId, conn = self()}]),
+    BPid = proc_lib:spawn_link(okey_bot, robot_init, [#state{gid = GId, uid = UId, conn = self()}]),
     BPid ! join_game,
     {noreply, State#state{bot = BPid, owner_mon = Mon}};
 

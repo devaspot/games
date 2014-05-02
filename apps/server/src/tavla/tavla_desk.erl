@@ -4,7 +4,7 @@
 %%%
 %%% Created : Jan 14, 2013
 %%% -------------------------------------------------------------------
--module(game_tavla_ng_desk).
+-module(tavla_desk).
 -behaviour(gen_fsm).
 
 %% Board model schema:

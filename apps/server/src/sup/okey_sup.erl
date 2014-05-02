@@ -27,14 +27,14 @@ init([]) ->
 
 
 okey_standalone_specs(GamesNum, VirtUsersPerTable) ->
-    VirtualUsers = nsg_crowd_lib:virtual_users(),
+    VirtualUsers = anonymous:virtual_users(),
     if length(VirtualUsers) < VirtUsersPerTable ->
            [];
        true ->
            F = fun(_) ->
                        GameId = game:gen_game_id(),
                        GameName = "Okey/Crowd game - " ++ erlang:integer_to_list(GameId),
-                       Users = nsg_crowd_lib:random_users(VirtUsersPerTable, VirtualUsers),
+                       Users = anonymous:random_users(VirtUsersPerTable, VirtualUsers),
 %%%                      Users = [robot, robot, robot],
                        TableParams = [
                                       {table_name, ""},
@@ -46,7 +46,7 @@ okey_standalone_specs(GamesNum, VirtUsersPerTable) ->
                                       {set_timeout, infinity},
                                       {speed, fast},
                                       {game_type, standard},
-                                      {rounds, lists:nth(crypto:rand_uniform(1,4),game_okey_scoring:rounds())},
+                                      {rounds, lists:nth(crypto:rand_uniform(1,4),okey_scoring:rounds())},
                                       {reveal_confirmation, true},
                                       {next_series_confirmation, no_exit},
                                       {pause_mode, normal},
@@ -54,7 +54,7 @@ okey_standalone_specs(GamesNum, VirtUsersPerTable) ->
                                       {gosterge_finish_allowed, undefined}
                                      ],
                        CommonParams = [{speed, fast},
-                                       {rounds, lists:nth(crypto:rand_uniform(1,4),game_okey_scoring:rounds())},
+                                       {rounds, lists:nth(crypto:rand_uniform(1,4),okey_scoring:rounds())},
                                        {double_points, 1},
                                        {game_mode,standard},
                                        {slang, false},
@@ -72,8 +72,8 @@ okey_standalone_specs(GamesNum, VirtUsersPerTable) ->
                                  {kakush_for_loser, 1},
                                  {win_game_points, 1},
                                  {mul_factor, 1},
-                                 {table_module, game_okey_table},
-                                 {bot_module, game_okey_bot},
+                                 {table_module, okey_table},
+                                 {bot_module, okey_bot},
                                  {bots_replacement_mode, enabled},
                                  {table_params, TableParams},
                                  {common_params, CommonParams} %% This data will used for the gproc register

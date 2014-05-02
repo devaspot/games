@@ -24,9 +24,9 @@ game_form() ->
 
 user() -> 
     case wf:user() of undefined ->
-        Imagionary = fake_users:imagionary_users(),
+        Imagionary = anonymous:imagionary_users(),
         {Id,Name,Surname} = lists:nth(crypto:rand_uniform(1,length(Imagionary)),Imagionary),
-        X = #user{id = fake_users:fake_id(Id),names = Name,surnames = Surname},
+        X = #user{id = anonymous:fake_id(Id),names = Name,surnames = Surname},
         wf:user(X), X; U-> U end.
 
 color(Id,Color) -> wf:wire(wf:f("document.querySelector('#~s').style.color = \"~s\";",[Id,Color])).

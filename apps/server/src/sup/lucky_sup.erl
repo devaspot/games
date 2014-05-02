@@ -40,8 +40,8 @@ init([]) ->
                   {mode, normal}, % Common table for several real players
                   {seats, 4},
 %%%                  {quota_per_round, Quota},
-                  {table_module, game_okey_table},
-                  {bot_module, game_okey_bot},
+                  {table_module, okey_table},
+                  {bot_module, okey_bot},
                   {table_params, OkeyTableParams}
                  ],
     OkeySpec = {okey_lucky, {lucky, start_link, [OkeyGameId, OkeyParams]},
@@ -72,8 +72,8 @@ init([]) ->
                    {mode, normal}, % Common table for several real players
                    {seats, 2},
 %%%                  {quota_per_round, Quota},
-                   {table_module, game_tavla_ng_table},
-                   {bot_module, game_tavla_bot},
+                   {table_module, tavla_table},
+                   {bot_module, tavla_bot},
                    {table_params, TavlaTableParams}
                   ],
     TavlaSpec = {tavla_lucky, {lucky, start_link, [TavlaGameId, TavlaParams]},

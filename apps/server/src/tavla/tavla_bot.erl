@@ -1,4 +1,4 @@
--module(game_tavla_bot).
+-module(tavla_bot).
 -author('Maxim Sokhatsky <maxim@synrc.com>').
 -behaviour(gen_server).
 
@@ -97,7 +97,7 @@ handle_cast(join_game, State) ->
     UId = State#state.uid,
     GId = State#state.gid,
     gas:info(?MODULE,"Init State User ~p",[State#state.user]),
-    BPid = proc_lib:spawn_link(game_tavla_bot, robot_init, [#state{gid = GId, uid = UId, conn = self(), table_id = State#state.table_id, user = State#state.user}]),
+    BPid = proc_lib:spawn_link(tavla_bot, robot_init, [#state{gid = GId, uid = UId, conn = self(), table_id = State#state.table_id, user = State#state.user}]),
     BPid ! join_game,
     {noreply, State#state{bot = BPid, owner_mon = Mon}};
 

@@ -1,7 +1,7 @@
 %% Author: serge
 %% Created: Oct 23, 2012
 %% Description:
--module(game_okey_scoring).
+-module(okey_scoring).
 -include_lib("eunit/include/eunit.hrl").
 -compile(export_all).
 -export([init/3]).

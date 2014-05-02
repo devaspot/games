@@ -1,7 +1,7 @@
 %% Author: serge
 %% Created: Feb 14, 2013
 %% Description: TODO: Add description to game_tavla_lib
--module(game_tavla_lib).
+-module(tavla_lib).
 
 %%
 %% Include files

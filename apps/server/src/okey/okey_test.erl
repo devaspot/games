@@ -1,4 +1,4 @@
--module(test_okey_ng).
+-module(okey_test).
 -compile(export_all).
 -include("include/requests.hrl").
 -include("include/settings.hrl").
@@ -14,10 +14,10 @@ main() ->
     PlayerInfo = auth_server:user_info(<<"testbot@bot.net">>),
 %%    gas:info(?MODULE, "TEST BOT player info ~p", [PlayerInfo]),
 
-    {ok, BotPid} = game_okey_bot:start_link(self(), PlayerInfo, ?GAMEID),
+    {ok, BotPid} = okey_bot:start_link(self(), PlayerInfo, ?GAMEID),
     erlang:monitor(process, BotPid),
 
-    game_okey_bot:join_game(BotPid),
+    okey_bot:join_game(BotPid),
     
     loop(BotPid).
 

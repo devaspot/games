@@ -745,7 +745,7 @@ spawn_bot(BotModule, GameId, PlayerInfo) ->
 
 create_robot(BotModule, GameId, UserInfo) ->
     {ok, NPid} = BotModule:start(self(), UserInfo, GameId),
-    BotModule:get_session(NPid), %% Hack for the game_tavla_bot. Creates a game session process.
+    BotModule:get_session(NPid), %% Hack for the tavla_bot. Creates a game session process.
     {NPid, UserInfo}.
 
 spawn_table(TabMod, GameId, TableId, Params) ->

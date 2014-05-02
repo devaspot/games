@@ -15,7 +15,7 @@
 %%%          to refer to a table directly - without pointing to a tournament.
 %%%          Type: integer()
 
--module(game_tavla_ng_trn_paired).
+-module(tavla_paired).
 
 -behaviour(gen_fsm).
 %% --------------------------------------------------------------------
@@ -118,7 +118,7 @@
 -define(STATE_SHOW_TOUR_RESULT, state_show_tour_result).
 -define(STATE_FINISHED, state_finished).
 
--define(TAB_MOD, game_okey_table).
+-define(TAB_MOD, okey_table). % ?
 
 -define(TABLE_STATE_INITIALIZING, initializing).
 -define(TABLE_STATE_READY, ready).

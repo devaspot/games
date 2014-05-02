@@ -4,7 +4,7 @@
 %%%
 %%% Created : Jan 21, 2013
 %%% -------------------------------------------------------------------
--module(game_tavla_ng_table).
+-module(tavla_table).
 
 -behaviour(gen_fsm).
 %% --------------------------------------------------------------------
@@ -56,9 +56,9 @@
 -define(STATE_SET_FINISHED, state_set_finished).
 
 -define(RELAY, relay).
--define(DESK, game_tavla_ng_desk).
--define(SCORING, game_tavla_ng_scoring).
--define(LIB, game_tavla_lib).
+-define(DESK, tavla_desk).
+-define(SCORING, tavla_scoring).
+-define(LIB, tavla_lib).
 
 -define(BLACK, black).
 -define(WHITE, white).

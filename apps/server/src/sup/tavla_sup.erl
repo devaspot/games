@@ -27,14 +27,14 @@ init([]) ->
     {ok, {SupFlags, Specs}}.
 
 tavla_standalone_specs(GamesNum, VirtUsersPerTable) ->
-    VirtualUsers = nsg_crowd_lib:virtual_users(),
+    VirtualUsers = anonymous:virtual_users(),
     if length(VirtualUsers) < VirtUsersPerTable ->
            [];
        true ->
            F = fun(_) ->
                        GameId = game:gen_game_id(),
                        GameName = "Tavla/Crowd game: " ++ erlang:integer_to_list(GameId),
-                       Users = nsg_crowd_lib:random_users(VirtUsersPerTable, VirtualUsers),
+                       Users = anonymous:random_users(VirtUsersPerTable, VirtualUsers),
 %%%                    Users = [robot],
                        TableParams = [
                                       {table_name, ""},
@@ -72,8 +72,8 @@ tavla_standalone_specs(GamesNum, VirtUsersPerTable) ->
                                  {kakush_for_loser, 1},
                                  {win_game_points, 1},
                                  {mul_factor, 1},
-                                 {table_module, game_tavla_ng_table},
-                                 {bot_module, game_tavla_bot},
+                                 {table_module, tavla_table},
+                                 {bot_module, tavla_bot},
                                  {bots_replacement_mode, enabled},
                                  {table_params, TableParams},
                                  {common_params, CommonParams}

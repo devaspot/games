@@ -1,7 +1,7 @@
 %% Author: serge
 %% Created: Jan 24, 2013
 %% Description:
--module(game_tavla_ng_scoring).
+-module(tavla_scoring).
 
 -include_lib("eunit/include/eunit.hrl").
 

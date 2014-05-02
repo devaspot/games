@@ -55,7 +55,7 @@ counter(Game) -> PL = supervisor:count_children(case Game of game_okey -> okey_s
 
 game_sup_domain(Module, Params) ->
     case Module of
-        game_tavla_ng_trn_paired -> tavla_sup;
+        tavla_paired -> tavla_sup;
         standalone ->
             case proplists:get_value(game, Params) of
                 game_okey -> okey_sup;
@@ -188,8 +188,8 @@ create_standalone_game(Game, Params, Users) ->
                           {kakush_for_loser, KakushForLoser},
                           {win_game_points, WinGamePoints},
                           {mul_factor, MulFactor},
-                          {table_module, game_okey_table},
-                          {bot_module, game_okey_bot},
+                          {table_module, okey_table},
+                          {bot_module, okey_bot},
                           {bots_replacement_mode, BotsReplacementMode},
                           {table_params, TableParams},
                           {common_params, Params}
@@ -245,8 +245,8 @@ create_standalone_game(Game, Params, Users) ->
                           {kakush_for_loser, KakushForLoser},
                           {win_game_points, WinGamePoints},
                           {mul_factor, MulFactor},
-                          {table_module, game_tavla_ng_table},
-                          {bot_module, game_tavla_bot},
+                          {table_module, tavla_table},
+                          {bot_module, tavla_bot},
                           {bots_replacement_mode, BotsReplacementMode},
                           {table_params, TableParams},
                           {common_params, Params}
@@ -295,7 +295,7 @@ create_paired_game(Game, Params, Users) ->
                            {tables_num, TablesNum}
                          ],
 
-            create_game(GameId, game_tavla_ng_trn_paired,
+            create_game(GameId, tavla_paired,
                          [{game, Game},
                           {game_mode, GameMode},
                           {game_name, TableName},
@@ -306,8 +306,8 @@ create_paired_game(Game, Params, Users) ->
                           {kakush_for_loser, KakushForLoser},
                           {win_game_points, WinGamePoints},
                           {mul_factor, MulFactor},
-                          {table_module, game_tavla_ng_table},
-                          {bot_module, game_tavla_bot},
+                          {table_module, tavla_table},
+                          {bot_module, tavla_bot},
                           {bots_replacement_mode, BotsReplacementMode},
                           {table_params, TableParams},
                           {common_params, Params}
@@ -365,7 +365,7 @@ create_elimination_trn(GameType, Params, Registrants) ->
                          {speed, Speed},
                          {awards, Awards},
                          {trn_id, TrnId},
-                         {table_module, game_okey_table},
+                         {table_module, okey_table},
                          {demo_mode, false},
                          {table_params, TableParams}
                         ]);
@@ -401,7 +401,7 @@ create_elimination_trn(GameType, Params, Registrants) ->
                          {speed, Speed},
                          {awards, Awards},
                          {trn_id,TrnId},
-                         {table_module, game_tavla_ng_table},
+                         {table_module, tavla_table},
                          {demo_mode, false},
                          {table_params, TableParams}
                         ])
@@ -437,7 +437,7 @@ start_tournament(TrnId,NumberOfTournaments,NumberOfPlayers,_Quota,_Tours,_Speed,
 
     Registrants = if NumberOfPlayers == RealPlayersNumber -> RealPlayers;
                      NumberOfPlayers > RealPlayersNumber ->
-                         RealPlayers ++ [list_to_binary(fake_users:ima_gio(N)) ||
+                         RealPlayers ++ [list_to_binary(anonymous:ima_gio(N)) ||
                                             N <- lists:seq(1, NumberOfPlayers-RealPlayersNumber)];
                      true -> lists:sublist(RealPlayers, NumberOfPlayers)
                   end,
@@ -477,8 +477,8 @@ qlc_id_creator(Id,Creator,Owner) ->
                             owner = _Owner, creator = _Creator}} <- 
              gproc:table(props), Id == _Id, Creator == _Creator, Owner ==_Owner])).
 
-campaigns(reveal) -> campaigns(reveal,{2014,4,27},{2014,4,30});
-campaigns(series) -> campaigns(series,{2014,4,27},{2014,4,30}).
+campaigns(reveal) -> campaigns(reveal,{2014,4,27},{2014,5,30});
+campaigns(series) -> campaigns(series,{2014,4,27},{2014,5,30}).
 
 campaigns(series,From,To) ->
     {atomic,Res}=mnesia:transaction(fun() -> mnesia:select(series_event,
@@ -501,7 +501,7 @@ reveal_aggregate(#reveal_event{score = Count, user = Item}, Acc) ->
         false -> [{Item,Count}|Acc] end.
 
 get_player_info(_,User) ->
-    Okey = game_okey_scoring,
+    Okey = okey_scoring,
     Scoring = [ begin 
         case kvs:get(series_log,{M,S,R,User}) of
        {ok,#series_log{type=M,speed=S,rounds=R,stats=Res}} ->

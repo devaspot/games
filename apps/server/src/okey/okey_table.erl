@@ -4,7 +4,7 @@
 %%%
 %%% Created : Oct 15, 2012
 %%% -------------------------------------------------------------------
--module(game_okey_table).
+-module(okey_table).
 
 -behaviour(gen_fsm).
 %% --------------------------------------------------------------------
@@ -60,8 +60,8 @@
 -define(HAND_SIZE, 14).
 -define(SEATS_NUM, 4).
 -define(RELAY, relay).
--define(DESK, game_okey_desk).
--define(SCORING, game_okey_scoring).
+-define(DESK, okey_desk).
+-define(SCORING, okey_scoring).
 
 %% ====================================================================
 %% External functions
