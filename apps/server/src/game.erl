@@ -517,3 +517,8 @@ get_player_info(_,User) ->
         games=Games,
         reveals=Reveals#reveal_log.stats,
         protocol=Protocol#protocol_log.stats}.
+
+plist_setkey(Name,Pos,List,New) ->
+    case lists:keyfind(Name,Pos,List) of
+        false -> [New|List];
+        Element -> lists:keyreplace(Name,Pos,List,New) end.
