@@ -19,7 +19,9 @@ reveal_event(User,Event,State) -> gen_server:cast(?SERVER, {reveal_event, User, 
 update_stats(User,Event,Pos,State) -> gen_server:cast(?SERVER, {update_stats, User, Event, Pos, State}).
 timestamp() -> {MegaSec, Sec, MiliSec} = erlang:now(), MegaSec * 1000 * 1000 * 1000  + Sec * 1000 + MiliSec.
 
-init([]) -> {ok, #state{}}.
+init([]) ->
+    wf:reg(stats),
+    {ok, #state{}}.
 handle_call(mypid, _From, State) -> {reply, {ok, self()}, State};
 handle_call(get_history, _From, #state{history = History} = State) -> {reply, {ok, lists:reverse(History)}, State};
 handle_call(_Request, _From, State) -> 
@@ -76,9 +78,22 @@ handle_cast({series_event, User, Event, GameState}, State) ->
     {noreply, State};
 handle_cast(clear_history, State) -> {noreply, State#state{history = []}};
 handle_cast(_Msg, State) -> gas:info(?MODULE, "Event Log: cast message ~p", [_Msg]), {noreply, State}.
+handle_info({stats,Route,Message}, State) ->
+    gas:info(?MODULE,"Stats: Route: ~p Message: ~p~n",[Route,Message]),
+    handle_stats(Route,Message),
+    {noreply, State};
 handle_info(_Info, State) -> gas:info(?MODULE, "Event Log: info message ~p", [_Info]), {noreply, State}.
 terminate(_Reason, _State) -> ok.
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
+
+handle_stats([tournament,T,cancel],Message) -> ok;
+handle_stats([tournament,T,activate],Message) -> ok;
+handle_stats([personal_score,user,U,add],Message) -> ok;
+handle_stats([system,game_end_note,U,add],Message) -> ok;
+handle_stats([system,tournament_tour_note,T],Message) -> ok;
+handle_stats([system,tournament_ends_note,T],Message) -> ok;
+handle_stats([system,game_ends_note,T],Message) -> ok;
+handle_stats(Route,Message) -> ok.
 
 update_container_stats(User,Event,Pos,GameState) ->
     {Date,Time} = calendar:local_time(),
