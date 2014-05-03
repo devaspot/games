@@ -22,21 +22,25 @@ Each game could have specific actions and events.
 Actions
 -------
 
-    -record(session_attach, {token}).
-    -record(logout, {}).
-    -record(join_game, {game :: 'GameId'() }).
-    -record(stats_action, {player :: 'PlayerId'(), game_type}).
-    -record(pause_game, {table, game :: 'GameId'(), action}).
-    -record(game_action, {game :: 'GameId'(), action, args = []}).
+```erlang
+-record(session_attach, {token}).
+-record(logout, {}).
+-record(join_game, {game :: 'GameId'() }).
+-record(stats_action, {player :: 'PlayerId'(), game_type}).
+-record(pause_game, {table, game :: 'GameId'(), action}).
+-record(game_action, {game :: 'GameId'(), action, args = []}).
+```
 
 Events
 ------
 
-    -record(game_event, {game :: 'GameId'(), event, args = [] }).
-    -record(stats_event, {player :: 'PlayerId'(), games, reveals, protocol}).
-    -record(game_paused, {table, game :: 'GameId'(), action, who :: 'PlayerId'(), retries}).
-    -record(disconnect, {code :: integet(), reason}).
-    -record(player_left, {player :: 'PlayerId'(), human_replaced, replacement :: 'PlayerId'()}).
+```erlang
+-record(game_event, {game :: 'GameId'(), event, args = [] }).
+-record(stats_event, {player :: 'PlayerId'(), games, reveals, protocol}).
+-record(game_paused, {table, game :: 'GameId'(), action, who :: 'PlayerId'(), retries}).
+-record(disconnect, {code :: integet(), reason}).
+-record(player_left, {player :: 'PlayerId'(), human_replaced, replacement :: 'PlayerId'()}).
+```
 
 Token Server
 ------------
