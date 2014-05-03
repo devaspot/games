@@ -19,8 +19,7 @@ by game_session gen_server.
 Please refer to requests.hrl for common Game Server protocol envelopment.
 Each game could have specific actions and events.
 
-Actions
--------
+### Actions
 
 ```erlang
 -record(session_attach, {token}).
@@ -31,8 +30,7 @@ Actions
 -record(game_action, {game :: 'GameId'(), action, args = []}).
 ```
 
-Events
-------
+### Events
 
 ```erlang
 -record(game_event, {game :: 'GameId'(), event, args = [] }).
