@@ -120,7 +120,7 @@ For licensing Kakaranet Game Server for commercial use please contact:
 Authors
 -------
 
-* Sergei Polkovkinov
+* Sergei Polkovnikov
 * Maksym Sokhatskyi
 
 OM A HUM
