@@ -1,7 +1,7 @@
 -module(okey_test).
 -compile(export_all).
--include("include/requests.hrl").
--include("include/settings.hrl").
+-include_lib("server/include/requests.hrl").
+-include_lib("server/include/settings.hrl").
 -include_lib("kvs/include/user.hrl").
 
 -define(GAMEID, 1000001).
