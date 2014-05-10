@@ -1,48 +1,51 @@
-empty :=
-ROOTS := apps deps
-space := $(empty) $(empty)
-comma := $(empty),$(empty)
-VSN   := $(shell git rev-parse HEAD | cut -c 1-6)
-DATE  := $(shell git show -s --format="%ci" HEAD | sed -e 's/\+/Z/g' -e 's/-/./g' -e 's/ /-/g' -e 's/:/./g')
+VM       := rels/web/files/vm.args
+SYS      := rels/web/files/sys.config
+PLT_NAME := ~/.n2o_dialyzer.plt
+ERL_ARGS := -args_file $(VM) -config $(SYS)
+RUN_DIR  ?= rels/web/devbox
+LOG_DIR  ?= rels/web/devbox/logs
+empty    :=
+ROOTS    := apps deps
+space    := $(empty) $(empty)
+comma    := $(empty),$(empty)
+VSN      := $(shell git rev-parse HEAD | head -c 6)
+DATE     := $(shell date "+%Y%m%d-%H%M%S")
 ERL_LIBS := $(subst $(space),:,$(ROOTS))
-relx  := "{release,{$(RELEASE),\"$(VER)\"},[$(subst $(space),$(comma),$(APPS))]}.\\n{include_erts,true}.\
+relx     := "{release,{$(RELEASE),\"$(VER)\"},[$(RELEASE)]}.\\n{include_erts,true}.\
 \\n{extended_start_script,true}.\\n{generate_start_script,true}.\\n{sys_config,\"$(SYS)\"}.\
 \\n{vm_args,\"$(VM)\"}.\\n{overlay,[{mkdir,\"log/sasl\"}]}."
 
-ifeq "$(NODEPS)" "1"
-rebar_skip_deps=skip_deps=true
-endif
-
-test: ct
+test: eunit ct
 compile: get-deps static-link
 delete-deps get-deps compile clean update-deps:
-	rebar $(rebar_skip_deps) $(REBAR_D) $@
+	./mad $@
 .applist:
-	./depman.erl $(APPS) > $@
+	$(eval APPS := $(subst deps/,,$(subst apps/,,$(shell find apps deps -maxdepth 1 -mindepth 1 -type d))))
+	./orderapps.erl $(APPS) > $@
 $(RUN_DIR) $(LOG_DIR):
 	mkdir -p $(RUN_DIR) & mkdir -p $(LOG_DIR)
 console: .applist
-	echo $(APPS)
-	ERL_LIBS=$(ERL_LIBS) erl $(ERL_ARGS) -eval \
-		'[ok = application:ensure_started(A, permanent) || A <- $(shell cat .applist)]'
+	ERL_LIBS=$(ERL_LIBS) erl $(ERL_ARGS) -eval '[application:start(A) || A <- $(shell cat .applist)]'
 start: $(RUN_DIR) $(LOG_DIR) .applist
 	RUN_ERL_LOG_GENERATIONS=1000 RUN_ERL_LOG_MAXSIZE=20000000 \
 	ERL_LIBS=$(ERL_LIBS) run_erl -daemon $(RUN_DIR)/ $(LOG_DIR)/ "exec $(MAKE) console"
 attach:
 	to_erl $(RUN_DIR)/
 release:
-	echo $(shell echo $(relx) > relx.config) & relx
+	echo $(relx) > relx.config && relx
 stop:
-	kill -9 `ps ax -o pid= -o command=|grep $(RELEASE)|grep $(COOKIE)|awk '{print $$1}'`
+	@kill -9 $(shell ps ax -o pid= -o command=|grep $(RELEASE)|grep $(COOKIE)|awk '{print $$1}')
 $(PLT_NAME):
-	ERL_LIBS=deps dialyzer --build_plt --output_plt $(PLT_NAME) --apps $(APPS) || true
+	$(eval APPS := $(subst deps/,,$(subst apps/,,$(shell find apps deps -maxdepth 1 -mindepth 1 -type d))))
+	ERL_LIBS=$(ERL_LIBS) dialyzer --build_plt --output_plt $(PLT_NAME) --apps $(APPS) || true
 dialyze: $(PLT_NAME) compile
-	dialyzer deps/*/ebin --plt $(PLT_NAME) --no_native -Werror_handling -Wunderspecs -Wrace_conditions
-tar:
+	$(eval APPS := $(shell find apps deps -maxdepth 1 -mindepth 1 -type d))
+	@$(foreach var,$(APPS),(echo "Process $(var)"; dialyzer -q $(var)/ebin --plt $(PLT_NAME) --no_native -Werror_handling -Wunderspecs -Wrace_conditions -Wno_undefined_callbacks);)
+tar: release
 	tar zcvf $(RELEASE)-$(VSN)-$(DATE).tar.gz _rel/lib/*/ebin _rel/lib/*/priv _rel/bin _rel/releases
 eunit:
 	rebar eunit skip_deps=true
 ct:
 	rebar ct skip_deps=true verbose=1
 
-.PHONY: delete-deps get-deps clean compile console start attach release update-deps dialyze ct eunit tar
+.PHONY: delete-deps get-deps compile clean console start attach release update-deps dialyze ct eunit tar
