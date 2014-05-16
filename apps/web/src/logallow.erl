@@ -5,5 +5,6 @@ log_modules() -> [
     wf_core,
     n2o_bullet,
     game_session,
+    n2o_secret,
     okey
 ].
