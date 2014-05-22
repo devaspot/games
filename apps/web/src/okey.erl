@@ -22,12 +22,36 @@ game_form() ->
     {h3, #dropdown{ id = h3, options = []}},
     {h4, #dropdown{ id = h4, options = []}} ]).
 
+new_user() ->
+    Imagionary = anonymous:imagionary_users(),
+    {Id,Name,Surname} = lists:nth(crypto:rand_uniform(1,length(Imagionary)),Imagionary),
+    FakeId = anonymous:fake_id(Id),
+    X = #user{
+        id = FakeId,
+        tokens=[{n2o,get(session_id)}],
+        names = Name,
+        surnames = Surname},
+    wf:wire(wf:f("document.cookie='~s=~s; path=/';", ["n2o-name",wf:to_list(FakeId)])),
+    kvs:put(X),
+    X.
+
 user() -> 
-    case wf:user() of undefined ->
-        Imagionary = anonymous:imagionary_users(),
-        {Id,Name,Surname} = lists:nth(crypto:rand_uniform(1,length(Imagionary)),Imagionary),
-        X = #user{id = anonymous:fake_id(Id),names = Name,surnames = Surname},
-        wf:user(X), X; U-> U end.
+    case wf:user() of
+        undefined ->
+            SessionUser = wf:cookie_req(<<"n2o-name">>,?REQ),
+            SessionId = get(session_id),
+            wf:info(?MODULE,"Auth User: ~p",[SessionUser]),
+            wf:info(?MODULE,"Auth Id: ~p",[SessionId]),
+            X = case kvs:get(user,SessionUser) of
+                {ok,User} ->
+                    SS = lists:keyfind(n2o,1,User#user.tokens),
+                    case SS of
+                        {n2o,SessionId} -> User;
+                        _ -> new_user() end;
+                _ -> new_user() end,
+            wf:user(X),
+            X;
+        U-> U end.
 
 color(Id,Color) -> wf:wire(wf:f("document.querySelector('#~s').style.color = \"~s\";",[Id,Color])).
 unselect(Id) -> color(Id,black).
@@ -93,13 +117,15 @@ body() ->
 event(terminate) -> wf:info(?MODULE,"terminate");
 
 event(init) -> 
+    js_session:generate_cookie([],?CTX),
+
     GamesIds = case game:get_all_games_ids() of
       [] -> [?GAMEID];
       List -> List end,
-    
+
     wf:update(games_ids,#dropdown{id = games_ids, value = ?GAMEID, options = 
       [#option{label = wf:to_list(GameId), value = wf:to_list(GameId)} || GameId <- GamesIds]}),
-    
+
     event(attach),
     event(join);
 
@@ -108,12 +134,15 @@ event(join) ->
     GameId = get(okey_game_id),
     wf:wire(protocol:join(wf:to_list(GameId)));
 event(take) -> 
+    wf:info(?MODULE,"Req: ~p",[?REQ]),
+    SessionId = wf:cookie_req(<<"n2o-sid">>,?CTX#context.req),
+    wf:info(?MODULE,"Session Internal Init n2o-sid: ~p",[wf:cookies()]),
     GameId = get(okey_game_id),
     wf:wire(protocol:take(wf:to_list(GameId), wf:q(take_src)));
 
 event(player_info) -> 
 %    wf:info(?MODULE,"Cowboy Cookies: ~p",[wf:cookies_req(?REQ)]),
-%    wf:info(?MODULE,"Cookie Reqt: ~p",[wf:cookie("Name","Value","/",0,?REQ)]),
+
     User = user(),
     wf:cookie(<<"user">>,<<"macim">>,<<"/ws/">>,24 * 60 * 60),
     Wire = protocol:player_info(

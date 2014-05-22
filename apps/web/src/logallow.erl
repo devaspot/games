@@ -6,6 +6,6 @@ log_modules() -> [
     n2o_bullet,
     game_session,
     n2o_secret,
-    kvs,
+    js_session,
     okey
 ].

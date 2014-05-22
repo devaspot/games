@@ -28,6 +28,7 @@ function handle_web_socket(body) {
             removeChilds(document.getElementById('Stat-Right'));
             for (var i=0;i<games.length;i++) { statsRow(24, i,games); }
             for (var i=0;i<protocol.length;i++) { statsRow(340,i,protocol); }
+//            for (var i=0;i<reveals.length;i++) { statsRow(340,i,reveals); }
             break;
     }
 
