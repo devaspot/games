@@ -732,7 +732,7 @@
             <g id="Dialog-2" sketch:type="MSShapeGroup">
                 <rect id="Rectangle-54" stroke="#48AF5E" stroke-width="10" fill="#FFFFFF" x="0" y="0" width="643" height="515" rx="30"></rect>
                 <rect id="Rectangle-55" stroke="#979797" fill="#48AF5E" x="5" y="4" width="633" height="67"></rect>
-                <path d="M10,170.877714 L10,506.000011 L633,506.000018 L633,283.000003 C73.6559486,412.100111 648.096463,130.846676 10,170.877714 Z" id="Rectangle-60" fill="#DFF1F4"></path>
+                <path d="M10,170.877714 L10,486.007158 C10,497.048906 18.9566601,506.000011 30.0008497,506.000011 L612.99915,506.000018 C624.045315,506.000018 633,497.050485 633,486.002368 L633,283.000003 C73.6559486,412.100111 648.096463,130.846676 10,170.877714 Z" id="Rectangle-60" fill="#DFF1F4"></path>
             </g>
             <text id="Notes" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20" font-weight="normal" fill="#4A4A4A">
                 <tspan x="24" y="453.5">How good is Player (win/lose) per each game type, and how </tspan>

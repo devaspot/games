@@ -34,7 +34,7 @@ function handle_web_socket(body) {
             for (var i=1;i<=a.length;i++) {
                 var c = a[i-1].value[0][1];
                 var v = a[i-1].value[0][2];
-                console.log("Card: " + c + " " + v);
+//                console.log("Card: " + c + " " + v);
                 place_card(i,1,c,v);
             }
             break;
@@ -192,14 +192,20 @@ loadFile('templates/Card.svg', function() {
         for (var y=0;y<a.length;y++) for (var x=0;x<a[y].pathes.length;x++)
             loadAnimationForButton(a[y].pathes[x],a[y].button);
 
-        document.getElementById("Right-Menu").setAttribute('onclick', 'onRightMenu(evt)');
-        document.getElementById("Play")      .setAttribute('onclick', 'onRightMenuDown(evt)');
-        document.getElementById("Create")    .setAttribute('onclick', 'onRightMenuDown(evt)');
+        document.getElementById("Right-Menu") .setAttribute('onclick', 'onRightMenu(evt)');
+        document.getElementById("Play")       .setAttribute('onclick', 'onRightMenuDown(evt)');
+        document.getElementById("Create")     .setAttribute('onclick', 'onRightMenuDown(evt)');
+        document.getElementById("Point-Table").setAttribute('onclick', 'onPlayerInfo(evt)');
         
 //        onRightMenuDown();
 
     });
 });
+
+function onPlayerInfo(evt) {
+    ws.send(enc(tuple(atom('client'),
+        tuple(atom('stats_action'),bin('ali_erdem1500001'),atom('game_okey')))));
+    }
 
 function onRightMenu(evt) {
     localStorage.clear();

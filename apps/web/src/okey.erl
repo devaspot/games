@@ -112,12 +112,14 @@ event(take) ->
     wf:wire(protocol:take(wf:to_list(GameId), wf:q(take_src)));
 
 event(player_info) -> 
-    wf:info(?MODULE,"Cowboy Cookies: ~p",[wf:cookies_req(?REQ)]),
+%    wf:info(?MODULE,"Cowboy Cookies: ~p",[wf:cookies_req(?REQ)]),
 %    wf:info(?MODULE,"Cookie Reqt: ~p",[wf:cookie("Name","Value","/",0,?REQ)]),
     User = user(),
     wf:cookie(<<"user">>,<<"macim">>,<<"/ws/">>,24 * 60 * 60),
-    wf:wire(protocol:player_info(
-        wf:f("'~s'",[wf:to_list(User#user.id)]),wf:f("'~s'",[game_okey])));
+    Wire = protocol:player_info(
+        wf:f("'~s'",[wf:to_list(User#user.id)]),wf:f("'~s'",[game_okey])),
+    wf:info(?MODULE,"PlayeInfoJS: ~s",[Wire]),
+    wf:wire(Wire);
 
 event(attach) -> 
     {ok,GamePid} = game_session:start_link(self()),
