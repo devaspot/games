@@ -728,31 +728,31 @@
                 <tspan x="814" y="638">Kakush: 722 </tspan>
             </text>
         </g>
-        <g id="Player-Statistics" sketch:type="MSLayerGroup" transform="translate(213.000000, 87.000000)">
+        <g id="Player-Statistics" sketch:type="MSLayerGroup" transform="translate(209.000000, 87.000000)">
             <g id="Dialog-2" sketch:type="MSShapeGroup">
                 <rect id="Rectangle-54" stroke="#48AF5E" stroke-width="10" fill="#FFFFFF" x="0" y="0" width="643" height="515" rx="30"></rect>
                 <rect id="Rectangle-55" stroke="#979797" fill="#48AF5E" x="5" y="4" width="633" height="67"></rect>
-                <path d="M10,170.877714 L10,486.007158 C10,497.048906 18.9566601,506.000011 30.0008497,506.000011 L612.99915,506.000018 C624.045315,506.000018 633,497.050485 633,486.002368 L633,283.000003 C73.6559486,412.100111 648.096463,130.846676 10,170.877714 Z" id="Rectangle-60" fill="#DFF1F4"></path>
+                <path d="M10,149 L10,485.993284 C10,497.042694 18.9566601,506.000011 30.0008497,506.000011 L612.99915,506.000018 C624.045315,506.000018 633,497.050485 633,486.002368 L633,283.000003 C64,486.999987 603,92.0000002 10,149 Z" id="Rectangle-60" fill="#DFF1F4"></path>
             </g>
             <text id="Notes" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20" font-weight="normal" fill="#4A4A4A">
                 <tspan x="24" y="453.5">How good is Player (win/lose) per each game type, and how </tspan>
                 <tspan x="24" y="477.5">player usualy reveals the games.</tspan>
             </text>
             <text id="Stat-Left" sketch:type="MSTextLayer" font-family="Exo 2" font-size="23.586" font-weight="normal" fill="#517ECE">
-                <tspan x="24" y="209">Lucky</tspan>
-                <tspan x="24" y="238">Std Color                       124/23</tspan>
-                <tspan x="24" y="267">Std Even/Odd             234/2</tspan>
-                <tspan x="24" y="296">Std Countdown          20/10</tspan>
-                <tspan x="24" y="325">Tour Color 512             30/100</tspan>
-                <tspan x="24" y="354">Tour Even/Odd 64    44/23</tspan>
+                <tspan x="24" y="183">Lucky</tspan>
+                <tspan x="24" y="212">Std Color                       124/23</tspan>
+                <tspan x="24" y="241">Std Even/Odd             234/2</tspan>
+                <tspan x="24" y="270">Std Countdown          20/10</tspan>
+                <tspan x="24" y="299">Tour Color 512             30/100</tspan>
+                <tspan x="24" y="328">Tour Even/Odd 64    44/23</tspan>
             </text>
             <text id="Stat-Right" sketch:type="MSTextLayer" font-family="Exo 2" font-size="23.586" font-weight="normal" fill="#517ECE">
-                <tspan x="378" y="209">Have 8 Tashes         40</tspan>
-                <tspan x="378" y="238">Normal                      124</tspan>
-                <tspan x="378" y="267">Okey                           234</tspan>
+                <tspan x="341.5" y="182.971549">Have 8 Tashes         40</tspan>
+                <tspan x="341.5" y="211.971549">Normal                      124</tspan>
+                <tspan x="341.5" y="240.971549">Okey                           234</tspan>
             </text>
             <text id="Reveals" sketch:type="MSTextLayer" font-family="Exo 2" font-size="35.1627907" font-weight="normal" fill="#3B5998">
-                <tspan x="378" y="134.014225">Reveals</tspan>
+                <tspan x="341.5" y="133">Reveals</tspan>
             </text>
             <text id="Games" sketch:type="MSTextLayer" font-family="Exo 2" font-size="35.1627907" font-weight="normal" fill="#3B5998">
                 <tspan x="24" y="134.014225">Games</tspan>

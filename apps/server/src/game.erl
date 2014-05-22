@@ -507,7 +507,8 @@ get_player_info(_,User) ->
        {ok,#series_log{type=M,speed=S,rounds=R,stats=Res}} ->
             Win = case lists:keyfind(winner,1,Res) of {_,Num1} -> Num1; _ -> 0 end,
             Los = case lists:keyfind(looser,1,Res) of {_,Num2} -> Num2; _ -> 0 end,
-            [{M,S,R,{Win,Los}}];
+            [{lists:concat([wf:to_list(M)," ",wf:to_list(S)," ",wf:to_list(R)]),
+              lists:concat([Win,"/",Los])}];
        _ -> [] end end || M <- Okey:modes(), S <- Okey:speeds(), R <- Okey:rounds() ],
     Games=lists:flatten(Scoring),
     {ok,Reveals}=kvs:get(reveal_log,User),

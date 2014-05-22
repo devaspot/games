@@ -5,8 +5,32 @@ var transition = {pid: '', port: '8080' };
 
 var players = ["Gabrielo","Mustafa","Alina","Me"];
 
+function statsRow(start_name,i,games) {
+    var start_score = 200;
+    var name = template_engine(
+        '<tspan xmlns="http://www.w3.org/2000/svg" x="{this.x}" y="{this.y}">{this.body}</tspan>',{
+            x: start_name,
+            y: 180+25*i,
+            body: games[i].value[0][0] + " — " + games[i].value[0][1]});
+    var element1 = svg(name);
+    document.getElementById('Stat-Right').appendChild(element1);
+}
+
 function handle_web_socket(body) {
-//    console.log(dec(body).value[0][2].value);
+    console.log(dec(body).value[0][0].value);
+    switch (dec(body).value[0][0].value) {
+        case 'stats_event':
+            document.getElementById('Player-Statistics').style.display = '';
+            var games    = dec(body).value[0][2];
+            var reveals  = dec(body).value[0][3];
+            var protocol = dec(body).value[0][4];
+            removeChilds(document.getElementById('Stat-Left'));
+            removeChilds(document.getElementById('Stat-Right'));
+            for (var i=0;i<games.length;i++) { statsRow(24, i,games); }
+            for (var i=0;i<protocol.length;i++) { statsRow(340,i,protocol); }
+            break;
+    }
+
     switch (dec(body).value[0][2].value) {
         case 'okey_game_info': 
             var a = dec(body).value[0][3][0].value[0][1];
@@ -57,7 +81,7 @@ function handle_web_socket(body) {
                 var c = taken.value[0][1];
                 var v = taken.value[0][2];
                 var pos = findPlace();
-                console.log(pos);
+//                console.log(pos);
                 place_card(pos.x,pos.y,c,v);
             }
             break;
@@ -196,15 +220,25 @@ loadFile('templates/Card.svg', function() {
         document.getElementById("Play")       .setAttribute('onclick', 'onRightMenuDown(evt)');
         document.getElementById("Create")     .setAttribute('onclick', 'onRightMenuDown(evt)');
         document.getElementById("Point-Table").setAttribute('onclick', 'onPlayerInfo(evt)');
+        document.getElementById("Player-Statistics").setAttribute('onclick', 'onPlayerInfoClose(evt)');
         
 //        onRightMenuDown();
 
     });
 });
 
+var removeChilds = function (node) {
+    var last;
+    while (last = node.lastChild) node.removeChild(last);
+};
+
 function onPlayerInfo(evt) {
     ws.send(enc(tuple(atom('client'),
-        tuple(atom('stats_action'),bin('ali_erdem1500001'),atom('game_okey')))));
+        tuple(atom('stats_action'),bin(document.user),atom('game_okey')))));
+    }
+
+function onPlayerInfoClose(evt) {
+    document.getElementById('Player-Statistics').style.display = 'none';
     }
 
 function onRightMenu(evt) {

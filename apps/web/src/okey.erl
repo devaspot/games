@@ -66,7 +66,6 @@ main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
 body() ->
     wf:wire(#api{name=plusLogin, tag=plus}),
-%    wf:cookie("user",(user())#user.id),
   [ #panel    { id = history },
     #button   { id = pluslogin,  body = "Login",       postback = login_button },
     #label    { id = nothing,    body = " Google"},    #br{}, #br{},
@@ -75,6 +74,7 @@ body() ->
     #label    { id = player2,    body = "Seat 2"},     #dropdown{id=h2,options=[]}, #br{},
     #label    { id = player3,    body = "Seat 3"},     #dropdown{id=h3,options=[]}, #br{},
     #label    { id = player4,    body = "Seat 4"},     #dropdown{id=h4,options=[]}, #br{}, #br{},
+    #button   { id = logout,     body = "Logout",      postback = login_button },
     #button   { id = attach,     body = "Attach",      postback = attach },
     #button   { id = join,       body = "Join",        postback = join, source = [games_ids]},
     #dropdown { id = games_ids,  postback = combo,     options = []}, #br{},
