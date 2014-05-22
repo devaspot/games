@@ -11,7 +11,6 @@ init(State,Ctx) -> {ok,State,Ctx}.
 finish(State,Ctx) -> {ok,State,Ctx}.
 
 generate_cookie(State, Ctx) -> 
-    wf:info(?MODULE,"Req: ~p",[?REQ]),
     SessionUser = wf:cookie_req(<<"n2o-name">>,?REQ),
     SessionId   = wf:cookie_req(<<"n2o-sid">>, ?REQ),
     wf:info(?MODULE,"Session Init n2o-sid: ~p",[SessionId]),

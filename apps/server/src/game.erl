@@ -511,8 +511,8 @@ get_player_info(_,User) ->
               lists:concat([Win,"/",Los])}];
        _ -> [] end end || M <- Okey:modes(), S <- Okey:speeds(), R <- Okey:rounds() ],
     Games=lists:flatten(Scoring),
-    {ok,Reveals}=kvs:get(reveal_log,User),
-    {ok,Protocol}=kvs:get(protocol_log,User),
+    Reveals  = case kvs:get(reveal_log,User)   of {ok,R} -> R; _ -> #reveal_log{} end,
+    Protocol = case kvs:get(protocol_log,User) of {ok,P} -> P; _ -> #protocol_log{} end,
     #stats_event{
         player_id=User,
         games=Games,

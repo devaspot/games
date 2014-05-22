@@ -134,9 +134,6 @@ event(join) ->
     GameId = get(okey_game_id),
     wf:wire(protocol:join(wf:to_list(GameId)));
 event(take) -> 
-    wf:info(?MODULE,"Req: ~p",[?REQ]),
-    SessionId = wf:cookie_req(<<"n2o-sid">>,?CTX#context.req),
-    wf:info(?MODULE,"Session Internal Init n2o-sid: ~p",[wf:cookies()]),
     GameId = get(okey_game_id),
     wf:wire(protocol:take(wf:to_list(GameId), wf:q(take_src)));
 
