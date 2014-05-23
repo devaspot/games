@@ -10,7 +10,7 @@
 init(State,Ctx) -> {ok,State,Ctx}.
 finish(State,Ctx) -> {ok,State,Ctx}.
 
-generate_cookie(State, Ctx) -> 
+ensure_sid(State, Ctx) -> 
     SessionUser = wf:cookie_req(<<"n2o-name">>,?REQ),
     SessionId   = wf:cookie_req(<<"n2o-sid">>, ?REQ),
     wf:info(?MODULE,"Session Init n2o-sid: ~p",[SessionId]),
@@ -62,11 +62,20 @@ clear(Session) ->
     [ ets:delete(cookies,X) || X <- ets:select(cookies,
         ets:fun2ms(fun(A) when (element(1,element(1,A)) == Session) -> element(1,A) end)) ].
 
+cookie_expire(SecondsToLive) -> 
+  Seconds = calendar:datetime_to_gregorian_seconds(calendar:local_time()),
+  DateTime = calendar:gregorian_seconds_to_datetime(Seconds + SecondsToLive),
+  httpd_util:rfc1123_date(DateTime).
+
+ttl() -> 60*60*24*30.
+
 session_id() -> get(session_id).
 new_cookie_value() ->
     SessionKey = base64:encode(erlang:md5(term_to_binary({now(), make_ref()}))),
-    wf:wire(wf:f("document.cookie='~s=~s; path=/';",
-                [wf:to_list(session_cookie_name()),wf:to_list(SessionKey)])),
+    wf:wire(wf:f("document.cookie='~s=~s; path=/; expires=~s';",
+                [wf:to_list(session_cookie_name()),
+                 wf:to_list(SessionKey),
+                 cookie_expire(ttl())])),
     SessionKey.
 
 new_state() -> #state{unique=new_cookie_value()}.

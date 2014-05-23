@@ -31,7 +31,8 @@ new_user() ->
         tokens=[{n2o,get(session_id)}],
         names = Name,
         surnames = Surname},
-    wf:wire(wf:f("document.cookie='~s=~s; path=/';", ["n2o-name",wf:to_list(FakeId)])),
+    wf:wire(wf:f("document.cookie='~s=~s; path=/; expires=~s';",
+        ["n2o-name",wf:to_list(FakeId),js_session:cookie_expire(js_session:ttl())])),
     kvs:put(X),
     X.
 
@@ -117,7 +118,7 @@ body() ->
 event(terminate) -> wf:info(?MODULE,"terminate");
 
 event(init) -> 
-    js_session:generate_cookie([],?CTX),
+    js_session:ensure_sid([],?CTX),
 
     GamesIds = case game:get_all_games_ids() of
       [] -> [?GAMEID];
