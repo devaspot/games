@@ -477,8 +477,8 @@ qlc_id_creator(Id,Creator,Owner) ->
                             owner = _Owner, creator = _Creator}} <- 
              gproc:table(props), Id == _Id, Creator == _Creator, Owner ==_Owner])).
 
-campaigns(reveal) -> campaigns(reveal,{2014,4,27},{2014,5,30});
-campaigns(series) -> campaigns(series,{2014,4,27},{2014,5,30}).
+campaigns(reveal) -> campaigns(reveal,{2014,4,27},{2014,7,30});
+campaigns(series) -> campaigns(series,{2014,4,27},{2014,7,30}).
 
 campaigns(series,From,To) ->
     {atomic,Res}=mnesia:transaction(fun() -> mnesia:select(series_event,
