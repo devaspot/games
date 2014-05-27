@@ -385,6 +385,6 @@ event({server,{game_event, _, okey_next_turn, Args}}) ->
 event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), kvs:add(User), wf:user(User);
 event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
 
-event(_Event)  -> wf:info(?MODULE,"Event: ~p", [_Event]).
+event(_Event) -> ok. % wf:info(?MODULE,"Event: ~p", [_Event]).
 
 api_event(X,Y,Z) -> avz:api_event(X,Y,Z).
