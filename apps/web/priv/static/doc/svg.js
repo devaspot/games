@@ -171,7 +171,8 @@ function rand(lo,hi) { return Math.floor((Math.random()*hi)+lo); }
 function loadScene() {
     reload("Kakaranet-Scene.svg", "Refined");
     for (var i=1;i<16;i++) { empty_card(i,2); empty_card(i,1); }
-    drawSampleCards(); }
+    //drawSampleCards();
+     }
 
 function findPlace() {
     for (var y=1;y<3;y++) for (var x=1;x<15;x++) {
@@ -223,6 +224,14 @@ loadFile('templates/Card.svg', function() {
         document.getElementById("Point-Table").setAttribute('onclick', 'onPlayerInfo(evt)');
         document.getElementById("Player-Statistics").setAttribute('onclick', 'onPlayerInfoClose(evt)');
         
+        document.getElementById('Page-1').addEventListener("mousewheel", mouseWheelHandler, false);
+        
+        var clipPath = svg('<clipPath clipPathUnits="objectBoundingBox" id="myClip"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path" x="0" y="200" width="216" height="200"/></clipPath>');
+        document.getElementsByTagName('defs').item(0).appendChild(clipPath);
+        document.getElementById("Online-Scroll").setAttribute("clip-path","url(#myClip)");
+        document.getElementById('Player-Statistics').style.display = 'none';
+        
+        
 //        onRightMenuDown();
 
     });
@@ -253,13 +262,14 @@ function onRightMenuDown(evt) {
 
 // SVG Samples for svg.htm
 
+/*
 loadFile('templates/Mustafa-Persona.svg',   null, "Mustafa-Persona-Sample");
 loadFile('templates/Mustafa-Selection.svg', null, "Mustafa-Selection-Sample");
-
 document.getElementById("MustafaSelection").addEventListener('click', function() {
     var style = document.getElementById("Mustafa-Selection-Sample").style;
     if (style.display == 'none') style.display = 'block';
                             else style.display = 'none'; });
+*/
 
 function slotName1(x,y) { return "1Slot-"+y+","+x; }
 
@@ -268,3 +278,16 @@ function drawSampleCards() {
     for (var i=1;i<15;i++) { place_card(i,rand(1,2),rand(1,4),rand(1,13)); }
     slotName = slotNameDef; }
 
+var scrollSensitivity = 0.2;
+
+function mouseWheelHandler(e) {
+    var evt = window.event || e;
+    var scroll = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
+    var ori = document.getElementById("Clip-Path").getAttribute("y");
+    ori = parseFloat(scroll) + parseFloat(ori);
+    document.getElementById("Clip-Path").setAttribute("y",parseFloat(ori));
+    document.getElementById("Online-Scroll").setAttribute("transform", "translate(0,"+(parseFloat(ori))+")");
+    document.getElementById("Online-Scroll").setAttribute("y", -parseFloat(ori));
+    console.log(ori);
+    return true; 
+}
