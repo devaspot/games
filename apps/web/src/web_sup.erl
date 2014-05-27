@@ -25,8 +25,8 @@ init([]) ->
         {certfile, PrivDir ++ "/ssl/server.crt"},
         {keyfile, PrivDir ++ "/ssl/server.key"} ], [{env, [{dispatch, dispatch_rules()}]}]),
 
-    users:init(),
-    users:populate(?USERS),
+%    users:init(),
+%    users:populate(?USERS),
 
     {ok, {{one_for_one, 5, 10}, []}}.
 
