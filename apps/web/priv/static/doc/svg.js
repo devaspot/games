@@ -17,7 +17,7 @@ function statsRow(start_name,i,games) {
 }
 
 function handle_web_socket(body) {
-    console.log(dec(body).value[0][0].value);
+//    console.log(dec(body).value[0][0].value);
     switch (dec(body).value[0][0].value) {
         case 'stats_event':
             document.getElementById('Player-Statistics').style.display = '';
@@ -35,12 +35,12 @@ function handle_web_socket(body) {
     switch (dec(body).value[0][2].value) {
         case 'okey_game_info': 
             var a = dec(body).value[0][3][0].value[0][1];
-            console.log("Players: " + a.length);
+//            console.log("Players: " + a.length);
             for (var i=0;i<a.length;i++) {
                 var c = a[i].value[0][3].value;
                 var v = a[i].value[0][4].value;
                 setPlayerName(players[i],c + " " + v);
-                console.log("Player: " + c + " " + v);
+//                console.log("Player: " + c + " " + v);
             }
             break;
         case 'okey_game_started': 
@@ -154,7 +154,7 @@ function setPlayerName(e, playerName) {
     document.getElementById(e).setAttribute("y",27);
     document.getElementById(e).setAttribute("x",dx);
     document.getElementById(e).textContent = playerName;
-    console.log("Bounding Box: "  + document.getElementById(e).getBBox().width);
+//    console.log("Bounding Box: "  + document.getElementById(e).getBBox().width);
     document.getElementById(e+"-Pad").setAttribute('width',
         document.getElementById(e).getBBox().width + 45); }
 
