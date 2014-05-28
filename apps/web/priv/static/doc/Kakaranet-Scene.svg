@@ -4,7 +4,7 @@
     <title>Kakaranet-Scene</title>
     <description>Created with Sketch.</description>
     <defs>
-    <clipPath id="myClip"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path" x="0" y="0" width="216" height="200"/></clipPath>
+    <clipPath id="myClip"><rect id="Clip-Path" x="0" y="0" width="216" height="400"/></clipPath>
     </defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
         <g id="Kakaranet-12-maxim" sketch:type="MSLayerGroup">
@@ -758,7 +758,6 @@
             <rect id="Chat-Input" stroke="#979797" fill="#FFFFFF" sketch:type="MSShapeGroup" x="8" y="194" width="196" height="61"></rect>
         </g>
         <g id="Online-List" sketch:type="MSLayerGroup" y="0" clip-path="url(#myClip)" transform="translate(1.000000, 95.000000)">
-          <g id="Online-Scroll" clip-path="url(#myClip)">
             <g id="Online-Maxim">
                 <rect id="Rectangle-83" stroke="#979797" fill="#DBEBED" sketch:type="MSShapeGroup" x="0" y="0" width="215" height="74"></rect>
                 <rect id="Rectangle-84" stroke="#48AF5E" stroke-width="3" fill="#D8D8D8" sketch:type="MSShapeGroup" x="7" y="7" width="60" height="60"></rect>
@@ -771,27 +770,51 @@
                 <rect id="Rectangle-83" stroke="#979797" fill="#DBEBED" sketch:type="MSShapeGroup" x="0" y="0" width="215" height="74"></rect>
                 <rect id="Rectangle-84" stroke="#E5BC7B" stroke-width="3" fill="#D8D8D8" sketch:type="MSShapeGroup" x="8" y="6.59994507" width="60.5633803" height="60"></rect>
                 <text id="Синан" sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18" fill="#3B5998">
-                    <tspan x="75.685446" y="24">Синан</tspan>
-                    <tspan x="75.685446" y="42">Устел</tspan>
+                    <tspan x="75.685446" y="24">Максим</tspan>
+                    <tspan x="75.685446" y="42">Трескин</tspan>
                 </text>
             </g>
             <g id="Online-Sinan-2" transform="translate(0.000000, 148.000000)">
                 <rect id="Rectangle-83" stroke="#979797" fill="#DBEBED" sketch:type="MSShapeGroup" x="0" y="0" width="215" height="74"></rect>
                 <rect id="Rectangle-84" stroke="#E5BC7B" stroke-width="3" fill="#D8D8D8" sketch:type="MSShapeGroup" x="8" y="6.59994507" width="60.5633803" height="60"></rect>
                 <text id="Синан" sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18" fill="#3B5998">
-                    <tspan x="75.685446" y="24">Синан</tspan>
-                    <tspan x="75.685446" y="42">Устел</tspan>
+                    <tspan x="75.685446" y="24">Влад</tspan>
+                    <tspan x="75.685446" y="42">Кириллов</tspan>
                 </text>
             </g>
             <g id="Online-Sinan-3" transform="translate(0.000000, 222.000000)">
                 <rect id="Rectangle-83" stroke="#979797" fill="#DBEBED" sketch:type="MSShapeGroup" x="0" y="0" width="215" height="74"></rect>
                 <rect id="Rectangle-84" stroke="#E5BC7B" stroke-width="3" fill="#D8D8D8" sketch:type="MSShapeGroup" x="8" y="6.59994507" width="60.5633803" height="60"></rect>
                 <text id="Синан" sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18" fill="#3B5998">
-                    <tspan x="75.685446" y="24">Синан</tspan>
-                    <tspan x="75.685446" y="42">Устел</tspan>
+                    <tspan x="75.685446" y="24">Алексей</tspan>
+                    <tspan x="75.685446" y="42">Радецкий</tspan>
                 </text>
             </g>
             <g id="Online-Sinan-4" transform="translate(0.000000, 296.000000)">
+                <rect id="Rect" stroke="#979797" fill="#DBEBED" sketch:type="MSShapeGroup" x="0" y="0" width="215" height="74"></rect>
+                <rect id="Rectangle-84" stroke="#E5BC7B" stroke-width="3" fill="#D8D8D8" sketch:type="MSShapeGroup" x="8" y="6.59994507" width="60.5633803" height="60"></rect>
+                <text id="Синан" sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18" fill="#3B5998">
+                    <tspan x="75.685446" y="24">Андрей</tspan>
+                    <tspan x="75.685446" y="42">Мартемьянов</tspan>
+                </text>
+            </g>
+            <g id="Online-Sinan-5" transform="translate(0.000000, 370.000000)">
+                <rect id="Rectangle-83" stroke="#979797" fill="#DBEBED" sketch:type="MSShapeGroup" x="0" y="0" width="215" height="74"></rect>
+                <rect id="Rectangle-84" stroke="#E5BC7B" stroke-width="3" fill="#D8D8D8" sketch:type="MSShapeGroup" x="8" y="6.59994507" width="60.5633803" height="60"></rect>
+                <text id="Синан" sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18" fill="#3B5998">
+                    <tspan x="75.685446" y="24">Роман</tspan>
+                    <tspan x="75.685446" y="42">Гладков</tspan>
+                </text>
+            </g>
+            <g id="Online-Sinan-6" transform="translate(0.000000, 444.000000)">
+                <rect id="Rectangle-83" stroke="#979797" fill="#DBEBED" sketch:type="MSShapeGroup" x="0" y="0" width="215" height="74"></rect>
+                <rect id="Rectangle-84" stroke="#E5BC7B" stroke-width="3" fill="#D8D8D8" sketch:type="MSShapeGroup" x="8" y="6.59994507" width="60.5633803" height="60"></rect>
+                <text id="Синан" sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18" fill="#3B5998">
+                    <tspan x="75.685446" y="24">Андрей</tspan>
+                    <tspan x="75.685446" y="42">Задорожний</tspan>
+                </text>
+            </g>
+            <g id="Online-Sinan-7" transform="translate(0.000000, 518.000000)">
                 <rect id="Rect" stroke="#979797" fill="#DBEBED" sketch:type="MSShapeGroup" x="0" y="0" width="215" height="74"></rect>
                 <rect id="Rectangle-84" stroke="#E5BC7B" stroke-width="3" fill="#D8D8D8" sketch:type="MSShapeGroup" x="8" y="6.59994507" width="60.5633803" height="60"></rect>
                 <text id="Синан" sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18" fill="#3B5998">
@@ -799,6 +822,13 @@
                     <tspan x="75.685446" y="42">Устел</tspan>
                 </text>
             </g>
+            <g id="Online-Sinan-8" transform="translate(0.000000, 592.000000)">
+                <rect id="Rect" stroke="#979797" fill="#DBEBED" sketch:type="MSShapeGroup" x="0" y="0" width="215" height="74"></rect>
+                <rect id="Rectangle-84" stroke="#E5BC7B" stroke-width="3" fill="#D8D8D8" sketch:type="MSShapeGroup" x="8" y="6.59994507" width="60.5633803" height="60"></rect>
+                <text id="Синан" sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18" fill="#3B5998">
+                    <tspan x="75.685446" y="24">Ахмет</tspan>
+                    <tspan x="75.685446" y="42">Тез</tspan>
+                </text>
             </g>
         </g>
         <g id="Player-Statistics" sketch:type="MSLayerGroup" transform="translate(209.000000, 87.000000)">

@@ -226,9 +226,10 @@ loadFile('templates/Card.svg', function() {
         
         document.getElementById('Page-1').addEventListener("mousewheel", mouseWheelHandler, false);
         
-        var clipPath = svg('<clipPath id="myClip"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path" x="0" y="0" width="216" height="200"/></clipPath>');
+        var clipPath = svg('<clipPath id="myClip"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path" x="0" y="0" width="216" height="400"/></clipPath>');
         document.getElementsByTagName('defs').item(0).appendChild(clipPath);
         document.getElementById("Online-List").setAttribute("clip-path","url(#myClip)");
+        document.getElementById("Clip-Path").setAttribute("transform", "translate(0,0)");
         document.getElementById('Player-Statistics').style.display = 'none';
         
         
@@ -286,8 +287,10 @@ function mouseWheelHandler(e) {
     var scroll_dy = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
     var ori = scroll;
     scroll = parseFloat(scroll_dy) + parseFloat(ori);
-    document.getElementById("Clip-Path").setAttribute("transform", "translate(0,"+parseFloat(scroll)+")");
-    document.getElementById("Online-List").setAttribute("transform", "translate(0,"+(parseFloat(95-scroll))+")");
+    if (scroll > 0) scroll = 0;
+    if (scroll < -274) scroll = -274;
+    document.getElementById("Clip-Path").setAttribute("transform", "translate(0,"+parseFloat(-scroll)+")");
+    document.getElementById("Online-List").setAttribute("transform", "translate(0,"+(parseFloat(95+scroll))+")");
     console.log(ori);
     return true; 
 }
