@@ -226,9 +226,9 @@ loadFile('templates/Card.svg', function() {
         
         document.getElementById('Page-1').addEventListener("mousewheel", mouseWheelHandler, false);
         
-        var clipPath = svg('<clipPath clipPathUnits="objectBoundingBox" id="myClip"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path" x="0" y="200" width="216" height="200"/></clipPath>');
+        var clipPath = svg('<clipPath id="myClip"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path" x="0" y="0" width="216" height="200"/></clipPath>');
         document.getElementsByTagName('defs').item(0).appendChild(clipPath);
-        document.getElementById("Online-Scroll").setAttribute("clip-path","url(#myClip)");
+        document.getElementById("Online-List").setAttribute("clip-path","url(#myClip)");
         document.getElementById('Player-Statistics').style.display = 'none';
         
         
@@ -279,15 +279,15 @@ function drawSampleCards() {
     slotName = slotNameDef; }
 
 var scrollSensitivity = 0.2;
+var scroll = 0.0;
 
 function mouseWheelHandler(e) {
     var evt = window.event || e;
-    var scroll = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
-    var ori = document.getElementById("Clip-Path").getAttribute("y");
-    ori = parseFloat(scroll) + parseFloat(ori);
-    document.getElementById("Clip-Path").setAttribute("y",parseFloat(ori));
-    document.getElementById("Online-Scroll").setAttribute("transform", "translate(0,"+(parseFloat(ori))+")");
-    document.getElementById("Online-Scroll").setAttribute("y", -parseFloat(ori));
+    var scroll_dy = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
+    var ori = scroll;
+    scroll = parseFloat(scroll_dy) + parseFloat(ori);
+    document.getElementById("Clip-Path").setAttribute("transform", "translate(0,"+parseFloat(scroll)+")");
+    document.getElementById("Online-List").setAttribute("transform", "translate(0,"+(parseFloat(95-scroll))+")");
     console.log(ori);
     return true; 
 }
