@@ -734,28 +734,6 @@
         <path d="M717.82681,16 L698.143994,16 C695.854843,16 694,17.8548426 694,20.1430683 L694,50.1835548 C694,52.4717805 695.854843,54.3266231 698.143994,54.3266231 L717.82681,54.3266231 C720.115036,54.3266231 721.969878,52.4717805 721.969878,50.1835548 L721.969878,20.1430683 C721.968952,17.8548426 720.115036,16 717.82681,16 L717.82681,16 L717.82681,16 Z M707.985865,41.0399123 C704.737344,41.0399123 702.108338,38.4072025 702.108338,35.1623855 C702.108338,31.9147904 704.737344,29.2848588 707.985865,29.2848588 C711.230682,29.2848588 713.863392,31.9147904 713.863392,35.1623855 C713.863392,38.4090546 711.230682,41.0399123 707.985865,41.0399123 L707.985865,41.0399123 L707.985865,41.0399123 Z" id="Okey-Tash-Logo-3" fill="#F6A623" sketch:type="MSShapeGroup"></path>
         <path d="M754.82681,16 L735.143994,16 C732.854843,16 731,17.8548426 731,20.1430683 L731,50.1835548 C731,52.4717805 732.854843,54.3266231 735.143994,54.3266231 L754.82681,54.3266231 C757.115036,54.3266231 758.969878,52.4717805 758.969878,50.1835548 L758.969878,20.1430683 C758.968952,17.8548426 757.115036,16 754.82681,16 L754.82681,16 L754.82681,16 Z M744.985865,41.0399123 C741.737344,41.0399123 739.108338,38.4072025 739.108338,35.1623855 C739.108338,31.9147904 741.737344,29.2848588 744.985865,29.2848588 C748.230682,29.2848588 750.863392,31.9147904 750.863392,35.1623855 C750.863392,38.4090546 748.230682,41.0399123 744.985865,41.0399123 L744.985865,41.0399123 L744.985865,41.0399123 Z" id="Okey-Tash-Logo-4" fill="#517ECE" sketch:type="MSShapeGroup"></path>
         <g id="Chat" sketch:type="MSLayerGroup" transform="translate(857.000000, 102.000000)">
-            <g id="Message-3" transform="translate(0.000000, 150.000000)">
-                <path d="M8,0 L8,11.6284985 L8.8817842e-16,24.290657 L8,24.290657 L8,34 L204,34 L204,0 L8,0 Z" id="Rectangle-81" fill="#84DAE5" sketch:type="MSShapeGroup"></path>
-                <text id="Please-enjoy-the-gam" sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" fill="#3B5998">
-                    <tspan x="14" y="23">Please enjoy the game</tspan>
-                </text>
-            </g>
-            <g id="Message-2" transform="translate(8.000000, 107.000000)">
-                <path d="M9,0 L9,15.360363 L0,27 L9.00000001,27 L9,34 L205,34 L205,0 L9,0 Z" id="Rectangle-80" fill="#F6C97F" sketch:type="MSShapeGroup" transform="translate(102.500000, 17.000000) scale(-1, 1) translate(-102.500000, -17.000000) "></path>
-                <text id="Yes,-design-is-well." sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" fill="#3B5998">
-                    <tspan x="7" y="23">Yes, design is well.</tspan>
-                </text>
-            </g>
-            <g id="Message-1" transform="translate(1.000000, 0.000000)">
-                <path d="M8,0 L8,75.6284985 L8.8817842e-16,88.290657 L8,88.290657 L8,98 L204,98 L204,0 L8,0 Z" id="Rectangle-79" fill="#84DAE5" sketch:type="MSShapeGroup"></path>
-                <text id="Hello,-this-is-new-K" sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" fill="#3B5998">
-                    <tspan x="13" y="21">Hello, this is new </tspan>
-                    <tspan x="13" y="43">Kakaranet design. </tspan>
-                    <tspan x="13" y="65">Hope you will love it’s </tspan>
-                    <tspan x="13" y="87">made by Intersog.</tspan>
-                </text>
-            </g>
-            <rect id="Chat-Input" stroke="#979797" fill="#FFFFFF" sketch:type="MSShapeGroup" x="8" y="194" width="196" height="61"></rect>
         </g>
         <g id="Online-List" sketch:type="MSLayerGroup" y="0" clip-path="url(#myClip)" transform="translate(1.000000, 95.000000)">
             <g id="Online-Maxim">

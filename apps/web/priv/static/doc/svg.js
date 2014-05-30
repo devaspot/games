@@ -282,6 +282,41 @@ function drawSampleCards() {
 var scrollSensitivity = 0.2;
 var scroll = 0.0;
 
+function chatMessage(id, me, string) {
+    var x1 = 10;
+    var y1 = 0;
+    var translate_y = document.getElementById("Chat").getBBox().height + 20;
+    var x2 = 210;
+    var textElement = chatText(id,me,string);
+    console.log("Text Element: ");
+    var html = "<g xmlns='http://www.w3.org/2000/svg' " + 
+        "id='Message-"+id+"' transform='translate(0,"+translate_y+")'></g>";
+    var messageElement = svg(html);
+    messageElement.appendChild(textElement);
+    document.getElementById("Chat").appendChild(messageElement);
+    create_multiline(textElement);
+    var y2 = textElement.getBBox().height + 5;
+    var box = "<path  xmlns='http://www.w3.org/2000/svg' d='M"+x1+","+y1+
+                " L"+x2+","+y1+
+                " L"+x2+","+y2+
+                " L"+x1+","+y2+
+                " L"+x1+","+y1+"' fill='#84D9E5'></path>";
+    console.log(svg(box));
+    messageElement.insertBefore(svg(box),textElement);
+    console.log(messageElement);
+}
+
+function chatText(id, me, string) {
+    var i = 0;
+    var colors=['#3B5998'];
+    var html = "<text id='ChatText-"+id+"' width='180' " +
+        " xmlns='http://www.w3.org/2000/svg' "+
+        " font-family='Exo 2' font-size='18' font-weight='normal' fill='"+colors[i]+"'>" +
+            string + "</text>";
+    console.log(html);
+    return svg(html);
+}
+
 function mouseWheelHandler(e) {
     var evt = window.event || e;
     var scroll_dy = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
@@ -293,4 +328,40 @@ function mouseWheelHandler(e) {
     document.getElementById("Online-List").setAttribute("transform", "translate(0,"+(parseFloat(95+scroll))+")");
     console.log(ori);
     return true; 
+}
+
+var svgNS = "http://www.w3.org/2000/svg";
+
+function create_multiline(target) {
+    var text_element = target; // evt.target;
+    var width = target.getAttribute("width");
+    var lines = text_element.firstChild.data.split('\n');
+    var words = [].concat.apply([],lines.map(function(line) { return line.split(' '); }));;
+    var start_x = 15; //text_element.getAttribute('x');
+    text_element.firstChild.data = '';
+
+    var tspan_element = document.createElementNS(svgNS, "tspan");
+    tspan_element.setAttribute("x", start_x);
+    tspan_element.setAttribute("dy", 18);
+    var text_node = document.createTextNode(words[0]);
+
+    tspan_element.appendChild(text_node);
+    text_element.appendChild(tspan_element);
+
+    for(var i=0; i<words.length; i++) {
+        console.log(words[i]);
+        if (words[i]=="") continue;
+        var len = tspan_element.firstChild.data.length;
+        tspan_element.firstChild.data += " " + words[i];
+
+        if (tspan_element.getComputedTextLength() > width) {
+            tspan_element.firstChild.data = tspan_element.firstChild.data.slice(0, len);
+            var tspan_element = document.createElementNS(svgNS, "tspan");
+            tspan_element.setAttribute("x", start_x);
+            tspan_element.setAttribute("dy", 18);
+            text_node = document.createTextNode(words[i]);
+            tspan_element.appendChild(text_node);
+            text_element.appendChild(tspan_element);
+        }
+    }
 }
