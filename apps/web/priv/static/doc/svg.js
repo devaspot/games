@@ -108,7 +108,6 @@ function template_engine(html, data) {
 function reload(file, name) { var slot = document.getElementById(name);
          slot.parentNode.replaceChild(svg(localStorage.getItem(file)),slot);}
 
-
 function reload_cont(cont,name,element) { if (null != cont) (cont)(); else reload(name,element); }
 
 function loadFile(name,cont,element) {
@@ -232,6 +231,20 @@ loadFile('templates/Card.svg', function() {
         document.getElementById("Chat").setAttribute("clip-path","url(#myClip)");
         document.getElementById("Clip-Path").setAttribute("transform", "translate(0,0)");
         document.getElementById('Player-Statistics').style.display = 'none';
+        document.getElementById('edit').setAttribute("contentEditable","true");
+        
+        document.getElementById('edit').onkeypress = function (evt) {
+            if (evt.keyCode == 13) {
+                var e = document.getElementById('edit');
+                if (e.innerText.trim() != ""){
+                    chatMessage("100","Maxim",e.innerText.trim());
+                    e.innerHTML = '';
+                }
+            }
+            var scroll = -10000000;
+            mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
+        };
+        
         
         
 //        onRightMenuDown();
@@ -319,11 +332,11 @@ function chatText(id, me, string) {
 }
 
 function mouseWheelHandler(e) {
-    var evt = window.event || e;
+    var evt = e;
     var scroll_dy = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
     var ori = scroll;
     scroll = parseFloat(scroll_dy) + parseFloat(ori);
-    var limit = parseFloat(document.getElementById("Chat").getBBox().height);
+    var limit = parseFloat(document.getElementById("Chat").getBBox().height) - 390;
     if (scroll > 0) scroll = 0;
     if (scroll < -limit) scroll = -limit;
     document.getElementById("Clip-Path").setAttribute("transform", "translate(0,"+parseFloat(-scroll)+")");
@@ -350,7 +363,7 @@ function create_multiline(target) {
     tspan_element.appendChild(text_node);
     text_element.appendChild(tspan_element);
 
-    for(var i=0; i<words.length; i++) {
+    for(var i=1; i<words.length; i++) {
         if (words[i]=="") continue;
         var len = tspan_element.firstChild.data.length;
         tspan_element.firstChild.data += " " + words[i];
