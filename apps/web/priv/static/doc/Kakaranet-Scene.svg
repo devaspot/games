@@ -849,9 +849,10 @@
             </text>
         </g>
     </g>
-            <foreignObject x="867" y="502" width="195" height="60">
-                <div id="edit" style="padding:4px;background-color:white;font-family:'Exo 2';font-size:16px;"
-                contentEditable="true"
-                     xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div>
-            </foreignObject>
+
+    <foreignObject x="864" y="504" width="198" height="120" onmouseover="barHover(evt);" onmouseout="barHoverOut(evt)">
+        <div id="edit" 
+          style="padding:4px;background-color:#FFF687;color:#3B5998;font-family:'Exo 2';font-size:16px;"
+        contentEditable="true" xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div>
+    </foreignObject>
 </svg>

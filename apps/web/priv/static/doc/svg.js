@@ -231,19 +231,10 @@ loadFile('templates/Card.svg', function() {
         document.getElementById("Chat").setAttribute("clip-path","url(#myClip)");
         document.getElementById("Clip-Path").setAttribute("transform", "translate(0,0)");
         document.getElementById('Player-Statistics').style.display = 'none';
+        document.getElementById("Right-Bar").onmouseover = barHover;
+        document.getElementById("Right-Bar").onmouseout = barHoverOut;
         document.getElementById('edit').setAttribute("contentEditable","true");
-        
-        document.getElementById('edit').onkeypress = function (evt) {
-            if (evt.keyCode == 13) {
-                var e = document.getElementById('edit');
-                if (e.innerText.trim() != ""){
-                    chatMessage("100","Maxim",e.innerText.trim());
-                    e.innerHTML = '';
-                }
-            }
-            var scroll = -10000000;
-            mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
-        };
+        document.getElementById('edit').onkeydown = chatEditor;
         
         
         
@@ -297,7 +288,9 @@ var scrollSensitivity = 0.2;
 var scroll = 0.0;
 
 function chatMessage(id, me, string) {
-    var x1 = 10;
+    var i=0;
+    var colors=['white','#DFF1F4'];
+    var x1 = 7;
     var y1 = 0;
     var translate_y = parseFloat(document.getElementById("Chat").getBBox().height);
     var x2 = 205;
@@ -312,11 +305,23 @@ function chatMessage(id, me, string) {
     var y2 = textElement.getBBox().height + 5;
     var box = "<path xmlns='http://www.w3.org/2000/svg' d='M"+x1+","+y1+
                 " L"+x2+","+y1+
-                " L"+x2+","+y2+
-                " L"+x1+","+y2+
-                " L"+x1+","+y1+"' fill='#84D9E5'></path>";
-    console.log(svg(box));
-    messageElement.insertBefore(svg(box),textElement);
+            ((string == "Maxim") ?
+                (" L"+x2+","+parseFloat(y2-7)+
+                " L"+parseFloat(x2+7)+","+y2+
+                " L"+x1+","+y2)
+            :
+                (" L"+x2+","+y2+
+                " L"+0+","+y2+
+                " L"+x1+","+parseFloat(y2-7)))
+        + " L"+x1+","+y1+"' fill='"+colors[string=="Maxim"?1:0]+"'></path>";
+    var boxElement = svg(box);
+    messageElement.insertBefore(boxElement,textElement);
+    boxElement.setAttribute("mouseover","barHover(evt);");
+    boxElement.setAttribute("mouseout","barHoverOut(evt);");
+    textElement.setAttribute("mouseover","barHover(evt);");
+    textElement.setAttribute("mouseout","barHoverOut(evt);");
+    messageElement.setAttribute("onmouseover","barHover(evt);");
+    messageElement.setAttribute("onmouseout","barHoverOut(evt);");
     console.log(messageElement);
 }
 
@@ -336,8 +341,8 @@ function mouseWheelHandler(e) {
     var scroll_dy = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
     var ori = scroll;
     scroll = parseFloat(scroll_dy) + parseFloat(ori);
-    var limit = parseFloat(document.getElementById("Chat").getBBox().height) - 390;
-    if (scroll > 0) scroll = 0;
+    var limit = parseFloat(document.getElementById("Chat").getBBox().height) - 400;
+    if (scroll > 5) scroll = 5;
     if (scroll < -limit) scroll = -limit;
     document.getElementById("Clip-Path").setAttribute("transform", "translate(0,"+parseFloat(-scroll)+")");
     document.getElementById("Online-List").setAttribute("transform", "translate(0,"+(parseFloat(95+scroll))+")");
@@ -350,8 +355,9 @@ var svgNS = "http://www.w3.org/2000/svg";
 function create_multiline(target) {
     var text_element = target; // evt.target;
     var width = target.getAttribute("width");
-    var lines = text_element.firstChild.data.split('\n');
-    var words = [].concat.apply([],lines.map(function(line) { return line.split(' '); }));;
+    var words = text_element.firstChild.data.split('');
+    console.log(words);
+//    var words = [].concat.apply([],lines.map(function(line) { return line.split(' '); }));;
     var start_x = 15; //text_element.getAttribute('x');
     text_element.firstChild.data = '';
 
@@ -364,11 +370,12 @@ function create_multiline(target) {
     text_element.appendChild(tspan_element);
 
     for(var i=1; i<words.length; i++) {
-        if (words[i]=="") continue;
+        if (words[i]=="") continue; 
         var len = tspan_element.firstChild.data.length;
-        tspan_element.firstChild.data += " " + words[i];
+        tspan_element.firstChild.data += words[i];
 
-        if (tspan_element.getComputedTextLength() > width) {
+        if (tspan_element.getComputedTextLength() > width || words[i]=="\n") {
+            words[i]="";
             tspan_element.firstChild.data = tspan_element.firstChild.data.slice(0, len);
             var tspan_element = document.createElementNS(svgNS, "tspan");
             tspan_element.setAttribute("x", start_x);
@@ -378,4 +385,38 @@ function create_multiline(target) {
             text_element.appendChild(tspan_element);
         }
     }
+}
+
+function barHover(evt) {
+    var target = document.getElementById("Right-Bar");
+    target.setAttribute("fill","#9CADCB");
+}
+
+function barHoverOut(evt) {
+    var target = document.getElementById("Right-Bar");
+    target.setAttribute("fill","lightblue");
+}
+
+function chatEditor(evt) {
+    if (evt.keyCode == 13 && evt.metaKey == false) {
+        var e = document.getElementById('edit');
+        if (e.innerText.trim() != ""){
+            chatMessage("100","Maxim",e.innerText.trim().encodeHTML());
+            e.innerHTML = '';
+        }
+    } else if (evt.keyCode == 13 && evt.metaKey == true) {
+        document.execCommand('insertText',false, '\n');
+    }
+    var scroll = -10000000;
+    mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
+}
+
+if (!String.prototype.encodeHTML) {
+  String.prototype.encodeHTML = function () {
+    return this.replace(/&/g, '&amp;')
+               .replace(/</g, '&lt;')
+               .replace(/>/g, '&gt;')
+               .replace(/"/g, '&quot;')
+               .replace(/'/g, '&apos;');
+  };
 }
