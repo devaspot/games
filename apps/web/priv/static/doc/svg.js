@@ -231,6 +231,7 @@ loadFile('templates/Card.svg', function() {
         document.getElementById("Chat").setAttribute("clip-path","url(#myClip)");
         document.getElementById("Clip-Path").setAttribute("transform", "translate(0,0)");
         document.getElementById('Player-Statistics').style.display = 'none';
+        document.getElementById("Right-Bar").setAttribute("fill","lightblue");
         document.getElementById("Right-Bar").onmouseover = barHover;
         document.getElementById("Right-Bar").onmouseout = barHoverOut;
         document.getElementById('edit').setAttribute("contentEditable","true");
@@ -289,7 +290,7 @@ var scroll = 0.0;
 
 function chatMessage(id, me, string) {
     var i=0;
-    var colors=['white','#DFF1F4'];
+    var colors=['#FDFDFD','#DFF1F4'];
     var x1 = 7;
     var y1 = 0;
     var translate_y = parseFloat(document.getElementById("Chat").getBBox().height);
@@ -389,7 +390,7 @@ function create_multiline(target) {
 
 function barHover(evt) {
     var target = document.getElementById("Right-Bar");
-    target.setAttribute("fill","#9CADCB");
+    target.setAttribute("fill","skyblue");
 }
 
 function barHoverOut(evt) {
@@ -407,7 +408,7 @@ function chatEditor(evt) {
     } else if (evt.keyCode == 13 && evt.metaKey == true) {
         document.execCommand('insertText',false, '\n');
     }
-    var scroll = -10000000;
+    var scroll = -1000000;
     mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
 }
 

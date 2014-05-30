@@ -3,7 +3,7 @@
     A:visited   { color: darkblue; }
     A:hover     { color: blue; }
     
-    controls { display: none; }
+    .controls { display: none; visible: hidden; }
 
     SUP        { font-size:10pt; }
     BODY        { font-size:14pt; font-family: "Exo 2",Calibri, Lucida Sans, "Lucida Grande"; }
