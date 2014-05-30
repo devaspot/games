@@ -229,6 +229,7 @@ loadFile('templates/Card.svg', function() {
         var clipPath = svg('<clipPath id="myClip"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path" x="0" y="0" width="216" height="400"/></clipPath>');
         document.getElementsByTagName('defs').item(0).appendChild(clipPath);
         document.getElementById("Online-List").setAttribute("clip-path","url(#myClip)");
+        document.getElementById("Chat").setAttribute("clip-path","url(#myClip)");
         document.getElementById("Clip-Path").setAttribute("transform", "translate(0,0)");
         document.getElementById('Player-Statistics').style.display = 'none';
         
@@ -285,18 +286,18 @@ var scroll = 0.0;
 function chatMessage(id, me, string) {
     var x1 = 10;
     var y1 = 0;
-    var translate_y = document.getElementById("Chat").getBBox().height + 20;
-    var x2 = 210;
+    var translate_y = parseFloat(document.getElementById("Chat").getBBox().height);
+    var x2 = 205;
     var textElement = chatText(id,me,string);
-    console.log("Text Element: ");
+    var dy = translate_y == 0 ? 0 : translate_y + 10;
     var html = "<g xmlns='http://www.w3.org/2000/svg' " + 
-        "id='Message-"+id+"' transform='translate(0,"+translate_y+")'></g>";
+        "id='Message-"+id+"' transform='translate(0,"+dy+")'></g>";
     var messageElement = svg(html);
     messageElement.appendChild(textElement);
     document.getElementById("Chat").appendChild(messageElement);
     create_multiline(textElement);
     var y2 = textElement.getBBox().height + 5;
-    var box = "<path  xmlns='http://www.w3.org/2000/svg' d='M"+x1+","+y1+
+    var box = "<path xmlns='http://www.w3.org/2000/svg' d='M"+x1+","+y1+
                 " L"+x2+","+y1+
                 " L"+x2+","+y2+
                 " L"+x1+","+y2+
@@ -311,7 +312,7 @@ function chatText(id, me, string) {
     var colors=['#3B5998'];
     var html = "<text id='ChatText-"+id+"' width='180' " +
         " xmlns='http://www.w3.org/2000/svg' "+
-        " font-family='Exo 2' font-size='18' font-weight='normal' fill='"+colors[i]+"'>" +
+        " font-family='Exo 2' font-size='16' font-weight='normal' fill='"+colors[i]+"'>" +
             string + "</text>";
     console.log(html);
     return svg(html);
@@ -322,11 +323,12 @@ function mouseWheelHandler(e) {
     var scroll_dy = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
     var ori = scroll;
     scroll = parseFloat(scroll_dy) + parseFloat(ori);
+    var limit = parseFloat(document.getElementById("Chat").getBBox().height);
     if (scroll > 0) scroll = 0;
-    if (scroll < -274) scroll = -274;
+    if (scroll < -limit) scroll = -limit;
     document.getElementById("Clip-Path").setAttribute("transform", "translate(0,"+parseFloat(-scroll)+")");
     document.getElementById("Online-List").setAttribute("transform", "translate(0,"+(parseFloat(95+scroll))+")");
-    console.log(ori);
+    document.getElementById("Chat").setAttribute("transform", "translate(857,"+(parseFloat(95+scroll))+")");
     return true; 
 }
 
@@ -349,7 +351,6 @@ function create_multiline(target) {
     text_element.appendChild(tspan_element);
 
     for(var i=0; i<words.length; i++) {
-        console.log(words[i]);
         if (words[i]=="") continue;
         var len = tspan_element.firstChild.data.length;
         tspan_element.firstChild.data += " " + words[i];
