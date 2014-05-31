@@ -1,3 +1,12 @@
+if (!String.prototype.encodeHTML) {
+  String.prototype.encodeHTML = function () {
+    return this.replace(/&/g, '&amp;')
+               .replace(/</g, '&lt;')
+               .replace(/>/g, '&gt;')
+               .replace(/"/g, '&quot;')
+               .replace(/'/g, '&apos;');
+  };
+}
 
 var transition = {pid: '', port: '8080' };
 
@@ -231,18 +240,20 @@ loadFile('templates/Card.svg', function() {
         document.getElementById("Chat").setAttribute("clip-path","url(#myClip)");
         document.getElementById("Clip-Path").setAttribute("transform", "translate(0,0)");
         document.getElementById('Player-Statistics').style.display = 'none';
-        document.getElementById("Right-Bar").setAttribute("fill","lightblue");
+        document.getElementById("Right-Bar").setAttribute("fill","skyblue");
         document.getElementById("Right-Bar").onmouseover = barHover;
         document.getElementById("Right-Bar").onmouseout = barHoverOut;
         document.getElementById('edit').setAttribute("contentEditable","true");
         document.getElementById('edit').onkeydown = chatEditor;
+
         
         
         
-//        onRightMenuDown();
+        onRightMenuDown();
 
     });
 });
+
 
 var removeChilds = function (node) {
     var last;
@@ -286,7 +297,7 @@ function drawSampleCards() {
     slotName = slotNameDef; }
 
 var scrollSensitivity = 0.2;
-var scroll = 0.0;
+var scroll = 0;
 
 function chatMessage(id, me, string) {
     var i=0;
@@ -314,7 +325,7 @@ function chatMessage(id, me, string) {
                 (" L"+x2+","+y2+
                 " L"+0+","+y2+
                 " L"+x1+","+parseFloat(y2-7)))
-        + " L"+x1+","+y1+"' fill='"+colors[string=="Maxim"?1:0]+"'></path>";
+        + " L"+x1+","+y1+"' fill='"+colors[me=="Maxim"?1:0]+"'></path>";
     var boxElement = svg(box);
     messageElement.insertBefore(boxElement,textElement);
     boxElement.setAttribute("mouseover","barHover(evt);");
@@ -338,6 +349,10 @@ function chatText(id, me, string) {
 }
 
 function mouseWheelHandler(e) {
+
+    var target = document.getElementById("Right-Bar");
+    if (target.getAttribute("fill")!="skyblue") return;
+
     var evt = e;
     var scroll_dy = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
     var ori = scroll;
@@ -355,7 +370,7 @@ var svgNS = "http://www.w3.org/2000/svg";
 
 function create_multiline(target) {
     var text_element = target; // evt.target;
-    var width = target.getAttribute("width");
+    var width = 190; //target.getAttribute("width");
     var words = text_element.firstChild.data.split('');
     console.log(words);
 //    var words = [].concat.apply([],lines.map(function(line) { return line.split(' '); }));;
@@ -376,7 +391,7 @@ function create_multiline(target) {
         tspan_element.firstChild.data += words[i];
 
         if (tspan_element.getComputedTextLength() > width || words[i]=="\n") {
-            words[i]="";
+            if (words[i]=='\n') words[i]="";
             tspan_element.firstChild.data = tspan_element.firstChild.data.slice(0, len);
             var tspan_element = document.createElementNS(svgNS, "tspan");
             tspan_element.setAttribute("x", start_x);
@@ -412,12 +427,7 @@ function chatEditor(evt) {
     mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
 }
 
-if (!String.prototype.encodeHTML) {
-  String.prototype.encodeHTML = function () {
-    return this.replace(/&/g, '&amp;')
-               .replace(/</g, '&lt;')
-               .replace(/>/g, '&gt;')
-               .replace(/"/g, '&quot;')
-               .replace(/'/g, '&apos;');
-  };
-}
+chatMessage("100","Maxim2","Joe: Hello There!".encodeHTML());
+chatMessage("100","Maxim2","Alice: You got new Design. Eh?".encodeHTML());
+chatMessage("100","Maxim","Maxim So: This was made with pure SVG".encodeHTML());
+mouseWheelHandler({'detail':-100000,'wheelDelta':-1000000});
