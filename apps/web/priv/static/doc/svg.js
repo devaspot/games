@@ -317,7 +317,7 @@ function chatMessage(id, me, string) {
     var y2 = textElement.getBBox().height + 5;
     var box = "<path xmlns='http://www.w3.org/2000/svg' d='M"+x1+","+y1+
                 " L"+x2+","+y1+
-            ((string == "Maxim") ?
+            ((me == "Maxim") ?
                 (" L"+x2+","+parseFloat(y2-7)+
                 " L"+parseFloat(x2+7)+","+y2+
                 " L"+x1+","+y2)
@@ -427,7 +427,7 @@ function chatEditor(evt) {
     mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
 }
 
-chatMessage("100","Maxim2","Joe: Hello There!".encodeHTML());
-chatMessage("100","Maxim2","Alice: You got new Design. Eh?".encodeHTML());
-chatMessage("100","Maxim","Maxim So: This was made with pure SVG".encodeHTML());
+chatMessage("1","Maxim2","Joe:\nHello There!".encodeHTML());
+chatMessage("2","Maxim2","Alice:\nYou got new Design. Eh?".encodeHTML());
+chatMessage("3","Maxim","Maxim So:\nThis was made with pure SVG".encodeHTML());
 mouseWheelHandler({'detail':-100000,'wheelDelta':-1000000});
