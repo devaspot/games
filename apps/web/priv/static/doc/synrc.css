@@ -3,7 +3,9 @@
     A:visited   { color: darkblue; }
     A:hover     { color: blue; }
     
-    .controls { display: none; visible: hidden; }
+    .controls { display: none; visibility:hidden; }
+    
+    svg { display: block; margin: auto; }
 
     SUP        { font-size:10pt; }
     BODY        { font-size:14pt; font-family: "Exo 2",Calibri, Lucida Sans, "Lucida Grande"; }
@@ -11,11 +13,15 @@
     H1          { font-size:30pt; color: blue; font-weight: bold; font-size:30pt; margin-top:20px; margin-bottom:10px; margin-right:6px; }
     H2          { font-size:20pt; color: darkblue; margin-top:20px; margin-bottom:10px; margin-right:6px; }
     H3          { font-size:18pt; margin-top:20px; margin-bottom:10px; margin-right:6px; } 
-    P           { font-size:14pt; margin-top: 0px; margin-bottom: 8px;  }
+    P           { display: none; visibility:hidden;font-size:14pt; margin-top: 0px; margin-bottom: 8px;  }
     H3 P        { font-size:16pt; margin-left: 70px; margin-top:20px; margin-bottom:10px; margin-right:6px; } 
     B           { font-size:14pt; background-color: lightblue; padding: 2px; }
     H2 B        { font-size:16pt; background-color: lightblue; padding: 5px; margin-top: 20px; margin-bottom: 20px;}
     LI          { font-size:14pt; }
+    button { display: none; visibility:hidden;}
+    label  { display: none; visibility:hidden;}
+    input  { display: none; visibility:hidden;}
+    select { display: none; visibility:hidden;}
 
  pre          { font-size:10pt; font-family: Lucida Console; }
 

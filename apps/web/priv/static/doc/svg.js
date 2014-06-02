@@ -234,6 +234,15 @@ loadFile('templates/Card.svg', function() {
         
         document.getElementById('Page-1').addEventListener("mousewheel", mouseWheelHandler, false);
         
+
+        
+        
+        
+        onRightMenuDown();
+
+    });
+});
+
         var clipPath1 = svg('<clipPath id="myClip1"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left" x="0" y="0" width="216" height="400"/></clipPath>');
         var clipPath2 = svg('<clipPath id="myClip2"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Right" x="0" y="0" width="216" height="400"/></clipPath>');
         document.getElementsByTagName('defs').item(0).appendChild(clipPath1);
@@ -250,14 +259,6 @@ loadFile('templates/Card.svg', function() {
         document.getElementById("Left-Bar").onmouseout = onlineHoverOut;
         document.getElementById('edit').setAttribute("contentEditable","true");
         document.getElementById('edit').onkeydown = chatEditor;
-
-        
-        
-        
-        onRightMenuDown();
-
-    }, "Refined");
-});
 
 
 var removeChilds = function (node) {
@@ -363,7 +364,7 @@ function mouseWheelHandler(e) {
     var leftActive = leftFill == "skyblue";
     var rightActive = rightFill == "skyblue";
     if (!leftActive && !rightActive) return;
-    console.log(leftActive);
+//    console.log(leftActive);
 
     var evt = e;
     var scroll_dy = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
@@ -425,7 +426,7 @@ function onlineHoverOut(evt) { document.getElementById("Left-Bar").setAttribute(
 function onlineHoverColor(evt) {
     onlineHover(evt);
     var name = evt.target.getAttribute("xmlns:data");
-    if (null != name) document.getElementById(name).setAttribute("fill","#FFE0A5");
+    if (null != name) document.getElementById(name).setAttribute("fill","#FFF687");
 }
 function onlineHoverOutColor(evt) { 
     onlineHoverOut(evt);
@@ -457,8 +458,8 @@ function addOnlineUser(name,full_name,insertMode) {
             '<text xmlns:data="'+name+'" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);" '+
             'font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18"'+
             ' fill="#3B5998">' + 
-                '<tspan xmlns:data="'+name+'" font-weight="bold" fill="green" x="19" y="22">'+full_name+'</tspan>' + 
-                '<tspan xmlns:data="'+name+'" x="19" y="40">Score: 1043 Pos: 13</tspan></text>'+
+                '<tspan xmlns:data="'+name+'" font-weight="normal" fill="green" x="19" y="22">'+full_name+'</tspan>' + 
+                '<tspan xmlns:data="'+name+'" font-size="14" x="19" y="40">Score: 1043 Pos: 13</tspan></text>'+
             '<rect onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);"'+
             '  x="10" y="48" width="196" height="8"></rect></g>';
     var element = svg(html);
