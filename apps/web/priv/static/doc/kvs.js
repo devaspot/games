@@ -29,3 +29,14 @@ function kvs_add(iterator) {
         kvs_put(iterator);
     }
 }
+
+function kvs_read(type,start,count) { return traversal(type,start,count,[]); }
+function traversal(type,start,count,result) {
+    var item = localStorage.getItem(type+start);
+    if (null == item || count == 0) return result; else {
+        item = JSON.parse(item);
+        result.push(item);
+        if (count <= result.length) return result; else
+        return traversal(type,item.next,count,result);
+    }
+}
