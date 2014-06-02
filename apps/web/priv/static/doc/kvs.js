@@ -1,3 +1,17 @@
+// Console Populate:
+// kvs_add({type:"user", id:"1",container:"feed",name:"maxim"});
+// kvs_add({type:"user", id:"2",container:"feed",name:"maxim"});
+// kvs_add({type:"user", id:"3",container:"feed",name:"maxim"});
+
+// localStorage:
+// feeduser : {"type":"feed","id":"user","count":3,"top":"3"}
+// user1 : {"type":"user","id":"1","container":"feed","name":"maxim","next":"2","feed_id":"user"}
+// user2 : {"type":"user","id":"2","container":"feed","name":"maxim","prev":"1","next":"3","feed_id":"user"}
+// user3 : {"type":"user","id":"3","container":"feed","name":"maxim","prev":"2","next":null,"feed_id":"user"}
+
+// Console Traverse:
+// kvs_read("user","1",-1);
+// [Object,Object,Object]
 
 function kvs_put(o) { localStorage.setItem(o.type+o.id, JSON.stringify(o)); }
 
@@ -36,7 +50,7 @@ function traversal(type,start,count,result) {
     if (null == item || count == 0) return result; else {
         item = JSON.parse(item);
         result.push(item);
-        if (count <= result.length) return result; else
+        if (count <= result.length && count != -1) return result; else
         return traversal(type,item.next,count,result);
     }
 }
