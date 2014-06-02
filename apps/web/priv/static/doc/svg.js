@@ -256,7 +256,7 @@ loadFile('templates/Card.svg', function() {
         
         onRightMenuDown();
 
-    });
+    }, "Refined");
 });
 
 
