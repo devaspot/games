@@ -234,15 +234,20 @@ loadFile('templates/Card.svg', function() {
         
         document.getElementById('Page-1').addEventListener("mousewheel", mouseWheelHandler, false);
         
-        var clipPath = svg('<clipPath id="myClip"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path" x="0" y="0" width="216" height="400"/></clipPath>');
-        document.getElementsByTagName('defs').item(0).appendChild(clipPath);
-        document.getElementById("Online-List").setAttribute("clip-path","url(#myClip)");
-        document.getElementById("Chat").setAttribute("clip-path","url(#myClip)");
-        document.getElementById("Clip-Path").setAttribute("transform", "translate(0,0)");
+        var clipPath1 = svg('<clipPath id="myClip1"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left" x="0" y="0" width="216" height="400"/></clipPath>');
+        var clipPath2 = svg('<clipPath id="myClip2"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Right" x="0" y="0" width="216" height="400"/></clipPath>');
+        document.getElementsByTagName('defs').item(0).appendChild(clipPath1);
+        document.getElementsByTagName('defs').item(0).appendChild(clipPath2);
+        document.getElementById("Online-List").setAttribute("clip-path","url(#myClip1)");
+        document.getElementById("Chat").setAttribute("clip-path","url(#myClip2)");
+        document.getElementById("Clip-Path-Left").setAttribute("transform", "translate(0,0)");
+        document.getElementById("Clip-Path-Right").setAttribute("transform", "translate(0,0)");
         document.getElementById('Player-Statistics').style.display = 'none';
         document.getElementById("Right-Bar").setAttribute("fill","skyblue");
         document.getElementById("Right-Bar").onmouseover = barHover;
         document.getElementById("Right-Bar").onmouseout = barHoverOut;
+        document.getElementById("Left-Bar").onmouseover = onlineHover;
+        document.getElementById("Left-Bar").onmouseout = onlineHoverOut;
         document.getElementById('edit').setAttribute("contentEditable","true");
         document.getElementById('edit').onkeydown = chatEditor;
 
@@ -297,7 +302,8 @@ function drawSampleCards() {
     slotName = slotNameDef; }
 
 var scrollSensitivity = 0.2;
-var scroll = 0;
+var scroll_left = 5;
+var scroll_right = -10000;
 
 function chatMessage(id, me, string) {
     var i=0;
@@ -334,7 +340,7 @@ function chatMessage(id, me, string) {
     textElement.setAttribute("mouseout","barHoverOut(evt);");
     messageElement.setAttribute("onmouseover","barHover(evt);");
     messageElement.setAttribute("onmouseout","barHoverOut(evt);");
-    console.log(messageElement);
+//    console.log(messageElement);
 }
 
 function chatText(id, me, string) {
@@ -344,25 +350,34 @@ function chatText(id, me, string) {
         " xmlns='http://www.w3.org/2000/svg' "+
         " font-family='Exo 2' font-size='16' font-weight='normal' fill='"+colors[i]+"'>" +
             string + "</text>";
-    console.log(html);
+//    console.log(html);
     return svg(html);
 }
 
 function mouseWheelHandler(e) {
 
-    var target = document.getElementById("Right-Bar");
-    if (target.getAttribute("fill")!="skyblue") return;
+    var leftBar = document.getElementById("Left-Bar");
+    var rightBar = document.getElementById("Right-Bar");
+    var leftFill = leftBar.getAttribute("fill");
+    var rightFill = rightBar.getAttribute("fill");
+    var leftActive = leftFill == "skyblue";
+    var rightActive = rightFill == "skyblue";
+    if (!leftActive && !rightActive) return;
+    console.log(leftActive);
 
     var evt = e;
     var scroll_dy = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
-    var ori = scroll;
-    scroll = parseFloat(scroll_dy) + parseFloat(ori);
-    var limit = parseFloat(document.getElementById("Chat").getBBox().height) - 400;
+    var ori = leftActive ? scroll_left : scroll_right;
+    var scroll = parseFloat(scroll_dy) + parseFloat(ori);
+    var selectedBar = leftActive ? "Online-List" : "Chat";
+    var selectedClip = leftActive ? "Clip-Path-Left" : "Clip-Path-Right";
+    var selectedBarShift = leftActive ? 0 : 857;
+    var limit = parseFloat(document.getElementById(selectedBar).getBBox().height) - 400;
     if (scroll > 5) scroll = 5;
     if (scroll < -limit) scroll = -limit;
-    document.getElementById("Clip-Path").setAttribute("transform", "translate(0,"+parseFloat(-scroll)+")");
-    document.getElementById("Online-List").setAttribute("transform", "translate(0,"+(parseFloat(95+scroll))+")");
-    document.getElementById("Chat").setAttribute("transform", "translate(857,"+(parseFloat(95+scroll))+")");
+    document.getElementById(selectedClip).setAttribute("transform", "translate(0,"+parseFloat(-scroll)+")");
+    document.getElementById(selectedBar).setAttribute("transform", "translate("+selectedBarShift+","+(parseFloat(95+scroll))+")");
+    if (leftActive) scroll_left = scroll; else scroll_right = scroll;
     return true; 
 }
 
@@ -372,7 +387,7 @@ function create_multiline(target) {
     var text_element = target; // evt.target;
     var width = 190; //target.getAttribute("width");
     var words = text_element.firstChild.data.split('');
-    console.log(words);
+//    console.log(words);
 //    var words = [].concat.apply([],lines.map(function(line) { return line.split(' '); }));;
     var start_x = 15; //text_element.getAttribute('x');
     text_element.firstChild.data = '';
@@ -403,14 +418,19 @@ function create_multiline(target) {
     }
 }
 
-function barHover(evt) {
-    var target = document.getElementById("Right-Bar");
-    target.setAttribute("fill","skyblue");
+function barHover(evt) { document.getElementById("Right-Bar").setAttribute("fill","skyblue"); }
+function barHoverOut(evt) { document.getElementById("Right-Bar").setAttribute("fill","lightblue"); }
+function onlineHover(evt) { document.getElementById("Left-Bar").setAttribute("fill","skyblue"); }
+function onlineHoverOut(evt) { document.getElementById("Left-Bar").setAttribute("fill","lightblue"); }
+function onlineHoverColor(evt) {
+    var name = evt.target.getAttribute("xmlns:data");
+    if (null != name) document.getElementById(name).setAttribute("fill","#FFE0A5");
+    onlineHover(evt);
 }
-
-function barHoverOut(evt) {
-    var target = document.getElementById("Right-Bar");
-    target.setAttribute("fill","lightblue");
+function onlineHoverOutColor(evt) { 
+    var name = evt.target.getAttribute("xmlns:data");
+    if (null != name) document.getElementById(name).setAttribute("fill","#DBEBED");
+    onlineHoverOut(evt);
 }
 
 function chatEditor(evt) {
@@ -427,7 +447,42 @@ function chatEditor(evt) {
     mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
 }
 
+function addOnlineUser(name,full_name,insertMode) {
+    var listElement = document.getElementById("Online-List");
+    var y = listElement.getBBox().height;
+//    console.log(y);
+    var html = '<g xmlns="http://www.w3.org/2000/svg" height="60" transform="translate(0, '+y+')">' +
+            '<g fill="#DBEBED">' +
+            '    <rect id="'+name+'" x="10" y="0" width="196" height="48" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);"></rect></g>' +
+            '<text xmlns:data="'+name+'" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);" '+
+            'font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18"'+
+            ' fill="#3B5998">' + 
+                '<tspan xmlns:data="'+name+'" font-weight="bold" fill="green" x="19" y="22">'+full_name+'</tspan>' + 
+                '<tspan xmlns:data="'+name+'" x="19" y="40">Score: 1043 Pos: 13</tspan></text>'+
+            '<rect onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);"'+
+            '  x="10" y="48" width="196" height="8"></rect></g>';
+    var element = svg(html);
+    element.setAttribute("mouseover","onlineHoverColor(evt);");
+    element.setAttribute("mouseout","onlineHoverOutColor(evt);");
+//    console.log(element);
+    listElement.appendChild(element);
+}
+
 chatMessage("1","Maxim2","Joe:\nHello There!".encodeHTML());
 chatMessage("2","Maxim2","Alice:\nYou got new Design. Eh?".encodeHTML());
 chatMessage("3","Maxim","Maxim So:\nThis was made with pure SVG".encodeHTML());
-mouseWheelHandler({'detail':-100000,'wheelDelta':-1000000});
+
+
+for (var i=0;i<5;i++) {
+addOnlineUser("Maxim1"+i,"Maxim Sokhatsky",'appendChild');
+addOnlineUser("Maxim2"+i,"Sinan Ustel",'appendChild');
+addOnlineUser("Maxim3"+i,"Ahmet Tez",'appendChild');
+addOnlineUser("Maxim4"+i,"Alice Cooper",'appendChild');
+}
+
+barHover();
+mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
+barHoverOut();
+onlineHover();
+mouseWheelHandler({'detail':5,'wheelDelta':5});
+onlineHoverOut();
