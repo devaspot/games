@@ -423,14 +423,14 @@ function barHoverOut(evt) { document.getElementById("Right-Bar").setAttribute("f
 function onlineHover(evt) { document.getElementById("Left-Bar").setAttribute("fill","skyblue"); }
 function onlineHoverOut(evt) { document.getElementById("Left-Bar").setAttribute("fill","lightblue"); }
 function onlineHoverColor(evt) {
+    onlineHover(evt);
     var name = evt.target.getAttribute("xmlns:data");
     if (null != name) document.getElementById(name).setAttribute("fill","#FFE0A5");
-    onlineHover(evt);
 }
 function onlineHoverOutColor(evt) { 
+    onlineHoverOut(evt);
     var name = evt.target.getAttribute("xmlns:data");
     if (null != name) document.getElementById(name).setAttribute("fill","#DBEBED");
-    onlineHoverOut(evt);
 }
 
 function chatEditor(evt) {
@@ -452,8 +452,8 @@ function addOnlineUser(name,full_name,insertMode) {
     var y = listElement.getBBox().height;
 //    console.log(y);
     var html = '<g xmlns="http://www.w3.org/2000/svg" height="60" transform="translate(0, '+y+')">' +
-            '<g fill="#DBEBED">' +
-            '    <rect id="'+name+'" x="10" y="0" width="196" height="48" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);"></rect></g>' +
+            '<g xmlns:data="'+name+'"fill="#DBEBED" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);">' +
+            '    <rect xmlns:data="'+name+'"fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);"></rect></g>' +
             '<text xmlns:data="'+name+'" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);" '+
             'font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18"'+
             ' fill="#3B5998">' + 
@@ -462,8 +462,8 @@ function addOnlineUser(name,full_name,insertMode) {
             '<rect onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);"'+
             '  x="10" y="48" width="196" height="8"></rect></g>';
     var element = svg(html);
-    element.setAttribute("mouseover","onlineHoverColor(evt);");
-    element.setAttribute("mouseout","onlineHoverOutColor(evt);");
+//    element.setAttribute("mouseover","onlineHoverColor(evt);");
+//    element.setAttribute("mouseout","onlineHoverOutColor(evt);");
 //    console.log(element);
     listElement.appendChild(element);
 }
