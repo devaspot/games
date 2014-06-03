@@ -51,6 +51,7 @@ user() ->
                         _ -> new_user() end;
                 _ -> new_user() end,
             wf:user(X),
+            send_roster(),
             X;
         U-> U end.
 
@@ -88,6 +89,14 @@ player_name(PI) -> auth_server:player_name(PI).
 tash(C,V) -> {wf:to_binary([wf:to_list(C)," ",wf:to_list(V)]), {C, V}}.
 
 main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
+
+send_roster() ->
+    X = [ send_roster_item(User) || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
+    self() ! {server,{roster_end}},
+    wf:info(?MODULE,"Users: ~p",[length(X)]).
+
+send_roster_item(User) ->
+    self() ! {server,{roster_item,User#user.id,User#user.names,User#user.surnames}}.
 
 body() ->
     wf:wire(#api{name=plusLogin, tag=plus}),
@@ -127,6 +136,7 @@ event(init) ->
     wf:update(games_ids,#dropdown{id = games_ids, value = ?GAMEID, options = 
       [#option{label = wf:to_list(GameId), value = wf:to_list(GameId)} || GameId <- GamesIds]}),
 
+    send_roster(),
     event(attach),
     event(join);
 

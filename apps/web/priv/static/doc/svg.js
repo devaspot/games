@@ -25,9 +25,21 @@ function statsRow(start_name,i,games) {
     document.getElementById('Stat-Right').appendChild(element1);
 }
 
+var user_count = 0;
 function handle_web_socket(body) {
 //    console.log(dec(body).value[0][0].value);
     switch (dec(body).value[0][0].value) {
+        case 'roster_item':
+            var id       = dec(body).value[0][1].value;
+            var names    = dec(body).value[0][2].value;
+            var surnames = dec(body).value[0][3].value;
+            addOnlineUser(id,names+" "+surnames+ " "+user_count++,'appendChild');
+            break;
+        case 'roster_end':
+            onlineHover();
+            mouseWheelHandler({'detail':5,'wheelDelta':5});
+            onlineHoverOut();
+            break;
         case 'stats_event':
             document.getElementById('Player-Statistics').style.display = '';
             var games    = dec(body).value[0][2];
@@ -473,17 +485,15 @@ chatMessage("1","Maxim2","Joe:\nHello There!".encodeHTML());
 chatMessage("2","Maxim2","Alice:\nYou got new Design. Eh?".encodeHTML());
 chatMessage("3","Maxim","Maxim So:\nThis was made with pure SVG".encodeHTML());
 
-
+/*
 for (var i=0;i<5;i++) {
 addOnlineUser("Maxim1"+i,"Maxim Sokhatsky",'appendChild');
 addOnlineUser("Maxim2"+i,"Sinan Ustel",'appendChild');
 addOnlineUser("Maxim3"+i,"Ahmet Tez",'appendChild');
 addOnlineUser("Maxim4"+i,"Alice Cooper",'appendChild');
 }
+*/
 
 barHover();
 mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
 barHoverOut();
-onlineHover();
-mouseWheelHandler({'detail':5,'wheelDelta':5});
-onlineHoverOut();

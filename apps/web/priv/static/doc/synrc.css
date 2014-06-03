@@ -18,6 +18,7 @@
     B           { font-size:14pt; background-color: lightblue; padding: 2px; }
     H2 B        { font-size:16pt; background-color: lightblue; padding: 5px; margin-top: 20px; margin-bottom: 20px;}
     LI          { font-size:14pt; }
+
     button { display: none; visibility:hidden;}
     label  { display: none; visibility:hidden;}
     input  { display: none; visibility:hidden;}

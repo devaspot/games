@@ -19,3 +19,4 @@ reveal(GameId, Color, Value, Hand) ->
         [{discarded, tuple(atom("OkeyPiece"), Color, Value)},{hand, Hand}])))).
 i_saw_okey(GameId) -> ws:send(enc(tuple(atom('client'),tuple(atom("game_action"),GameId,atom("okey_i_saw_okey"),[])))).
 i_have_8_tashes(GameId) -> ws:send(enc(tuple(atom('client'),tuple(atom("game_action"),GameId,atom("okey_i_have_8_tashes"),[])))).
+
