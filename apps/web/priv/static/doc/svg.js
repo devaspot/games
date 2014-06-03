@@ -35,6 +35,17 @@ function handle_web_socket(body) {
             var surnames = dec(body).value[0][3].value;
             addOnlineUser(id,names+" "+surnames+ " "+user_count++,'appendChild');
             break;
+        case 'roster_group':
+            var list     = dec(body).value[0][1];
+            console.log(list);
+            for (var i=0;i<list.length;i++) {
+                var item       = list[i];
+                var id       = item.value[0][0].value;
+                var names    = item.value[0][1].value;
+                var surnames = item.value[0][2].value;
+                addOnlineUser(id,names+" "+surnames+ " "+user_count++,'appendChild');
+            }
+            break;
         case 'roster_end':
             onlineHover();
             mouseWheelHandler({'detail':5,'wheelDelta':5});
@@ -112,7 +123,7 @@ function handle_web_socket(body) {
             }
             break;
         default:
-        // console.log(String(dec(body)));
+         console.log(String(dec(body)));
     }
 }
 

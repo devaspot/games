@@ -91,12 +91,23 @@ tash(C,V) -> {wf:to_binary([wf:to_list(C)," ",wf:to_list(V)]), {C, V}}.
 main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
 send_roster() ->
-    X = [ send_roster_item(User) || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
+%    X = [ send_roster_item(User) || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
+    X = [ {User#user.id,User#user.names,User#user.surnames} || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
+    Lists = split(20,X,[]),
+    [ send_roster_group(List) || List <- Lists],
     self() ! {server,{roster_end}},
     wf:info(?MODULE,"Users: ~p",[length(X)]).
 
+split(N,[],Result) -> Result; 
+split(N,List,Result) when length(List) < N -> Result ++ [List];
+split(N,List,Result) -> {A,B}=lists:split(N,List), Result ++ [A] ++ split(N,B,Result). 
+
 send_roster_item(User) ->
     self() ! {server,{roster_item,User#user.id,User#user.names,User#user.surnames}}.
+
+send_roster_group(List) ->
+    wf:info(?MODULE,"User Group: ~p",[List]),
+    self() ! {server,{roster_group,List}}.
 
 body() ->
     wf:wire(#api{name=plusLogin, tag=plus}),
