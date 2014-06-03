@@ -40,6 +40,10 @@ function handle_web_socket(body) {
             mouseWheelHandler({'detail':5,'wheelDelta':5});
             onlineHoverOut();
             break;
+        case 'online_number':
+            var number = dec(body).value[0][1];
+            document.getElementById("723").textContent = number.toString(); 
+            break;
         case 'stats_event':
             document.getElementById('Player-Statistics').style.display = '';
             var games    = dec(body).value[0][2];
@@ -107,7 +111,8 @@ function handle_web_socket(body) {
                 place_card(pos.x,pos.y,c,v);
             }
             break;
-        default: console.log(String(dec(body)));
+        default:
+        // console.log(String(dec(body)));
     }
 }
 

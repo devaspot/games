@@ -92,7 +92,7 @@
                 </g>
             </g>
             <text id="722" fill="#517ECE" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20" font-weight="bold">
-                <tspan x="59" y="41">722</tspan>
+                <tspan id="723" x="59" y="41">722</tspan>
             </text>
             <text id="users-online" fill="#517ECE" sketch:type="MSTextLayer" font-family="Exo 2" font-size="17" font-weight="normal">
                 <tspan x="99" y="40">users online</tspan>
