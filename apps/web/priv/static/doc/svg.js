@@ -66,7 +66,7 @@ function handle_web_socket(body) {
             break;
         case 'online_number':
             var number = dec(body).value[0][1];
-            document.getElementById("723").textContent = number.toString(); 
+            document.getElementById("722").firstElementChild.textContent = number.toString(); 
             break;
         case 'stats_event':
             document.getElementById('Player-Statistics').style.display = '';
