@@ -51,7 +51,6 @@ function handle_web_socket(body) {
             onlineHoverOut();
             break;
         case 'online':
-            console.log(dec(body).value[0]);
             var id = dec(body).value[0][1].value;
             var name = dec(body).value[0][2].value;
             var surname = dec(body).value[0][3].value;
@@ -156,10 +155,12 @@ function template_engine(html, data) {
     code += 'return r.join("");';
     return new Function(code.replace(/[\r\t\n]/g, '')).apply(data); }
 
-function reload(file, name) { var slot = document.getElementById(name);
-         slot.parentNode.replaceChild(svg(localStorage.getItem(file)),slot);}
+function reload(file, name2) { var name = name2==null?file:name2;
+    var slot = document.getElementById(name);
+    if (slot == null) return;
+    slot.parentNode.replaceChild(svg(localStorage.getItem(file)),slot);}
 
-function reload_cont(cont,name,element) { if (null != cont) (cont)(); else reload(name,element); }
+function reload_cont(cont,name,element) { reload(name,element); if (null != cont) (cont)();   }
 
 function loadFile(name,cont,element) {
     if (localStorage.getItem(name) == null) {
@@ -167,7 +168,8 @@ function loadFile(name,cont,element) {
         client.open('GET', name, true);
         client.onload = function() {
             localStorage.setItem(name,client.responseText); 
-            reload_cont(cont,name,element); }
+            reload_cont(cont,name,element);
+        }
         client.send(); }
     else reload_cont(cont,name,element); }
 
@@ -220,7 +222,6 @@ function rand(lo,hi) { return Math.floor((Math.random()*hi)+lo); }
 
 function loadScene() {
     reload("Kakaranet-Scene.svg", "Refined");
-    for (var i=1;i<16;i++) { empty_card(i,2); empty_card(i,1); }
     //drawSampleCards();
      }
 
@@ -260,8 +261,10 @@ function loadAnimationForButton(a, b) { return loadAppend('templates/ButtonAnima
 loadFile('templates/Card.svg', function() { 
     loadFile('Kakaranet-Scene.svg', function() {
 
-        loadScene();
+//        loadScene();
 
+        console.log(document.getElementById("Refined"));
+    
         var a = [{button: "Create", pathes: ["CreateShow", "CreateHide"]},
                  {button: "Play",   pathes: ["PlayShow",   "PlayHide"]}];
 
@@ -273,18 +276,11 @@ loadFile('templates/Card.svg', function() {
         document.getElementById("Create")     .setAttribute('onclick', 'onRightMenuDown(evt)');
         document.getElementById("Point-Table").setAttribute('onclick', 'onPlayerInfo(evt)');
         document.getElementById("Player-Statistics").setAttribute('onclick', 'onPlayerInfoClose(evt)');
+
+        for (var i=1;i<16;i++) { empty_card(i,2); empty_card(i,1); }
         
         document.getElementById('Page-1').addEventListener("mousewheel", mouseWheelHandler, false);
         
-
-        
-        
-        
-        onRightMenuDown();
-
-    });
-});
-
         var clipPath1 = svg('<clipPath id="myClip1"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left" x="0" y="0" width="216" height="400"/></clipPath>');
         var clipPath2 = svg('<clipPath id="myClip2"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Right" x="0" y="0" width="216" height="400"/></clipPath>');
         document.getElementsByTagName('defs').item(0).appendChild(clipPath1);
@@ -301,6 +297,15 @@ loadFile('templates/Card.svg', function() {
         document.getElementById("Left-Bar").onmouseout = onlineHoverOut;
         document.getElementById('edit').setAttribute("contentEditable","true");
         document.getElementById('edit').onkeydown = chatEditor;
+
+        
+        
+        
+        onRightMenuDown();
+
+    }, "Refined");
+});
+
 
 
 var removeChilds = function (node) {
