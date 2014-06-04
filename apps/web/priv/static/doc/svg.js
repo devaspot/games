@@ -261,10 +261,6 @@ function loadAnimationForButton(a, b) { return loadAppend('templates/ButtonAnima
 loadFile('templates/Card.svg', function() { 
     loadFile('Kakaranet-Scene.svg', function() {
 
-//        loadScene();
-
-        console.log(document.getElementById("Refined"));
-    
         var a = [{button: "Create", pathes: ["CreateShow", "CreateHide"]},
                  {button: "Play",   pathes: ["PlayShow",   "PlayHide"]}];
 
@@ -303,6 +299,8 @@ loadFile('templates/Card.svg', function() {
         
         onRightMenuDown();
 
+
+
     }, "Refined");
 });
 
@@ -330,17 +328,6 @@ function onRightMenu(evt) {
 function onRightMenuDown(evt) {
     ["PlayHide","CreateHide"].map(function (x) {
         document.getElementById(x+"-Motion").beginElement(); }); }
-
-// SVG Samples for svg.htm
-
-/*
-loadFile('templates/Mustafa-Persona.svg',   null, "Mustafa-Persona-Sample");
-loadFile('templates/Mustafa-Selection.svg', null, "Mustafa-Selection-Sample");
-document.getElementById("MustafaSelection").addEventListener('click', function() {
-    var style = document.getElementById("Mustafa-Selection-Sample").style;
-    if (style.display == 'none') style.display = 'block';
-                            else style.display = 'none'; });
-*/
 
 function slotName1(x,y) { return "1Slot-"+y+","+x; }
 
@@ -538,19 +525,11 @@ function addOnlineUser(name,full_name,insertMode) {
     } else listElement.appendChild(element);
 }
 
-chatMessage("1","Maxim2","Joe:\nHello There!".encodeHTML());
-chatMessage("2","Maxim2","Alice:\nYou got new Design. Eh?".encodeHTML());
-chatMessage("3","Maxim","Maxim So:\nThis was made with pure SVG".encodeHTML());
+        chatMessage("1","Maxim2","Joe:\nHello There!".encodeHTML());
+        chatMessage("2","Maxim2","Alice:\nYou got new Design. Eh?".encodeHTML());
+        chatMessage("3","Maxim","Maxim So:\nThis was made with pure SVG".encodeHTML());
 
-/*
-for (var i=0;i<5;i++) {
-addOnlineUser("Maxim1"+i,"Maxim Sokhatsky",'appendChild');
-addOnlineUser("Maxim2"+i,"Sinan Ustel",'appendChild');
-addOnlineUser("Maxim3"+i,"Ahmet Tez",'appendChild');
-addOnlineUser("Maxim4"+i,"Alice Cooper",'appendChild');
-}
-*/
+        barHover();
+        mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
+        barHoverOut();
 
-barHover();
-mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
-barHoverOut();
