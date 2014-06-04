@@ -177,6 +177,7 @@ event(attach) ->
     {ok,GamePid} = game_session:start_link(self()),
     wf:session(<<"game_pid">>,GamePid),
     User = user(),
+    wf:info(?MODULE,"User Attach: ~p",[User]),
     gproc:set_value({p,l,broadcast},{wf:peer(?REQ),User}),
     wf:send(broadcast,{user_online,User}),
     wf:info(?MODULE,"Games Online: ~p",[game:online()]),

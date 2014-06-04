@@ -51,17 +51,18 @@ function handle_web_socket(body) {
             onlineHoverOut();
             break;
         case 'online':
+            console.log(dec(body).value[0]);
             var id = dec(body).value[0][1].value;
             var name = dec(body).value[0][2].value;
             var surname = dec(body).value[0][3].value;
-            removeOnlineUser(id);
+            try{removeOnlineUser(id)}catch(e){}
             addOnlineUser(id,name+" "+surname,"insertTop");
             break;
         case 'offline':
             var id = dec(body).value[0][1].value;
             var name = dec(body).value[0][2].value;
             var surname = dec(body).value[0][3].value;
-            removeOnlineUser(id);
+            try{removeOnlineUser(id)}catch(e){}
             addOnlineUser(id,name+" "+surname,"appendChild");
             break;
         case 'online_number':
