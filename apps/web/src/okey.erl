@@ -51,7 +51,6 @@ user() ->
                         _ -> new_user() end;
                 _ -> new_user() end,
             wf:user(X),
-            send_roster(),
             X;
         U-> U end.
 
@@ -135,7 +134,12 @@ body() ->
     #button   { id = pause,      body = "Pause",       postback = pause},
     #button   { id = info,       body = "PlayerInfo",  postback = player_info} ].
 
-event(terminate) -> wf:info(?MODULE,"terminate");
+already_online(Pid) -> [ Pid ! {user_online,User} || {_,_,{_,User}} <- game:online() ].
+
+event(terminate) -> 
+    User = user(),
+    wf:send(broadcast,{user_offline,User}),
+    wf:info(?MODULE,"terminate");
 
 event(init) -> 
     js_session:ensure_sid([],?CTX),
@@ -147,7 +151,7 @@ event(init) ->
     wf:update(games_ids,#dropdown{id = games_ids, value = ?GAMEID, options = 
       [#option{label = wf:to_list(GameId), value = wf:to_list(GameId)} || GameId <- GamesIds]}),
 
-    send_roster(),
+    wf:info(?MODULE,"Istaka on Started:"),
     event(attach),
     event(join);
 
@@ -173,6 +177,10 @@ event(attach) ->
     {ok,GamePid} = game_session:start_link(self()),
     wf:session(<<"game_pid">>,GamePid),
     User = user(),
+    gproc:set_value({p,l,broadcast},{wf:peer(?REQ),User}),
+    wf:send(broadcast,{user_online,User}),
+    wf:info(?MODULE,"Games Online: ~p",[game:online()]),
+    send_roster(),
     put(okey_im, User#user.id),
     wf:wire(wf:f("document.user = '~s';",[User#user.id])),
     wf:info(?MODULE,"Session User: ~p",[User]),
@@ -180,6 +188,8 @@ event(attach) ->
     put(okey_game_id, GameId),
     Token = auth_server:generate_token(GameId,User),
     wf:wire(protocol:attach(wf:f("'~s'",[Token]))),
+    Pid = self(),
+    spawn(fun() -> already_online(Pid) end),
     ok;
 
 event(discard) -> 
@@ -254,7 +264,6 @@ event({server, {game_event, _, okey_game_started, Args}}) ->
         _ -> ok end,
     put(game_okey_tiles, TilesList),
     put(game_okey_pause, resume),
-    wf:info(?MODULE,"Istaka on Started:"),
     redraw_istaka(TilesList);
 
 event({server, {game_event, _, okey_game_player_state, Args}}) ->
@@ -406,6 +415,8 @@ event({server,{game_event, _, okey_next_turn, Args}}) ->
 event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), kvs:add(User), wf:user(User);
 event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
 event({counter,Res}) -> self() ! {server,{online_number,Res}};
+event({user_online,User}) -> wf:info(?MODULE,"User ~p goes Online",[User#user.id]), self() ! {server,{online,User#user.id,User#user.names,User#user.surnames}};
+event({user_offline,User}) -> self() ! {server,{offline,User#user.id,User#user.names,User#user.surnames}};
 event(_Event) -> ok. % wf:info(?MODULE,"Event: ~p", [_Event]).
 
 api_event(X,Y,Z) -> avz:api_event(X,Y,Z).

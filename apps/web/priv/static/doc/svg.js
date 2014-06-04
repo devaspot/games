@@ -37,7 +37,6 @@ function handle_web_socket(body) {
             break;
         case 'roster_group':
             var list     = dec(body).value[0][1];
-            console.log(list);
             for (var i=0;i<list.length;i++) {
                 var item       = list[i];
                 var id       = item.value[0][0].value;
@@ -50,6 +49,20 @@ function handle_web_socket(body) {
             onlineHover();
             mouseWheelHandler({'detail':5,'wheelDelta':5});
             onlineHoverOut();
+            break;
+        case 'online':
+            var id = dec(body).value[0][1].value;
+            var name = dec(body).value[0][2].value;
+            var surname = dec(body).value[0][3].value;
+            removeOnlineUser(id);
+            addOnlineUser(id,name+" "+surname,"insertTop");
+            break;
+        case 'offline':
+            var id = dec(body).value[0][1].value;
+            var name = dec(body).value[0][2].value;
+            var surname = dec(body).value[0][3].value;
+            removeOnlineUser(id);
+            addOnlineUser(id,name+" "+surname,"appendChild");
             break;
         case 'online_number':
             var number = dec(body).value[0][1];
@@ -476,25 +489,47 @@ function chatEditor(evt) {
     mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
 }
 
+function shiftTranslate(name,shiftValue) {
+    var rect = document.getElementById(name);
+    if (null == rect) return;
+    var remove = rect.parentNode.parentNode;
+    var children = document.getElementById("Online-List").childNodes;
+    var removeIndex = -1;
+    for(var i = 0; i<children.length; ++i) { 
+        var child = children[i];
+        if (child == remove) removeIndex = i;
+        if (removeIndex != -1 && i>=removeIndex)
+            child.setAttribute("transform","translate(0,"+(parseFloat(i)+parseFloat(shiftValue))
+                *remove.getBBox().height+")");
+    }
+    return rect.parentNode.parentNode;
+}
+
+function removeOnlineUser(name) {
+    shiftTranslate(name,-2).remove();
+}
+
 function addOnlineUser(name,full_name,insertMode) {
     var listElement = document.getElementById("Online-List");
-    var y = listElement.getBBox().height;
-//    console.log(y);
+    var color = insertMode == "insertTop" ? "red" : "green";
+    var y = (insertMode == "insertTop") ? "0" : listElement.getBBox().height;
     var html = '<g xmlns="http://www.w3.org/2000/svg" height="60" transform="translate(0, '+y+')">' +
             '<g xmlns:data="'+name+'"fill="#DBEBED" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);">' +
-            '    <rect xmlns:data="'+name+'"fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);"></rect></g>' +
+            '    <rect xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);"></rect></g>' +
             '<text xmlns:data="'+name+'" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);" '+
             'font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18"'+
             ' fill="#3B5998">' + 
-                '<tspan xmlns:data="'+name+'" font-weight="normal" fill="green" x="19" y="22">'+full_name+'</tspan>' + 
+                '<tspan xmlns:data="'+name+'" font-weight="normal" fill="'+color+'" x="19" y="22">'+full_name+'</tspan>' + 
                 '<tspan xmlns:data="'+name+'" font-size="14" x="19" y="40">Score: 1043 Pos: 13</tspan></text>'+
             '<rect onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);"'+
             '  x="10" y="48" width="196" height="8"></rect></g>';
     var element = svg(html);
-//    element.setAttribute("mouseover","onlineHoverColor(evt);");
-//    element.setAttribute("mouseout","onlineHoverOutColor(evt);");
-//    console.log(element);
-    listElement.appendChild(element);
+    if (insertMode == "insertTop") {
+        var firstElement = listElement.firstElementChild;
+        var first = firstElement.firstElementChild.getAttribute("xmlns:data");
+        shiftTranslate(first,0);
+        listElement.insertBefore(element,firstElement);
+    } else listElement.appendChild(element);
 }
 
 chatMessage("1","Maxim2","Joe:\nHello There!".encodeHTML());
