@@ -95,7 +95,7 @@
                 <tspan id="723" x="59" y="41">722</tspan>
             </text>
             <text id="users-online" fill="#517ECE" sketch:type="MSTextLayer" font-family="Exo 2" font-size="17" font-weight="normal">
-                <tspan x="99" y="40">users online</tspan>
+                <tspan id="users-online-text" x="99" y="40">users online</tspan>
             </text>
             <rect id="Back-5" fill="#D6E8EA" sketch:type="MSShapeGroup" x="0" y="453" width="1070" height="206.792"></rect>
             <path d="M1071,660 L1,660 L1,600.976 L850.979,600.976 L1071,600.976 L1071,660 L1071,660 Z" id="Back-4" fill="#A8CACC" sketch:type="MSShapeGroup"></path>
@@ -739,7 +739,9 @@
         <path d="M754.82681,16 L735.143994,16 C732.854843,16 731,17.8548426 731,20.1430683 L731,50.1835548 C731,52.4717805 732.854843,54.3266231 735.143994,54.3266231 L754.82681,54.3266231 C757.115036,54.3266231 758.969878,52.4717805 758.969878,50.1835548 L758.969878,20.1430683 C758.968952,17.8548426 757.115036,16 754.82681,16 L754.82681,16 L754.82681,16 Z M744.985865,41.0399123 C741.737344,41.0399123 739.108338,38.4072025 739.108338,35.1623855 C739.108338,31.9147904 741.737344,29.2848588 744.985865,29.2848588 C748.230682,29.2848588 750.863392,31.9147904 750.863392,35.1623855 C750.863392,38.4090546 748.230682,41.0399123 744.985865,41.0399123 L744.985865,41.0399123 L744.985865,41.0399123 Z" id="Okey-Tash-Logo-4" fill="#517ECE" sketch:type="MSShapeGroup"></path>
         <g id="Chat" sketch:type="MSLayerGroup" y="0" clip-path="url(#myClip)" transform="translate(857.000000, 107.000000)">
         </g>
-        <g id="Online-List" sketch:type="MSLayerGroup" y="0" clip-path="url(#myClip)" transform="2translate(1.000000, 107.000000)">
+        <g id="Online-List" sketch:type="MSLayerGroup" y="0" clip-path="url(#myClip)" transform="translate(1.000000, 107.000000)">
+        </g>
+        <g id="Online-Chat" sketch:type="MSLayerGroup" y="0" clip-path="url(#myClip)" transform="translate(1.000000, 107.000000)">
         </g>
         <g id="Player-Statistics" sketch:type="MSLayerGroup" transform="translate(209.000000, 87.000000)">
             <g id="Dialog-2" sketch:type="MSShapeGroup">

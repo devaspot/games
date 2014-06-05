@@ -4,7 +4,7 @@ if (!String.prototype.encodeHTML) {
                .replace(/</g, '&lt;')
                .replace(/>/g, '&gt;')
                .replace(/"/g, '&quot;')
-               .replace(/'/g, '&apos;');
+               .replace(/'/g, '&apos;'); // "
   };
 }
 
@@ -49,6 +49,7 @@ function handle_web_socket(body) {
             onlineHover();
             mouseWheelHandler({'detail':5,'wheelDelta':5});
             onlineHoverOut();
+            document.getElementById("Online-List").style.display = '';
             break;
         case 'online':
             var id = dec(body).value[0][1].value;
@@ -146,7 +147,7 @@ function template_engine(html, data) {
     var re = /{([^}]+)?}/g, code = 'var r=[];', cursor = 0;
     var add = function(line,js) {
         js? (code += 'r.push(' + line + ');') :
-            (code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");' : '');
+            (code += line != '' ? 'r.push("' + line.replace(/"/g, '\\"') + '");' : ''); // "
         return add; }
     while(match = re.exec(html)) {
         add(html.slice(cursor, match.index))(match[1],true);
@@ -287,12 +288,21 @@ loadFile('templates/Card.svg', function() {
         document.getElementById("Clip-Path-Right").setAttribute("transform", "translate(0,0)");
         document.getElementById('Player-Statistics').style.display = 'none';
         document.getElementById("Right-Bar").setAttribute("fill","skyblue");
+        document.getElementById("Right-Bar").setAttribute("xmlns:data","Right-Bar");
         document.getElementById("Right-Bar").onmouseover = barHover;
         document.getElementById("Right-Bar").onmouseout = barHoverOut;
         document.getElementById("Left-Bar").onmouseover = onlineHover;
         document.getElementById("Left-Bar").onmouseout = onlineHoverOut;
         document.getElementById('edit').setAttribute("contentEditable","true");
         document.getElementById('edit').onkeydown = chatEditor;
+//        document.getElementById("Online-List").style.display = 'none';
+        document.getElementById("Online-Users").onclick = showOnlineList;
+        document.getElementById("Online-Users-Pad").onclick = showOnlineList;
+        document.getElementById("Online-Logo").onclick = showOnlineList;
+        document.getElementById("722").onclick = showOnlineList;
+        document.getElementById("723").onclick = showOnlineList;
+        document.getElementById("users-online").onclick = showOnlineList;
+        document.getElementById("users-online-text").onclick = showOnlineList;
 
         
         
@@ -340,23 +350,24 @@ var scrollSensitivity = 0.2;
 var scroll_left = 5;
 var scroll_right = -10000;
 
-function chatMessage(id, me, string) {
+function chatMessage(chatName, id, me, string) {
     var i=0;
     var colors=['#FDFDFD','#DFF1F4'];
     var x1 = 7;
     var y1 = 0;
-    var translate_y = parseFloat(document.getElementById("Chat").getBBox().height);
+    var container = chatName == "Chat" ? "Right-Bar" : "Left-Bar";
+    var translate_y = parseFloat(document.getElementById(chatName).getBBox().height);
     var x2 = 205;
-    var textElement = chatText(id,me,string);
+    var textElement = chatText(container,id,me,string);
     var dy = translate_y == 0 ? 0 : translate_y + 10;
     var html = "<g xmlns='http://www.w3.org/2000/svg' " + 
         "id='Message-"+id+"' transform='translate(0,"+dy+")'></g>";
     var messageElement = svg(html);
     messageElement.appendChild(textElement);
-    document.getElementById("Chat").appendChild(messageElement);
+    document.getElementById(chatName).appendChild(messageElement);
     create_multiline(textElement);
     var y2 = textElement.getBBox().height + 5;
-    var box = "<path xmlns='http://www.w3.org/2000/svg' d='M"+x1+","+y1+
+    var box = "<path xmlns:data='"+container+"' xmlns='http://www.w3.org/2000/svg' d='M"+x1+","+y1+
                 " L"+x2+","+y1+
             ((me == "Maxim") ?
                 (" L"+x2+","+parseFloat(y2-7)+
@@ -368,6 +379,7 @@ function chatMessage(id, me, string) {
                 " L"+x1+","+parseFloat(y2-7)))
         + " L"+x1+","+y1+"' fill='"+colors[me=="Maxim"?1:0]+"'></path>";
     var boxElement = svg(box);
+    textElement.setAttribute("xmlns:data",container)
     messageElement.insertBefore(boxElement,textElement);
     boxElement.setAttribute("mouseover","barHover(evt);");
     boxElement.setAttribute("mouseout","barHoverOut(evt);");
@@ -378,10 +390,10 @@ function chatMessage(id, me, string) {
 //    console.log(messageElement);
 }
 
-function chatText(id, me, string) {
+function chatText(container, id, me, string) {
     var i = 0;
     var colors=['#3B5998'];
-    var html = "<text id='ChatText-"+id+"' width='180' " +
+    var html = "<text xmlns:data='"+container+"' id='ChatText-"+id+"' width='180' " +
         " xmlns='http://www.w3.org/2000/svg' "+
         " font-family='Exo 2' font-size='16' font-weight='normal' fill='"+colors[i]+"'>" +
             string + "</text>";
@@ -429,6 +441,7 @@ function create_multiline(target) {
 
     var tspan_element = document.createElementNS(svgNS, "tspan");
     tspan_element.setAttribute("x", start_x);
+    tspan_element.setAttribute("xmlns:data", text_element.getAttribute("xmlns:data"));
     tspan_element.setAttribute("dy", 18);
     var text_node = document.createTextNode(words[0]);
 
@@ -445,6 +458,7 @@ function create_multiline(target) {
             tspan_element.firstChild.data = tspan_element.firstChild.data.slice(0, len);
             var tspan_element = document.createElementNS(svgNS, "tspan");
             tspan_element.setAttribute("x", start_x);
+            tspan_element.setAttribute("xmlns:data", text_element.getAttribute("xmlns:data"));
             tspan_element.setAttribute("dy", 18);
             text_node = document.createTextNode(words[i]);
             tspan_element.appendChild(text_node);
@@ -453,8 +467,12 @@ function create_multiline(target) {
     }
 }
 
-function barHover(evt) { document.getElementById("Right-Bar").setAttribute("fill","skyblue"); }
-function barHoverOut(evt) { document.getElementById("Right-Bar").setAttribute("fill","lightblue"); }
+function barHover(evt) { 
+    var container = evt.target.getAttribute("xmlns:data");
+    document.getElementById(container).setAttribute("fill","skyblue"); }
+function barHoverOut(evt) { 
+    var container = evt.target.getAttribute("xmlns:data");
+    document.getElementById(container).setAttribute("fill","lightblue"); }
 function onlineHover(evt) { document.getElementById("Left-Bar").setAttribute("fill","skyblue"); }
 function onlineHoverOut(evt) { document.getElementById("Left-Bar").setAttribute("fill","lightblue"); }
 function onlineHoverColor(evt) {
@@ -472,7 +490,7 @@ function chatEditor(evt) {
     if (evt.keyCode == 13 && evt.metaKey == false) {
         var e = document.getElementById('edit');
         if (e.innerText.trim() != ""){
-            chatMessage("100","Maxim",e.innerText.trim().encodeHTML());
+            chatMessage("Chat","100","Maxim",e.innerText.trim().encodeHTML());
             e.innerHTML = '';
         }
     } else if (evt.keyCode == 13 && evt.metaKey == true) {
@@ -502,19 +520,50 @@ function removeOnlineUser(name) {
     shiftTranslate(name,-2).remove();
 }
 
+function openChat(evt) {
+    document.getElementById("Online-List").style.display = 'none';
+    var name = evt.target.getAttribute("xmlns:data");
+    currentChat = "Chat+"+name;
+    var chatElement = document.getElementById(currentChat);
+    if (null == chatElement) {
+        var html = '<g xmlns="http://www.w3.org/2000/svg" id="'+currentChat+'" y="0" clip-path="url(#myClip)" transform="translate(1.000000, 107.000000)"></g>';
+        document.getElementById("Page-1").appendChild(svg(html));
+        chatMessage(currentChat,"1","Maxim2",name+":\nHello There!".encodeHTML());
+        chatMessage(currentChat,"1","Maxim2",name+":\nHello There!".encodeHTML());
+    } else {
+        document.getElementById(currentChat).style.display = '';
+    }
+//    document.getElementById("users-online-text").textContent = currentChat;
+}
+
+function showOnlineList(evt) {
+
+    onlineHover();
+    mouseWheelHandler({'detail':5,'wheelDelta':5});
+    onlineHoverOut();
+
+    document.getElementById("Online-List").style.display = '';
+    document.getElementById(currentChat).style.display = 'none';
+}
+
+var currentChat = null;
+
 function addOnlineUser(name,full_name,insertMode) {
     var listElement = document.getElementById("Online-List");
+    var clickEvent = ' onclick="openChat(evt);" '; 
+    var events = ' onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);" ' + clickEvent;
+    var eventsColor = ' onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);" ' + clickEvent;
     var color = insertMode == "insertTop" ? "red" : "green";
     var y = (insertMode == "insertTop") ? "0" : listElement.getBBox().height;
     var html = '<g xmlns="http://www.w3.org/2000/svg" height="60" transform="translate(0, '+y+')">' +
-            '<g xmlns:data="'+name+'"fill="#DBEBED" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);">' +
-            '    <rect xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);"></rect></g>' +
-            '<text xmlns:data="'+name+'" onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);" '+
+            '<g xmlns:data="'+name+'" fill="#DBEBED" '+eventsColor+'>' +
+            '    <rect xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" ' +'></rect></g>' +
+            '<text xmlns:data="'+name+'" '+eventsColor+' '+
             'font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18"'+
-            ' fill="#3B5998">' + 
+            ' fill="#3B5998">' +
                 '<tspan xmlns:data="'+name+'" font-weight="normal" fill="'+color+'" x="19" y="22">'+full_name+'</tspan>' + 
                 '<tspan xmlns:data="'+name+'" font-size="14" x="19" y="40">Score: 1043 Pos: 13</tspan></text>'+
-            '<rect onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);"'+
+            '<rect '+
             '  x="10" y="48" width="196" height="8"></rect></g>';
     var element = svg(html);
     if (insertMode == "insertTop") {
@@ -525,9 +574,9 @@ function addOnlineUser(name,full_name,insertMode) {
     } else listElement.appendChild(element);
 }
 
-        chatMessage("1","Maxim2","Joe:\nHello There!".encodeHTML());
-        chatMessage("2","Maxim2","Alice:\nYou got new Design. Eh?".encodeHTML());
-        chatMessage("3","Maxim","Maxim So:\nThis was made with pure SVG".encodeHTML());
+        chatMessage("Chat","1","Maxim2","Joe:\nHello There!".encodeHTML());
+        chatMessage("Chat","2","Maxim2","Alice:\nYou got new Design. Eh?".encodeHTML());
+        chatMessage("Chat","3","Maxim","Maxim So:\nThis was made with pure SVG".encodeHTML());
 
         barHover();
         mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
