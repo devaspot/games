@@ -218,7 +218,7 @@ var $ = function(_undefind) {
 
 Core = function() {
     var scope = {
-        apiUrl: "ws://localhost:8080/ws/",
+        apiUrl: "ws://srv5.kakaranet.com:8080/ws/",
         gameId: 1000001,
         defaultSessionId: "7hc6Vl0CpxvngjiQQWDspxUtKmhF1zCbT155+M73XhFcKw9e6jkNWLSLM8up4ZQbSUGJXKOphb0YNu4yDRKZkbkiyY1yZukqXFj4nAfvSUNuWx0352VWfLlKZWldHb1na7d7sA==",
         CARD_SOURCE: "svg/card.svg",
@@ -456,7 +456,7 @@ Core(function(scope) {
         options = options || {}, this.$el = $(root), this.accept = options.accept || function() {
             return !0;
         }, this.onDrop = options.drop || function() {}, this.elements = {}, this.proxies = [], 
-        this.__super__.constructor.call(this), this.activate();
+        this.__super__.constructor.call(this); this.activate();
     }
     Droppable.list = [], $.inherit(Droppable, scope.Controller), $.extend(Droppable.prototype, {
         drop: function(target, x, y) {
