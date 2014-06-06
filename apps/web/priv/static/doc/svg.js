@@ -367,6 +367,7 @@ function chatMessage(chatName, id, me, string) {
     var x1 = 7;
     var y1 = 0;
     var container = chatName == "Chat" ? "Right-Bar" : "Left-Bar";
+    var hover = chatName == "Chat" ? "barHover" : "onlineHover";
     var translate_y = parseFloat(document.getElementById(chatName).getBBox().height);
     var x2 = 205;
     var textElement = chatText(container,id,me,string);
@@ -392,12 +393,12 @@ function chatMessage(chatName, id, me, string) {
     var boxElement = svg(box);
     textElement.setAttribute("xmlns:data",container)
     messageElement.insertBefore(boxElement,textElement);
-    boxElement.setAttribute("mouseover","barHover(evt);");
-    boxElement.setAttribute("mouseout","barHoverOut(evt);");
-    textElement.setAttribute("mouseover","barHover(evt);");
-    textElement.setAttribute("mouseout","barHoverOut(evt);");
-    messageElement.setAttribute("onmouseover","barHover(evt);");
-    messageElement.setAttribute("onmouseout","barHoverOut(evt);");
+    boxElement.setAttribute("mouseover",hover+"(evt);");
+    boxElement.setAttribute("mouseout",hover+"Out(evt);");
+    textElement.setAttribute("mouseover",hover+"(evt);");
+    textElement.setAttribute("mouseout",hover+"Out(evt);");
+    messageElement.setAttribute("onmouseover",hover+"(evt);");
+    messageElement.setAttribute("onmouseout",hover+"Out(evt);");
 //    console.log(messageElement);
 }
 
