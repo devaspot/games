@@ -275,38 +275,51 @@ loadFile('templates/Card.svg', function() {
         document.getElementById("Player-Statistics").setAttribute('onclick', 'onPlayerInfoClose(evt)');
 
         for (var i=1;i<16;i++) { empty_card(i,2); empty_card(i,1); }
-        
+
         document.getElementById('Page-1').addEventListener("mousewheel", mouseWheelHandler, false);
-        
+
+        // Setup Clipping ViewPorts
+
         var clipPath1 = svg('<clipPath id="myClip1"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left" x="0" y="0" width="216" height="400"/></clipPath>');
         var clipPath2 = svg('<clipPath id="myClip2"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Right" x="0" y="0" width="216" height="400"/></clipPath>');
+        var clipPath3 = svg('<clipPath id="myClip3"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left-Chat" x="0" y="0" width="216" height="400"/></clipPath>');
         document.getElementsByTagName('defs').item(0).appendChild(clipPath1);
         document.getElementsByTagName('defs').item(0).appendChild(clipPath2);
+        document.getElementsByTagName('defs').item(0).appendChild(clipPath3);
         document.getElementById("Online-List").setAttribute("clip-path","url(#myClip1)");
         document.getElementById("Chat").setAttribute("clip-path","url(#myClip2)");
+        document.getElementById("Online-Chat").setAttribute("clip-path","url(#myClip1)");
         document.getElementById("Clip-Path-Left").setAttribute("transform", "translate(0,0)");
         document.getElementById("Clip-Path-Right").setAttribute("transform", "translate(0,0)");
+        document.getElementById("Clip-Path-Left-Chat").setAttribute("transform", "translate(0,0)");
+
         document.getElementById('Player-Statistics').style.display = 'none';
         document.getElementById("Right-Bar").setAttribute("fill","skyblue");
         document.getElementById("Right-Bar").setAttribute("xmlns:data","Right-Bar");
+
         document.getElementById("Right-Bar").onmouseover = barHover;
         document.getElementById("Right-Bar").onmouseout = barHoverOut;
         document.getElementById("Left-Bar").onmouseover = onlineHover;
         document.getElementById("Left-Bar").onmouseout = onlineHoverOut;
+
+        // HTML editors
+
+        document.getElementById('onlineChatEdit').setAttribute("contentEditable","true");
+        document.getElementById('onlineChatEdit').onkeydown = chatEditor;
+        document.getElementById("onlineChatEdit").style.display = 'none';
+
         document.getElementById('edit').setAttribute("contentEditable","true");
         document.getElementById('edit').onkeydown = chatEditor;
-//        document.getElementById("Online-List").style.display = 'none';
-        document.getElementById("Online-Users").onclick = showOnlineList;
-        document.getElementById("Online-Users-Pad").onclick = showOnlineList;
-        document.getElementById("Online-Logo").onclick = showOnlineList;
-        document.getElementById("722").onclick = showOnlineList;
-        document.getElementById("723").onclick = showOnlineList;
-        document.getElementById("users-online").onclick = showOnlineList;
-        document.getElementById("users-online-text").onclick = showOnlineList;
+        document.getElementById('edit').setAttribute("xmlns:data","Chat");
+        document.getElementById("edit").style.display = '';
 
-        
-        
-        
+        // showOnlineList ctor
+
+        var onlineListOnClick = ["Online-Users","Online-Users-Pad","Online-Logo",
+            "722","723","users-online","users-online-text"];
+        onlineListOnClick.map(
+            function(x) { document.getElementById(x).onclick = showOnlineList; });
+
         onRightMenuDown();
 
 
@@ -316,10 +329,7 @@ loadFile('templates/Card.svg', function() {
 
 
 
-var removeChilds = function (node) {
-    var last;
-    while (last = node.lastChild) node.removeChild(last);
-};
+var removeChilds = function (e) { var last; while (last = e.lastChild) e.removeChild(last); };
 
 function onPlayerInfo(evt) {
     ws.send(enc(tuple(atom('client'),
@@ -328,7 +338,7 @@ function onPlayerInfo(evt) {
 
 function onPlayerInfoClose(evt) {
     document.getElementById('Player-Statistics').style.display = 'none';
-    }
+}
 
 function onRightMenu(evt) {
     localStorage.clear();
@@ -348,6 +358,7 @@ function drawSampleCards() {
 
 var scrollSensitivity = 0.2;
 var scroll_left = 5;
+var scroll_left_chat = 5;
 var scroll_right = -10000;
 
 function chatMessage(chatName, id, me, string) {
@@ -414,11 +425,11 @@ function mouseWheelHandler(e) {
 
     var evt = e;
     var scroll_dy = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
-    var ori = leftActive ? scroll_left : scroll_right;
+    var ori = leftActive ? (currentChat == null ? scroll_left : scroll_left ) : scroll_right;
     var scroll = parseFloat(scroll_dy) + parseFloat(ori);
-    var selectedBar = leftActive ? "Online-List" : "Chat";
-    var selectedClip = leftActive ? "Clip-Path-Left" : "Clip-Path-Right";
-    var selectedBarShift = leftActive ? 0 : 857;
+    var selectedBar = leftActive ? (currentChat == null ? "Online-List" : currentChat) : "Chat";
+    var selectedClip = leftActive ? (currentChat == null ? "Clip-Path-Left" : "Clip-Path-Left-Chat") : "Clip-Path-Right";
+    var selectedBarShift = leftActive ? 2 : 857;
     var limit = parseFloat(document.getElementById(selectedBar).getBBox().height) - 400;
     if (scroll > 5) scroll = 5;
     if (scroll < -limit) scroll = -limit;
@@ -467,12 +478,8 @@ function create_multiline(target) {
     }
 }
 
-function barHover(evt) { 
-    var container = evt.target.getAttribute("xmlns:data");
-    document.getElementById(container).setAttribute("fill","skyblue"); }
-function barHoverOut(evt) { 
-    var container = evt.target.getAttribute("xmlns:data");
-    document.getElementById(container).setAttribute("fill","lightblue"); }
+function barHover(evt) { document.getElementById("Right-Bar").setAttribute("fill","skyblue"); }
+function barHoverOut(evt) { document.getElementById("Right-Bar").setAttribute("fill","lightblue"); }
 function onlineHover(evt) { document.getElementById("Left-Bar").setAttribute("fill","skyblue"); }
 function onlineHoverOut(evt) { document.getElementById("Left-Bar").setAttribute("fill","lightblue"); }
 function onlineHoverColor(evt) {
@@ -487,16 +494,18 @@ function onlineHoverOutColor(evt) {
 }
 
 function chatEditor(evt) {
+    var chatContainer = evt.target.getAttribute("xmlns:data");
     if (evt.keyCode == 13 && evt.metaKey == false) {
-        var e = document.getElementById('edit');
+        var e = evt.target; //document.getElementById('edit');
         if (e.innerText.trim() != ""){
-            chatMessage("Chat","100","Maxim",e.innerText.trim().encodeHTML());
+            chatMessage(chatContainer,"100","Maxim",e.innerText.trim().encodeHTML());
             e.innerHTML = '';
         }
     } else if (evt.keyCode == 13 && evt.metaKey == true) {
         document.execCommand('insertText',false, '\n');
     }
     var scroll = -1000000;
+    if (null != currentChat) left_scroll = scroll;
     mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
 }
 
@@ -522,17 +531,25 @@ function removeOnlineUser(name) {
 
 function openChat(evt) {
     document.getElementById("Online-List").style.display = 'none';
+    document.getElementById("onlineChatEdit").style.display = '';
     var name = evt.target.getAttribute("xmlns:data");
     currentChat = "Chat+"+name;
     var chatElement = document.getElementById(currentChat);
     if (null == chatElement) {
-        var html = '<g xmlns="http://www.w3.org/2000/svg" id="'+currentChat+'" y="0" clip-path="url(#myClip)" transform="translate(1.000000, 107.000000)"></g>';
+        // read from local KVS
+        var html = '<g xmlns="http://www.w3.org/2000/svg" id="'+currentChat+'" y="0" clip-path="url(#myClip3)" transform="translate(1.000000, 107.000000)"></g>';
         document.getElementById("Page-1").appendChild(svg(html));
-        chatMessage(currentChat,"1","Maxim2",name+":\nHello There!".encodeHTML());
-        chatMessage(currentChat,"1","Maxim2",name+":\nHello There!".encodeHTML());
+        chatMessage(currentChat,"1","System","You can chat with\n"+name);
     } else {
         document.getElementById(currentChat).style.display = '';
     }
+    document.getElementById("onlineChatEdit").setAttribute("xmlns:data",currentChat);
+    scroll_left = -1000000;
+
+    onlineHover();
+    mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
+    onlineHoverOut();
+
 //    document.getElementById("users-online-text").textContent = currentChat;
 }
 
@@ -542,11 +559,24 @@ function showOnlineList(evt) {
     mouseWheelHandler({'detail':5,'wheelDelta':5});
     onlineHoverOut();
 
+    document.getElementById("onlineChatEdit").style.display = 'none';
+    if (null != currentChat) document.getElementById(currentChat).style.display = 'none';
     document.getElementById("Online-List").style.display = '';
-    document.getElementById(currentChat).style.display = 'none';
+    currentChat = null;
 }
 
 var currentChat = null;
+
+function editorControl(id,left) {
+    var x = left == "left" ? 0 : 864;
+    var events = ' onmouseover="barHover(evt);" onmouseout="barHoverOut(evt)" ';
+    var html = '<foreignObject  xmlns="http://www.w3.org/2000/svg" x="'+x+'" y="504" width="198" height="120" ' + events + '>' +
+        '<div id="'+id+'" style="padding:4px;background-color:#FFF687;color:#3B5998;'+
+        'font-family:"Exo 2";font-size:16px;contentEditable="true" '+
+        'xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div></foreignObject>';
+    var element = svg(html);
+    return element;
+}
 
 function addOnlineUser(name,full_name,insertMode) {
     var listElement = document.getElementById("Online-List");
@@ -557,9 +587,9 @@ function addOnlineUser(name,full_name,insertMode) {
     var y = (insertMode == "insertTop") ? "0" : listElement.getBBox().height;
     var html = '<g xmlns="http://www.w3.org/2000/svg" height="60" transform="translate(0, '+y+')">' +
             '<g xmlns:data="'+name+'" fill="#DBEBED" '+eventsColor+'>' +
-            '    <rect xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" ' +'></rect></g>' +
+            '    <rect cursor="pointer" xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" ' +'></rect></g>' +
             '<text xmlns:data="'+name+'" '+eventsColor+' '+
-            'font-family="Exo 2" font-size="18" font-weight="normal" line-spacing="18"'+
+            'font-family="Exo 2" font-size="18" cursor="pointer" font-weight="normal" line-spacing="18"'+
             ' fill="#3B5998">' +
                 '<tspan xmlns:data="'+name+'" font-weight="normal" fill="'+color+'" x="19" y="22">'+full_name+'</tspan>' + 
                 '<tspan xmlns:data="'+name+'" font-size="14" x="19" y="40">Score: 1043 Pos: 13</tspan></text>'+
