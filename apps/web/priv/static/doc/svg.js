@@ -63,9 +63,9 @@ function handle_web_socket(body) {
             var to = dec(body).value[0][2].value;
             var message = dec(body).value[0][3].value;
             chatMessage(currentChat,"1",from,from+":\n"+message.encodeHTML());
-    onlineHover();
-    mouseWheelHandler({'detail':-10000,'wheelDelta':-10000});
-    onlineHoverOut();
+            onlineHover();
+            mouseWheelHandler({'detail':-10000,'wheelDelta':-10000});
+            onlineHoverOut();
             break;
         case 'offline':
             var id = dec(body).value[0][1].value;
@@ -570,14 +570,19 @@ function openChat(evt) {
 
 function showOnlineList(evt) {
 
-    onlineHover();
-    mouseWheelHandler({'detail':5,'wheelDelta':5});
-    onlineHoverOut();
 
     document.getElementById("onlineChatEdit").style.display = 'none';
-    if (null != currentChat) document.getElementById(currentChat).style.display = 'none';
+    if (null != currentChat) {
+        document.getElementById(currentChat).style.display = 'none';
+    }
     document.getElementById("Online-List").style.display = '';
     currentChat = null;
+
+    scroll_left = 0;
+    onlineHover();
+    mouseWheelHandler({'detail':scroll_left,'wheelDelta':scroll_left});
+    onlineHoverOut();
+
 }
 
 var currentChat = null;

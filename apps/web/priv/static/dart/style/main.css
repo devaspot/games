@@ -1,0 +1,50 @@
+
+:focus {-moz-outline-style:none;}
+
+html, body {margin: 0; padding:0;}
+
+html {
+    overflow: auto;
+    height: 100%;
+}
+
+body {
+    height: 100%;
+    font-family: 'Exo 2', Arial, sans-serif;
+    font-weight: bold;
+    text-align: center;
+    /*min-width: 746px;
+    min-height: 746px;*/
+    font-size: 16px;
+    color: #fff;
+    overflow: hidden;
+    -webkit-user-select: none;  
+    -moz-user-select: none;     
+    -ms-user-select: none; 
+    -o-user-select: none;
+    user-select: none;          
+}
+
+.svg {
+     width: auto; 
+     height: 100%; 
+}
+
+text {
+    cursor: default;
+}
+.card text {
+    cursor: inherit;
+}
+@media all and (max-width: 1311px) {
+    .svg {
+         width: 100%; 
+         height: auto; 
+    }
+}
+@media all and (max-height: 746px) {
+    .svg {
+         width: auto; 
+         height: 100%; 
+    }
+}
