@@ -58,6 +58,15 @@ function handle_web_socket(body) {
             try{removeOnlineUser(id)}catch(e){}
             addOnlineUser(id,name+" "+surname,"insertTop");
             break;
+        case 'chat_message':
+            var from = dec(body).value[0][1].value;
+            var to = dec(body).value[0][2].value;
+            var message = dec(body).value[0][3].value;
+            chatMessage(currentChat,"1",from,from+":\n"+message.encodeHTML());
+    onlineHover();
+    mouseWheelHandler({'detail':-10000,'wheelDelta':-10000});
+    onlineHoverOut();
+            break;
         case 'offline':
             var id = dec(body).value[0][1].value;
             var name = dec(body).value[0][2].value;
@@ -498,8 +507,13 @@ function chatEditor(evt) {
     var chatContainer = evt.target.getAttribute("xmlns:data");
     if (evt.keyCode == 13 && evt.metaKey == false) {
         var e = evt.target; //document.getElementById('edit');
+        console.log(e);
         if (e.innerText.trim() != ""){
-            chatMessage(chatContainer,"100","Maxim",e.innerText.trim().encodeHTML());
+            var text = e.innerText.trim().encodeHTML();
+            chatMessage(chatContainer,"100","Maxim",text);
+//            if (null != currentChat)
+                ws.send(enc(tuple(atom('client'),
+                    tuple(atom('message'),bin(document.user),bin(chatContainer.substr(5)),bin(text)))));
             e.innerHTML = '';
         }
     } else if (evt.keyCode == 13 && evt.metaKey == true) {

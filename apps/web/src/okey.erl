@@ -177,6 +177,7 @@ event(attach) ->
     {ok,GamePid} = game_session:start(self()),
     wf:session(<<"game_pid">>,GamePid),
     User = user(),
+    wf:reg(User#user.id),
     wf:info(?MODULE,"User Attach: ~p",[User]),
     gproc:set_value({p,l,broadcast},{wf:peer(?REQ),User}),
     wf:send(broadcast,{user_online,User}),
@@ -245,6 +246,11 @@ event(pause) ->
     wf:wire(protocol:pause(wf:to_list(GameId), wf:f("~p", [Action])));
 
 %event({binary,M}) -> {ok,<<"Hello">>};
+
+event({client,{message,From,To,Message}}) ->
+    wf:info(?MODULE,"Chat Message from ~p to ~p:~n ~p~n",[From,To,Message]),
+    wf:send(To,{server,{chat_message,From,To,Message}}),
+    ok;
 
 event({client,Message}) ->
     wf:info(?MODULE,"Client: ~p", [Message]),
