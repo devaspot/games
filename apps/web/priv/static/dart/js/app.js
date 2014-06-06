@@ -672,7 +672,7 @@ Core(function(scope) {
     }
     var selStart = !1;
     $(window).on("keydown", function(e) {
-        e.ctrlKey && (selStart = !0);
+        e.metaKey && (selStart = !0);
     }), $(window).on("keyup", function() {
         selStart = !1;
     }), Card.selected = [], Card.uncheckAll = function() {
