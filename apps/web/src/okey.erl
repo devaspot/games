@@ -139,7 +139,7 @@ already_online(Pid) -> [ Pid ! {user_online,User} || {_,_,{_,User}} <- game:onli
 event(terminate) -> 
     User = user(),
     wf:send(broadcast,{user_offline,User}),
-    wf:info(?MODULE,"terminate");
+    wf:info(?MODULE,"EXTerminate",[]);
 
 event(init) -> 
     js_session:ensure_sid([],?CTX),
@@ -174,7 +174,7 @@ event(player_info) ->
     wf:wire(Wire);
 
 event(attach) -> 
-    {ok,GamePid} = game_session:start_link(self()),
+    {ok,GamePid} = game_session:start(self()),
     wf:session(<<"game_pid">>,GamePid),
     User = user(),
     wf:info(?MODULE,"User Attach: ~p",[User]),
@@ -413,11 +413,12 @@ event({server,{game_event, _, okey_next_turn, Args}}) ->
     select(LabelId),
     put(okey_turn_mark, LabelId);
 
+event({server,terminate}) -> event(terminate);
 event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), kvs:add(User), wf:user(User);
 event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
 event({counter,Res}) -> self() ! {server,{online_number,Res}};
 event({user_online,User}) -> wf:info(?MODULE,"User ~p goes Online",[User#user.id]), self() ! {server,{online,User#user.id,User#user.names,User#user.surnames}};
 event({user_offline,User}) -> self() ! {server,{offline,User#user.id,User#user.names,User#user.surnames}};
-event(_Event) -> ok. % wf:info(?MODULE,"Event: ~p", [_Event]).
+event(_Event) -> wf:info(?MODULE,"Unknown Event: ~p", [_Event]).
 
 api_event(X,Y,Z) -> avz:api_event(X,Y,Z).

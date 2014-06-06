@@ -17,13 +17,15 @@
         role = viewer :: atom() %% [viewer, player, ghost]
        }).
 
+start(RPC) when is_pid(RPC) -> gen_server:start(?MODULE, [RPC], []).
 start_link(RPC) when is_pid(RPC) -> gen_server:start_link(?MODULE, [RPC], []).
 bot_session_attach(Pid, UserInfo) -> gen_server:cast(Pid, {bot_session_attach, UserInfo}).
 process_request(Pid, Msg) -> gen_server:call(Pid, {client_request, Msg}).
 process_request(Pid, Source, Msg) -> gen_server:call(Pid, {client_request, Msg}).
 send_message_to_player(Pid, Message) -> Pid ! {server,Message}, ok.
 
-init([RPC]) -> MonRef = erlang:monitor(process, RPC), {ok, #state{rpc = RPC, rpc_mon = MonRef}}.
+init([RPC]) -> MonRef = 0, %erlang:monitor(process, RPC), 
+   {ok, #state{rpc = RPC, rpc_mon = MonRef}}.
 handle_call({client_request, Request}, From, State) -> handle_client_request(Request, From, State);
 handle_call(Request, From, State) ->
     gas:info(?MODULE,"Unrecognized call: ~p from ~p", [Request,From]),
@@ -58,11 +60,11 @@ handle_info({'DOWN', OtherRef, process, _Object, Info} = _Msg, #state{games = Ga
             {stop, table_down, State};
         _ -> {noreply, State} end;
 
-handle_info(Info, State) ->
+handle_info(Info, State=#state{rpc=RPC}) ->
     gas:info(?MODULE,"Unrecognized info: ~p", [Info]),
     {noreply, State}.
 
-terminate(Reason, #state{}) ->
+terminate(Reason, #state{rpc=RPC}) ->
     gas:info(?MODULE,"Terminating session: ~p", [Reason]),
     ok.
 
@@ -209,7 +211,7 @@ handle_client_request(#pause_game{game = GameId, action = Action}, _From, State)
             {reply, Res, State}
     end;
 
-handle_client_request(Request, _From, State) ->
+handle_client_request(Request, _From, State=#state{rpc=RPC}) ->
     gas:info(?MODULE,"unrecognized client request: ~p", [Request]),
     {stop, {unknown_client_request, Request}, State}.
 
