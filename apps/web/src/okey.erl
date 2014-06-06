@@ -92,7 +92,7 @@ main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 send_roster() ->
 %    X = [ send_roster_item(User) || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
     X = [ {User#user.id,User#user.names,User#user.surnames} || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
-    Lists = split(20,X,[]),
+    Lists = split(170,X,[]),
     [ send_roster_group(List) || List <- Lists],
     self() ! {server,{roster_end}},
     wf:info(?MODULE,"Users: ~p",[length(X)]).
