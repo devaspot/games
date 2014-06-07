@@ -1,6 +1,0 @@
-                <g id="timer" transform="translate(355, 413)" type="MSLayerGroup">
-                    <path d="M5.558,38 C2.492,38 0,35.504 0,32.436 L0,5.564 C0,2.496 2.492,0 5.558,0 L32.439,0 C35.505,0 38,2.496 38,5.564 L38,32.436 C38,35.504 35.505,38 32.439,38 L5.558,38 L5.558,38 Z" id="Timer-Pad" fill="#517ECE" sketch:type="MSShapeGroup" />
-                    <rect id="progress" x="2" y="2" rx="3" width="34" height="33" fill="#5CBF6F">
-                    </rect>
-                    <text id="value" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24.8571" font-weight="normal" text-anchor="middle" x="19" y="27">12</text>
-                </g>
