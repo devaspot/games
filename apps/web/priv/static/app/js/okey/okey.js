@@ -1,5 +1,5 @@
 
-function StartApp()      { $.load(scope.CARD_SOURCE, PostLoad); }
+function StartApp() { $.load(scope.CARD_SOURCE, PostLoad); }
 
 function PostLoad()
 {
@@ -19,7 +19,7 @@ function PostLoad()
 
     function createCentralCard() {
         centralCard = new scope.Card(),
-        centralCard.$el.attr({opacity: 0, transform: "translate(298, -115)" })
+        centralCard.$el.attr({opacity: 0, transform: "translate(298 -115)" })
         .on(document.createTouch ? "touchstart" : "mousedown", fadeIn)
         .on(document.createTouch ? "touchend"   : "mouseup",   fadeOut);
 

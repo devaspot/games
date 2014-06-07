@@ -53,7 +53,7 @@ function DeckScope(scope) {
         render: function() {
             this.each(function(card, i, j) {
                 if (null != card) {
-                    card.$el.attr("transform", "translate(" + this.trfs[j][i].x + "," + this.trfs[j][i].y + ")");
+                    card.$el.attr("transform", "translate(" + this.trfs[j][i].x + " " + this.trfs[j][i].y + ")");
 //                    console.log(card.$el[0]);
                     card.drag();
                     this.$el.append(card.$el[0]);
