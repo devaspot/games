@@ -19,7 +19,7 @@ function setPlayerName(e, playerName) {
     document.getElementById(e+"-Name").setAttribute("y",27);
     document.getElementById(e+"-Name").setAttribute("x",dx);
     document.getElementById(e+"-Name").textContent = playerName;
-    document.getElementById(e+"-Pad").setAttribute('width', document.getElementById(e).getBBox().width + 15); }
+    document.getElementById(e+"-Pad").setAttribute('width', document.getElementById(e+"-Name").getBBox().width + 25); }
 
 function template_engine(html, data) {
     var re = /{([^}]+)?}/g, code = 'var r=[];', cursor = 0;

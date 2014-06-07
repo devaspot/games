@@ -198,6 +198,7 @@ function PostLoad()
             name: [ playerInfo[2], playerInfo[3] ].join(" "),
             noSkin: !0
         }),
+
         delete playersMap[e.detail.player], playersRightHandsMap[playerInfo[0]] = playersRightHandsMap[e.detail.player], 
         delete playersRightHandsMap[e.detail.player], playersLeftHandsMap[playerInfo[0]] = playersLeftHandsMap[e.detail.player], 
         delete playersLeftHandsMap[e.detail.player];
