@@ -10,7 +10,7 @@ To run just perform on Linux, Windows or Mac
 
     $ make && make console
 
-And open it in browser [http://localhost:8000](http://localhost:8080/static/app/index.htm)
+And open it in browser [http://localhost:8080/static/app/index.htm](http://localhost:8080/static/app/index.htm)
 
 Credits
 -------
