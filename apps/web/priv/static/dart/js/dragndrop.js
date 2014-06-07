@@ -9,7 +9,10 @@ function DragScope(scope) {
 
     function Draggable(root, options)
     {
-        options = options || {}, this.$el = $(root), this.revert = options.revert, this.elements = {}, 
+        options = options || {},
+        this.$el = $(root),
+        this.revert = options.revert,
+        this.elements = {}, 
         this.proxies = [ "onDown", "onMove", "onUp" ], this.__super__.constructor.call(this), 
         this.enable();
     }

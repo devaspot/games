@@ -36,11 +36,19 @@ function PostLoad()
     createCentralCard(),
 
     deck.on("take", function(e) {
+
         e.detail.card.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
                          .off(document.createTouch ? "touchend"   : "mouseup",   fadeOut),
-        centralCard.off("dragmove", removeFadeOut).off("dragstop", addFadeOut).off("revert", fadeOut),
-        ~playersLeftHandsMap[scope.user].cards.indexOf(e.detail.card) && playersLeftHandsMap[scope.user].pop(),
+
+        centralCard.off("dragmove", removeFadeOut)
+                   .off("dragstop", addFadeOut)
+                   .off("revert", fadeOut),
+
+        ~playersLeftHandsMap[scope.user].cards.indexOf(e.detail.card) &&
+        playersLeftHandsMap[scope.user].pop(),
+
         apiProvider.actionTake(e.detail.card);
+
     });
 
     var $gosterme = $("#Gosterme"),

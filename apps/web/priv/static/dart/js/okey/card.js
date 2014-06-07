@@ -10,7 +10,8 @@ function CardScope(scope) {
             $circle: "circle",
             $text: "text",
             $overlay: ".overlay"
-        }, this.proxies = [ "toggle", "selectGroup", "dragGroup", "clearGroup", "revertGroup" ], 
+        },
+        this.proxies = [ "toggle", "selectGroup", "dragGroup", "clearGroup", "revertGroup" ], 
         this.template(scope.CARD_SOURCE),
         this.$el.on("mousedown", this.toggle),
         this.$el.on("revert", this.revertGroup), 

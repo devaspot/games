@@ -34,11 +34,13 @@ function DeckScope(scope) {
                         color: scope.CARD_COLORS[tile[1] - 1],
                         value: tile[2]
                     });
-                    card.drag();
                     card.pos = {
                         x: i,
                         y: j
-                    }, card.on("dragstart", this.select), card.on("dragmove", this.track), this.cards[j][i] = card, 
+                    },
+                    card.on("dragstart", this.select),
+                    card.on("dragmove", this.track),
+                    this.cards[j][i] = card, 
                     count++;
                 }
                 this.trfs[j][i] = {
@@ -52,6 +54,7 @@ function DeckScope(scope) {
             this.each(function(card, i, j) {
                 if (null != card) {
                     card.$el.attr("transform", "translate(" + this.trfs[j][i].x + "," + this.trfs[j][i].y + ")");
+//                    console.log(card.$el[0]);
                     card.drag();
                     this.$el.append(card.$el[0]);
                 }
@@ -63,49 +66,48 @@ function DeckScope(scope) {
                 if (card && card.$el[0] != e.target && card.intersect(e.detail.x, e.detail.y) && !card.$el.attr("animated") && scope.Card.selected.length < 2) {
                     var shift = e.detail.x > card.centerX() ? i + 1 : i - 1;
                     return shift = shift > 14 ? shift - 2 : shift, shift = 0 > shift ? shift + 2 : shift, 
-                    prevX = i, prevY = j, this.move({
-                        i: i,
-                        j: j
-                    }, {
-                        i: shift,
-                        j: j
-                    }), !1;
+                    prevX = i, prevY = j, this.move({ i: i, j: j}, {i: shift, j: j}), !1;
                 }
             });
         },
 
         move: function(fst, snd) {
-            var card, trfs = this.trfs, i = snd.i, cond = function(i) {
-                return fst.i < snd.i ? 14 >= i : i >= 0;
-            }, _cond = function(j, i) {
-                return fst.i < snd.i ? i > j : j > i;
-            }, op = function() {
-                fst.i < snd.i ? i++ : i--;
-            }, _op = function() {
-                fst.i < snd.i ? j++ : j--;
-            }, direction = function(j) {
-                return fst.i < snd.i ? j + (scope.Card.selected.length || 1) : j - (scope.Card.selected.length || 1);
-            }, _direction = function(j) {
-                return fst.i < snd.i ? j - 1 : j + 1;
-            };
+
+            var card,
+                trfs = this.trfs,
+                i = snd.i,
+                cond = function(i) { return fst.i < snd.i ? 14 >= i : i >= 0; },
+                _cond = function(j, i) { return fst.i < snd.i ? i > j : j > i; },
+                op = function() { fst.i < snd.i ? i++ : i--; },
+                _op = function() { fst.i < snd.i ? j++ : j--; },
+                direction = function(j) {
+                    return fst.i < snd.i 
+                        ? j + (scope.Card.selected.length || 1)
+                        : j - (scope.Card.selected.length || 1); },
+                _direction = function(j) { return fst.i < snd.i ? j - 1 : j + 1; };
 
             if (scope.Card.selected.length < 2)
                 for (;cond(i); op())
                     if (null == this.cards[snd.j][i] || this.cards[snd.j][i] == selected)
             {
-                for (var j = _direction(i); _cond(j, i); _op()) card = this.cards[fst.j][j],
-                card != selected && (
+                for (var j = _direction(i); _cond(j, i); _op())
+                {
+                    card = this.cards[fst.j][j];
+                    if (card != selected) {
 
-                    card.$el.transform({
-                        from: [ trfs[fst.j][j].x, trfs[fst.j][j].y ].join(" "),
-                        to: [ trfs[fst.j][direction(j)].x, trfs[fst.j][direction(j)].y ].join(" ")
-                    }),
+//                        console.log(card.$el[0].getAttribute("transform"));
+                        card.$el.transform({
+                            from: [ trfs[fst.j][j].x, trfs[fst.j][j].y ].join(" "),
+                            to: [ trfs[fst.j][direction(j)].x, trfs[fst.j][direction(j)].y ].join(" ")
+                        }),
+//                        console.log(card.$el[0].getAttribute("transform"));
 
-                    selected && (selected.dragHandler.initTrf = [ trfs[fst.j][j].x, trfs[fst.j][j].y ]), 
+                        selected && (selected.dragHandler.initTrf = [ trfs[fst.j][j].x, trfs[fst.j][j].y ]), 
 
-                    ((this.cards[fst.j][j] = this.cards[fst.j][direction(j)]) || {}).pos = { x: j, y: fst.j },
-                    (this.cards[fst.j][direction(j)] = card).pos = { x: direction(j), y: fst.j }
-                );
+                        ((this.cards[fst.j][j] = this.cards[fst.j][direction(j)]) || {}).pos = { x: j, y: fst.j },
+                        (this.cards[fst.j][direction(j)] = card).pos = { x: direction(j), y: fst.j }
+                    }
+                }
 
                 break;
             }
@@ -126,8 +128,7 @@ function DeckScope(scope) {
             if (cards.every(function(card, i) {
                 return posX = truePosX + (i - idx) * (card != target.owner), null == this.cards[posY][posX] || this.cards[posY][posX] == card;
             }, this)) for (var card, i = 0, l = cards.length; l > i; i++) card = cards[i], posX = truePosX + (i - idx) * (card != target.owner), 
-            (dropResult = null == this.cards[posY][posX] || this.cards[posY][posX] == selected) && (this.cards[posY][posX] != card && (null != card.pos.x && null != card.pos.y ? this.cards[card.pos.y][card.pos.x] = this.cards[card.pos.y][card.pos.x] == card ? null : this.cards[card.pos.y][card.pos.x] : (
-            this.$el.trigger("take", {
+            (dropResult = null == this.cards[posY][posX] || this.cards[posY][posX] == selected) && (this.cards[posY][posX] != card && (null != card.pos.x && null != card.pos.y ? this.cards[card.pos.y][card.pos.x] = this.cards[card.pos.y][card.pos.x] == card ? null : this.cards[card.pos.y][card.pos.x] : (this.$el.trigger("take", {
                 detail: {
                     card: card
                 }

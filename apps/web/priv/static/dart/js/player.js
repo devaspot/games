@@ -8,7 +8,7 @@ function PlayerScope(scope) {
         this.noSkin = options.noSkin,
         this.skin = options.skin || scope.SKIN_NAMES[$.rand(0, scope.SKIN_NAMES.length - 1)], 
         this.$el = $("#Player-" + this.position),
-        this.$page = $("#Kakaranet-12-maxim"),
+//        this.$page = $("#Kakaranet-12-maxim"),
         this.elements = {
             $timer: "#Timer",
             $name: "#Name",
