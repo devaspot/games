@@ -1,0 +1,35 @@
+
+    HOW TO PATCH SVG
+    ================
+
+    1. Clipping Regions for Sidebars
+    --------------------------------
+
+    <defs>
+    <clipPath id="myClip1"><rect id="Clip-Path-Left" x="0" y="0" width="216" height="400"/></clipPath>
+    <clipPath id="myClip2"><rect id="Clip-Path-Right" x="0" y="0" width="216" height="400"/></clipPath>
+    <clipPath id="myClip3"><rect id="Clip-Path-Left-Chat" x="0" y="0" width="216" height="400"/></clipPath>
+    </defs>
+
+    2. foreignObject TextEditors for Chat
+    -------------------------------------
+
+    <foreignObject x="864" y="504" width="198" height="120" onmouseover="barHover(evt);" onmouseout="barHoverOut(evt);">
+        <div xmlns:data="Chat" id="edit"
+          style="padding:4px;background-color:#FFF687;color:#3B5998;font-family:'Exo 2';font-size:16px;"
+        contentEditable="true" xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div>
+    </foreignObject>
+
+    <foreignObject x="10" y="504" width="198" height="120" onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);">
+        <div xmlns:data="Chat+xxx" id="onlineChatEdit"
+          style="padding:4px;background-color:#FFF687;color:#3B5998;font-family:'Exo 2';font-size:16px;"
+        contentEditable="true" xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div>
+    </foreignObject>
+
+    3. Chat Containers
+    ------------------
+
+    <g id="Chat"         y="0" clip-path="url(#myClip2)" transform="translate(857.000000, 107.000000)"/>
+    <g id="Online-List"  y="0" clip-path="url(#myClip1)" transform="translate(1.000000, 107.000000)"/>
+    <g id="Online-Chat"  y="0" clip-path="url(#myClip3)" transform="translate(1.000000, 107.000000)"/>
+
