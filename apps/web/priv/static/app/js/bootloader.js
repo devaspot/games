@@ -47,8 +47,9 @@ function initDiscards() {
       {name:"Alina-Discard",    hand:"Player-Right-Hand"},
       {name:"Mustafa-Discard",  hand:"Player-Center-Hand"},
       {name:"You-Discard",      hand:"Player-Me-Hand"}                 ].map(function(e) {
-        document.getElementById(e.name).firstElementChild.remove();
-        document.getElementById(e.name).appendChild(svg(discarder(e.hand))); });
+//        document.getElementById(e.name).firstElementChild.remove();
+        document.getElementById(e.name).appendChild(svg(discarder(e.hand)));
+         });
 }
 
 function card(line,pos,col,v) {
