@@ -24,7 +24,7 @@ process_request(Pid, Msg) -> gen_server:call(Pid, {client_request, Msg}).
 process_request(Pid, Source, Msg) -> gen_server:call(Pid, {client_request, Msg}).
 send_message_to_player(Pid, Message) -> Pid ! {server,Message}, ok.
 
-init([RPC]) -> MonRef = 0, %erlang:monitor(process, RPC), 
+init([RPC]) -> MonRef = erlang:monitor(process, RPC), 
    {ok, #state{rpc = RPC, rpc_mon = MonRef}}.
 handle_call({client_request, Request}, From, State) -> handle_client_request(Request, From, State);
 handle_call(Request, From, State) ->

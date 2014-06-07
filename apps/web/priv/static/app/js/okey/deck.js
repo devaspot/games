@@ -115,7 +115,7 @@ function DeckScope(scope) {
 
         select: function(e) {
             selected = null, this.each(function(card) {
-                return card && card.$el[0] == e.target ? (selected = card, !1) : void 0;
+                return card && card.$el[0] == e.target ? (selected = card, !1) : !0;
             });
         },
 

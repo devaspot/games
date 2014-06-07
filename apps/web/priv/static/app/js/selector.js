@@ -1,5 +1,6 @@
 var scope = {
     apiUrl: "ws://localhost:8080/ws/",
+    gameId: 1000001,
     CARD_SOURCE: "svg/Card.svg",
     CARD_SMALL_SOURCE: "svg/Card-Small.svg",
     CARD_COLORS: [ "#CE290F", "#3B5998", "#48AF5E", "#F8E81C" ],

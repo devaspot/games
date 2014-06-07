@@ -174,7 +174,7 @@ event(player_info) ->
     wf:wire(Wire);
 
 event(attach) -> 
-    {ok,GamePid} = game_session:start(self()),
+    {ok,GamePid} = game_session:start_link(self()),
     wf:session(<<"game_pid">>,GamePid),
     User = user(),
     wf:reg(User#user.id),

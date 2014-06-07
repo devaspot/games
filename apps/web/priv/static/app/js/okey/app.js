@@ -252,9 +252,9 @@ function initOkeyScene(e)
 
     var piles = e.detail.piles;
 
-    if (piles && "null" != piles) for (var i = 0; i < piles.length, pile; i++)
+    if (piles && "null" != piles) for (var i = 0; i < piles.length; i++)
     {
-        pile = piles[i];
+        var pile = piles[i];
         for (var name in pile) 
             for (var playerPile = pile[name],
                      hand = playersLeftHandsMap[name],
