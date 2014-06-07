@@ -100,35 +100,28 @@ function DropScope(scope) {
 
     function Droppable(root, options)
     {
-        options = options || {}, this.$el = $(root), this.accept = options.accept || function() {
-            return !0;
-        }, this.onDrop = options.drop || function() {}, this.elements = {}, this.proxies = [], 
-        this.__super__.constructor.call(this); this.activate();
+        options = options || {},
+        this.$el = $(root),
+        this.accept = options.accept || function() { return !0; },
+        this.onDrop = options.drop || function() {};
+        this.elements = {};
+        this.proxies = [];
+        this.__super__.constructor.call(this);
+        this.activate();
     }
 
     Droppable.list = [];
 
     $.inherit(Droppable, scope.Controller), $.extend(Droppable.prototype, {
-        drop: function(target, x, y) {
-            return this.accept(target, x, y) ? (this.onDrop(target, x, y), !0) : !1;
-        },
-        activate: function() {
-            Droppable.list.push(this);
-        },
-        release: function() {
-            var i;
-            ~(i = Droppable.list.indexOf(this)) && Droppable.list.splice(i, 1);
-        }
+        drop: function(target, x, y) { return this.accept(target, x, y) ? (this.onDrop(target, x, y), !0) : !1; },
+        activate: function() { Droppable.list.push(this); },
+        release: function() { var i; ~(i = Droppable.list.indexOf(this)) && Droppable.list.splice(i, 1); }
     });
 
     scope.Droppable = Droppable, 
 
     $.mixin({
-        droppable: function(options) {
-            return this.each(function(el) {
-                new Droppable(el, options);
-            });
-        }
+        droppable: function(options) { return this.each(function(el) { new Droppable(el, options); }); }
     });
 
 }

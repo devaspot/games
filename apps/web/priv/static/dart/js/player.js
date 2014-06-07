@@ -7,7 +7,6 @@ function PlayerScope(scope) {
         this.position = options.position, 
         this.noSkin = options.noSkin,
         this.skin = options.skin || scope.SKIN_NAMES[$.rand(0, scope.SKIN_NAMES.length - 1)], 
-        console.log(this.position);
         this.$el = $("#Player-" + this.position),
         this.$page = $("#Kakaranet-12-maxim"),
         this.elements = {
@@ -32,10 +31,6 @@ function PlayerScope(scope) {
     $.extend(Player.prototype, {
 
         loadSkin: function(result) {
-
-            var html = svg(result.toString());
-            console.log(result.toString());
-            console.log(html);
 
             var $result = $("<g/>").html(result);
             var element = $result[0].firstChild;

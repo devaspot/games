@@ -7,7 +7,6 @@ function PostLoad()
     leftFlag = 1;
 
     window.deck = scope.deck;
-    deck = window.deck;
     scope.user = document.user;
 
     var centralCard,
@@ -20,26 +19,23 @@ function PostLoad()
 
     function createCentralCard() {
         centralCard = new scope.Card(),
-        centralCard.$el.attr({opacity: 0, transform: "translate(298,-115)" })
+        centralCard.$el.attr({opacity: 0, transform: "translate(298, -115)" })
         .on(document.createTouch ? "touchstart" : "mousedown", fadeIn)
         .on(document.createTouch ? "touchend"   : "mouseup",   fadeOut);
 
-        centralCard.drag();
-        centralCard.dragHandler.enable();
         centralCard.on("dragstart", deck.select).on("dragmove", removeFadeOut)
                                             .on("dragstop", addFadeOut)
                                             .on("dragmove", deck.track)
                                             .on("revert",   fadeOut);
 
-        console.log(scope.deck.$el[0]);
-        console.log(centralCard.$el[0]);
         deck.$el.append(centralCard.$el[0]);
+        centralCard.drag();
+        centralCard.dragHandler.enable();
     }
 
     createCentralCard(),
 
     deck.on("take", function(e) {
-        console.log("Take");
         e.detail.card.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
                          .off(document.createTouch ? "touchend"   : "mouseup",   fadeOut),
         centralCard.off("dragmove", removeFadeOut).off("dragstop", addFadeOut).off("revert", fadeOut),
@@ -50,10 +46,8 @@ function PostLoad()
     var $gosterme = $("#Gosterme"),
         ended = !0;
 
-    function init(e) { initOkeyScene(e,$gosterme,centralCard); }
-
-    apiProvider.on("okey_game_started", init);
-    apiProvider.on("okey_game_player_state", init);
+    apiProvider.on("okey_game_started", initOkeyScene);
+    apiProvider.on("okey_game_player_state", initOkeyScene);
 
     var playersPositions = 
         [
@@ -68,8 +62,6 @@ function PostLoad()
         playersLeftHandsMap = {};
 
     apiProvider.on("okey_game_info", function(e) {
-        console.log(JSON.stringify(e));
-        console.log("Scope.User");
         scope.user = document.user;
         if (!scope.started) {
             for (var playerInfo, players = e.detail.players, i = 0; i < players.length; i++) 
@@ -79,8 +71,6 @@ function PostLoad()
                 break;
             }
             for (var playerInfo, i = 0, l = players.length; l > i; i++) {
-                console.log(i);
-                console.log(playersPositions[i]);
                 playerInfo = players[i].PlayerInfo, playersMap[playerInfo[0]] = playersMap[playerInfo[0]] || new scope.Player({
                     position: playersPositions[i],
                     name: [ playerInfo[2], playerInfo[3] ].join(" ")
@@ -109,7 +99,7 @@ function PostLoad()
     var playerTurn = !1;
 
     apiProvider.on("online_number", function (e) {
-        console.log("Online Number");
+//        console.log("Online Number");
     });
 
     apiProvider.on("okey_next_turn", function(e) {
@@ -160,10 +150,6 @@ function PostLoad()
             });
             c.log();
         }
-
-        console.log(e.detail.revealed);
-        console.log(scope.user);
-
 
         if (e.detail.pile && !deck.justTaken && playersLeftHandsMap[e.detail.player].take(), 
             0 === e.detail.pile && e.detail.player == scope.user && (centralCard.color = scope.CARD_COLORS[e.detail.revealed[1] - 1], 
@@ -238,7 +224,7 @@ function PostLoad()
         }
     });
 
-function initOkeyScene(e,$gosterme,centralCard)
+function initOkeyScene(e)
 {
     if (ended = !1, 
         scope.deck.fill(e.detail.tiles),

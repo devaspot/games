@@ -100,8 +100,10 @@ function PatchSVG()
     document.getElementById("Clip-Path-Left-Chat").setAttribute("transform", "translate(0,0)");
 
 //  document.getElementById('Player-Statistics').style.display = 'none';
-    document.getElementById("Right-Bar").setAttribute("fill","skyblue");
+    document.getElementById("Right-Bar").setAttribute("fill","lightblue");
+    document.getElementById("Left-Bar").setAttribute("fill","lightblue");
     document.getElementById("Right-Bar").setAttribute("xmlns:data","Right-Bar");
+    document.getElementById("Left-Bar").setAttribute("xmlns:data","Left-Bar");
 
     document.getElementById("Right-Bar").onmouseover = barHover;
     document.getElementById("Right-Bar").onmouseout = barHoverOut;
@@ -139,11 +141,11 @@ function PatchSVG()
     initDiscards();
 
     Core(ControllerScope);
+    Core(DragScope);
+    Core(DropScope);
     Core(TimerScope);
     Core(PlayerScope);
     Core(OkeyApiProviderScope);
-    Core(DragScope);
-    Core(DropScope);
     Core(CardScope);
     Core(HandScope);
     Core(DeckScope);

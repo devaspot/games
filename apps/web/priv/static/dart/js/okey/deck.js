@@ -34,6 +34,7 @@ function DeckScope(scope) {
                         color: scope.CARD_COLORS[tile[1] - 1],
                         value: tile[2]
                     });
+                    card.drag();
                     card.pos = {
                         x: i,
                         y: j

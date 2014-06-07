@@ -93,29 +93,69 @@
             </g>
             <rect id="Back-5" fill="#D6E8EA" sketch:type="MSShapeGroup" x="0" y="453" width="1070" height="206.792"></rect>
             <path d="M1071,660 L1,660 L1,600.976 L850.979,600.976 L1071,600.976 L1071,660 L1071,660 Z" id="Back-4" fill="#A8CACC" sketch:type="MSShapeGroup"></path>
-            <g id="Deck-Root" transform="translate(215.000000, 457.000000)" sketch:type="MSShapeGroup">
-                <g id="Deck">
-                    <rect id="Rectangle-path" fill="#AF7B58" x="0" y="3" width="640" height="65"></rect>
-                    <rect id="Rectangle-path" fill="#AF7B58" x="0" y="75" width="640" height="72"></rect>
-                    <path d="M640,68.0096 L279.226,68.0096 L0,68 L0,73.9916 L275.816,73.9916 L640,74 L640,68.0096 Z" id="Shape" fill="#BC8864"></path>
-                    <path d="M640,4 L0,4 L2.614,0 L637.177,0 L640,4 L640,4 Z" id="Shape" fill="#BC8864"></path>
+            <g id="Player-Center" transform="translate(444.000000, 90.000000)">
+                <g id="Name" transform="translate(42.000000, 0.000000)">
+                    <rect id="Player-Center-Pad" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="145" height="38" rx="8"></rect>
+                    <text id="Player-Center-Name" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal" sketch:alignment="middle">
+                        <tspan x="29.732" y="26.7344">Mustafa</tspan>
+                    </text>
+                </g>
+                <g id="Timer">
+                    <path d="M5.558,38 C2.492,38 0,35.504 0,32.436 L0,5.564 C0,2.496 2.492,0 5.558,0 L32.439,0 C35.505,0 38,2.496 38,5.564 L38,32.436 C38,35.504 35.505,38 32.439,38 L5.558,38 L5.558,38 Z" id="Timer-Pad" fill="#517ECE" sketch:type="MSShapeGroup"></path>
+                    <rect id="progress" fill="#5CBF6F" sketch:type="MSShapeGroup" x="2" y="2" width="34" height="33" rx="3"></rect>
+                    <text id="value" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20.7143027" font-weight="normal">
+                        <tspan x="9" y="27">12</tspan>
+                    </text>
+                </g>
+            </g>
+            <g id="Player-Right" transform="translate(632.000000, 150.000000)">
+                <g id="Name" transform="translate(42.000000, 0.000000)">
+                    <rect id="Player-Right-Pad" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="145" height="38" rx="8"></rect>
+                    <text id="Player-Right-Name" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal" sketch:alignment="middle">
+                        <tspan x="43.436" y="28.7344">Alina</tspan>
+                    </text>
+                </g>
+                <g id="Timer">
+                    <path d="M5.558,38 C2.492,38 0,35.504 0,32.436 L0,5.564 C0,2.496 2.492,0 5.558,0 L32.439,0 C35.505,0 38,2.496 38,5.564 L38,32.436 C38,35.504 35.505,38 32.439,38 L5.558,38 L5.558,38 Z" id="Timer-Pad" fill="#517ECE" sketch:type="MSShapeGroup"></path>
+                    <rect id="progress" fill="#5CBF6F" sketch:type="MSShapeGroup" x="2" y="2" width="34" height="33" rx="3"></rect>
+                    <text id="value" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20.7143027" font-weight="normal">
+                        <tspan x="9" y="27">12</tspan>
+                    </text>
+                </g>
+            </g>
+            <g id="Player-Left" transform="translate(228.000000, 150.000000)">
+                <g id="Name" transform="translate(42.000000, 0.000000)">
+                    <rect id="Player-Left-Pad" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="145" height="38" rx="8"></rect>
+                    <text id="Player-Left-Name" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal" sketch:alignment="middle">
+                        <tspan x="24.924" y="27.1759033">Gabrielo</tspan>
+                    </text>
+                </g>
+                <g id="Timer">
+                    <path d="M5.558,38 C2.492,38 0,35.504 0,32.436 L0,5.564 C0,2.496 2.492,0 5.558,0 L32.439,0 C35.505,0 38,2.496 38,5.564 L38,32.436 C38,35.504 35.505,38 32.439,38 L5.558,38 L5.558,38 Z" id="Timer-Pad" fill="#517ECE" sketch:type="MSShapeGroup"></path>
+                    <rect id="progress" fill="#5CBF6F" sketch:type="MSShapeGroup" x="2" y="2" width="34" height="33" rx="3"></rect>
+                    <text id="value" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20.7143027" font-weight="normal">
+                        <tspan x="9" y="27">12</tspan>
+                    </text>
                 </g>
             </g>
             <g id="Table" transform="translate(218.000000, 310.000000)" sketch:type="MSShapeGroup">
                 <path d="M634.171,146.66 L-0.36,146.66 L115.967,0.23 L524.45,0.23 L634.171,146.66 L634.171,146.66 Z" id="Shape" fill="#48AF5E"></path>
                 <path d="M475.849,63.473 C484.752,87.426 414.057,108.909 317,108.909 C219.942,108.909 149.248,87.428 158.15,63.473 C166.156,41.932 236.962,26 317,26 C397.037,26 467.843,41.932 475.849,63.473 L475.849,63.473 L475.849,63.473 Z" id="Table-Oval" fill="#5CBF6F"></path>
             </g>
-            <g id="Gabrielo-Deck" transform="translate(281.000000, 293.000000)" sketch:type="MSShapeGroup">
-                <path d="M78.207,-0.443 L72.577,-0.443 L23.768,67.33 L30.907,67.33 L78.207,-0.443 L78.207,-0.443 Z" id="Shape" fill="#BB8764"></path>
-                <path d="M30.907,121.374 L78.207,42.363 L78.207,-0.443 L30.907,67.121 L30.907,121.374 L30.907,121.374 Z" id="Shape" fill="#AF7B58"></path>
-                <path d="M17.554,81.92 L9.221,93.579 L12.589,93.579 L17.554,81.92 L17.554,81.92 Z" id="Shape" fill="#BB8764"></path>
-                <path d="M9.221,93.579 L12.589,93.579 L23.768,67.33 L30.907,67.33 L30.907,121.374 L-0.11,121.374 L9.221,93.579 L9.221,93.579 Z" id="Shape" fill="#C2906E"></path>
-            </g>
-            <g id="Alina-Deck" transform="translate(717.000000, 293.000000)" sketch:type="MSShapeGroup">
-                <path d="M-0.209,-0.443 L5.421,-0.443 L54.231,67.33 L47.091,67.33 L-0.209,-0.443 L-0.209,-0.443 Z" id="Shape" fill="#BB8764"></path>
-                <path d="M47.091,121.374 L-0.209,42.363 L-0.209,-0.443 L47.091,67.121 L47.091,121.374 L47.091,121.374 Z" id="Shape" fill="#AF7B58"></path>
-                <path d="M60.445,81.92 L68.778,93.579 L65.409,93.579 L60.445,81.92 L60.445,81.92 Z" id="Shape" fill="#BB8764"></path>
-                <path d="M68.778,93.579 L65.409,93.579 L54.231,67.33 L47.091,67.33 L47.091,121.374 L78.109,121.374 L68.778,93.579 L68.778,93.579 Z" id="Shape" fill="#C2906E"></path>
+            <g id="Player-Me" transform="translate(397.000000, 413.000000)">
+                <g id="Name" transform="translate(43.000000, 0.000000)">
+                    <rect id="Player-Me-Pad" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="89" height="39" rx="8"></rect>
+                    <text id="Player-Me-Name" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal">
+                        <tspan x="26.9998" y="28.7344">Me</tspan>
+                    </text>
+                </g>
+                <g id="Timer">
+                    <path d="M5.558,38 C2.492,38 0,35.504 0,32.436 L0,5.564 C0,2.496 2.492,0 5.558,0 L32.439,0 C35.505,0 38,2.496 38,5.564 L38,32.436 C38,35.504 35.505,38 32.439,38 L5.558,38 L5.558,38 Z" id="Timer-Pad" fill="#517ECE" sketch:type="MSShapeGroup"></path>
+                    <rect id="progress" fill="#5CBF6F" sketch:type="MSShapeGroup" x="2" y="2" width="34" height="33" rx="3"></rect>
+                    <text id="value" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20.7143027" font-weight="normal">
+                        <tspan x="9" y="27">12</tspan>
+                    </text>
+                </g>
             </g>
             <g id="Mustafa-Deck" transform="translate(420.000000, 269.000000)" sketch:type="MSShapeGroup">
                 <path d="M234.674,19.765 L1.715,19.765 L0.218,23.232 L236.245,23.232 L234.674,19.765 L234.674,19.765 Z" id="Shape" fill="#AA6F48"></path>
@@ -291,65 +331,17 @@
                     <path d="M15.974,14.579 C16,15.145 15.41,15.606 14.655,15.606 L1.011,15.606 C0.256,15.606 -0.335,15.145 -0.31,14.579 L0.324,0.514 C0.345,0.037 0.92,-0.347 1.607,-0.347 L14.034,-0.347 C14.722,-0.347 15.297,0.037 15.319,0.514 L15.974,14.579 L15.974,14.579 Z" id="Shape" fill="#FFFFFF"></path>
                 </g>
             </g>
-            <g id="Player-Center" transform="translate(444.000000, 90.000000)">
-                <g id="Name" transform="translate(42.000000, 0.000000)">
-                    <rect id="Player-Center-Pad" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="145" height="38" rx="8"></rect>
-                    <text id="Player-Center-Name" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal" sketch:alignment="middle">
-                        <tspan x="29.732" y="26.7344">Mustafa</tspan>
-                    </text>
-                </g>
-                <g id="Timer">
-                    <path d="M5.558,38 C2.492,38 0,35.504 0,32.436 L0,5.564 C0,2.496 2.492,0 5.558,0 L32.439,0 C35.505,0 38,2.496 38,5.564 L38,32.436 C38,35.504 35.505,38 32.439,38 L5.558,38 L5.558,38 Z" id="Timer-Pad" fill="#517ECE" sketch:type="MSShapeGroup"></path>
-                    <rect id="progress" fill="#5CBF6F" sketch:type="MSShapeGroup" x="2" y="2" width="34" height="33" rx="3"></rect>
-                    <text id="value" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20.7143027" font-weight="normal">
-                        <tspan x="9" y="27">12</tspan>
-                    </text>
-                </g>
+            <g id="Gabrielo-Deck" transform="translate(281.000000, 293.000000)" sketch:type="MSShapeGroup">
+                <path d="M78.207,-0.443 L72.577,-0.443 L23.768,67.33 L30.907,67.33 L78.207,-0.443 L78.207,-0.443 Z" id="Shape" fill="#BB8764"></path>
+                <path d="M30.907,121.374 L78.207,42.363 L78.207,-0.443 L30.907,67.121 L30.907,121.374 L30.907,121.374 Z" id="Shape" fill="#AF7B58"></path>
+                <path d="M17.554,81.92 L9.221,93.579 L12.589,93.579 L17.554,81.92 L17.554,81.92 Z" id="Shape" fill="#BB8764"></path>
+                <path d="M9.221,93.579 L12.589,93.579 L23.768,67.33 L30.907,67.33 L30.907,121.374 L-0.11,121.374 L9.221,93.579 L9.221,93.579 Z" id="Shape" fill="#C2906E"></path>
             </g>
-            <g id="Player-Right" transform="translate(632.000000, 150.000000)">
-                <g id="Name" transform="translate(42.000000, 0.000000)">
-                    <rect id="Player-Right-Pad" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="145" height="38" rx="8"></rect>
-                    <text id="Player-Right-Name" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal" sketch:alignment="middle">
-                        <tspan x="43.436" y="28.7344">Alina</tspan>
-                    </text>
-                </g>
-                <g id="Timer">
-                    <path d="M5.558,38 C2.492,38 0,35.504 0,32.436 L0,5.564 C0,2.496 2.492,0 5.558,0 L32.439,0 C35.505,0 38,2.496 38,5.564 L38,32.436 C38,35.504 35.505,38 32.439,38 L5.558,38 L5.558,38 Z" id="Timer-Pad" fill="#517ECE" sketch:type="MSShapeGroup"></path>
-                    <rect id="progress" fill="#5CBF6F" sketch:type="MSShapeGroup" x="2" y="2" width="34" height="33" rx="3"></rect>
-                    <text id="value" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20.7143027" font-weight="normal">
-                        <tspan x="9" y="27">12</tspan>
-                    </text>
-                </g>
-            </g>
-            <g id="Player-Left" transform="translate(228.000000, 150.000000)">
-                <g id="Name" transform="translate(42.000000, 0.000000)">
-                    <rect id="Player-Left-Pad" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="145" height="38" rx="8"></rect>
-                    <text id="Player-Left-Name" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal" sketch:alignment="middle">
-                        <tspan x="24.924" y="27.1759033">Gabrielo</tspan>
-                    </text>
-                </g>
-                <g id="Timer">
-                    <path d="M5.558,38 C2.492,38 0,35.504 0,32.436 L0,5.564 C0,2.496 2.492,0 5.558,0 L32.439,0 C35.505,0 38,2.496 38,5.564 L38,32.436 C38,35.504 35.505,38 32.439,38 L5.558,38 L5.558,38 Z" id="Timer-Pad" fill="#517ECE" sketch:type="MSShapeGroup"></path>
-                    <rect id="progress" fill="#5CBF6F" sketch:type="MSShapeGroup" x="2" y="2" width="34" height="33" rx="3"></rect>
-                    <text id="value" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20.7143027" font-weight="normal">
-                        <tspan x="9" y="27">12</tspan>
-                    </text>
-                </g>
-            </g>
-            <g id="Player-Me" transform="translate(397.000000, 413.000000)">
-                <g id="Name" transform="translate(43.000000, 0.000000)">
-                    <rect id="Player-Me-Pad" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="89" height="39" rx="8"></rect>
-                    <text id="Player-Me-Name" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal">
-                        <tspan x="26.9998" y="28.7344">Me</tspan>
-                    </text>
-                </g>
-                <g id="Timer">
-                    <path d="M5.558,38 C2.492,38 0,35.504 0,32.436 L0,5.564 C0,2.496 2.492,0 5.558,0 L32.439,0 C35.505,0 38,2.496 38,5.564 L38,32.436 C38,35.504 35.505,38 32.439,38 L5.558,38 L5.558,38 Z" id="Timer-Pad" fill="#517ECE" sketch:type="MSShapeGroup"></path>
-                    <rect id="progress" fill="#5CBF6F" sketch:type="MSShapeGroup" x="2" y="2" width="34" height="33" rx="3"></rect>
-                    <text id="value" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20.7143027" font-weight="normal">
-                        <tspan x="9" y="27">12</tspan>
-                    </text>
-                </g>
+            <g id="Alina-Deck" transform="translate(717.000000, 293.000000)" sketch:type="MSShapeGroup">
+                <path d="M-0.209,-0.443 L5.421,-0.443 L54.231,67.33 L47.091,67.33 L-0.209,-0.443 L-0.209,-0.443 Z" id="Shape" fill="#BB8764"></path>
+                <path d="M47.091,121.374 L-0.209,42.363 L-0.209,-0.443 L47.091,67.121 L47.091,121.374 L47.091,121.374 Z" id="Shape" fill="#AF7B58"></path>
+                <path d="M60.445,81.92 L68.778,93.579 L65.409,93.579 L60.445,81.92 L60.445,81.92 Z" id="Shape" fill="#BB8764"></path>
+                <path d="M68.778,93.579 L65.409,93.579 L54.231,67.33 L47.091,67.33 L47.091,121.374 L78.109,121.374 L68.778,93.579 L68.778,93.579 Z" id="Shape" fill="#C2906E"></path>
             </g>
             <g id="Gabrielo-Discard" transform="translate(232.000000, 391.000000)" fill="#B5C6D8" sketch:type="MSShapeGroup">
                 <rect id="Shape" x="0" y="-0.0465116279" width="40" height="59.8006645" rx="8"></rect>
@@ -426,6 +418,14 @@
             <g id="Right-Menu" transform="translate(956.000000, 546.000000)" sketch:type="MSShapeGroup">
                 <path d="M114,-0.235 L114,114 L-0.238,114 C-0.01,51.009 51.008,-0.008 114,-0.235" id="Shape_251_" fill="#48AF5E"></path>
                 <path d="M81.215,48.569 L59.96,48.569 C57.488,48.569 55.485,50.572 55.485,53.043 L55.485,85.483 C55.485,87.954 57.488,89.957 59.96,89.957 L81.215,89.957 C83.686,89.957 85.689,87.954 85.689,85.483 L85.689,53.043 C85.688,50.572 83.686,48.569 81.215,48.569 L81.215,48.569 L81.215,48.569 Z M70.588,75.609 C67.08,75.609 64.241,72.766 64.241,69.262 C64.241,65.755 67.08,62.915 70.588,62.915 C74.092,62.915 76.935,65.755 76.935,69.262 C76.935,72.768 74.092,75.609 70.588,75.609 L70.588,75.609 L70.588,75.609 Z" id="Shape_252_" fill="#FFFFFF"></path>
+            </g>
+            <g id="Deck-Root" transform="translate(215.000000, 457.000000)" sketch:type="MSShapeGroup">
+                <g id="Deck">
+                    <rect id="Rectangle-path" fill="#AF7B58" x="0" y="3" width="640" height="65"></rect>
+                    <rect id="Rectangle-path" fill="#AF7B58" x="0" y="75" width="640" height="72"></rect>
+                    <path d="M640,68.0096 L279.226,68.0096 L0,68 L0,73.9916 L275.816,73.9916 L640,74 L640,68.0096 Z" id="Shape" fill="#BC8864"></path>
+                    <path d="M640,4 L0,4 L2.614,0 L637.177,0 L640,4 L640,4 Z" id="Shape" fill="#BC8864"></path>
+                </g>
             </g>
             <text id="Quota" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20" font-weight="bold">
                 <tspan x="135.5" y="637.318984">Quota: 722 </tspan>
