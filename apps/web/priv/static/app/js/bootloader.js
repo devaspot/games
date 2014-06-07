@@ -40,7 +40,7 @@ function loadAppend(file, animation, name) {
         var r = template_engine(localStorage.getItem(file),{'name': animation});
         document.getElementById(name).appendChild(svg(r)); }); }
 
-function discarder(name) { return template_engine(localStorage.getItem("svg/Discarder.svg"), { name: name }); }
+function discarder(name) { return template_engine(localStorage.getItem("svg/Discarder.svg?q=" + $.timestamp), { name: name }); }
 
 function initDiscards() {
     [ {name:"Gabrielo-Discard", hand:"Player-Left-Hand"},
@@ -161,13 +161,13 @@ function onPlayerInfoClose(evt) { document.getElementById('Player-Statistics').s
 
 // Run
 
-$.load('Kakaranet-Scene.svg', function(html) { 
+$.load('Kakaranet-Scene.svg', function(x) { 
     var name = "Refined";
     var slot = document.getElementById(name);
     if (slot == null) return;
-    slot.parentNode.replaceChild(svg(html),slot);
+    slot.parentNode.replaceChild(svg(x),slot);
     $.load("svg/Discarder.svg", function(h) {
-        PatchSVG(),
+        PatchSVG();
         StartApp(); 
     });
 });
