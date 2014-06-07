@@ -207,10 +207,10 @@ function PostLoad()
     $("#Pause").on("click", function() { apiProvider.pause(); });
 
     var whoPausedGame = false;
-
-    //$overlay = $("#overlay");
-//    $overlay.on("click", function() { whoPausedGame == scope.user && apiProvider.pause(!0); });
 /*
+    $overlay = $("#overlay");
+    $overlay.on("click", function() { whoPausedGame == scope.user && apiProvider.pause(!0); });
+
     apiProvider.on("game_paused", function(e) {
         if (whoPausedGame = e.detail[3], "pause" == e.detail[2]) {
             $overlay.show();
@@ -264,7 +264,7 @@ function initOkeyScene(e)
 
     e.detail.whos_move && "null" != e.detail.whos_move && 
         (e.detail.next_turn_in && "null" != e.detail.next_turn_in && playersMap[e.detail.whos_move].timer.from(e.detail.next_turn_in),
-         e.detail.paused && (playersMap[e.detail.whos_move].timer.pause(),$overlay.show()),
+         e.detail.paused && (playersMap[e.detail.whos_move].timer.pause()/*,$overlay.show()*/),
          playersMap[e.detail.whos_move].select());
 }
 

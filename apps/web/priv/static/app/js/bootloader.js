@@ -161,9 +161,13 @@ function onPlayerInfoClose(evt) { document.getElementById('Player-Statistics').s
 
 // Run
 
-loadFile('Kakaranet-Scene.svg', function() { 
-    loadFile("svg/Discarder.svg", function() {
+$.load('Kakaranet-Scene.svg', function(html) { 
+    var name = "Refined";
+    var slot = document.getElementById(name);
+    if (slot == null) return;
+    slot.parentNode.replaceChild(svg(html),slot);
+    $.load("svg/Discarder.svg", function(h) {
         PatchSVG(),
         StartApp(); 
     });
-}, "Refined");
+});
