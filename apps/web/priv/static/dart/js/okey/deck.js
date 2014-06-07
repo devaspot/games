@@ -1,4 +1,4 @@
-Core(function(scope) {
+function DeckScope(scope) {
 
     function Deck(root, options) {
         options = options || {};
@@ -48,11 +48,12 @@ Core(function(scope) {
         },
 
         render: function() {
-            console.log("Render");
-            console.log(this);
             this.each(function(card, i, j) {
-                null != card && (card.$el.attr("transform", "translate(" + this.trfs[j][i].x + " " + this.trfs[j][i].y + ")"), 
-                card.drag(), this.$el.append(card.$el[0]));
+                if (null != card) {
+                    card.$el.attr("transform", "translate(" + this.trfs[j][i].x + "," + this.trfs[j][i].y + ")");
+                    card.drag();
+                    this.$el.append(card.$el[0]);
+                }
             });
         },
 
@@ -98,9 +99,9 @@ Core(function(scope) {
                         from: [ trfs[fst.j][j].x, trfs[fst.j][j].y ].join(" "),
                         to: [ trfs[fst.j][direction(j)].x, trfs[fst.j][direction(j)].y ].join(" ")
                     }),
-                
+
                     selected && (selected.dragHandler.initTrf = [ trfs[fst.j][j].x, trfs[fst.j][j].y ]), 
-                
+
                     ((this.cards[fst.j][j] = this.cards[fst.j][direction(j)]) || {}).pos = { x: j, y: fst.j },
                     (this.cards[fst.j][direction(j)] = card).pos = { x: direction(j), y: fst.j }
                 );
@@ -124,7 +125,8 @@ Core(function(scope) {
             if (cards.every(function(card, i) {
                 return posX = truePosX + (i - idx) * (card != target.owner), null == this.cards[posY][posX] || this.cards[posY][posX] == card;
             }, this)) for (var card, i = 0, l = cards.length; l > i; i++) card = cards[i], posX = truePosX + (i - idx) * (card != target.owner), 
-            (dropResult = null == this.cards[posY][posX] || this.cards[posY][posX] == selected) && (this.cards[posY][posX] != card && (null != card.pos.x && null != card.pos.y ? this.cards[card.pos.y][card.pos.x] = this.cards[card.pos.y][card.pos.x] == card ? null : this.cards[card.pos.y][card.pos.x] : (this.$el.trigger("take", {
+            (dropResult = null == this.cards[posY][posX] || this.cards[posY][posX] == selected) && (this.cards[posY][posX] != card && (null != card.pos.x && null != card.pos.y ? this.cards[card.pos.y][card.pos.x] = this.cards[card.pos.y][card.pos.x] == card ? null : this.cards[card.pos.y][card.pos.x] : (
+            this.$el.trigger("take", {
                 detail: {
                     card: card
                 }
@@ -181,8 +183,9 @@ Core(function(scope) {
             for (var i = 0; 15 > i; i++) this.cards[0][i] && this.cards[0][i].log();
             for (var i = 0; 15 > i; i++) this.cards[1][i] && this.cards[1][i].log();
         }
-    }),
+    });
 
-    scope.deck = new Deck("#Deck-Root");
+    scope.deck = new Deck("#Deck-Root",{});
 
-});
+}
+

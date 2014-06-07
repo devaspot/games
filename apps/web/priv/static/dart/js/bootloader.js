@@ -3,6 +3,12 @@ var svgNS = "http://www.w3.org/2000/svg";
 var color = ['#DE3F26','#606060','#48AF5E','#FFC800'];
 var slotName = slotNameDef;
 
+function parseTransformAttribute(aa) {
+    var a = aa.split(' ').join('');
+    var b={};
+    for (var i in a = a.match(/(\w+\((\-?\d+\.?\d*,?)+\))+/g)) { var c = a[i].match(/[\w\.\-]+/g); b[c.shift()] = c; }
+    return b; }
+
 function svg(html) { return new DOMParser().parseFromString(html, "text/xml").firstChild; }
 function removeChilds(e) { var last; while (last = e.lastChild) e.removeChild(last); };
 function slotNameDef(x,y) { return "Slot-"+y+","+x; }
@@ -35,6 +41,15 @@ function loadAppend(file, animation, name) {
         document.getElementById(name).appendChild(svg(r)); }); }
 
 function discarder(name) { return template_engine(localStorage.getItem("svg/Discarder.svg"), { name: name }); }
+
+function initDiscards() {
+    [ {name:"Gabrielo-Discard", hand:"Player-Left-Hand"},
+      {name:"Alina-Discard",    hand:"Player-Right-Hand"},
+      {name:"Mustafa-Discard",  hand:"Player-Center-Hand"},
+      {name:"You-Discard",      hand:"Player-Me-Hand"}                 ].map(function(e) {
+        document.getElementById(e.name).firstElementChild.remove();
+        document.getElementById(e.name).appendChild(svg(discarder(e.hand))); });
+}
 
 function card(line,pos,col,v) {
     return template_engine(
@@ -95,12 +110,6 @@ function PatchSVG()
     
     document.getElementById("Player-Left").style.display = 'block';
 
-    [ {name:"Gabrielo-Discard", hand:"Player-Left-Hand"},
-      {name:"Alina-Discard",    hand:"Player-Right-Hand"},
-      {name:"Mustafa-Discard",  hand:"Player-Center-Hand"},
-      {name:"You-Discard",      hand:"Player-Me-Hand"}                 ].map(function(e) {
-        document.getElementById(e.name).firstElementChild.remove();
-        document.getElementById(e.name).appendChild(svg(discarder(e.hand))); });
 
     // HTML editors
 
@@ -126,6 +135,20 @@ function PatchSVG()
 //       onlineListOnClick.map(function(x) { 
 //           console.log(x);
 //            document.getElementById(x).onclick = showOnlineList; });
+
+    initDiscards();
+
+    Core(ControllerScope);
+    Core(TimerScope);
+    Core(PlayerScope);
+    Core(OkeyApiProviderScope);
+    Core(DragScope);
+    Core(DropScope);
+    Core(CardScope);
+    Core(HandScope);
+    Core(DeckScope);
+
+    $svg.attr({preserveAspectRatio:"xMidYMin meet",class:"svg"});
 }
 
 function onPlayerInfo(evt) {

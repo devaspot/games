@@ -1,4 +1,4 @@
-Core(function(scope) {
+function DragScope(scope) {
 
     function calcShift()
     {
@@ -17,7 +17,7 @@ Core(function(scope) {
     var sizeX,
         sizeY,
         size,
-        moved,
+        moved;
         $svg = $("svg");
 
     calcShift();
@@ -94,9 +94,9 @@ Core(function(scope) {
 
     $.mixin({ draggable: function() { return this.each(function(el) { new Draggable(el); }); } });
 
-});
+}
 
-Core(function(scope) {
+function DropScope(scope) {
 
     function Droppable(root, options)
     {
@@ -131,4 +131,4 @@ Core(function(scope) {
         }
     });
 
-});
+}

@@ -1,4 +1,4 @@
-Core(function(scope) {
+function CardScope(scope) {
 
     function Card(options) {
         options = options || {},
@@ -111,6 +111,5 @@ Core(function(scope) {
     });
 
     scope.Card = Card;
-});
-
+}
 

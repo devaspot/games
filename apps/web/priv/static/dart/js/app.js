@@ -1,28 +1,45 @@
 
 function StartApp()      { $.load(scope.CARD_SOURCE, PostLoad); }
-function fadeOut()       { $(this).animate({ attributeName: "opacity", from: 1, to: 0, dur: .3}); }
-function fadeIn()        { $(this).animate({ attributeName: "opacity", from: 0, to: 1, dur: .3}); }
-function addFadeOut()    { $(this).on (document.createTouch ? "touchend" : "mouseup", fadeOut); }
-function removeFadeOut() { $(this).off(document.createTouch ? "touchend" : "mouseup", fadeOut); }
 
 function PostLoad()
 {
-    rightFlag = !1;
-    leftFlag = !1;
+    rightFlag = 1;
+    leftFlag = 1;
 
     window.deck = scope.deck;
     deck = window.deck;
     scope.user = document.user;
 
-    centralCard = null,
-    apiProvider = new scope.ApiProvider({
-            url: scope.apiUrl,
-            gameId: scope.gameId,
-            sessionId: scope.defaultSessionId});
+    var centralCard,
+        apiProvider = new scope.ApiProvider({url: scope.apiUrl, gameId: scope.gameId });
+
+    function fadeOut()       { $(this).animate({ attributeName: "opacity", from: 1, to: 0, dur: .3}); }
+    function fadeIn()        { $(this).animate({ attributeName: "opacity", from: 0, to: 1, dur: .3}); }
+    function addFadeOut()    { $(this).on (document.createTouch ? "touchend" : "mouseup", fadeOut); }
+    function removeFadeOut() { $(this).off(document.createTouch ? "touchend" : "mouseup", fadeOut); }
+
+    function createCentralCard() {
+        centralCard = new scope.Card(),
+        centralCard.$el.attr({opacity: 0, transform: "translate(298,-115)" })
+        .on(document.createTouch ? "touchstart" : "mousedown", fadeIn)
+        .on(document.createTouch ? "touchend"   : "mouseup",   fadeOut);
+
+        centralCard.drag();
+        centralCard.dragHandler.enable();
+        centralCard.on("dragstart", deck.select).on("dragmove", removeFadeOut)
+                                            .on("dragstop", addFadeOut)
+                                            .on("dragmove", deck.track)
+                                            .on("revert",   fadeOut);
+
+        console.log(scope.deck.$el[0]);
+        console.log(centralCard.$el[0]);
+        deck.$el.append(centralCard.$el[0]);
+    }
 
     createCentralCard(),
 
     deck.on("take", function(e) {
+        console.log("Take");
         e.detail.card.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
                          .off(document.createTouch ? "touchend"   : "mouseup",   fadeOut),
         centralCard.off("dragmove", removeFadeOut).off("dragstop", addFadeOut).off("revert", fadeOut),
@@ -30,13 +47,15 @@ function PostLoad()
         apiProvider.actionTake(e.detail.card);
     });
 
-    $gosterme = $("#Gosterme"),
+    var $gosterme = $("#Gosterme"),
         ended = !0;
 
-    apiProvider.on("okey_game_started", initOkeyScene);
-    apiProvider.on("okey_game_player_state", initOkeyScene);
+    function init(e) { initOkeyScene(e,$gosterme,centralCard); }
 
-    playersPositions = 
+    apiProvider.on("okey_game_started", init);
+    apiProvider.on("okey_game_player_state", init);
+
+    var playersPositions = 
         [
           [ "Me", "Right", "Center", "Left" ],
           [ "Left", "Me", "Right", "Center" ],
@@ -44,9 +63,9 @@ function PostLoad()
           [ "Right", "Center", "Left", "Me" ]
          ];
 
-    playersMap = {};
-    playersRightHandsMap = {};
-    playersLeftHandsMap = {};
+    var playersMap = {},
+        playersRightHandsMap = {},
+        playersLeftHandsMap = {};
 
     apiProvider.on("okey_game_info", function(e) {
         console.log(JSON.stringify(e));
@@ -60,7 +79,8 @@ function PostLoad()
                 break;
             }
             for (var playerInfo, i = 0, l = players.length; l > i; i++) {
-                
+                console.log(i);
+                console.log(playersPositions[i]);
                 playerInfo = players[i].PlayerInfo, playersMap[playerInfo[0]] = playersMap[playerInfo[0]] || new scope.Player({
                     position: playersPositions[i],
                     name: [ playerInfo[2], playerInfo[3] ].join(" ")
@@ -78,6 +98,7 @@ function PostLoad()
                 });
             }
 
+
             scope.started = !0;
         }
     }),
@@ -85,13 +106,14 @@ function PostLoad()
     window.playersRightHandsMap = playersRightHandsMap;
     window.playersLeftHandsMap = playersLeftHandsMap;
 
-    playerTurn = !1;
+    var playerTurn = !1;
 
     apiProvider.on("online_number", function (e) {
         console.log("Online Number");
     });
 
     apiProvider.on("okey_next_turn", function(e) {
+
         for (var playerName in playersMap) playersMap[playerName].unselect();
         if (playersMap[e.detail.player].select(), e.detail.player == scope.user)
         {
@@ -138,11 +160,17 @@ function PostLoad()
             });
             c.log();
         }
+
+        console.log(e.detail.revealed);
+        console.log(scope.user);
+
+
         if (e.detail.pile && !deck.justTaken && playersLeftHandsMap[e.detail.player].take(), 
             0 === e.detail.pile && e.detail.player == scope.user && (centralCard.color = scope.CARD_COLORS[e.detail.revealed[1] - 1], 
             centralCard.value = e.detail.revealed[2], centralCard.render(), createCentralCard()), 
             0 === e.detail.pile)
         {
+
             var $topCard = $pile.find("g");
             if ($topCard.length > 1) $topCard.last().remove(); else {
                 $topCard.last().remove(), $pile.append($fullPile);
@@ -151,7 +179,9 @@ function PostLoad()
             }
         }
         e.detail.player == scope.user && deck.insert(e.detail.revealed), centralCard.dragHandler.disable(), 
-        centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn).off(document.createTouch ? "touchend" : "mouseup", fadeOut);
+        centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
+                       .off(document.createTouch ? "touchend" : "mouseup", fadeOut);
+
         var cards = playersLeftHandsMap[scope.user].cards;
 
         if (cards.length) {
@@ -181,7 +211,8 @@ function PostLoad()
 
     $("#Pause").on("click", function() { apiProvider.pause(); });
 
-    whoPausedGame=false,
+    var whoPausedGame = false;
+
     //$overlay = $("#overlay");
 //    $overlay.on("click", function() { whoPausedGame == scope.user && apiProvider.pause(!0); });
 /*
@@ -207,38 +238,21 @@ function PostLoad()
         }
     });
 
-}
-
-function createCentralCard() {
-    centralCard = new scope.Card();
-    centralCard.$el.attr({opacity: 0, transform: "translate(298,-115)" })
-        .on(document.createTouch ? "touchstart" : "mousedown", fadeIn)
-        .on(document.createTouch ? "touchend" : "mouseup", fadeOut);
-
-    centralCard.drag();
-    centralCard.dragHandler.enable();
-    centralCard.on("dragstart", deck.select).on("dragmove", removeFadeOut)
-                                            .on("dragstop", addFadeOut)
-                                            .on("dragmove", deck.track)
-                                            .on("revert",   fadeOut);
-    deck.$el.append(centralCard.$el[0]);
-}
-
-function initOkeyScene(e)
+function initOkeyScene(e,$gosterme,centralCard)
 {
     if (ended = !1, 
-        deck.fill(e.detail.tiles),
-        deck.render(),
-        centralCard.dragHandler.disable(), 
+        scope.deck.fill(e.detail.tiles),
+        scope.deck.render(),
+        centralCard.dragHandler.disable(),
         centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
                        .off(document.createTouch ? "touchend"   : "mouseup",   fadeOut), 
-        e.detail.gosterme && "null" != e.detail.gosterme)
+        e.detail.gosterge && "null" != e.detail.gosterge)
     {
         var gosterme = new scope.Card({
-            color: scope.CARD_COLORS[e.detail.gosterme[1] - 1],
-            value: e.detail.gosterme[2]
+            color: scope.CARD_COLORS[e.detail.gosterge[1] - 1],
+            value: e.detail.gosterge[2]
         });
-        gosterme.$el.attr("transform", "translate(16 0)"),
+        gosterme.$el.attr({transform: "translate(16,-60)"}),
         $gosterme.append(gosterme.$el);
     }
 
@@ -254,11 +268,10 @@ function initOkeyScene(e)
     }
 
     e.detail.whos_move && "null" != e.detail.whos_move && 
-        (e.detail.next_turn_in && "null" != e.detail.next_turn_in && playersMap[e.detail.whos_move].timer.from(e.detail.next_turn_in), 
-         e.detail.paused && (playersMap[e.detail.whos_move].timer.pause(), $overlay.show()), 
+        (e.detail.next_turn_in && "null" != e.detail.next_turn_in && playersMap[e.detail.whos_move].timer.from(e.detail.next_turn_in),
+         e.detail.paused && (playersMap[e.detail.whos_move].timer.pause(),$overlay.show()),
          playersMap[e.detail.whos_move].select());
 }
-
 
 function SetupLeftMenu() 
 {
@@ -284,3 +297,7 @@ function SetupRightMenu()
     });
 }
 
+    SetupLeftMenu();
+    SetupRightMenu();
+
+}

@@ -1,4 +1,4 @@
-Core(function(scope) {
+function PlayerScope(scope) {
 
     function Player(options)
     {
@@ -32,8 +32,19 @@ Core(function(scope) {
     $.extend(Player.prototype, {
 
         loadSkin: function(result) {
+
+            var html = svg(result.toString());
+            console.log(result.toString());
+            console.log(html);
+
             var $result = $("<g/>").html(result);
-            this.$page.append($result[0].firstChild),
+            var element = $result[0].firstChild;
+            var xform = parseTransformAttribute(element.getAttribute("transform"));
+            var ori   = parseTransformAttribute(this.$el[0].getAttribute("transform"));
+            var shift = "translate("+(-parseFloat(ori.translate[0])+parseFloat(xform.translate[0]))+","+
+                                     (-parseFloat(ori.translate[1])+parseFloat(xform.translate[1]))+")";
+            element.setAttribute("transform",shift);
+            this.$el.append(element);
             this.unselect(); },
 
         initTimer: function() {
@@ -55,5 +66,4 @@ Core(function(scope) {
     });
 
     scope.Player = Player;
-});
-
+}

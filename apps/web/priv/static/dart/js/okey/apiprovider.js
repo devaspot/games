@@ -1,5 +1,5 @@
 
-Core(function(scope) {
+function OkeyApiProviderScope(scope) {
 
     function ApiProvider(options)
     {
@@ -116,5 +116,5 @@ Core(function(scope) {
     }),
 
     scope.ApiProvider = ApiProvider;
-});
+}
 

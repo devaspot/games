@@ -1,5 +1,5 @@
 
-Core(function(scope) {
+function TimerScope(scope) {
 
     function Timer(root, options)
     {
@@ -58,5 +58,5 @@ Core(function(scope) {
     });
 
     scope.Timer = Timer;
-});
+}
 

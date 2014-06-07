@@ -1,4 +1,4 @@
-Core(function(scope) {
+function ControllerScope(scope) {
 
     function Controller() {
         this.proxyAll();
@@ -43,4 +43,4 @@ Core(function(scope) {
     }),
 
     scope.Controller = Controller;
-});
+}

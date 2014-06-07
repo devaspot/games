@@ -214,7 +214,9 @@ var $ = function(_undefind)
         return ctor.prototype = parent.prototype, child.prototype = new ctor(), child;
     }, $.mixin = function(plagin) {
         $.extend(fn, plagin);
-    }, $.timestamp = 1400668550599, $.load = function(url, complete) {
+    }, $.timestamp = 1400668550599,
+
+    $.load = function(url, complete) {
         url = url + "?q=" + $.timestamp;
         var result = localStorage.getItem(url);
         if (null == result) {

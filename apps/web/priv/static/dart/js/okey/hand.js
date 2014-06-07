@@ -1,4 +1,4 @@
-Core(function(scope) {
+function HandScope(scope) {
 
     function Hand(root, options)
     {
@@ -97,4 +97,4 @@ Core(function(scope) {
     });
 
     scope.Hand = Hand;
-});
+}
