@@ -14,7 +14,7 @@ function PostLoad()
     deck = window.deck;
     scope.user = document.user;
 
-//    var centralCard,
+    centralCard = null,
     apiProvider = new scope.ApiProvider({
             url: scope.apiUrl,
             gameId: scope.gameId,
@@ -30,13 +30,13 @@ function PostLoad()
         apiProvider.actionTake(e.detail.card);
     });
 
-    var $gosterme = $("#Gosterme"),
+    $gosterme = $("#Gosterme"),
         ended = !0;
 
     apiProvider.on("okey_game_started", initOkeyScene);
     apiProvider.on("okey_game_player_state", initOkeyScene);
 
-    var playersPositions = 
+    playersPositions = 
         [
           [ "Me", "Right", "Center", "Left" ],
           [ "Left", "Me", "Right", "Center" ],
@@ -85,7 +85,7 @@ function PostLoad()
     window.playersRightHandsMap = playersRightHandsMap;
     window.playersLeftHandsMap = playersLeftHandsMap;
 
-    var playerTurn = !1;
+    playerTurn = !1;
 
     apiProvider.on("online_number", function (e) {
         console.log("Online Number");
@@ -115,15 +115,15 @@ function PostLoad()
     });
 
     apiProvider.on("okey_tile_discarded", function(e) {
-            if ("object" == typeof e.detail.tile) {
-                var c = new scope.Card({
-                    color: scope.CARD_COLORS[e.detail.tile[1] - 1],
-                    value: e.detail.tile[2]
-                });
-                c.log();
-            }
-            e.detail.player == scope.user && deck.remove(e.detail.tile), playersRightHandsMap[e.detail.player].discard(e.detail.tile);
-        });
+        if ("object" == typeof e.detail.tile) {
+            var c = new scope.Card({
+                color: scope.CARD_COLORS[e.detail.tile[1] - 1],
+                value: e.detail.tile[2]
+            });
+            c.log();
+        }
+        e.detail.player == scope.user && deck.remove(e.detail.tile), playersRightHandsMap[e.detail.player].discard(e.detail.tile);
+    });
 
     var $pile = $("#Center-Cards"),
         $fullPile = $pile.find("g").clone(),
@@ -181,10 +181,10 @@ function PostLoad()
 
     $("#Pause").on("click", function() { apiProvider.pause(); });
 
-    var whoPausedGame,
-        $overlay = $("#overlay");
-        $overlay.on("click", function() { whoPausedGame == scope.user && apiProvider.pause(!0); });
-
+    whoPausedGame=false,
+    //$overlay = $("#overlay");
+//    $overlay.on("click", function() { whoPausedGame == scope.user && apiProvider.pause(!0); });
+/*
     apiProvider.on("game_paused", function(e) {
         if (whoPausedGame = e.detail[3], "pause" == e.detail[2]) {
             $overlay.show();
@@ -196,7 +196,7 @@ function PostLoad()
             for (var player in playersMap) playersMap[player].timer.resume();
         }
     });
-
+*/
     $("#Table-Oval").droppable({
         accept: function(target) {
             return 1 === apiProvider.socket.readyState && deck.length() > 14 && 
@@ -211,7 +211,7 @@ function PostLoad()
 
 function createCentralCard() {
     centralCard = new scope.Card();
-    centralCard.$el.attr({opacity: 0, transform: "translate(298 -115)" })
+    centralCard.$el.attr({opacity: 0, transform: "translate(298,-115)" })
         .on(document.createTouch ? "touchstart" : "mousedown", fadeIn)
         .on(document.createTouch ? "touchend" : "mouseup", fadeOut);
 
@@ -226,12 +226,6 @@ function createCentralCard() {
 
 function initOkeyScene(e)
 {
-    console.log("INIT BOARD");
-    console.log(e.detail.tiles);
-    console.log(deck);
-        deck.fill(e.detail.tiles),
-        deck.render();
-
     if (ended = !1, 
         deck.fill(e.detail.tiles),
         deck.render(),
@@ -258,7 +252,7 @@ function initOkeyScene(e)
                      hand = playersLeftHandsMap[name],
                      j = playerPile.length; j--; ) hand.discard(playerPile[j]);
     }
-    
+
     e.detail.whos_move && "null" != e.detail.whos_move && 
         (e.detail.next_turn_in && "null" != e.detail.next_turn_in && playersMap[e.detail.whos_move].timer.from(e.detail.next_turn_in), 
          e.detail.paused && (playersMap[e.detail.whos_move].timer.pause(), $overlay.show()), 
@@ -289,3 +283,4 @@ function SetupRightMenu()
                         rightFlag = !0 );
     });
 }
+

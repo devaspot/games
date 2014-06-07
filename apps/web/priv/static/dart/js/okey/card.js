@@ -1,14 +1,21 @@
 Core(function(scope) {
 
     function Card(options) {
-        options = options || {}, this.value = options.value, this.color = options.color, 
-        this.selected = !1, this.pos = {}, this.elements = {
+        options = options || {},
+        this.value = options.value,
+        this.color = options.color, 
+        this.selected = !1,
+        this.pos = {},
+        this.elements = {
             $circle: "circle",
             $text: "text",
             $overlay: ".overlay"
         }, this.proxies = [ "toggle", "selectGroup", "dragGroup", "clearGroup", "revertGroup" ], 
-        this.template(scope.CARD_SOURCE), this.$el.on("mousedown", this.toggle), this.$el.on("revert", this.revertGroup), 
-        this.$el.on("dragstop", this.clearGroup), this.$overlay.on("mousedown", this.selectGroup);
+        this.template(scope.CARD_SOURCE),
+        this.$el.on("mousedown", this.toggle),
+        this.$el.on("revert", this.revertGroup), 
+        this.$el.on("dragstop", this.clearGroup),
+        this.$overlay.on("mousedown", this.selectGroup);
     }
 
     var selStart = !1;

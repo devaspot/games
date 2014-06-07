@@ -46,7 +46,7 @@ Core(function(scope) {
                 height: defHeight
             }),
             this.$value.text(this.curTime = this.duration),
-            
+
             clearTimeout(this.timerId);
         },
         pause: function() {

@@ -48,6 +48,8 @@ Core(function(scope) {
         },
 
         render: function() {
+            console.log("Render");
+            console.log(this);
             this.each(function(card, i, j) {
                 null != card && (card.$el.attr("transform", "translate(" + this.trfs[j][i].x + " " + this.trfs[j][i].y + ")"), 
                 card.drag(), this.$el.append(card.$el[0]));

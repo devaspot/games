@@ -9,7 +9,7 @@ function slotNameDef(x,y) { return "Slot-"+y+","+x; }
 function loadAnimationForButton(a, b) { return loadAppend('svg/ButtonAnimation.svg', a, b); }
 
 function setPlayerName(e, playerName) {
-    var dx = 15; //(document.getElementById(e+"-Name").attributes['fill'].value == "#FFFFFF") ? 65 : 20;
+    var dx = 15;
     document.getElementById(e+"-Name").setAttribute("y",27);
     document.getElementById(e+"-Name").setAttribute("x",dx);
     document.getElementById(e+"-Name").textContent = playerName;
@@ -33,6 +33,8 @@ function loadAppend(file, animation, name) {
         var slot = document.getElementById(name);
         var r = template_engine(localStorage.getItem(file),{'name': animation});
         document.getElementById(name).appendChild(svg(r)); }); }
+
+function discarder(name) { return template_engine(localStorage.getItem("svg/Discarder.svg"), { name: name }); }
 
 function card(line,pos,col,v) {
     return template_engine(
@@ -93,6 +95,13 @@ function PatchSVG()
     
     document.getElementById("Player-Left").style.display = 'block';
 
+    [ {name:"Gabrielo-Discard", hand:"Player-Left-Hand"},
+      {name:"Alina-Discard",    hand:"Player-Right-Hand"},
+      {name:"Mustafa-Discard",  hand:"Player-Center-Hand"},
+      {name:"You-Discard",      hand:"Player-Me-Hand"}                 ].map(function(e) {
+        document.getElementById(e.name).firstElementChild.remove();
+        document.getElementById(e.name).appendChild(svg(discarder(e.hand))); });
+
     // HTML editors
 
 /*
@@ -127,4 +136,9 @@ function onPlayerInfoClose(evt) { document.getElementById('Player-Statistics').s
 
 // Run
 
-loadFile('Kakaranet-Scene.svg', function() { PatchSVG(), StartApp();}, "Refined");
+loadFile('Kakaranet-Scene.svg', function() { 
+    loadFile("svg/Discarder.svg", function() {
+        PatchSVG(),
+        StartApp(); 
+    });
+}, "Refined");

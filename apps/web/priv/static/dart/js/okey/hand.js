@@ -23,7 +23,7 @@ Core(function(scope) {
                     { backHeight: 124, containerTrf: "0 -94",  cardTrf: "0 -89"  },
                     { backHeight: 174, containerTrf: "0 -144", cardTrf: "0 -139" } ];
 
-    defCardTrf = "0 20";
+    var defCardTrf = "0 20";
 
     $.inherit(Hand, scope.Controller);
 
