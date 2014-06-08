@@ -4,9 +4,6 @@ function DragScope(scope) {
     {
         sizeX = $svg[0].viewBox.baseVal.width / innerWidth;
         sizeY = $svg[0].viewBox.baseVal.height / innerHeight;
-        $page = $("#Page-1");
-        sizeX = $page[0].width / innerWidth;
-        sizeY = $page[0].height / innerHeight;
         size = Math.max(sizeX, sizeY) || 1;
     }
 

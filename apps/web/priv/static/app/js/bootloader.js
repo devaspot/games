@@ -115,7 +115,7 @@ function PatchSVG()
     Core(HandScope);
     Core(DeckScope);
 
-    $svg.attr({preserveAspectRatio:"xMidYMin meet",class:"svg"});
+    $svg.attr({preserveAspectRatio:"xMidYMin meet",class:"svg",width:"100%",height:"100%"});
 }
 
 function onPlayerInfo(evt) {
