@@ -1,7 +1,6 @@
 
 var svgNS = "http://www.w3.org/2000/svg";
 var color = ['#DE3F26','#606060','#48AF5E','#FFC800'];
-var slotName = slotNameDef;
 
 function parseTransformAttribute(aa) {
     var a = aa.split(' ').join('');
@@ -11,8 +10,6 @@ function parseTransformAttribute(aa) {
 
 function svg(html) { return new DOMParser().parseFromString(html, "text/xml").firstChild; }
 function removeChilds(e) { var last; while (last = e.lastChild) e.removeChild(last); };
-function slotNameDef(x,y) { return "Slot-"+y+","+x; }
-function loadAnimationForButton(a, b) { return loadAppend('svg/ButtonAnimation.svg', a, b); }
 
 function setPlayerName(e, playerName) {
     var dx = 15;
@@ -34,12 +31,6 @@ function template_engine(html, data) {
     code += 'return r.join("");';
     return new Function(code.replace(/[\r\t\n]/g, '')).apply(data); }
 
-function loadAppend(file, animation, name) { 
-    loadFile(file, function() {
-        var slot = document.getElementById(name);
-        var r = template_engine(localStorage.getItem(file),{'name': animation});
-        document.getElementById(name).appendChild(svg(r)); }); }
-
 function discarder(name) { return template_engine(localStorage.getItem("svg/Discarder.svg?q=" + $.timestamp), { name: name }); }
 
 function initDiscards() {
@@ -51,33 +42,6 @@ function initDiscards() {
         document.getElementById(e.name).appendChild(svg(discarder(e.hand)));
          });
 }
-
-function card(line,pos,col,v) {
-    return template_engine(
-        localStorage.getItem("svg/Card.svg"),
-            {   name: slotName(pos,line),
-                suit: color[col-1],
-                value: v,
-                y: (line-1)*69,
-                x: (pos-1)*42 }); }
-
-function reload(file, name2) { var name = name2==null?file:name2;
-    var slot = document.getElementById(name);
-    if (slot == null) return;
-    slot.parentNode.replaceChild(svg(localStorage.getItem(file)),slot);}
-
-function reload_cont(cont,name,element) { reload(name,element); if (null != cont) (cont)();   }
-
-function loadFile(name,cont,element) {
-    if (localStorage.getItem(name) == null) {
-        var client = new XMLHttpRequest();
-        client.open('GET', name, true);
-        client.onload = function() {
-            localStorage.setItem(name,client.responseText); 
-            reload_cont(cont,name,element);
-        }
-        client.send(); }
-    else reload_cont(cont,name,element); }
 
 function PatchSVG()
 {
