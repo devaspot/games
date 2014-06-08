@@ -221,10 +221,10 @@ Core = function() {
         apiUrl: "ws://localhost:8080/ws/",
         gameId: 1000001,
         defaultSessionId: "7hc6Vl0CpxvngjiQQWDspxUtKmhF1zCbT155+M73XhFcKw9e6jkNWLSLM8up4ZQbSUGJXKOphb0YNu4yDRKZkbkiyY1yZukqXFj4nAfvSUNuWx0352VWfLlKZWldHb1na7d7sA==",
-        CARD_SOURCE: "svg/card.svg",
-        CARD_SMALL_SOURCE: "svg/card-small.svg",
+        CARD_SOURCE: "../app/svg/Card.svg",
+        CARD_SMALL_SOURCE: "../app/svg/Card-small.svg",
         CARD_COLORS: [ "#CE290F", "#3B5998", "#48AF5E", "#F8E81C" ],
-        SKIN_NAMES: [ "alina", "gabrielo", "mustafa" ]
+        SKIN_NAMES: [ "Alina", "Gabrielo", "Mustafa" ]
     };
     return function(module) {
         module(scope);
@@ -534,7 +534,7 @@ Core(function(scope) {
         var nameWrapperWidth = this.$nameText.width() / $("#Page-1").width() * 100 + 2 * (this.$nameText.position().left - this.$nameWrapper.position().left) / $("#Page-1").width() * 100;
         this.$nameWrapper.attr({
             width: nameWrapperWidth + "%"
-        }), this.initTimer(), "me" == this.position || this.noSkin || $.load("svg/" + [ "person", this.position, this.skin ].join("-") + ".svg", this.loadSkin);
+        }), this.initTimer(), "me" == this.position || this.noSkin || $.load("../app/svg/" + [ "Person", this.position, this.skin ].join("-") + ".svg", this.loadSkin);
     }
     $.inherit(Player, scope.Controller), $.extend(Player.prototype, {
         loadSkin: function(result) {
