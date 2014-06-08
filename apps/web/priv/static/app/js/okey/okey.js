@@ -188,7 +188,7 @@ function PostLoad()
         ended = !0, alert(e.detail.player), deck.fill([]);
         for (var hand in playersLeftHandsMap) playersLeftHandsMap[hand].clear();
         for (var playerName in playersMap) playersMap[playerName].unselect();
-        $gosterme.remove();
+//        $gosterme.remove();
     });
 
     apiProvider.on("player_left", function(e) {
