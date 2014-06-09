@@ -164,7 +164,7 @@ function addOnlineUser(name,full_name,insertMode) {
         var firstElement = listElement.firstElementChild;
         if (null == firstElement) listElement.appendChild(element); else {
             var first = firstElement.firstElementChild.getAttribute("xmlns:data");
-            shiftTranslate(first,0);
+            shiftTranslate(first,1);
             listElement.insertBefore(element,firstElement);
         }
     } else listElement.appendChild(element);
@@ -186,9 +186,7 @@ function shiftTranslate(name,shiftValue) {
     return rect.parentNode.parentNode;
 }
 
-function removeOnlineUser(name) {
-    shiftTranslate(name,-2).remove();
-}
+function removeOnlineUser(name) { shiftTranslate(name,-2).remove(); }
 
 function openChat(evt) {
     document.getElementById("Online-List").style.display = 'none';

@@ -48,7 +48,7 @@ function RosterHandlers(scope) {
                 id = item.value[0][0].value,
                 names = item.value[0][1].value,
                 surnames = item.value[0][2].value;
-            addOnlineUser(id,names+" "+surnames,'appendChild');
+            addOnlineUser(id,names+" "+surnames+" "+user_count++,'appendChild');
         }
     });
 
