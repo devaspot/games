@@ -21,7 +21,7 @@ function CardScope(scope) {
 
     var selStart = !1;
 
-    $(window).on("keydown", function(e) { e.metaKey && (selStart = !0); });
+    $(window).on("keydown", function(e) { e.altKey && (selStart = !0); });
     $(window).on("keyup", function() { selStart = !1; });
 
     Card.selected = [];
