@@ -2,8 +2,8 @@
 // Online User Chat and In-Game Chat
 
 var scrollSensitivity = 0.2;
-var scroll_left = 0;
-var scroll_left_chat = 0;
+var scroll_left = 5;
+var scroll_left_chat = 5;
 var scroll_right = -10000;
 var currentChat = null;
 var user_count = 0;
@@ -126,7 +126,7 @@ function showOnlineList(evt)
     document.getElementById("Online-List").style.display = '';
     currentChat = null;
 
-    scroll_left = 0;
+    scroll_left = 5;
     onlineHover();
     mouseWheelHandler({'detail':scroll_left,'wheelDelta':scroll_left});
     onlineHoverOut();
@@ -148,7 +148,7 @@ function addOnlineUser(name,full_name,insertMode) {
     var events = ' onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);" ' + clickEvent;
     var eventsColor = ' onmouseover="onlineHoverColor(evt);" onmouseout="onlineHoverOutColor(evt);" ' + clickEvent;
     var color = insertMode == "insertTop" ? "red" : "green";
-    var y = (insertMode == "insertTop") ? "0" : listElement.getBBox().height;
+    var y = (insertMode == "insertTop") ? 0 : listElement.getBBox().height;
     var html = '<g xmlns="http://www.w3.org/2000/svg" height="60" transform="translate(0, '+y+')">' +
             '<g xmlns:data="'+name+'" fill="#DBEBED" '+eventsColor+'>' +
             '    <rect cursor="pointer" xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" ' +'></rect></g>' +
@@ -164,7 +164,7 @@ function addOnlineUser(name,full_name,insertMode) {
         var firstElement = listElement.firstElementChild;
         if (null == firstElement) listElement.appendChild(element); else {
             var first = firstElement.firstElementChild.getAttribute("xmlns:data");
-            shiftTranslate(first,1);
+            shiftTranslate(first, 1);
             listElement.insertBefore(element,firstElement);
         }
     } else listElement.appendChild(element);
@@ -176,7 +176,7 @@ function shiftTranslate(name,shiftValue) {
     var remove = rect.parentNode.parentNode;
     var children = document.getElementById("Online-List").childNodes;
     var removeIndex = -1;
-    for(var i = 0; i<children.length; ++i) { 
+    for(var i = 0; i<children.length; i++) { 
         var child = children[i];
         if (child == remove) removeIndex = i;
         if (removeIndex != -1 && i>=removeIndex)
@@ -186,7 +186,7 @@ function shiftTranslate(name,shiftValue) {
     return rect.parentNode.parentNode;
 }
 
-function removeOnlineUser(name) { shiftTranslate(name,-2).remove(); }
+function removeOnlineUser(name) { shiftTranslate(name,-1).remove(); }
 
 function openChat(evt) {
     document.getElementById("Online-List").style.display = 'none';
@@ -260,7 +260,6 @@ function initChat()
     page.insertBefore(svg(inGameChat),settings);
     page.insertBefore(svg(onlineList),settings);
     page.insertBefore(svg(onlineChat),settings);
-
 
     var clipPath1 = svg('<clipPath id="myClip1"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left" x="0" y="0" width="216" height="400"/></clipPath>');
     var clipPath2 = svg('<clipPath id="myClip2"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Right" x="0" y="0" width="216" height="400"/></clipPath>');

@@ -34,10 +34,7 @@ function RosterHandlers(scope) {
 
     scope.apiProvider.on("roster_end", function (x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        onlineHover();
-        mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
-        onlineHoverOut();
-        document.getElementById("Online-List").style.display = '';
+        showOnlineList();
     });
 
     scope.apiProvider.on("roster_group", function (x) {
