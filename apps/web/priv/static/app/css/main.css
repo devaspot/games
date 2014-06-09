@@ -1,7 +1,7 @@
 
 :focus {-moz-outline-style:none;}
 html, body {margin: 0; padding:0;}
-html { overflow: auto; height: 100%; }
+html { overflow: hidden; height: 100%; }
 
 body {
     height: 100%;

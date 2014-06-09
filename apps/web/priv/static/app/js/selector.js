@@ -4,7 +4,8 @@ var scope = {
     CARD_SOURCE: "svg/Card.svg",
     CARD_SMALL_SOURCE: "svg/Card-Small.svg",
     CARD_COLORS: [ "#CE290F", "#3B5998", "#48AF5E", "#F8E81C" ],
-    SKIN_NAMES: [ "Alina", "Gabrielo", "Mustafa" ]
+    SKIN_NAMES: [ "Alina", "Gabrielo", "Mustafa" ],
+    version: 0906201401
 };
 
 var $ = function(_undefind)
@@ -32,7 +33,7 @@ var $ = function(_undefind)
     fn.each = function(callback) { for (var i = 0, l = this.length; l > i; i++) callback(this[i], i); return this; },
     fn.on = function(eventName, eventHandler) { return this.each(function(el) { el.addEventListener(eventName, eventHandler); }); },
     fn.off = function(eventName, eventHandler) { return this.each(function(el) { el.removeEventListener(eventName, eventHandler); }); },
-    fn.trigger = function(eventName, data) { return this.each(function(el) { event = new CustomEvent(eventName, data), el.dispatchEvent(event); }); },
+    fn.trigger = function(eventName, data, raw) { return this.each(function(el) { event = new CustomEvent(eventName, data), el.dispatchEvent(event); }); },
     fn.show = function() { return this.css("display", "block"); },
     fn.hide = function() { return this.css("display", "none"); },
     fn.text = function(text) { return null != text ? this.each(function(el) { el.textContent = text; }) : this.length ? this[0].textContent : _undefind; },
@@ -57,7 +58,6 @@ var $ = function(_undefind)
             node = node.nextSibling;
         }) : this.length ? this[0].innerHTML : _undefind;
     },
-    
 
     fn.attr = function(name, value) {
         if (Object(name) === name) {
@@ -68,7 +68,7 @@ var $ = function(_undefind)
             el.setAttribute(name, value);
         }) : this.length ? this[0].getAttribute(name) : _undefind;
     },
-    
+
     fn.removeAttr = function(name) { return this.each(function(el) { el.removeAttribute(name); }); },
 
     fn.append = function(target) {
@@ -84,7 +84,7 @@ var $ = function(_undefind)
             for (;el.firstChild; ) el.removeChild(el.firstChild);
         });
     },
-    
+
     fn.eq = function(idx) { return new Selector(idx >= this.length ? [] : [ this[idx] ]); },
     fn.find = function(selector) {
         var result = [];
@@ -101,7 +101,7 @@ var $ = function(_undefind)
     fn.first = function() {
         return new Selector(this.length ? [ this[0] ] : []);
     },
-    
+
     fn.last = function() { return new Selector(this.length ? [ this[this.length - 1] ] : []); },
     fn.clone = function() { var result = []; return this.each(function(el) { result.push(el.cloneNode(!0)); }), new Selector(result); },
     fn.width = function() { return this.length ? this[0].getBoundingClientRect().width : _undefind; },
@@ -186,36 +186,33 @@ var $ = function(_undefind)
                 }), callbacks = [];
             }, 1e3 * parseFloat(trfs.dur) - 20), $el.attr("animated", !0), $anim[0].beginElement();
         }), thenable;
-    }, fn.stop = function() {
+    },
+
+    fn.stop = function() {
         return this.each(function(el) {
             $(el).find(".anim, .trf").each(function(anim) {
-                anim.endElement();
-            }), clearTimeout(el.timerId), clearInterval(el.timer);
-        });
-    }, fn.pause = function() {
-        return $("svg")[0].pauseAnimations(), this.each(function(el) {
-            el.paused = !0;
-        });
-    }, fn.resume = function() {
-        return $("svg")[0].unpauseAnimations(), this.each(function(el) {
-            el.paused = !1;
-        });
-    };
+            anim.endElement(); }), clearTimeout(el.timerId), clearInterval(el.timer); }); },
+
+    fn.pause = function() { return $("svg")[0].pauseAnimations(), this.each(function(el) { el.paused = !0; }); },
+    fn.resume = function() { return $("svg")[0].unpauseAnimations(), this.each(function(el) { el.paused = !1; }); };
+
     var tag = /^<(.+)\/>$/;
+
     return $.extend = function(target) {
         for (var obj, properties, i = 1, l = arguments.length; l > i; i++) {
             obj = arguments[i], properties = Object.keys(obj);
             for (var property, j = properties.length; j--; ) property = properties[j], target[property] = obj[property];
         }
         return target;
-    }, $.inherit = function(child, parent) {
-        function ctor() {
-            this.constructor = child, this.__super__ = parent.prototype;
-        }
-        return ctor.prototype = parent.prototype, child.prototype = new ctor(), child;
-    }, $.mixin = function(plagin) {
-        $.extend(fn, plagin);
-    }, $.timestamp = 1400668550599,
+    },
+
+    $.inherit = function(child, parent) {
+        function ctor() { this.constructor = child, this.__super__ = parent.prototype; }
+        return ctor.prototype = parent.prototype, child.prototype = new ctor(), child; },
+
+    $.mixin = function(plagin) { $.extend(fn, plagin); },
+
+    $.timestamp = scope.version,
 
     $.load = function(url, complete) {
         url = url + "?q=" + $.timestamp;
@@ -227,9 +224,11 @@ var $ = function(_undefind)
                 complete(xhr.responseText);
             }, xhr.send();
         } else complete(result);
-    }, $.rand = function(min, max) {
-        return min + Math.floor(Math.random() * (max - min + 1));
-    }, $;
+    },
+
+    $.rand = function(min, max) { return min + Math.floor(Math.random() * (max - min + 1)); },
+
+    $;
 }();
 
 Core = function() {

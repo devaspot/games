@@ -33,6 +33,50 @@ function template_engine(html, data) {
 
 function discarder(name) { return template_engine(localStorage.getItem("svg/Discarder.svg?q=" + $.timestamp), { name: name }); }
 
+function initChat() {
+    var inGameChat = '<g id="Chat"         y="0" clip-path="url(#myClip2)" transform="translate(857.000000, 107.000000)" xmlns="http://www.w3.org/2000/svg" />';
+    var onlineList = '<g id="Online-List"  y="0" clip-path="url(#myClip1)" transform="translate(1.000000, 107.000000)" xmlns="http://www.w3.org/2000/svg" />';
+    var onlineChat = '<g id="Online-Chat"  y="0" clip-path="url(#myClip3)" transform="translate(1.000000, 107.000000)" xmlns="http://www.w3.org/2000/svg" />';
+    document.getElementById("Page-1").appendChild(svg(inGameChat));
+    document.getElementById("Page-1").appendChild(svg(onlineList));
+    document.getElementById("Page-1").appendChild(svg(onlineChat));
+
+    document.getElementById('Page-1').addEventListener("mousewheel", mouseWheelHandler, false);
+
+    var clipPath1 = svg('<clipPath id="myClip1"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left" x="0" y="0" width="216" height="400"/></clipPath>');
+    var clipPath2 = svg('<clipPath id="myClip2"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Right" x="0" y="0" width="216" height="400"/></clipPath>');
+    var clipPath3 = svg('<clipPath id="myClip3"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left-Chat" x="0" y="0" width="216" height="400"/></clipPath>');
+
+    document.getElementsByTagName('defs').item(0).appendChild(clipPath1);
+    document.getElementsByTagName('defs').item(0).appendChild(clipPath2);
+    document.getElementsByTagName('defs').item(0).appendChild(clipPath3);
+
+     document.getElementById("Online-List").setAttribute("clip-path","url(#myClip1)");
+     document.getElementById("Chat").setAttribute("clip-path","url(#myClip2)");
+     document.getElementById("Online-Chat").setAttribute("clip-path","url(#myClip1)");
+
+    document.getElementById("Clip-Path-Left").setAttribute("transform", "translate(0,0)");
+    document.getElementById("Clip-Path-Right").setAttribute("transform", "translate(0,0)");
+    document.getElementById("Clip-Path-Left-Chat").setAttribute("transform", "translate(0,0)");
+}
+
+function initEditors() {
+    var left = 
+'<foreignObject xmlns="http://www.w3.org/2000/svg" x="864" y="504" width="198" height="120" mouseover="barHover(evt);" mouseout="barHoverOut(evt);">' +
+        '<div xmlns="http://www.w3.org/1999/xhtml" xmlns:data="Chat" id="edit" ' +
+          ' style="padding:4px;background-color:#FFF687;color:#3B5998;font-family:"Exo 2";font-size:16px;" ' +
+        ' contentEditable="true" xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div>' +
+    '</foreignObject>';
+
+    var right = '<foreignObject xmlns="http://www.w3.org/2000/svg" x="10" y="504" width="198" height="120"  onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);>' +
+        '<div xmlns="http://www.w3.org/1999/xhtml" xmlns:data="Chat+xxx" id="onlineChatEdit" ' +
+          ' style="padding:4px;background-color:#FFF687;color:#3B5998;font-family:"Exo 2";font-size:16px;" ' +
+        ' contentEditable="true" xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div>' +
+    '</foreignObject>';
+    document.getElementById("Page-1").appendChild(svg(left));
+    document.getElementById("Page-1").appendChild(svg(right));
+}
+
 function initDiscards() {
     [ {name:"Gabrielo-Discard", hand:"Player-Left-Hand"},
       {name:"Alina-Discard",    hand:"Player-Right-Hand"},
@@ -45,24 +89,9 @@ function initDiscards() {
 
 function PatchSVG()
 {
-//    document.getElementById('Page-1').addEventListener("mousewheel", mouseWheelHandler, false);
 
         // Setup Clipping ViewPorts
 
-    var clipPath1 = svg('<clipPath id="myClip1"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left" x="0" y="0" width="216" height="400"/></clipPath>');
-    var clipPath2 = svg('<clipPath id="myClip2"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Right" x="0" y="0" width="216" height="400"/></clipPath>');
-    var clipPath3 = svg('<clipPath id="myClip3"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left-Chat" x="0" y="0" width="216" height="400"/></clipPath>');
-    document.getElementsByTagName('defs').item(0).appendChild(clipPath1);
-    document.getElementsByTagName('defs').item(0).appendChild(clipPath2);
-    document.getElementsByTagName('defs').item(0).appendChild(clipPath3);
-
-//     document.getElementById("Online-List").setAttribute("clip-path","url(#myClip1)");
-//     document.getElementById("Chat").setAttribute("clip-path","url(#myClip2)");
-//     document.getElementById("Online-Chat").setAttribute("clip-path","url(#myClip1)");
-
-    document.getElementById("Clip-Path-Left").setAttribute("transform", "translate(0,0)");
-    document.getElementById("Clip-Path-Right").setAttribute("transform", "translate(0,0)");
-    document.getElementById("Clip-Path-Left-Chat").setAttribute("transform", "translate(0,0)");
 
 //  document.getElementById('Player-Statistics').style.display = 'none';
     document.getElementById("Right-Bar").setAttribute("fill","lightblue");
@@ -80,7 +109,6 @@ function PatchSVG()
 
     // HTML editors
 
-/*
     document.getElementById('onlineChatEdit').setAttribute("contentEditable","true");
     document.getElementById('onlineChatEdit').onkeydown = chatEditor;
     document.getElementById("onlineChatEdit").style.display = 'none';
@@ -89,7 +117,7 @@ function PatchSVG()
     document.getElementById('edit').onkeydown = chatEditor;
     document.getElementById('edit').setAttribute("xmlns:data","Chat");
     document.getElementById("edit").style.display = '';
-*/
+
     // showOnlineList ctor
 
     var onlineListOnClick = [
@@ -99,11 +127,11 @@ function PatchSVG()
         "Users-Online-Message",
         "Users-Online-Number" ];
 
-//       onlineListOnClick.map(function(x) { 
-//           console.log(x);
-//            document.getElementById(x).onclick = showOnlineList; });
+       onlineListOnClick.map(function(x) { 
+            document.getElementById(x).onclick = showOnlineList; });
 
     initDiscards();
+    initChat();
 
     Core(ControllerScope);
     Core(DragScope);
@@ -114,8 +142,20 @@ function PatchSVG()
     Core(CardScope);
     Core(HandScope);
     Core(DeckScope);
+    Core(RosterScope);
 
-    $svg.attr({preserveAspectRatio:"xMidYMin meet",class:"svg",width:"100%",height:"100%"});
+
+        chatMessage("Chat","1","Maxim2","Joe:\nHello There!".encodeHTML());
+        chatMessage("Chat","2","Maxim2","Alice:\nYou got new Design. Eh?".encodeHTML());
+        chatMessage("Chat","3","Maxim","Maxim So:\nThis was made with pure SVG".encodeHTML());
+
+        barHover();
+        mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
+        barHoverOut();
+
+//    document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
+
+    $svg.attr({preserveAspectRatio:"xMidYMid meet",class:"svg",width:"100%",height:"100%"});
 }
 
 function onPlayerInfo(evt) {

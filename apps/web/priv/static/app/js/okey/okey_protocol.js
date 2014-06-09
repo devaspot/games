@@ -16,7 +16,17 @@ function OkeyApiProviderScope(scope) {
     }
 
     var eventMap = [
+        // general events
+        "stats_event",
+        // roster protocol
         "online_number",
+        "online",
+        "offline",
+        "roster_item",
+        "roster_group",
+        "roster_end",
+        "chat_message",
+        // okey game protocol
         "okey_game_info",
         "okey_game_started",
         "okey_game_player_state",
@@ -25,7 +35,8 @@ function OkeyApiProviderScope(scope) {
         "okey_tile_taken",
         "okey_revealed",
         "player_left",
-        "game_paused" ];
+        "game_paused"
+    ];
 
     $.extend(ApiProvider.prototype, {
         proxy: function(func) {
@@ -50,7 +61,7 @@ function OkeyApiProviderScope(scope) {
             var msg = JSON.parse(e.data);
 
             if (msg.eval) { try{eval(msg.eval)}catch(e){console.log(e);} }
-            if (msg.data) { this.emitEvent(this.beutify(this.parse(dec(msg.data)))); }
+            if (msg.data) { this.emitEvent(msg.data,this.beutify(this.parse(dec(msg.data)))); }
 
         },
         parse: function(msg) {
@@ -88,10 +99,10 @@ function OkeyApiProviderScope(scope) {
             }
             return msg;
         },
-        emitEvent: function(msg) {
+        emitEvent: function(raw,msg) {
 //            console.log(JSON.stringify(msg));
             for (var event, i = eventMap.length; i--; ) event = eventMap[i], msg[event] && this.$socket.trigger(event, {
-                detail: msg[event]
+                detail: {json:msg[event],bert:raw}
             });
         },
         actionTake: function(card) {

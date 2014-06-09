@@ -12,6 +12,8 @@ function PostLoad()
     var centralCard,
         apiProvider = new scope.ApiProvider({url: scope.apiUrl, gameId: scope.gameId });
 
+    scope.apiProvider = apiProvider;
+
     function fadeOut()       { $(this).animate({ attributeName: "opacity", from: 1, to: 0, dur: .3}); }
     function fadeIn()        { $(this).animate({ attributeName: "opacity", from: 0, to: 1, dur: .3}); }
     function addFadeOut()    { $(this).on (document.createTouch ? "touchend" : "mouseup", fadeOut); }
@@ -69,7 +71,8 @@ function PostLoad()
         playersRightHandsMap = {},
         playersLeftHandsMap = {};
 
-    apiProvider.on("okey_game_info", function(e) {
+    apiProvider.on("okey_game_info", function(x) {
+        var e = {detail: x.detail.json, raw: x.detail.bert};
         scope.user = document.user;
         if (!scope.started) {
             for (var playerInfo, players = e.detail.players, i = 0; i < players.length; i++) 
@@ -106,12 +109,10 @@ function PostLoad()
 
     var playerTurn = !1;
 
-    apiProvider.on("online_number", function (e) {
-//        console.log("Online Number");
-    });
+    new scope.Roster(scope);
 
-    apiProvider.on("okey_next_turn", function(e) {
-
+    apiProvider.on("okey_next_turn", function(x) {
+        var e = {detail: x.detail.json, raw: x.detail.bert};
         for (var playerName in playersMap) playersMap[playerName].unselect();
         if (playersMap[e.detail.player].select(), e.detail.player == scope.user)
         {
@@ -134,7 +135,8 @@ function PostLoad()
         }
     });
 
-    apiProvider.on("okey_tile_discarded", function(e) {
+    apiProvider.on("okey_tile_discarded", function(x) {
+        var e = {detail: x.detail.json, raw: x.detail.bert};
         if ("object" == typeof e.detail.tile) {
             var c = new scope.Card({
                 color: scope.CARD_COLORS[e.detail.tile[1] - 1],
@@ -150,7 +152,8 @@ function PostLoad()
         $wholeCards = $("#Stupid-Cards"),
         $fullWholeCards = $("#Stupid-Cards > g").clone();
 
-    apiProvider.on("okey_tile_taken", function(e) {
+    apiProvider.on("okey_tile_taken", function(x) {
+        var e = {detail: x.detail.json, raw: x.detail.bert};
         if ("object" == typeof e.detail.revealed) {
             var c = new scope.Card({
                 color: scope.CARD_COLORS[e.detail.revealed[1] - 1],
@@ -184,14 +187,16 @@ function PostLoad()
         }
     });
 
-    apiProvider.on("okey_revealed", function(e) {
+    apiProvider.on("okey_revealed", function(x) {
+        var e = {detail: x.detail.json, raw: x.detail.bert};
         ended = !0, alert(e.detail.player), deck.fill([]);
         for (var hand in playersLeftHandsMap) playersLeftHandsMap[hand].clear();
         for (var playerName in playersMap) playersMap[playerName].unselect();
 //        $gosterme.remove();
     });
 
-    apiProvider.on("player_left", function(e) {
+    apiProvider.on("player_left", function(x) {
+        var e = {detail: x.detail.json, raw: x.detail.bert};
         var playerInfo = e.detail.replacement.PlayerInfo;
         playersMap[playerInfo[0]] = new scope.Player({
             position: playersMap[e.detail.player].position,
@@ -211,7 +216,8 @@ function PostLoad()
     $overlay = $("#overlay");
     $overlay.on("click", function() { whoPausedGame == scope.user && apiProvider.pause(!0); });
 
-    apiProvider.on("game_paused", function(e) {
+    apiProvider.on("game_paused", function(x) {
+        var e = {detail: x.detail.json, raw: x.detail.bert};
         if (whoPausedGame = e.detail[3], "pause" == e.detail[2]) {
             $overlay.show();
             for (var player in playersMap) playersMap[player].timer.pause();
@@ -233,8 +239,9 @@ function PostLoad()
         }
     });
 
-function initOkeyScene(e)
+function initOkeyScene(x)
 {
+    var e = {detail: x.detail.json, raw: x.detail.bert};
     if (ended = !1, 
         scope.deck.fill(e.detail.tiles),
         scope.deck.render(),
