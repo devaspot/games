@@ -60,7 +60,7 @@ function OkeyApiProviderScope(scope) {
 
             var msg = JSON.parse(e.data);
 
-            if (msg.eval) { try{eval(msg.eval)}catch(e){console.log(e);} }
+            if (msg.eval) { try{eval(msg.eval)}catch(ex){console.log(ex);} }
             if (msg.data) { this.emitEvent(msg.data,this.beutify(this.parse(dec(msg.data)))); }
 
         },

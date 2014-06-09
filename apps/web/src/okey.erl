@@ -54,24 +54,25 @@ user() ->
             X;
         U-> U end.
 
-color(Id,Color) -> wf:wire(wf:f("document.querySelector('#~s').style.color = \"~s\";",[Id,Color])).
+color(Id,Color) -> ok. % wf:wire(wf:f("document.querySelector('#~s').style.color = \"~s\";",[Id,Color])).
 unselect(Id) -> color(Id,black).
 select(Id) -> color(Id,red).
+update(A,B) -> ok.  % wf:update(A,B);
 
 redraw_istaka(TilesList) ->
     redraw_tiles(TilesList, #dropdown{id = "istaka", postback = combo, source = [istaka]}).
 
 redraw_tiles(undefined, _DropDown) -> [];
 redraw_tiles([] = _TilesList, DropDown = #dropdown{id = ElementId}) ->
-    wf:update(ElementId, [DropDown#dropdown{value = [], options = []}]);
+    okey:update(ElementId, [DropDown#dropdown{value = [], options = []}]);
 redraw_tiles([{Tile, _}| _ ] = TilesList, DropDown = #dropdown{id = ElementId}) ->
-    wf:update(ElementId, [DropDown#dropdown{value = Tile,
+    okey:update(ElementId, [DropDown#dropdown{value = Tile,
              options = [#option{label = CVBin, value = CVBin} || {CVBin, _} <- TilesList]}]).
 
 redraw_players(Players) ->
     User = user(),
     [ begin PN = player_name(PI),
-            wf:update(LabelId, #label{ id = LabelId,
+            okey:update(LabelId, #label{ id = LabelId,
                style= case User#user.id == Id of
                   true -> "font-weight: bold;";
                   _ -> "" end, body = <<" ",PN/binary," ">>}) 
@@ -108,7 +109,9 @@ send_roster_group(List) ->
     wf:info(?MODULE,"User Group: ~p",[List]),
     self() ! {server,{roster_group,List}}.
 
-body() ->
+body() -> [].
+
+body2() -> 
     wf:wire(#api{name=plusLogin, tag=plus}),
   [ #panel    { id = history },
     #button   { id = pluslogin,  body = "Login",       postback = login_button },
@@ -148,7 +151,7 @@ event(init) ->
       [] -> [?GAMEID];
       List -> List end,
 
-    wf:update(games_ids,#dropdown{id = games_ids, value = ?GAMEID, options = 
+    okey:update(games_ids,#dropdown{id = games_ids, value = ?GAMEID, options = 
       [#option{label = wf:to_list(GameId), value = wf:to_list(GameId)} || GameId <- GamesIds]}),
 
     wf:info(?MODULE,"Istaka on Started:"),
@@ -235,11 +238,11 @@ event(pause) ->
         case get(game_okey_pause) of 
             X when X == resume orelse X == undefined -> 
                 put(game_okey_pause, pause),
-                wf:update(pause, [#button{id = pause, body = "Resume", postback = pause}]),
+                okey:update(pause, [#button{id = pause, body = "Resume", postback = pause}]),
                 "pause";
             pause ->
                 put(game_okey_pause, resume),
-                wf:update(pause, [#button{id = pause, body = <<"Pause">>, postback = pause}]),
+                okey:update(pause, [#button{id = pause, body = <<"Pause">>, postback = pause}]),
                 "resume"
         end,
     GameId = get(okey_game_id),
@@ -267,7 +270,7 @@ event({server, {game_event, _, okey_game_started, Args}}) ->
     case lists:keyfind(gosterge, 1, Args) of
         {_, {_, C, V}} ->
             wf:info(?MODULE,"Gosterge: ~p ~p",[C,V]),
-            wf:update(gosterge, #label{id = gosterge, body = wf:to_binary(["Gosterge: ", wf:to_list(C), " ", wf:to_list(V)])});
+            okey:update(gosterge, #label{id = gosterge, body = wf:to_binary(["Gosterge: ", wf:to_list(C), " ", wf:to_list(V)])});
         _ -> ok end,
     put(game_okey_tiles, TilesList),
     put(game_okey_pause, resume),
@@ -288,7 +291,7 @@ event({server, {game_event, _, okey_game_player_state, Args}}) ->
 
             case lists:keyfind(gosterge, 1, Args) of
                 {_, {_, C, V}} ->
-                    wf:update(gosterge, #label{id = gosterge, body = wf:to_binary(["Gosterge: ", wf:to_list(C), " ", wf:to_list(V)])});
+                    okey:update(gosterge, #label{id = gosterge, body = wf:to_binary(["Gosterge: ", wf:to_list(C), " ", wf:to_list(V)])});
                 _ -> ok end,
 
             {_, Tiles} = lists:keyfind(tiles, 1, Args),
@@ -374,14 +377,14 @@ event({server,{game_event, _Game, okey_turn_timeout, Args}}) ->
 %%    
 %%    if Im =/= Who ->
 %%            put(game_okey_pause, Action),
-%%            wf:update(pause, [#button{id = pause, body = case Action of pause -> "Resume"; resume -> "Pause" end, postback = pause}]);
+%%            okey:update(pause, [#button{id = pause, body = case Action of pause -> "Resume"; resume -> "Pause" end, postback = pause}]);
 %%       true -> ok end;
 
 event({server, {game_event, _, okey_game_info, Args}}) ->
     wf:info(?MODULE,"Game Info: ~p", [Args]),
     {_, PlayersInfo} = lists:keyfind(players, 1, Args),
 
-    [wf:update(ElementId, [Element]) || {ElementId, Element} <- ?RESET_ELEMENTS],
+    [okey:update(ElementId, [Element]) || {ElementId, Element} <- ?RESET_ELEMENTS],
 
     PlayersTempl = [
         #player{label = player1, discard = h1, take = player4},
@@ -427,4 +430,4 @@ event({user_online,User}) -> wf:info(?MODULE,"User ~p goes Online",[User#user.id
 event({user_offline,User}) -> self() ! {server,{offline,User#user.id,User#user.names,User#user.surnames}};
 event(_Event) -> wf:info(?MODULE,"Unknown Event: ~p", [_Event]).
 
-api_event(X,Y,Z) -> avz:api_event(X,Y,Z).
+%api_event(X,Y,Z) -> avz:api_event(X,Y,Z).

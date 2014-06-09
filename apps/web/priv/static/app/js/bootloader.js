@@ -1,3 +1,7 @@
+function isSafari() {
+    var ua = navigator.userAgent.toLowerCase(); 
+    return ua.indexOf('safari') != -1 && ua.indexOf('chrome') == -1;
+}
 
 var svgNS = "http://www.w3.org/2000/svg";
 var color = ['#DE3F26','#606060','#48AF5E','#FFC800'];
@@ -72,8 +76,9 @@ function PatchSVG()
     initDiscards();
     initChat();
     initChatSample();
+    initEditorsSafari()
 
-    //document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
+//    document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
     $svg.attr({preserveAspectRatio:"xMidYMid meet",width:"100%",height:"100%"});
 }
 
@@ -105,3 +110,49 @@ $.load('Kakaranet-Scene.svg', function(x) {
         StartApp(); 
     });
 });
+
+function initEditorsSafari()
+{
+    if (isSafari()) {
+        $("#edit").css({position:"relative"});
+        $("#onlineChatEdit").css({position:"relative"});
+        $(window).on("resize", manualForeignObjectPositioning);
+        $(window).on("orientationchange", manualForeignObjectPositioning);
+        manualForeignObjectPositioning();
+    }
+}
+
+function manualForeignObjectPositioning()
+{
+    var svgWidth = $svg[0].viewBox.baseVal.width,
+        svgHeight = $svg[0].viewBox.baseVal.height;
+
+    var sizeX = svgWidth / innerWidth,
+        sizeY = svgHeight / innerHeight,
+        size = Math.max(sizeX, sizeY) || 1;
+
+    var realX, realY, scale, shiftX, shiftY;
+
+    realX = 1/size * svgWidth;
+    realY = 1/size * svgHeight;
+
+    if (sizeX < sizeY) {
+//      console.log("Left and Right White Spaces. Do stretch the Width ");
+        shiftY = 0;
+        shiftX = (innerWidth - realX) / 2;
+    } else  {
+//      console.log("Top and Bottom White Spaces. Do reorient, or adopt the Height.");
+        shiftX = 0;
+        shiftY = (innerHeight - realY) / 2;
+    }
+
+    $("#GameChatEditor").attr({x: 864 * realX / svgWidth + shiftX,
+                               y: 504 * realY / svgHeight + shiftY,
+                               width: 198 * realX / svgWidth,
+                               height: 120 * realY / svgHeight});
+
+    $("#OnlineChatEditor").attr({x: 10 * realX / svgWidth + shiftX,
+                               y: 504 * realY / svgHeight + shiftY,
+                               width: 198 * realX / svgWidth,
+                               height: 120 * realY / svgHeight});
+}

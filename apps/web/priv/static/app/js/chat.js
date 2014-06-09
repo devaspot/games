@@ -23,24 +23,6 @@ function onlineHoverOutColor(evt) {
     if (null != name) document.getElementById(name).setAttribute("fill","#DBEBED");
 }
 
-function chatEditor(evt) {
-    var chatContainer = evt.target.getAttribute("xmlns:data");
-    if (evt.keyCode == 13 && evt.metaKey == false) {
-        var e = evt.target;
-        if (e.innerText.trim() != ""){
-            var text = e.innerText.trim().encodeHTML();
-            chatMessage(chatContainer,"100","Maxim",text);
-                ws.send(enc(tuple(atom('client'),
-                    tuple(atom('message'),bin(document.user),bin(chatContainer.substr(5)),bin(text)))));
-            e.innerHTML = '';
-        }
-    } else if (evt.keyCode == 13 && evt.metaKey == true) {
-        document.execCommand('insertText',false, '\n');
-    }
-    var scroll = -1000000;
-    if (null != currentChat) left_scroll = scroll;
-    mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
-}
 
 function mouseWheelHandler(e) {
 
@@ -297,4 +279,23 @@ function initChat()
 
     document.getElementById('Page-1').addEventListener("mousewheel", mouseWheelHandler, false);
 
+}
+
+function chatEditor(evt) {
+    var chatContainer = evt.target.getAttribute("xmlns:data");
+    if (evt.keyCode == 13 && evt.altKey == false) {
+        var e = evt.target;
+        if (e.innerText.trim() != ""){
+            var text = e.innerText.trim().encodeHTML();
+            chatMessage(chatContainer,"100","Maxim",text);
+                ws.send(enc(tuple(atom('client'),
+                    tuple(atom('message'),bin(document.user),bin(chatContainer.substr(5)),bin(text)))));
+            e.innerHTML = '';
+        }
+    } else if (evt.keyCode == 13 && evt.altKey == true) {
+        document.execCommand('insertText',false, '\n');
+    }
+    var scroll = -100000;
+    if (null != currentChat) { left_scroll = scroll; }
+    mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
 }

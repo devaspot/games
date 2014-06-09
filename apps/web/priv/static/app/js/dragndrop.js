@@ -1,10 +1,45 @@
+
 function DragScope(scope) {
 
     function calcShift()
     {
-        sizeX = $svg[0].viewBox.baseVal.width / innerWidth;
-        sizeY = $svg[0].viewBox.baseVal.height / innerHeight;
+        var svgWidth = $svg[0].viewBox.baseVal.width;
+        var svgHeight = $svg[0].viewBox.baseVal.height;
+
+        sizeX = svgWidth / innerWidth;
+        sizeY = svgHeight / innerHeight;
         size = Math.max(sizeX, sizeY) || 1;
+
+        var realX, realY, scale, shiftX, shiftY;
+
+        realX = 1/size * svgWidth;
+        realY = 1/size * svgHeight;
+
+        if (sizeX < sizeY)
+        {
+//            console.log("Left and Right White Spaces. Do stretch the Width ");
+            shiftY = 0;
+            shiftX = 0;//(innerWidth - realX) / 2;
+        }
+        else 
+        {
+//            console.log("Top and Bottom White Spaces. Do reorient, or adopt the Height.");
+            shiftX = 0;
+            shiftY = 0;//(innerHeight - realY) / 2;
+        }
+
+        console.log("width:" + realX +" height:" + realY);
+/*
+        document.getElementById("GameChatEditor").setAttribute("x", 864 * realX / svgWidth + shiftX);
+        document.getElementById("GameChatEditor").setAttribute("y", 504 * realY / svgHeight + shiftY);
+        document.getElementById("GameChatEditor").setAttribute("width", 198 * realX / svgWidth);
+        document.getElementById("GameChatEditor").setAttribute("height", 120 * realY / svgHeight);
+
+        document.getElementById("OnlineChatEditor").setAttribute("x", 10 * realX / svgWidth + shiftX);
+        document.getElementById("OnlineChatEditor").setAttribute("y", 504 * realY / svgHeight + shiftY);
+        document.getElementById("OnlineChatEditor").setAttribute("width", 198 * realX / svgWidth);
+        document.getElementById("OnlineChatEditor").setAttribute("height", 120 * realY / svgHeight);
+*/
     }
 
     function Draggable(root, options)
