@@ -260,8 +260,8 @@ function initChat()
     document.getElementById("Clip-Path-Left-Chat").setAttribute("transform", "translate(0,0)");
 
     document.getElementById("Right-Bar").setAttribute("fill","lightblue");
-    document.getElementById("Left-Bar").setAttribute("fill","lightblue");
     document.getElementById("Right-Bar").setAttribute("xmlns:data","Right-Bar");
+    document.getElementById("Left-Bar").setAttribute("fill","lightblue");
     document.getElementById("Left-Bar").setAttribute("xmlns:data","Left-Bar");
 
     document.getElementById("Right-Bar").onmouseover = barHover;
