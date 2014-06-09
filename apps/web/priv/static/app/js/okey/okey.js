@@ -301,5 +301,7 @@ function SetupRightMenu()
 
     SetupLeftMenu();
     SetupRightMenu();
+    $("#Right-Menu").trigger("click");
+    $("#Left-Menu").trigger("click");
 
 }

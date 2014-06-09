@@ -2,8 +2,8 @@
 // Online User Chat and In-Game Chat
 
 var scrollSensitivity = 0.2;
-var scroll_left = 5;
-var scroll_left_chat = 5;
+var scroll_left = 0;
+var scroll_left_chat = 0;
 var scroll_right = -10000;
 var currentChat = null;
 var user_count = 0;
@@ -26,12 +26,10 @@ function onlineHoverOutColor(evt) {
 function chatEditor(evt) {
     var chatContainer = evt.target.getAttribute("xmlns:data");
     if (evt.keyCode == 13 && evt.metaKey == false) {
-        var e = evt.target; //document.getElementById('edit');
-        console.log(e);
+        var e = evt.target;
         if (e.innerText.trim() != ""){
             var text = e.innerText.trim().encodeHTML();
             chatMessage(chatContainer,"100","Maxim",text);
-//            if (null != currentChat)
                 ws.send(enc(tuple(atom('client'),
                     tuple(atom('message'),bin(document.user),bin(chatContainer.substr(5)),bin(text)))));
             e.innerHTML = '';
@@ -53,7 +51,6 @@ function mouseWheelHandler(e) {
     var leftActive = leftFill == "skyblue";
     var rightActive = rightFill == "skyblue";
     if (!leftActive && !rightActive) return;
-//    console.log(leftActive);
 
     var evt = e;
     var scroll_dy = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
@@ -61,7 +58,7 @@ function mouseWheelHandler(e) {
     var scroll = parseFloat(scroll_dy) + parseFloat(ori);
     var selectedBar = leftActive ? (currentChat == null ? "Online-List" : currentChat) : "Chat";
     var selectedClip = leftActive ? (currentChat == null ? "Clip-Path-Left" : "Clip-Path-Left-Chat") : "Clip-Path-Right";
-    var selectedBarShift = leftActive ? 2 : 857;
+    var selectedBarShift = leftActive ? 0 : 857;
     var limit = parseFloat(document.getElementById(selectedBar).getBBox().height) - 400;
     if (scroll > 5) scroll = 5;
     if (scroll < -limit) scroll = -limit;
@@ -110,7 +107,6 @@ function chatMessage(chatName, id, me, string) {
     textElement.setAttribute("mouseout",hover+"Out(evt);");
     messageElement.setAttribute("onmouseover",hover+"(evt);");
     messageElement.setAttribute("onmouseout",hover+"Out(evt);");
-//    console.log(messageElement);
 }
 
 function chatText(container, id, me, string) {
@@ -120,7 +116,6 @@ function chatText(container, id, me, string) {
         " xmlns='http://www.w3.org/2000/svg' "+
         " font-family='Exo 2' font-size='16' font-weight='normal' fill='"+colors[i]+"'>" +
             string + "</text>";
-//    console.log(html);
     return svg(html);
 }
 
@@ -128,7 +123,7 @@ function showOnlineList(evt)
 {
     document.getElementById("onlineChatEdit").style.display = 'none';
     if (null != currentChat) { document.getElementById(currentChat).style.display = 'none'; }
-    document.getElementById("Online-List").style.display = 'block';
+    document.getElementById("Online-List").style.display = '';
     currentChat = null;
 
     scroll_left = 0;
@@ -215,8 +210,6 @@ function openChat(evt) {
     onlineHover();
     mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
     onlineHoverOut();
-
-//    document.getElementById("users-online-text").textContent = currentChat;
 }
 
 function create_multiline(target) {
@@ -254,4 +247,57 @@ function create_multiline(target) {
             text_element.appendChild(tspan_element);
         }
     }
+}
+
+function initChat()
+{
+
+    var inGameChat = '<g id="Chat"         y="0" clip-path="url(#myClip2)" transform="translate(857.000000, 107.000000)" xmlns="http://www.w3.org/2000/svg" />';
+    var onlineList = '<g id="Online-List"  y="0" clip-path="url(#myClip1)" transform="translate(1.000000, 107.000000)" xmlns="http://www.w3.org/2000/svg" />';
+    var onlineChat = '<g id="Online-Chat"  y="0" clip-path="url(#myClip3)" transform="translate(1.000000, 107.000000)" xmlns="http://www.w3.org/2000/svg" />';
+
+    var page = document.getElementById("Kakaranet-12-maxim");
+    var settings = document.getElementById("Settings");
+
+    page.insertBefore(svg(inGameChat),settings);
+    page.insertBefore(svg(onlineList),settings);
+    page.insertBefore(svg(onlineChat),settings);
+
+
+    var clipPath1 = svg('<clipPath id="myClip1"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left" x="0" y="0" width="216" height="400"/></clipPath>');
+    var clipPath2 = svg('<clipPath id="myClip2"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Right" x="0" y="0" width="216" height="400"/></clipPath>');
+    var clipPath3 = svg('<clipPath id="myClip3"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left-Chat" x="0" y="0" width="216" height="400"/></clipPath>');
+
+    document.getElementsByTagName('defs').item(0).appendChild(clipPath1);
+    document.getElementsByTagName('defs').item(0).appendChild(clipPath2);
+    document.getElementsByTagName('defs').item(0).appendChild(clipPath3);
+
+     document.getElementById("Online-List").setAttribute("clip-path","url(#myClip1)");
+     document.getElementById("Chat").setAttribute("clip-path","url(#myClip2)");
+     document.getElementById("Online-Chat").setAttribute("clip-path","url(#myClip1)");
+
+    document.getElementById("Clip-Path-Left").setAttribute("transform", "translate(0,0)");
+    document.getElementById("Clip-Path-Right").setAttribute("transform", "translate(0,0)");
+    document.getElementById("Clip-Path-Left-Chat").setAttribute("transform", "translate(0,0)");
+
+    document.getElementById("Right-Bar").setAttribute("fill","lightblue");
+    document.getElementById("Left-Bar").setAttribute("fill","lightblue");
+    document.getElementById("Right-Bar").setAttribute("xmlns:data","Right-Bar");
+    document.getElementById("Left-Bar").setAttribute("xmlns:data","Left-Bar");
+
+    document.getElementById("Right-Bar").onmouseover = barHover;
+    document.getElementById("Right-Bar").onmouseout = barHoverOut;
+    document.getElementById("Left-Bar").onmouseover = onlineHover;
+    document.getElementById("Left-Bar").onmouseout = onlineHoverOut;
+
+    document.getElementById('onlineChatEdit').setAttribute("contentEditable","true");
+    document.getElementById('onlineChatEdit').onkeydown = chatEditor;
+    document.getElementById("onlineChatEdit").style.display = 'none';
+
+    document.getElementById('edit').setAttribute("contentEditable","true");
+    document.getElementById('edit').onkeydown = chatEditor;
+    document.getElementById("edit").style.display = '';
+
+    document.getElementById('Page-1').addEventListener("mousewheel", mouseWheelHandler, false);
+
 }

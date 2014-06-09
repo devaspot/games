@@ -18,7 +18,7 @@ body {
     user-select: none;          
 }
 
-.svg { width: auto; height: 100%; }
+svg { width: auto; height: 100%; }
 text { cursor: default; }
 .card text { cursor: inherit; }
 @media all and (max-width: 1311px) { .svg { width: 100%; height: auto; } }

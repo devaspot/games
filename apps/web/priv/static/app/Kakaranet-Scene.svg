@@ -466,13 +466,14 @@
     <foreignObject x="864" y="504" width="198" height="120" onmouseover="barHover(evt);" onmouseout="barHoverOut(evt);">
         <div xmlns:data="Chat" id="edit"
           style="padding:4px;background-color:#FFF687;color:#3B5998;font-family:'Exo 2';font-size:16px;"
-        contentEditable="true">Write here some text.</div>
+        contentEditable="true" xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div>
     </foreignObject>
 
     <foreignObject x="10" y="504" width="198" height="120" onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);">
         <div xmlns:data="Chat+xxx" id="onlineChatEdit"
           style="padding:4px;background-color:#FFF687;color:#3B5998;font-family:'Exo 2';font-size:16px;"
-        contentEditable="true">Write here some text.</div>
+        contentEditable="true" xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div>
     </foreignObject>
+
 
 </svg>
