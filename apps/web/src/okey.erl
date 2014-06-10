@@ -137,7 +137,8 @@ body2() ->
     #button   { id = pause,      body = "Pause",       postback = pause},
     #button   { id = info,       body = "PlayerInfo",  postback = player_info} ].
 
-already_online(Pid) -> [ Pid ! {user_online,User} || {_,_,{_,User}} <- game:online() ].
+already_online(Pid) ->
+    [ Pid ! {user_online,User} || {_,_,{_,User}} <- game:online() ].
 
 event(terminate) -> 
     User = user(),
@@ -184,8 +185,8 @@ event(attach) ->
     wf:info(?MODULE,"User Attach: ~p",[User]),
     gproc:set_value({p,l,broadcast},{wf:peer(?REQ),User}),
     wf:send(broadcast,{user_online,User}),
-    wf:info(?MODULE,"Games Online: ~p",[game:online()]),
     send_roster(),
+    wf:info(?MODULE,"Games Online: ~p",[game:online()]),
     put(okey_im, User#user.id),
     wf:wire(wf:f("document.user = '~s';",[User#user.id])),
     wf:info(?MODULE,"Session User: ~p",[User]),

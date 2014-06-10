@@ -17,6 +17,7 @@ function RosterHandlers(scope) {
         var msg = e.detail, id = msg[0], name = msg[1], surname = msg[2];
         if (null != document.getElementById(id)) removeOnlineUser(id);
         addOnlineUser(id,name+" "+surname,"insertTop");
+        showOnlineList();
     });
 
     scope.apiProvider.on("offline", function (x) {
