@@ -45,9 +45,10 @@ function CardScope(scope) {
         render: function() {
             null == this.value && null == this.color ? (this.$circle.hide(), this.$text.hide()) : 0 == this.value ? (this.$circle.hide(), 
             this.$text.show().attr({
-                fill: this.color,
-                y: 36
-            }).text("*")) : (this.$circle.show().attr("fill", this.color), this.$text.show().attr("fill", this.color).text(this.value));
+                fill: scope.CARD_COLORS[1],
+                "font-size": "26pt",
+                y: 42
+            }).text("❦")) : (this.$circle.show().attr("fill", this.color), this.$text.show().attr("fill", this.color).text(this.value));
         },
         drag: function() {
             this.dragHandler = new scope.Draggable(this.$el), this.dragHandler.owner = this;
