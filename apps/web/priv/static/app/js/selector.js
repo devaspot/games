@@ -10,6 +10,8 @@ var scope = {
 
 var $ = function(_undefind)
 {
+    var isIE = window.navigator.msPointerEnabled
+
     function Selector(elements) {
         this.length = elements.length;
         for (var i = 0, l = this.length; l > i; i++) this[i] = elements[i];
@@ -33,7 +35,19 @@ var $ = function(_undefind)
     fn.each = function(callback) { for (var i = 0, l = this.length; l > i; i++) callback(this[i], i); return this; },
     fn.on = function(eventName, eventHandler) { return this.each(function(el) { el.addEventListener(eventName, eventHandler); }); },
     fn.off = function(eventName, eventHandler) { return this.each(function(el) { el.removeEventListener(eventName, eventHandler); }); },
-    fn.trigger = function(eventName, data, raw) { return this.each(function(el) { event = new CustomEvent(eventName, data), el.dispatchEvent(event); }); },
+    fn.trigger = function(eventName, data, raw) { 
+        return this.each(function(el) {
+            if(isIE){
+                var event = document.createEvent("CustomEvent");
+                event.initCustomEvent(eventName, false, false, data);
+                el.dispatchEvent(event)
+            }
+            else {
+                var event = new CustomEvent(eventName, data) 
+                el.dispatchEvent(event)
+            }
+        }); 
+    },
     fn.show = function() { return this.css("display", "block"); },
     fn.hide = function() { return this.css("display", "none"); },
     fn.text = function(text) { return null != text ? this.each(function(el) { el.textContent = text; }) : this.length ? this[0].textContent : _undefind; },
