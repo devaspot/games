@@ -35,7 +35,7 @@ function mouseWheelHandler(e) {
     if (!leftActive && !rightActive) return;
 
     var evt = e;
-    var scroll_dy = evt.detail ? evt.detail * scrollSensitivity : evt.wheelDelta * scrollSensitivity;
+    var scroll_dy = evt.detail ? -evt.detail * scrollSensitivity * 100 : evt.wheelDelta * scrollSensitivity;
     var ori = leftActive ? (currentChat == null ? scroll_left : scroll_left ) : scroll_right;
     var scroll = parseFloat(scroll_dy) + parseFloat(ori);
     var selectedBar = leftActive ? (currentChat == null ? "Online-List" : currentChat) : "Chat";
@@ -277,9 +277,11 @@ function initChat()
     document.getElementById('edit').onkeydown = chatEditor;
     document.getElementById("edit").style.display = '';
 
-    document.getElementById('Page-1').addEventListener("mousewheel", mouseWheelHandler, false);
+    document.getElementById('Page-1').addEventListener(mousewheelevt, mouseWheelHandler, false);
 
 }
+
+var mousewheelevt=(/Firefox/i.test(navigator.userAgent))? "DOMMouseScroll" : "mousewheel";
 
 function chatEditor(evt) {
     var chatContainer = evt.target.getAttribute("xmlns:data");
