@@ -13,9 +13,10 @@
 		<string>Exo2-Regular</string>
 		<string>Exo2-Bold</string>
 		<string>LucidaGrande-Bold</string>
+		<string>MinionPro-Regular</string>
 	</array>
 	<key>length</key>
-	<integer>2706947</integer>
+	<integer>2851892</integer>
 	<key>version</key>
 	<integer>37</integer>
 </dict>

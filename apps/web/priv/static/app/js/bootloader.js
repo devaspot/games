@@ -63,6 +63,15 @@ function PatchSVG()
             document.getElementById(x).style.cursor = "pointer";
             document.getElementById(x).onclick = showOnlineList; });
 
+    var rulesOnClick = [
+        "Rules",
+        "Rules-Text",
+        "Rules-Rectangle" ];
+
+       rulesOnClick.map(function(x) { 
+            document.getElementById(x).style.cursor = "pointer";
+            document.getElementById(x).onclick = showRules; });
+
     Core(ControllerScope);
     Core(DragScope);
     Core(DropScope);
@@ -111,6 +120,23 @@ $.load('Kakaranet-Scene.svg', function(x) {
         StartApp(); 
     });
 });
+
+function showRules()
+{
+    $.load("svg/Okey-Rules.svg", function(h) {
+        var rules = document.getElementById("Okey-Rules");
+        if (null == rules) {
+            var rulesElement = svg(h);
+            document.getElementById("Kakaranet-12-maxim").appendChild(rulesElement);
+            document.getElementById("Okey-Rules").setAttribute('onclick', 'onRulesClose(evt)');
+        }
+        rules.style.display = 'block';
+    });
+}
+
+function onRulesClose(evt) {
+    document.getElementById('Okey-Rules').style.display = 'none';
+}
 
 function initEditorsSafari()
 {

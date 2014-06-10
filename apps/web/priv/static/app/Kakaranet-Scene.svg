@@ -378,32 +378,38 @@
                 <rect id="Shape" x="0" y="0" width="40" height="60" rx="8"></rect>
             </g>
             <rect id="Left-Bar" opacity="0.64" fill="#FFFFFF" sketch:type="MSShapeGroup" x="2" y="91" width="213" height="456" rx="5"></rect>
-            <g id="Have-8-Tashes" transform="translate(665.000000, 612.000000)">
+            <g id="Have-8-Tashes" transform="translate(648.000000, 614.000000)">
                 <rect id="Rectangle" fill="#48AF5E" sketch:type="MSShapeGroup" x="0" y="0" width="40" height="35" rx="5"></rect>
                 <text id="8" fill="#FFFFFF" sketch:type="MSTextLayer" transform="translate(19.000000, 16.000000) scale(-1, 1) translate(-19.000000, -16.000000) " font-family="Exo 2" font-size="17" font-weight="normal" sketch:alignment="middle">
                     <tspan x="13.8405" y="23">8</tspan>
                 </text>
             </g>
             <rect id="Right-Bar" opacity="0.762360075" fill="#FFFFFF" sketch:type="MSShapeGroup" x="856" y="91" width="214" height="456" rx="5"></rect>
-            <g id="Okey" transform="translate(712.000000, 612.000000)">
+            <g id="Okey" transform="translate(695.000000, 614.000000)">
                 <rect id="Rectangle" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="84" height="35" rx="5"></rect>
                 <text fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="17" font-weight="normal">
                     <tspan x="24.1611328" y="21.5">Okey</tspan>
                 </text>
             </g>
-            <g id="Settings" transform="translate(482.000000, 613.000000)" sketch:type="MSShapeGroup">
+            <g id="Settings" transform="translate(465.000000, 615.000000)" sketch:type="MSShapeGroup">
                 <rect id="Rectangle-3" fill="#FFFFFF" x="0" y="0" width="37" height="35" rx="5"></rect>
                 <path d="M27.789,14.801 L24.976,14.281 C24.703,14.23 24.607,14.002 24.761,13.77 L26.376,11.377 C26.529,11.148 26.496,10.797 26.3,10.602 L24.753,9.053 C24.556,8.857 24.207,8.824 23.978,8.98 L21.582,10.592 C21.353,10.746 21.123,10.652 21.074,10.379 L20.554,7.566 C20.503,7.293 20.236,7.068 19.958,7.068 L17.767,7.068 C17.49,7.068 17.222,7.293 17.171,7.566 L16.652,10.379 C16.601,10.65 16.374,10.746 16.142,10.592 L13.751,8.98 C13.521,8.824 13.173,8.857 12.974,9.053 L11.427,10.602 C11.23,10.797 11.197,11.148 11.351,11.377 L12.966,13.77 C13.119,14 13.025,14.23 12.753,14.281 L9.939,14.801 C9.666,14.85 9.443,15.117 9.443,15.395 L9.443,17.586 C9.443,17.863 9.666,18.131 9.939,18.182 L12.753,18.701 C13.025,18.752 13.121,18.98 12.966,19.211 L11.351,21.604 C11.197,21.834 11.23,22.184 11.427,22.379 L12.974,23.928 C13.173,24.125 13.521,24.158 13.751,24.002 L16.144,22.389 C16.373,22.234 16.603,22.33 16.654,22.604 L17.173,25.418 C17.224,25.689 17.49,25.914 17.769,25.914 L19.96,25.914 C20.236,25.914 20.505,25.689 20.556,25.418 L21.076,22.602 C21.125,22.331 21.353,22.234 21.584,22.389 L23.98,24.002 C24.209,24.158 24.558,24.125 24.755,23.928 L26.3,22.38 C26.496,22.183 26.529,21.833 26.376,21.606 L24.761,19.21 C24.605,18.981 24.701,18.751 24.976,18.7 L27.789,18.181 C28.062,18.13 28.285,17.864 28.285,17.585 L28.285,15.394 C28.285,15.117 28.063,14.85 27.789,14.801 M18.862,19.902 C16.983,19.902 15.458,18.377 15.458,16.498 C15.458,14.619 16.983,13.094 18.862,13.094 C20.743,13.094 22.268,14.619 22.268,16.498 C22.268,18.377 20.742,19.902 18.862,19.902" id="Shape" fill="#517ECE"></path>
             </g>
-            <g id="Pause" transform="translate(438.000000, 613.000000)" sketch:type="MSShapeGroup">
+            <g id="Pause" transform="translate(421.000000, 615.000000)" sketch:type="MSShapeGroup">
                 <rect id="Rectangle" fill="#FFFFFF" x="0" y="0" width="37" height="35" rx="5"></rect>
                 <path d="M16.281,10.115 L13.473,10.115 C13.131,10.115 12.852,10.391 12.852,10.736 L12.852,24.244 C12.852,24.586 13.131,24.865 13.473,24.865 L16.282,24.865 C16.627,24.865 16.903,24.586 16.903,24.244 L16.903,10.736 C16.903,10.393 16.625,10.115 16.281,10.115" id="Shape" fill="#517ECE"></path>
                 <path d="M23.975,10.115 L21.166,10.115 C20.823,10.115 20.547,10.391 20.547,10.736 L20.547,24.244 C20.547,24.586 20.823,24.865 21.166,24.865 L23.975,24.865 C24.319,24.865 24.596,24.586 24.596,24.244 L24.596,10.736 C24.596,10.393 24.319,10.115 23.975,10.115" id="Shape" fill="#517ECE"></path>
             </g>
-            <g id="Point-Table" transform="translate(308.000000, 613.000000)">
+            <g id="Point-Table" transform="translate(291.000000, 615.000000)">
                 <rect id="Rectangle" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="123" height="35" rx="5"></rect>
                 <text fill="#517ECE" sketch:type="MSTextLayer" font-family="Exo 2" font-size="17" font-weight="normal">
-                    <tspan x="21.5935059" y="24">Point Table</tspan>
+                    <tspan x="21.5935059" y="23">Point Table</tspan>
+                </text>
+            </g>
+            <g id="Rules" transform="translate(511.000000, 615.000000)">
+                <rect id="Rules-Rectangle" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="74" height="35" rx="5"></rect>
+                <text id="Rules-Text" fill="#517ECE" sketch:type="MSTextLayer" font-family="Exo 2" font-size="17" font-weight="normal">
+                    <tspan x="14.5935059" y="23">Rules</tspan>
                 </text>
             </g>
             <g id="Create" transform="translate(864.000000, 526.000000)" sketch:type="MSShapeGroup">
@@ -460,7 +466,7 @@
         <path d="M717.82681,16 L698.143994,16 C695.854843,16 694,17.8548426 694,20.1430683 L694,50.1835548 C694,52.4717805 695.854843,54.3266231 698.143994,54.3266231 L717.82681,54.3266231 C720.115036,54.3266231 721.969878,52.4717805 721.969878,50.1835548 L721.969878,20.1430683 C721.968952,17.8548426 720.115036,16 717.82681,16 L717.82681,16 L717.82681,16 Z M707.985865,41.0399123 C704.737344,41.0399123 702.108338,38.4072025 702.108338,35.1623855 C702.108338,31.9147904 704.737344,29.2848588 707.985865,29.2848588 C711.230682,29.2848588 713.863392,31.9147904 713.863392,35.1623855 C713.863392,38.4090546 711.230682,41.0399123 707.985865,41.0399123 L707.985865,41.0399123 L707.985865,41.0399123 Z" id="Okey-Tash-Logo-3" fill="#F6A623" sketch:type="MSShapeGroup"></path>
         <path d="M754.82681,16 L735.143994,16 C732.854843,16 731,17.8548426 731,20.1430683 L731,50.1835548 C731,52.4717805 732.854843,54.3266231 735.143994,54.3266231 L754.82681,54.3266231 C757.115036,54.3266231 758.969878,52.4717805 758.969878,50.1835548 L758.969878,20.1430683 C758.968952,17.8548426 757.115036,16 754.82681,16 L754.82681,16 L754.82681,16 Z M744.985865,41.0399123 C741.737344,41.0399123 739.108338,38.4072025 739.108338,35.1623855 C739.108338,31.9147904 741.737344,29.2848588 744.985865,29.2848588 C748.230682,29.2848588 750.863392,31.9147904 750.863392,35.1623855 C750.863392,38.4090546 748.230682,41.0399123 744.985865,41.0399123 L744.985865,41.0399123 L744.985865,41.0399123 Z" id="Okey-Tash-Logo-4" fill="#517ECE" sketch:type="MSShapeGroup"></path>
     </g>
-    
+
     <foreignObject id="GameChatEditor" x="864" y="504" width="198" height="120" onmouseover="barHover(evt);" onmouseout="barHoverOut(evt);">
         <div xmlns:data="Chat" id="edit" contentEditable="true"
           style="padding:4px;background-color:#FFF687;color:#3B5998;font-family:'Exo 2';font-size:16px;"

@@ -5,7 +5,7 @@ var scope = {
     CARD_SMALL_SOURCE: "svg/Card-Small.svg",
     CARD_COLORS: [ "#CE290F", "#3B5998", "#48AF5E", "#F8E81C" ],
     SKIN_NAMES: [ "Alina", "Gabrielo", "Mustafa" ],
-    version: 0906201402
+    version: 1006201401
 };
 
 var $ = function(_undefind)
