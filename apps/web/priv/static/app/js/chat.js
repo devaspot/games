@@ -71,7 +71,7 @@ function chatMessage(chatName, id, me, string) {
     var y2 = textElement.getBBox().height + 5;
     var box = "<path xmlns:data='"+container+"' xmlns='http://www.w3.org/2000/svg' d='M"+x1+","+y1+
                 " L"+x2+","+y1+
-            ((me == "Maxim") ?
+            ((me == document.user) ?
                 (" L"+x2+","+parseFloat(y2-7)+
                 " L"+parseFloat(x2+7)+","+y2+
                 " L"+x1+","+y2)
@@ -79,7 +79,7 @@ function chatMessage(chatName, id, me, string) {
                 (" L"+x2+","+y2+
                 " L"+0+","+y2+
                 " L"+x1+","+parseFloat(y2-7)))
-        + " L"+x1+","+y1+"' fill='"+colors[me=="Maxim"?1:0]+"'></path>";
+        + " L"+x1+","+y1+"' fill='"+colors[me==document.user?1:0]+"'></path>";
     var boxElement = svg(box);
     textElement.setAttribute("xmlns:data",container)
     messageElement.insertBefore(boxElement,textElement);
@@ -287,13 +287,18 @@ function chatEditor(evt) {
         var e = evt.target;
         if (e.innerText.trim() != ""){
             var text = e.innerText.trim().encodeHTML();
-            chatMessage(chatContainer,"100","Maxim",text);
+            console.log("OutputMessage " + utf8toByteArray(text));
+            chatMessage(chatContainer,"100",document.user,text);
                 ws.send(enc(tuple(atom('client'),
-                    tuple(atom('message'),bin(document.user),bin(chatContainer.substr(5)),bin(text)))));
+                    tuple(atom('message'),
+                          bin(document.user),
+                          bin(document.names),
+                          bin(chatContainer.substr(5)),
+                          utf8toByteArray(text)))));
             e.innerHTML = '';
         }
     } else if (evt.keyCode == 13 && evt.altKey == true) {
-        document.execCommand('insertText',false, '\n');
+//        document.execCommand('insertText',false, '\n');
     }
     var scroll = -100000;
     if (null != currentChat) { left_scroll = scroll; }

@@ -188,7 +188,8 @@ event(attach) ->
     send_roster(),
     wf:info(?MODULE,"Games Online: ~p",[game:online()]),
     put(okey_im, User#user.id),
-    wf:wire(wf:f("document.user = '~s';",[User#user.id])),
+    wf:wire(wf:f("document.user = '~s';document.names = '~s';document.surnames = '~s';",
+                        [User#user.id,User#user.names,User#user.surnames])),
     wf:info(?MODULE,"Session User: ~p",[User]),
     GameId = case wf:q(games_ids) of undefined -> ?GAMEID; Res -> Res end,
     put(okey_game_id, GameId),
@@ -251,9 +252,9 @@ event(pause) ->
 
 %event({binary,M}) -> {ok,<<"Hello">>};
 
-event({client,{message,From,To,Message}}) ->
-    wf:info(?MODULE,"Chat Message from ~p to ~p:~n ~p~n",[From,To,Message]),
-    wf:send(To,{server,{chat_message,From,To,Message}}),
+event({client,{message,From,Name,To,Message}}) ->
+    wf:info(?MODULE,"Chat Message from ~p(~p) to ~p:~n ~p~n",[From,Name,To,Message]),
+    wf:send(To,{server,{chat_message,{From,Name},To,unicode:characters_to_binary(Message)}}),
     ok;
 
 event({client,Message}) ->

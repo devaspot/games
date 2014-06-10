@@ -38,6 +38,19 @@ function RosterHandlers(scope) {
         showOnlineList();
     });
 
+    scope.apiProvider.on("chat_message", function (x) {
+        var e = {detail: x.detail.json, raw: x.detail.bert};
+        var from = dec(e.raw).value[0][1].value[0][0].value,
+            names = dec(e.raw).value[0][1].value[0][1].value,
+            to = dec(e.raw).value[0][2].value,
+            message = dec(e.raw).value[0][3];
+        console.log(message);
+        chatMessage(currentChat,"1",from==document.user?"Self":from,/*names+":\n"+*/message);
+        onlineHover();
+        mouseWheelHandler({'detail':-10000,'wheelDelta':-10000});
+        onlineHoverOut();
+    });
+
     scope.apiProvider.on("roster_group", function (x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         var list = dec(e.raw).value[0][1];
