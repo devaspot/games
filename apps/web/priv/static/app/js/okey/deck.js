@@ -177,8 +177,9 @@ function DeckScope(scope) {
 
         hand: function(discarded) {
             return result = [ [], [] ], this.each(function(card, i, j) {
-                card && card != discarded && result[j].push(tuple(atom("OkeyPiece"), scope.CARD_COLORS.indexOf(card.color) + 1, card.value));
-            }), result;
+                if (null == card || card == discarded) result[j].push(atom('null'));
+                else result[j].push(tuple(atom("OkeyPiece"),
+                        scope.CARD_COLORS.indexOf(card.color) + 1, card.value)); }), result;
         },
 
         dir: function() {

@@ -333,6 +333,7 @@ check_reveal([TopRow, BottomRow], Gosterge) ->
                       false_okey -> Okey;
                        _ -> E
                   end || E <- FlatList],
+    gas:info(?MODULE,"check_reveal/2 ~n    ~p ~p~n",[Normalized, Gosterge]), 
     Sets = split_by_delimiter(null, Normalized),
     ProperHand = lists:all(fun(S) -> is_set(S) orelse is_run(S) end, Sets),
     Pairs = lists:all(fun(S) -> is_pair(S) end, Sets),

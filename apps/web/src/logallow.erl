@@ -6,6 +6,7 @@ log_modules() -> [
     n2o_bullet,
     game_session,
     bullet_handler,
+    okey_scoring,
 %    n2o_secret,
 %    js_session,
     okey
