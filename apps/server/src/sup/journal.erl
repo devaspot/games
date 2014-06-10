@@ -54,7 +54,7 @@ handle_cast({protocol_event, UserId,
            event = EventName,
            game_event = Event},
 
-    gas:info(?MODULE, "ProtocolEvent: ~p", [ProtocolEvent]),
+%    gas:info(?MODULE, "ProtocolEvent: ~p", [ProtocolEvent]),
 
     try kvs:add(ProtocolEvent)
     catch E:R ->
