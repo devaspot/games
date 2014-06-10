@@ -128,7 +128,9 @@ function showRules()
         if (null == rules) {
             var rulesElement = svg(h);
             document.getElementById("Kakaranet-12-maxim").appendChild(rulesElement);
-            document.getElementById("Okey-Rules").setAttribute('onclick', 'onRulesClose(evt)');
+            rules = document.getElementById("Okey-Rules");
+            rules.setAttribute('transform', 'translate(210,86)');
+            rules.setAttribute('onclick', 'onRulesClose(evt)');
         }
         rules.style.display = 'block';
     });
