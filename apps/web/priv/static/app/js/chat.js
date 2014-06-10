@@ -285,8 +285,9 @@ function chatEditor(evt) {
     var chatContainer = evt.target.getAttribute("xmlns:data");
     if (evt.keyCode == 13 && evt.altKey == false) {
         var e = evt.target;
-        if (e.innerText.trim() != ""){
-            var text = e.innerText.trim().encodeHTML();
+        var text = e.textContent == null?"":e.textContent.trim();
+        if (text != ""){
+            text = text.encodeHTML();
             chatMessage(chatContainer,"100",document.user,text);
                 ws.send(enc(tuple(atom('client'),
                     tuple(atom('message'),
