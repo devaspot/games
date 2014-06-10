@@ -6,7 +6,7 @@ function OkeyApiProviderScope(scope) {
         options = options || {};
         this.url = options.url;
         this.gameId = options.gameId;
-        this.proxies = [ "init", "handleMessage", "actionTake" ], 
+        this.proxies = [ "init", "handleMessage", "actionTake" ];
         this.proxyAll();
         this.socket = new WebSocket(this.url);
         ws = this.socket;
