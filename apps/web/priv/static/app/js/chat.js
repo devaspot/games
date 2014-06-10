@@ -67,8 +67,6 @@ function chatMessage(chatName, id, me, string) {
     var messageElement = svg(html);
     messageElement.appendChild(textElement);
     document.getElementById(chatName).appendChild(messageElement);
-    console.log("chatMessage:70 textElement=");
-    console.log(textElement);
     create_multiline(textElement);
     var y2 = textElement.getBBox().height + 5;
     var box = "<path xmlns:data='"+container+"' xmlns='http://www.w3.org/2000/svg' d='M"+x1+","+y1+
@@ -100,7 +98,6 @@ function chatText(container, id, me, string) {
         " xmlns='http://www.w3.org/2000/svg' "+
         " font-family='Exo 2' font-size='16' font-weight='normal' fill='"+colors[i]+"'>" +
             string + "</text>";
-    console.log(html);
     return svg(html);
 }
 
@@ -290,7 +287,6 @@ function chatEditor(evt) {
         var e = evt.target;
         if (e.innerText.trim() != ""){
             var text = e.innerText.trim().encodeHTML();
-            console.log("OutputMessage " + utf8toByteArray(text));
             chatMessage(chatContainer,"100",document.user,text);
                 ws.send(enc(tuple(atom('client'),
                     tuple(atom('message'),

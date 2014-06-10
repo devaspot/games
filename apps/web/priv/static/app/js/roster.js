@@ -44,7 +44,6 @@ function RosterHandlers(scope) {
             names = dec(e.raw).value[0][1].value[0][1].value,
             to = dec(e.raw).value[0][2].value,
             message = dec(e.raw).value[0][3].value;
-        console.log("Income");
         chatMessage(currentChat,"1",from==document.user?"Self":from,utf8decode(message).encodeHTML());
         onlineHover();
         mouseWheelHandler({'detail':-10000,'wheelDelta':-10000});
