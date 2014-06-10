@@ -1,7 +1,7 @@
--module(game_log).
+-module(journal).
 -behaviour(gen_server).
 -include_lib("kvs/include/kvs.hrl").
--include_lib("db/include/game_log.hrl").
+-include_lib("db/include/journal.hrl").
 -include_lib("server/include/game_state.hrl").
 -include_lib("server/include/requests.hrl").
 -compile(export_all).
@@ -40,7 +40,7 @@ handle_cast({protocol_event, UserId,
 
     Key = {GameKind,GameMode,Speed,Rounds,GameId},
 
-    EventLogEntry = 
+    ProtocolEvent = 
         #protocol_event{
            user = UserId,
            feed_id = Key,
@@ -54,12 +54,15 @@ handle_cast({protocol_event, UserId,
            event = EventName,
            game_event = Event},
 
-    try kvs:add(EventLogEntry)
+    gas:info(?MODULE, "ProtocolEvent: ~p", [ProtocolEvent]),
+
+    try kvs:add(ProtocolEvent)
     catch E:R ->
         gas:info(?MODULE,"kvs:add ERROR ~p",[{E,R}]),
-        gas:info(?MODULE, "Event Log: ~p", [EventLogEntry]),
+        gas:info(?MODULE, "Errored Protocol Event: ~p", [ProtocolEvent]),
         ok end,
-    update_container_stats(UserId, EventLogEntry,#protocol_event.event,GameState),
+
+    update_container_stats(UserId, ProtocolEvent,#protocol_event.event,GameState),
 
     {noreply, State};
 handle_cast({update_stats, User, Event, Pos, GameState}, State) ->

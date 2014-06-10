@@ -15,7 +15,7 @@
 -include_lib("server/include/game_okey.hrl").
 -include_lib("server/include/game_state.hrl").
 -include_lib("server/include/requests.hrl").
--include_lib("db/include/game_log.hrl").
+-include_lib("db/include/journal.hrl").
 
 %% --------------------------------------------------------------------
 %% External exports
@@ -61,7 +61,7 @@
 -define(SEATS_NUM, 4).
 -define(RELAY, relay).
 -define(DESK, okey_desk).
--define(GAME_STATS, game_log).
+-define(GAME_STATS, journal).
 -define(SCORING, okey_scoring).
 
 %% ====================================================================

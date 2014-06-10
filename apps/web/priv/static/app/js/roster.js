@@ -17,7 +17,7 @@ function RosterHandlers(scope) {
         var msg = e.detail, id = msg[0], name = msg[1], surname = msg[2];
         if (null != document.getElementById(id)) removeOnlineUser(id);
         addOnlineUser(id,name+" "+surname,"insertTop");
-        showOnlineList();
+        if (currentChat == null) showOnlineList();
     });
 
     scope.apiProvider.on("offline", function (x) {
@@ -35,7 +35,7 @@ function RosterHandlers(scope) {
 
     scope.apiProvider.on("roster_end", function (x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        showOnlineList();
+        if (currentChat == null) showOnlineList();
     });
 
     scope.apiProvider.on("chat_message", function (x) {

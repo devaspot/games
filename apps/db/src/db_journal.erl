@@ -1,6 +1,6 @@
--module(db_game_log).
+-module(db_journal).
 -include_lib("kvs/include/metainfo.hrl").
--include_lib("db/include/game_log.hrl").
+-include_lib("db/include/journal.hrl").
 -compile(export_all).
 
 metainfo() ->

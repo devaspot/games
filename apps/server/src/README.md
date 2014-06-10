@@ -87,7 +87,7 @@ Each tournaments and games are driven by supervisors. Also Game Server has game 
 serices along with auth token sever which are also under supervision.
 
     ├── sup
-    │   ├── game_log.erl            persist game protocol statistics in KV store
+    │   ├── journal.erl             persist game protocol statistics in KV store
     │   ├── id_generator.erl        unique ids
     │   ├── lucky_sup.erl           lucky games supervisor
     │   ├── okey_sup.erl            okey pre-created games

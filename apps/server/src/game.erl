@@ -2,7 +2,7 @@
 -author('Maxim Sokhatsky <maxim@synrc.com>').
 -compile(export_all).
 -include_lib("server/include/requests.hrl").
--include_lib("db/include/game_log.hrl").
+-include_lib("db/include/journal.hrl").
 -include_lib("db/include/table.hrl").
 -include_lib("db/include/tournaments.hrl").
 -include_lib("db/include/scoring.hrl").

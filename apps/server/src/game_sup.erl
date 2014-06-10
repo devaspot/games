@@ -19,7 +19,7 @@ init([]) ->
     Shutdown = 2000,
     IdGen = {id_generator, {id_generator, start_link, []},  Restart, Shutdown, worker, [id_generator]},
     AuthServer = {auth_server, {auth_server, start_link, []}, Restart, Shutdown, worker, [auth_server]},
-    GameLog = {game_log, {game_log, start_link, []}, Restart, Shutdown, worker, [game_log]},
+    GameLog = {journal, {journal, start_link, []}, Restart, Shutdown, worker, [journal]},
     TavlaSup = {tavla_sup, {tavla_sup, start_link, []}, Restart, Shutdown, supervisor, [tavla_sup]},
     OkeySup = {okey_sup, {okey_sup, start_link, []}, Restart, Shutdown, supervisor, [okey_sup]},
     LuckySup = {lucky_sup, {lucky_sup, start_link, []}, Restart, Shutdown, supervisor, [lucky_sup]},

@@ -7,7 +7,7 @@ log_modules() -> [
     game_session,
     bullet_handler,
     okey_scoring,
-    game_log,
+    journal,
 %    n2o_secret,
 %    js_session,
     okey

@@ -1,5 +1,5 @@
--ifndef(GAME_LOG_HRL).
--define(GAME_LOG_HRL, "game_log.hrl").
+-ifndef(JOURNAL_HRL).
+-define(JOURNAL_HRL, "journal.hrl").
 
 -include_lib("kvs/include/kvs.hrl").
 -define(LOG_HEADER, game_id, date, time, user, module, type, speed, rounds).

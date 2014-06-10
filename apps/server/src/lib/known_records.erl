@@ -1,7 +1,7 @@
 -module(known_records).
 
 -include("requests.hrl").
--include_lib("db/include/game_log.hrl"). 
+-include_lib("db/include/journal.hrl"). 
 -include("game_okey.hrl").
 -include("game_tavla.hrl").
 
