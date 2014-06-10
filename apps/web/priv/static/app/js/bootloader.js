@@ -60,6 +60,7 @@ function PatchSVG()
         "Users-Online-Number" ];
 
        onlineListOnClick.map(function(x) { 
+            document.getElementById(x).style.cursor = "pointer";
             document.getElementById(x).onclick = showOnlineList; });
 
     Core(ControllerScope);
