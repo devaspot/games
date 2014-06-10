@@ -58,7 +58,7 @@ function CardScope(scope) {
             return Math.round(pos.left + width / 2);
         },
         toggle: function(e) {
-            e.stopPropagation(), selStart ? this.nearSelectGroup() ? this.selected && !this.betweenSelected() ? this.uncheck() : this.check() : (Card.uncheckAll(), 
+            e.stopPropagation(), selStart && deck.contains(this) ? this.nearSelectGroup() ? this.selected && !this.betweenSelected() ? this.uncheck() : this.check() : (Card.uncheckAll(), 
             this.check()) : ~Card.selected.indexOf(this) || Card.uncheckAll();
         },
         check: function() {

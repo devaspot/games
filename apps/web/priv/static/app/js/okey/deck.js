@@ -182,6 +182,16 @@ function DeckScope(scope) {
                         scope.CARD_COLORS.indexOf(card.color) + 1, card.value)); }), result;
         },
 
+        contains: function(card){
+            var result = false
+            this.each(function(c){
+                if(c == card){
+                    result = true
+                }
+            })
+            return result
+        },
+
         dir: function() {
             for (var i = 0; 15 > i; i++) this.cards[0][i] && this.cards[0][i].log();
             for (var i = 0; 15 > i; i++) this.cards[1][i] && this.cards[1][i].log();
