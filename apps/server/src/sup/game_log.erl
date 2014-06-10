@@ -54,7 +54,7 @@ handle_cast({protocol_event, UserId,
            event = EventName,
            game_event = Event},
 
-    gas:info(?MODULE, "Event Log: ~p", [EventLogEntry]),
+%    gas:info(?MODULE, "Event Log: ~p", [EventLogEntry]),
     try kvs:add(EventLogEntry) catch E:R -> gas:info(?MODULE,"kvs:add ERROR ~n ~p",[{E,R}]) end,
     update_container_stats(UserId, EventLogEntry,#protocol_event.event,GameState),
 
