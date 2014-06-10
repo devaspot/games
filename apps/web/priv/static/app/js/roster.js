@@ -44,6 +44,7 @@ function RosterHandlers(scope) {
             names = dec(e.raw).value[0][1].value[0][1].value,
             to = dec(e.raw).value[0][2].value,
             message = dec(e.raw).value[0][3];
+        console.log("Income");
         console.log(message);
         chatMessage(currentChat,"1",from==document.user?"Self":from,/*names+":\n"+*/message);
         onlineHover();

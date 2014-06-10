@@ -254,7 +254,7 @@ event(pause) ->
 
 event({client,{message,From,Name,To,Message}}) ->
     wf:info(?MODULE,"Chat Message from ~p(~p) to ~p:~n ~p~n",[From,Name,To,Message]),
-    wf:send(To,{server,{chat_message,{From,Name},To,unicode:characters_to_binary(Message)}}),
+    wf:send(To,{server,{chat_message,{From,Name},To,Message}}),
     ok;
 
 event({client,Message}) ->
