@@ -88,7 +88,6 @@ function PatchSVG()
     initChatSample();
     initEditorsSafari()
 
-    console.log(hours());
     if ((hours() < 6 || hours() > 18)) {
         $("#Sky").attr({fill:"#0E4B69"});
         $("#City").attr({fill:"#3B5998"});
