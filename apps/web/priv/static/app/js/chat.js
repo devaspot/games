@@ -35,7 +35,7 @@ function mouseWheelHandler(e) {
     if (!leftActive && !rightActive) return;
 
     var evt = e;
-    var scroll_dy = evt.detail ? -evt.detail * scrollSensitivity * 100 : evt.wheelDelta * scrollSensitivity;
+    var scroll_dy = evt.detail ? evt.detail * scrollSensitivity * 100 : evt.wheelDelta * scrollSensitivity;
     var ori = leftActive ? (currentChat == null ? scroll_left : scroll_left ) : scroll_right;
     var scroll = parseFloat(scroll_dy) + parseFloat(ori);
     var selectedBar = leftActive ? (currentChat == null ? "Online-List" : currentChat) : "Chat";
