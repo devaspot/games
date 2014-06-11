@@ -187,9 +187,15 @@ function PostLoad()
                 $miniPile.length ? $miniPile.first().remove() : $wholeCards.append($fullWholeCards);
             }
         }
-        e.detail.player == scope.user && deck.insert(e.detail.revealed), centralCard.dragHandler.disable(), 
-        centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
-                       .off(document.createTouch ? "touchend" : "mouseup", fadeOut);
+
+        if(e.detail.player == scope.user){
+            scope.Draggable.revert()
+            deck.insert(e.detail.revealed)
+        }
+        centralCard.dragHandler.disable()
+        centralCard.$el
+            .off(document.createTouch ? 'touchstart' : 'mousedown', fadeIn)
+            .off(document.createTouch ? 'touchend' : 'mouseup', fadeOut)
 
         var cards = playersLeftHandsMap[scope.user].cards;
 

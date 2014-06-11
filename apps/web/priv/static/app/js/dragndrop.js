@@ -11,6 +11,8 @@ function DragScope(scope) {
         size = Math.max(sizeX, sizeY) || 1;
     }
 
+    var currentDragTarget = null
+
     function Draggable(root, options)
     {
         options = options || {},
@@ -19,6 +21,12 @@ function DragScope(scope) {
         this.elements = {}, 
         this.proxies = [ "onDown", "onMove", "onUp" ], this.__super__.constructor.call(this), 
         this.enable();
+    }
+
+    Draggable.revert = function(){
+        if(currentDragTarget){
+            currentDragTarget.drop()
+        }
     }
 
     var sizeX,
@@ -61,7 +69,7 @@ function DragScope(scope) {
         },
 
         onMove: function(e, silent) {
-            e.preventDefault(), moved = !0, this.dx = ((this.curX = this.clientX(e)) - this.x) * size, 
+            e.preventDefault(), moved = !0, currentDragTarget = this, this.dx = ((this.curX = this.clientX(e)) - this.x) * size, 
             this.dy = ((this.curY = this.clientY(e)) - this.y) * size, this.trf && (this.dx += 0 | this.trf[0], 
             this.dy += 0 | this.trf[1]), this.$el.attr("transform", "translate(" + this.dx + " " + this.dy + ")"), 
             silent || this.$el.trigger("dragmove", {
@@ -74,26 +82,50 @@ function DragScope(scope) {
         },
 
         onUp: function(e, silent) {
-            if (e.preventDefault(), this.$el.attr("style", "cursor: -moz-grab; cursor: -webkit-grab; cursor: grab;"), 
-            moved) {
-                for (var droped, item, dropList = scope.Droppable.list, i = 0, l = dropList.length; l > i; i++) if (item = dropList[i], 
-                item.intersect(this.curX, this.curY)) {
-                    droped = item.drop(this, this.curX, this.curY);
-                    break;
-                }
-                droped || (this.$el.transform({
-                    from: [ this.dx, this.dy ].join(" "),
-                    to: this.initTrf.join(" ")
-                }), silent || this.$el.trigger("revert")), silent || this.$el.trigger("dragstop", {
-                    detail: {
-                        x: this.curX,
-                        y: this.curY,
-                        event: e
+            e.preventDefault()
+            this.drop(e, silent)
+        },
+
+        drop: function(e, silent){
+            currentDragTarget = null
+            this.$el.attr('style', 'cursor: -moz-grab; cursor: -webkit-grab; cursor: grab;')
+
+            // detect drop
+            if(moved){
+                var dropList = scope.Droppable.list, 
+                    droped
+                for(var i = 0, l = dropList.length, item; i < l; i++){
+                    item = dropList[i]
+                    if(item.intersect(this.curX, this.curY)){
+                        droped = item.drop(this, this.curX, this.curY)
+                        break
                     }
-                }), moved = !1;
+                }
+
+                // revert
+                if(!droped){
+                    this.$el.transform({
+                        from: [this.dx, this.dy].join(' '),
+                        to: this.initTrf.join(' ')
+                    })
+                    if(!silent){
+                        this.$el.trigger('revert')
+                    }
+                }
+                if(!silent){
+                    this.$el.trigger('dragstop', {detail: {x: this.curX, y: this.curY, event: e}})
+                }
+                moved = false
             }
-            document.createTouch ? (this.$el.off("touchmove", this.onMove), this.$el.off("touchend", this.onUp)) : ($("body").off("mousemove", this.onMove), 
-            $("body").off("mouseup", this.onUp));
+
+            if(document.createTouch){
+                this.$el.off('touchmove', this.onMove)
+                this.$el.off('touchend', this.onUp)
+            }
+            else {
+                $('body').off('mousemove', this.onMove)
+                $('body').off('mouseup', this.onUp)
+            }
         }
     });
 
