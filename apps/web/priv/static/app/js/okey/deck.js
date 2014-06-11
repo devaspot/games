@@ -40,7 +40,7 @@ function DeckScope(scope) {
                     },
                     card.on("dragstart", this.select),
                     card.on("dragmove", this.track),
-                    card.on('dblclick', function(){ 
+                    card.$el.doubletap(function(){ 
                         scope.apiProvider.actionDiscard(card) 
                     }),
                     this.cards[j][i] = card, 
@@ -168,7 +168,7 @@ function DeckScope(scope) {
                         card.pos = {x:i, y:j}
                         card.on('dragstart', this.select)
                         card.on('dragmove', this.track)
-                        card.on('dblclick', function(){ 
+                        card.$el.doubletap(function(){ 
                             scope.apiProvider.actionDiscard(card) 
                         })                     
                         this.cards[j][i] = card

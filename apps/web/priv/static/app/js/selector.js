@@ -5,7 +5,7 @@ var scope = {
     CARD_SMALL_SOURCE: "svg/Card-Small.svg",
     CARD_COLORS: [ "#CE290F", "#3B5998", "#48AF5E", "#F8E81C" ],
     SKIN_NAMES: [ "Alina", "Gabrielo", "Mustafa" ],
-    version: 1106201402
+    version: 1006201401
 };
 
 var $ = function(_undefind)
@@ -209,6 +209,34 @@ var $ = function(_undefind)
 
     fn.pause = function() { return $("svg")[0].pauseAnimations(), this.each(function(el) { el.paused = !0; }); },
     fn.resume = function() { return $("svg")[0].unpauseAnimations(), this.each(function(el) { el.paused = !1; }); };
+
+    fn.doubletap = function(doubleTapHandler, delay){
+        delay = (delay == null) ? 300 : delay;
+        
+        if(document.createTouch){
+            return this.on('touchend', function(event){
+                var now = new Date().getTime();
+         
+                // the first time this will make delta a negative number
+                var lastTouch = this.__lastTouch || now + 1;
+                var delta = now - lastTouch;
+                if(delta < delay && 0 < delta){
+                    // After we detct a doubletap, start over
+                    this.__lastTouch = null;
+         
+                    if(doubleTapHandler !== null && typeof doubleTapHandler === 'function'){
+                        doubleTapHandler(event);
+                    }
+                }else{
+                    this.__lastTouch = now
+                }
+            });
+        }
+        else {
+            return this.on('dblclick', doubleTapHandler)
+        }
+        
+    }
 
     var tag = /^<(.+)\/>$/;
 
