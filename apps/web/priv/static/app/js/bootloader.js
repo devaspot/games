@@ -88,6 +88,16 @@ function PatchSVG()
     initChatSample();
     initEditorsSafari()
 
+    console.log(hours());
+    if ((hours() < 6 || hours() > 18)) {
+        $("#Sky").attr({fill:"#0E4B69"});
+        $("#City").attr({fill:"#3B5998"});
+    } else
+    {
+        $("#Sky").attr({fill:"#EDF9FF"});
+        $("#City").attr({fill:"#DFF1F4"});
+    }
+
 //    document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
     $svg.attr({preserveAspectRatio:"xMidYMid meet",width:"100%",height:"100%"});
 }
@@ -185,3 +195,5 @@ function manualForeignObjectPositioning()
                                width: 198 * realX / svgWidth,
                                height: 120 * realY / svgHeight});
 }
+
+function hours() { return (new Date()).getHours(); }

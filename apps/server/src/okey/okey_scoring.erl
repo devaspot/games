@@ -276,6 +276,7 @@ finish_info(GameMode, FinishReason, Gosterge) ->
         set_timeout -> set_timeout;
         {reveal, Revealer, Tashes, Discarded, ConfirmationList} ->
             {RightReveal, RevealWithPairs, WithColor} = check_reveal(Tashes, Gosterge),
+    gas:info(?MODULE,"check_reveal result p~n",[{RightReveal, RevealWithPairs, WithColor}]), 
             WinReveal = RightReveal orelse lists:all(fun({_, Answer}) -> Answer == true end, ConfirmationList),
             if WinReveal ->
                    RevealWithColor = case GameMode of
