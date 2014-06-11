@@ -13,10 +13,10 @@
 		<string>Exo2-Regular</string>
 		<string>Exo2-Bold</string>
 		<string>LucidaGrande-Bold</string>
-		<string>MinionPro-Regular</string>
+		<string>ZapfDingbatsITC</string>
 	</array>
 	<key>length</key>
-	<integer>2883659</integer>
+	<integer>2878687</integer>
 	<key>version</key>
 	<integer>37</integer>
 </dict>
