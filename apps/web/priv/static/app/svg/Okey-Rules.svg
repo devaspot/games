@@ -241,8 +241,8 @@
             <g id="Gosterme" transform="translate(297.000000, 242.000000)">
                 <g id="Slot-1,1-11">
                     <rect id="Shape" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="32" height="46" rx="8"></rect>
-                    <text id="9" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="16.0113717" font-weight="bold" fill="#D0011B">
-                        <tspan x="10.6648888" y="19.7657996">9</tspan>
+                    <text id="9" sketch:type="MSTextLayer" font-family="Exo 2" font-size="16.0113717" font-weight="bold" fill="#D0011B">
+                        <tspan x="10.6648888" y="20.7657996">9</tspan>
                     </text>
                     <path d="M16.1794872,39.6551724 C19.1250058,39.6551724 21.5128205,37.3471231 21.5128205,34.5 C21.5128205,31.6528769 19.1250058,29.3448276 16.1794872,29.3448276 C13.2339685,29.3448276 10.8461539,31.6528769 10.8461539,34.5 C10.8461539,37.3471231 13.2339685,39.6551724 16.1794872,39.6551724 L16.1794872,39.6551724 Z" id="Oval-23" fill="#CE290F" sketch:type="MSShapeGroup"></path>
                 </g>
