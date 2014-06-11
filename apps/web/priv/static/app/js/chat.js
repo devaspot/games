@@ -108,7 +108,7 @@ function showOnlineList(evt)
     document.getElementById("Online-List").style.display = '';
     currentChat = null;
 
-    scroll_left = -5;
+    scroll_left = 5;
     onlineHover();
     mouseWheelHandler({'detail':scroll_left,'wheelDelta':scroll_left});
     onlineHoverOut();
