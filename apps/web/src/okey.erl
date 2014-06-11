@@ -427,7 +427,7 @@ event({server,{game_event, _, okey_next_turn, Args}}) ->
 event({server,terminate}) -> event(terminate);
 event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), kvs:add(User), wf:user(User);
 event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
-event({counter,Res}) -> self() ! {server,{online_number,Res}};
+event({counter,Res}) -> Pid = self(), spawn(fun() -> Pid ! {server,{online_number,length(game:online())}} end);
 event({user_online,User}) -> wf:info(?MODULE,"User ~p goes Online",[User#user.id]), self() ! {server,{online,User#user.id,User#user.names,User#user.surnames}};
 event({user_offline,User}) -> self() ! {server,{offline,User#user.id,User#user.names,User#user.surnames}};
 event(_Event) -> wf:info(?MODULE,"Unknown Event: ~p", [_Event]).
