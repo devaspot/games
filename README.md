@@ -3,6 +3,8 @@ Kakaranet Application
 
 [![Build Status](https://travis-ci.org/kakaranet/games.svg?branch=master)](https://travis-ci.org/kakaranet/games)
 
+Stage: [http://srv5.kakaranet.com:8080/static/app/index.htm](http://srv5.kakaranet.com:8080/static/app/index.htm)
+
 Run
 ---
 
