@@ -28,7 +28,10 @@ function PostLoad()
         centralCard.on("dragstart", deck.select).on("dragmove", removeFadeOut)
                                             .on("dragstop", addFadeOut)
                                             .on("dragmove", deck.track)
-                                            .on("revert",   fadeOut);
+                                            .on("revert",   fadeOut)
+                                            .on('dblclick', function(){
+                                                scope.apiProvider.actionTake(centralCard) 
+                                            })
 
         deck.$el.append(centralCard.$el[0]);
         centralCard.drag();
@@ -123,7 +126,14 @@ function PostLoad()
                 var card = cards[cards.length - 1];
                 deck.$el.append(card.$el[0]), card.$el.attr({
                     transform: "translate(16 -65)"
-                }), card.dragHandler.enable(), card.on("dragstart", deck.select), card.on("dragmove", deck.track);
+                }), 
+                card.dragHandler.enable(), 
+                card
+                    .on("dragstart", deck.select)
+                    .on("dragmove", deck.track)
+                    .on('dblclick', function(){
+                        scope.apiProvider.actionDiscard(card) 
+                    });
             }
             deck.length() < 15 ? (centralCard.dragHandler.enable(), centralCard.$el.on(document.createTouch ? "touchstart" : "mousedown", fadeIn).on(document.createTouch ? "touchend" : "mouseup", fadeOut), 
             centralCard.on("dragmove", removeFadeOut).on("dragstop", addFadeOut).on("revert", fadeOut)) : (centralCard.dragHandler.disable(), 

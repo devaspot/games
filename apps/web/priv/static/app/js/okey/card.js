@@ -109,6 +109,9 @@ function CardScope(scope) {
                 value: this.value
             });
         },
+        tile: function(){
+            return [, scope.CARD_COLORS.indexOf(this.color), card.value]
+        },
         log: function() {}
     });
 

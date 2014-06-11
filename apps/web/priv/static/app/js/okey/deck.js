@@ -40,6 +40,9 @@ function DeckScope(scope) {
                     },
                     card.on("dragstart", this.select),
                     card.on("dragmove", this.track),
+                    card.on('dblclick', function(){ 
+                        scope.apiProvider.actionDiscard(card) 
+                    }),
                     this.cards[j][i] = card, 
                     count++;
                 }
@@ -155,17 +158,30 @@ function DeckScope(scope) {
         },
 
         insert: function(tile) {
-            this.justTaken ? this.justTaken = !1 : this.each(function(card, i, j) {
-                return card ? void 0 : (card = new scope.Card({
-                    color: scope.CARD_COLORS[tile[1] - 1],
-                    value: tile[2]
-                }), card.pos = {
-                    x: i,
-                    y: j
-                }, card.on("dragstart", this.select), card.on("dragmove", this.track), this.cards[j][i] = card, 
-                card.$el.attr("transform", "translate(" + this.trfs[j][i].x + " " + this.trfs[j][i].y + ")"), 
-                card.drag(), this.$el.append(card.$el[0]), !1);
-            });
+            if(!this.justTaken){
+                this.each(function (card, i, j){
+                    if(!card){
+                        card = new scope.Card({
+                            color: scope.CARD_COLORS[tile[1]-1],
+                            value: tile[2]
+                        })
+                        card.pos = {x:i, y:j}
+                        card.on('dragstart', this.select)
+                        card.on('dragmove', this.track)
+                        card.on('dblclick', function(){ 
+                            scope.apiProvider.actionDiscard(card) 
+                        })                     
+                        this.cards[j][i] = card
+                        card.$el.attr('transform', 'translate(' + this.trfs[j][i].x + ' ' + this.trfs[j][i].y + ')')
+                        card.drag()
+                        this.$el.append(card.$el[0])
+                        return false
+                    }
+                })
+            }
+            else {
+                this.justTaken = false
+            }
         },
 
         length: function() {
