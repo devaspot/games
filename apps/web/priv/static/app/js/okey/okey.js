@@ -132,7 +132,7 @@ function PostLoad()
                     .on("dragstart", deck.select)
                     .on("dragmove", deck.track)
                     .on('dblclick', function(){
-                        scope.apiProvider.actionDiscard(card) 
+                        scope.apiProvider.actionTake(card) 
                     });
             }
             deck.length() < 15 ? (centralCard.dragHandler.enable(), centralCard.$el.on(document.createTouch ? "touchstart" : "mousedown", fadeIn).on(document.createTouch ? "touchend" : "mouseup", fadeOut), 
