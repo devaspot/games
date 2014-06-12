@@ -36,10 +36,11 @@ var $ = function(_undefind)
     fn.on = function(eventName, eventHandler) { return this.each(function(el) { el.addEventListener(eventName, eventHandler); }); },
     fn.off = function(eventName, eventHandler) { return this.each(function(el) { el.removeEventListener(eventName, eventHandler); }); },
     fn.trigger = function(eventName, data, raw) { 
+        data = data || {}
         return this.each(function(el) {
             if(isIE){
                 var event = document.createEvent("CustomEvent");
-                event.initCustomEvent(eventName, false, false, data);
+                event.initCustomEvent(eventName, false, false, data.detail);
                 el.dispatchEvent(event)
             }
             else {
@@ -146,15 +147,41 @@ var $ = function(_undefind)
                 return callbacks.push(complete), thenable;
             }
         };
-        return anims = $.extend({}, defaultAnim, anims), this.each(function(el) {
-            var $el = $(el), $anim = $el.find(".anim");
-            $anim.length ? $anim.attr(anims) : ($el.append(anim(anims)[0]), $anim = $el.find(".anim")), 
-            el.timerId = setTimeout(function() {
-                $el.attr(anims.attributeName, anims.to), $el.removeAttr("animated"), callbacks.forEach(function(c) {
-                    c();
-                }), callbacks = [];
-            }, 1e3 * parseFloat(anims.dur)), $el.attr("animated", !0), $anim[0].beginElement();
-        }), thenable;
+        anims = $.extend({}, defaultAnim, anims)
+
+        this.each(function (el){
+            var $el = $(el),
+                $anim = $el.find('.anim')
+
+            if($anim.length){
+                $anim.attr(anims)
+            }
+            else {
+                $el.append(anim(anims)[0])
+                $anim = $el.find('.anim')
+            }
+
+            // iOS Safari issue: 'endEvent' not fired
+            // $anim.on('endEvent', function(){
+            //     $el.attr('transform', 'translate(' +  trf.to + ')')
+            // })
+
+            el.timerId = setTimeout(function(){
+                $el.attr(anims.attributeName, anims.to)
+                $el.removeAttr('animated')
+                callbacks.forEach(function(c){c()})
+
+                callbacks = []
+            }, isIE ? 0 : parseFloat(anims.dur)*1000)
+
+            $el.attr('animated', true)
+
+            if(!isIE){
+                $anim[0].beginElement()
+            }
+        })
+
+        return thenable
     };
 
     var animDelay = 62.5;
@@ -192,16 +219,40 @@ var $ = function(_undefind)
                 return callbacks.push(complete), thenable;
             }
         };
-        return trfs = $.extend({}, defaultTrf, trfs), this.each(function(el) {
-            var $el = $(el), $anim = $el.find(".trf");
-            $anim.length ? $anim.attr(trfs) : ($el.append(trf(trfs)[0]), $anim = $el.find(".trf")), 
-            el.timerId = setTimeout(function() {
-                $el.attr("transform", trfs.type + "(" + trfs.to + ")"), $el.removeAttr("animated"), 
-                callbacks.forEach(function(c) {
-                    c();
-                }), callbacks = [];
-            }, 1e3 * parseFloat(trfs.dur) - 20), $el.attr("animated", !0), $anim[0].beginElement();
-        }), thenable;
+        trfs = $.extend({}, defaultTrf, trfs)
+
+        this.each(function (el){
+            var $el = $(el),
+                $anim = $el.find('.trf')
+
+            if($anim.length){
+                $anim.attr(trfs)
+            }
+            else {
+                $el.append(trf(trfs)[0])
+                $anim = $el.find('.trf')
+            }
+
+            // iOS Safari issue: 'endEvent' not fired
+            // $anim.on('endEvent', function(){
+            //     $el.attr('transform', 'translate(' +  trf.to + ')')
+            // })
+
+            el.timerId = setTimeout(function(){
+                $el.attr('transform', trfs.type + '(' +  trfs.to + ')')
+                $el.removeAttr('animated')
+                callbacks.forEach(function(c){c()})
+
+                callbacks = []
+            }, isIE ? 0 : parseFloat(trfs.dur)*1000 - 20)
+
+            $el.attr('animated', true)
+            if(!isIE){
+                $anim[0].beginElement()
+            }
+        })
+
+        return thenable
     },
 
     fn.stop = function() {
