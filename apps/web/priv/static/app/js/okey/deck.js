@@ -80,7 +80,12 @@ function DeckScope(scope) {
 
             var i = snd.i,
                 cond = function(i){ return fst.i < snd.i ? i <= 14 : i >= 0 },
-                _cond = function(j, i){ return fst.i < snd.i ? (console.log('j < i', j, i), j > fst.i-1) : (console.log('j < i', j, i), j < fst.i+1) },
+                _cond = function(j, i) {
+                    return fst.i < snd.i ? (
+                    //console.log('j < i', j, i),
+                     j > fst.i-1) : (
+                     //console.log('j < i', j, i), 
+                     j < fst.i+1) },
                 op = function(){ fst.i < snd.i ? i++ : i-- },
                 _op = function(){ fst.i < snd.i ? j-- : j++ },
                 direction = function(j){ return fst.i < snd.i ? j+(scope.Card.selected.length || 1) : j-(scope.Card.selected.length || 1)},
@@ -88,11 +93,11 @@ function DeckScope(scope) {
 
             if(scope.Card.selected.length < 2){
                 for(; cond(i); op()){
-                    console.log('i=', i)
+                    //console.log('i=', i)
                     if(this.cards[snd.j][i] == null || this.cards[snd.j][i] == selected){
                         var j = _direction(i)
                         for(; _cond(j, i); _op()){
-                            console.log('j=', j)
+                            //console.log('j=', j)
                             card = this.cards[fst.j][j]
                             if(card != selected){
 
