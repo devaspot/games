@@ -102,9 +102,7 @@ function PatchSVG()
 }
 
 function initChatSample() {
-    chatMessage("Chat","1","Maxim2","Joe:\nHello There!".encodeHTML());
-    chatMessage("Chat","2","Maxim2","Alice:\nYou got new Design. Eh?".encodeHTML());
-    chatMessage("Chat","3","Maxim","Maxim So:\nThis was made with pure SVG".encodeHTML());
+    chatMessage("Chat","0","Maxim","Kakaranet:\nThis is in-game chat".encodeHTML());
 
     barHover();
     mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
