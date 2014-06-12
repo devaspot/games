@@ -103,6 +103,7 @@ function PostLoad()
                 });
             }
 
+            playersMap[scope.user].timer.on('beforeTimerEnd', function(){ scope.Draggable.revert() })
 
             scope.started = !0;
         }
@@ -189,7 +190,7 @@ function PostLoad()
         }
 
         if(e.detail.player == scope.user){
-            scope.Draggable.revert()
+            // scope.Draggable.revert()
             deck.insert(e.detail.revealed)
         }
         centralCard.dragHandler.disable()

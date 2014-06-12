@@ -33,6 +33,9 @@ function TimerScope(scope) {
                 dur: this.curTime
             }),
             this.timerId = this.withDelay(this.tick, 1e3);
+            this.withDelay(function(){
+                this.$el.trigger('beforeTimerEnd')
+            }, this.duration*1e3-500)
         },
         tick: function() {
             return this.paused 
