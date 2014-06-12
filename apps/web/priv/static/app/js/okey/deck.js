@@ -91,7 +91,6 @@ function DeckScope(scope) {
                     console.log('i=', i)
                     if(this.cards[snd.j][i] == null || this.cards[snd.j][i] == selected){
                         var j = _direction(i)
-                        var cards = []
                         for(; _cond(j, i); _op()){
                             console.log('j=', j)
                             card = this.cards[fst.j][j]
@@ -101,13 +100,6 @@ function DeckScope(scope) {
                                     from: [trfs[fst.j][j].x, trfs[fst.j][j].y].join(' '),
                                     to: [trfs[fst.j][direction(j)].x, trfs[fst.j][direction(j)].y].join(' ')
                                 })
-
-                                console.log({
-                                    from: [trfs[fst.j][j].x, trfs[fst.j][j].y].join(' '),
-                                    to: [trfs[fst.j][direction(j)].x, trfs[fst.j][direction(j)].y].join(' ')
-                                })
-
-                                cards.push(card)
 
                                 if(selected){
                                     selected.dragHandler.initTrf = [trfs[fst.j][j].x, trfs[fst.j][j].y]
