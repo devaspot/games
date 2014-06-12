@@ -74,45 +74,52 @@ function DeckScope(scope) {
             });
         },
 
-        move: function(fst, snd) {
+        move: function(fst, snd){
+            var trfs = this.trfs,
+                card
 
-            var card,
-                trfs = this.trfs,
-                i = snd.i,
-                cond = function(i) { return fst.i < snd.i ? 14 >= i : i >= 0; },
-                _cond = function(j, i) { return fst.i < snd.i ? i > j : j > i; },
-                op = function() { fst.i < snd.i ? i++ : i--; },
-                _op = function() { fst.i < snd.i ? j++ : j--; },
-                direction = function(j) {
-                    return fst.i < snd.i 
-                        ? j + (scope.Card.selected.length || 1)
-                        : j - (scope.Card.selected.length || 1); },
-                _direction = function(j) { return fst.i < snd.i ? j - 1 : j + 1; };
+            var i = snd.i,
+                cond = function(i){ return fst.i < snd.i ? i <= 14 : i >= 0 },
+                _cond = function(j, i){ return fst.i < snd.i ? (console.log('j < i', j, i), j > fst.i-1) : (console.log('j < i', j, i), j < fst.i+1) },
+                op = function(){ fst.i < snd.i ? i++ : i-- },
+                _op = function(){ fst.i < snd.i ? j-- : j++ },
+                direction = function(j){ return fst.i < snd.i ? j+(scope.Card.selected.length || 1) : j-(scope.Card.selected.length || 1)},
+                _direction = function(j){ return fst.i < snd.i ? j-1 : j+1}
 
-            if (scope.Card.selected.length < 2)
-                for (;cond(i); op())
-                    if (null == this.cards[snd.j][i] || this.cards[snd.j][i] == selected)
-            {
-                for (var j = _direction(i); _cond(j, i); _op())
-                {
-                    card = this.cards[fst.j][j];
-                    if (card != selected) {
+            if(scope.Card.selected.length < 2){
+                for(; cond(i); op()){
+                    console.log('i=', i)
+                    if(this.cards[snd.j][i] == null || this.cards[snd.j][i] == selected){
+                        var j = _direction(i)
+                        var cards = []
+                        for(; _cond(j, i); _op()){
+                            console.log('j=', j)
+                            card = this.cards[fst.j][j]
+                            if(card != selected){
 
-//                        console.log(card.$el[0].getAttribute("transform"));
-                        card.$el.transform({
-                            from: [ trfs[fst.j][j].x, trfs[fst.j][j].y ].join(" "),
-                            to: [ trfs[fst.j][direction(j)].x, trfs[fst.j][direction(j)].y ].join(" ")
-                        }),
-//                        console.log(card.$el[0].getAttribute("transform"));
+                                card.$el.transform({
+                                    from: [trfs[fst.j][j].x, trfs[fst.j][j].y].join(' '),
+                                    to: [trfs[fst.j][direction(j)].x, trfs[fst.j][direction(j)].y].join(' ')
+                                })
 
-                        selected && (selected.dragHandler.initTrf = [ trfs[fst.j][j].x, trfs[fst.j][j].y ]), 
+                                console.log({
+                                    from: [trfs[fst.j][j].x, trfs[fst.j][j].y].join(' '),
+                                    to: [trfs[fst.j][direction(j)].x, trfs[fst.j][direction(j)].y].join(' ')
+                                })
 
-                        ((this.cards[fst.j][j] = this.cards[fst.j][direction(j)]) || {}).pos = { x: j, y: fst.j },
-                        (this.cards[fst.j][direction(j)] = card).pos = { x: direction(j), y: fst.j }
+                                cards.push(card)
+
+                                if(selected){
+                                    selected.dragHandler.initTrf = [trfs[fst.j][j].x, trfs[fst.j][j].y]
+                                }
+
+                                ;((this.cards[fst.j][j] = this.cards[fst.j][direction(j)]) || {}).pos = {x:j, y:fst.j}
+                                ;(this.cards[fst.j][direction(j)] = card).pos = {x:direction(j), y:fst.j}
+                            }
+                        }
+                        break
                     }
                 }
-
-                break;
             }
         },
 
