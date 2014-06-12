@@ -1,5 +1,6 @@
 var scope = {
     apiUrl: "ws://" + window.location.hostname + ":" + window.location.port + "/ws/",
+//    apiUrl: "ws://srv5.kakaranet.com:8080/ws/",
     gameId: 1000001,
     CARD_SOURCE: "svg/Card.svg",
     CARD_SMALL_SOURCE: "svg/Card-Small.svg",

@@ -290,7 +290,6 @@ function initOkeyScene(x)
 
     e.detail.whos_move && "null" != e.detail.whos_move && 
         (e.detail.next_turn_in && "null" != e.detail.next_turn_in && 
-         e.detail.next_turn_in < 30 && // NOTE: this this fix for server old protocol
          playersMap[e.detail.whos_move].timer.from(e.detail.next_turn_in),
          e.detail.paused && (playersMap[e.detail.whos_move].timer.pause(),$overlay.show()),
          playersMap[e.detail.whos_move].select());
