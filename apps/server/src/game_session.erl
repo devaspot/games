@@ -102,10 +102,10 @@ register_user_by_module(RPC,User,GameId,#state{games=Games} = State) ->
                     gas:error(?MODULE,"Not allowed to connect: ~p.",[GameId]),
                     ok = send_message_to_player(RPC, #disconnect{reason_id = <<"notAllowed">>,reason = null}),
                     {reply, {error, not_allowed}, State};
-                {error, UnknownError} ->
+                UnknownError ->
                     gas:error(?MODULE,"Unknown Registration Error: ~p.",[GameId]),
                     ok = send_message_to_player(RPC, #disconnect{reason_id = term_to_binary(UnknownError),reason = null}),
-                    {reply, {error, UnknownError}, State}
+                    {reply, UnknownError, State}
             end;
         undefined ->
             gas:error(?MODULE,"Game not found: ~p.",[GameId]),
