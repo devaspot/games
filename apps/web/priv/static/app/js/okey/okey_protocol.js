@@ -26,6 +26,7 @@ function OkeyApiProviderScope(scope) {
         "roster_group",
         "roster_end",
         "chat_message",
+        "chat_event",
         // okey game protocol
         "okey_game_info",
         "okey_game_started",

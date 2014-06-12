@@ -290,13 +290,25 @@ function chatEditor(evt) {
         var text = e.textContent == null?"":e.textContent.trim();
         if (text != ""){
             text = text.encodeHTML();
-            chatMessage(chatContainer,"100",document.user,text);
+            if ("Chat" != chatContainer)
+            {
+                chatMessage(chatContainer,"100",document.user,text);
                 ws.send(enc(tuple(atom('client'),
                     tuple(atom('message'),
-                          bin(document.user),
-                          bin(document.names),
-                          bin(chatContainer.substr(5)),
-                          utf8toByteArray(text)))));
+                         bin(document.user),
+                         bin(document.names),
+                         bin(chatContainer.substr(5)),
+                         utf8toByteArray(text)))));
+            }
+            else
+            {
+                chatMessage(chatContainer,"100",document.user,text);
+                ws.send(enc(tuple(atom('client'),
+                    tuple(atom('chat'),
+                         scope.gameId,
+                         bin(document.names),
+                         utf8toByteArray(text)))));
+            }
             e.innerHTML = '';
         }
     } else if (evt.keyCode == 13 && evt.altKey == true) {

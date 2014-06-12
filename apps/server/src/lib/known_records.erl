@@ -22,8 +22,6 @@ fields(reveal_event) ->            record_info(fields, reveal_event);
 fields('PlayerInfo') ->            record_info(fields, 'PlayerInfo');
 fields(game_event) ->              record_info(fields, game_event);
 fields(chat_event) ->                record_info(fields, chat_event);
-fields(social_action) ->           record_info(fields, social_action);
-fields(social_event) ->           record_info(fields, social_event);
 fields(pause_game) ->              record_info(fields, pause_game);
 fields(game_paused) ->             record_info(fields, game_paused);
 fields(disconnect) ->              record_info(fields, disconnect);

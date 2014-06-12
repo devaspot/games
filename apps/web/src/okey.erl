@@ -253,9 +253,13 @@ event(pause) ->
 %event({binary,M}) -> {ok,<<"Hello">>};
 
 event({client,{message,From,Name,To,Message}}) ->
-    wf:info(?MODULE,"Chat Message from ~p(~p) to ~p:~n ~p~n",[From,Name,To,Message]),
+    wf:info(?MODULE,"Online Chat Message from ~p(~p) to ~p:~n ~p~n",[From,Name,To,Message]),
     wf:send(To,{server,{chat_message,{From,Name},To,wf:to_binary(Message)}}),
     ok;
+
+%event({client,{chat,GameId,Name,Message}}) ->
+%    wf:info(?MODULE,"In-Game Chat Message from ~p(~p):~n ~p~n",[GameId,Name,Message]),
+%    ok;
 
 event({client,Message}) ->
     wf:info(?MODULE,"Client: ~p", [Message]),

@@ -136,13 +136,10 @@ handle_client_request(#stats_action{player_id = PlayerId, game_type = GameModule
     send_message_to_player(RPC, Res),
     {reply, Res, State};
 
-handle_client_request(#chat{chat_id = GameId, message = Msg0}, _From,
+handle_client_request(#chat{game = GameId, who = DisplayName, message = Msg0}, _From,
                       #state{user = User, games = Games} = State) ->
-    gas:info(?MODULE,"Chat", []),
-    Msg = #chat_event{chat = GameId, content = Msg0,
-                    author_id = User#'PlayerInfo'.id,
-                    author_nick = User#'PlayerInfo'.login
-                   },
+    gas:info(?MODULE,"Chat Message ~n ~p", [Msg0]),
+    Msg = #chat_event{game = GameId, message = Msg0, who = DisplayName },
     Participation = get_relay(GameId, Games),
     Res = case Participation of
               false ->
@@ -151,24 +148,6 @@ handle_client_request(#chat{chat_id = GameId, message = Msg0}, _From,
                   RMod:publish(Srv, Msg)
           end,
     {reply, Res, State};
-
-
-handle_client_request(#social_action{} = Msg, _From,
-                      #state{user = User, games = Games} = State) ->
-    gas:info(?MODULE,"Social action", []),
-    GameId = Msg#social_action.game,
-    Res = #social_event{type = Msg#social_action.type,
-                             game = GameId,
-                             recipient = Msg#social_action.recipient,
-                             initiator = User#'PlayerInfo'.id},
-    Participation = get_relay(GameId, Games),
-    Ans = case Participation of
-              false ->
-                  {error, chat_not_registered};
-              #participation{rel_pid = Srv, rel_module=RMod} ->
-                  RMod:publish(Srv, Res)
-          end,
-    {reply, Ans, State};
 
 handle_client_request(#join_game{game = GameId}, _From,
                       #state{user = User, rpc = RPC, games = Games} = State) ->

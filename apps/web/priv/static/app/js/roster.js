@@ -12,6 +12,7 @@ function RosterHandlers(scope) {
         document.getElementById("Users-Online-Number").firstElementChild.textContent = e.detail.toString(); 
     });
 
+
     scope.apiProvider.on("online", function (x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         var msg = e.detail, id = msg[0], name = msg[1], surname = msg[2];
@@ -48,6 +49,21 @@ function RosterHandlers(scope) {
         onlineHover();
         mouseWheelHandler({'detail':-10000,'wheelDelta':-10000});
         onlineHoverOut();
+    });
+
+    scope.apiProvider.on("chat_event", function(x) {
+        var e = {detail: x.detail.json, raw: x.detail.bert};
+        var gameId = dec(e.raw).value[0][1],
+            name = dec(e.raw).value[0][2].value,
+            message = dec(e.raw).value[0][3];
+        if (name != document.names)
+        {
+            chatMessage("Chat","1",name==document.user?"Self":name,name+":\n"+utf8decode(message).encodeHTML());
+            scroll_right = -10000;
+            barHover();
+            mouseWheelHandler({'detail':-10000,'wheelDelta':-10000});
+            barHoverOut();
+        }
     });
 
     scope.apiProvider.on("roster_group", function (x) {
