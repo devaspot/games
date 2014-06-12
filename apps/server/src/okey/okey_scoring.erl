@@ -342,7 +342,7 @@ reveals() -> [[3,3,3,5], [3,3,4,4], [5,5,4], [2,2,2,2,2,2,2]].
 
 check_5_5_4(_Deck,_Gosterme) ->
     Deck=[[{4,4},{4,3},{4,6},{4,7},{1,7},null,{3,9},{3,10},{3,11},{3,12},false_okey,null,null,null,null],
-          [{2,6},{3,6},{1,6},{4,6}, null,null, null, null, null, null,   null,      null,null,null,null]],
+          [{2,6},{3,6},{1,7},{4,6}, null,null, null, null, null, null,   null,      null,null,null,null]],
     Gosterme = {1,6},
     Ret = check_reveal(Deck,Gosterme),
     io:format("Old Check: ~p",[Ret]),
@@ -353,6 +353,7 @@ check_5_5_4(_Deck,_Gosterme) ->
                       null -> [];
                        _ -> E
                   end || E <- lists:flatten(Deck)]),
+    io:format("Normalized: ~p",[Normalized]),
     X = lists:foldl(
         fun (okey=C,A) -> {C,VA} = lists:keyfind(C,1,A), game:plist_setkey(C,1,A,{C,[C|VA]});
             ({C,V},A) ->  {C,VA} = lists:keyfind(C,1,A), game:plist_setkey(C,1,A,{C,[{C,V}|VA]}) end,
