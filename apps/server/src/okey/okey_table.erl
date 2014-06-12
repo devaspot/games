@@ -1376,10 +1376,10 @@ create_game_paused_resume(UserId, GameId) ->
 create_okey_playing_tables(Num) ->
     #okey_playing_tables{num = Num}.
 
-tash_to_ext(false_okey) -> #'OkeyPiece'{color = 1, value = 0};
+tash_to_ext(false_okey) -> #'OkeyPiece'{color = 2, value = 0};
 tash_to_ext({Color, Value}) ->  #'OkeyPiece'{color = Color, value = Value}.
 
-ext_to_tash(#'OkeyPiece'{color = 1, value = 0}) -> false_okey;
+ext_to_tash(#'OkeyPiece'{color = 2, value = 0}) -> false_okey;
 ext_to_tash(#'OkeyPiece'{color = Color, value = Value}) -> {Color, Value}.
 
 %statename_to_api_string(state_wait) -> do_okey_ready;

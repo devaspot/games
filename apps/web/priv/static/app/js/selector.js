@@ -164,7 +164,9 @@ var $ = function(_undefind)
             function tick() {
                 if (!el.paused) {
                     var cur = from + step;
-                    (to > from ? to >= cur : cur >= to) ? ($el.attr(property, cur), from = cur) : clearInterval(timer);
+                    (to > from ? to >= cur : cur >= to)
+                        ? ($el.attr(property, cur), from = cur)
+                        : clearInterval(el.timer);
                 }
             }
             var property = anims.attributeName, dur = anims.dur, to = parseInt(anims.to), $el = $(el), from = parseInt($el.attr(property)), step = (to - from) / (1e3 * dur / animDelay);

@@ -45,7 +45,7 @@ function CardScope(scope) {
         render: function() {
             null == this.value && null == this.color ? (this.$circle.hide(), this.$text.hide()) : 0 == this.value ? (this.$circle.hide(), 
             this.$text.show().attr({
-                fill: scope.CARD_COLORS[1],
+                fill: this.color,
                 "font-size": "26pt",
                 y: 42
             }).text("❦")) : (this.$circle.show().attr("fill", this.color), this.$text.show().attr("fill", this.color).text(this.value));

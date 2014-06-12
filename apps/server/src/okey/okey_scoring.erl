@@ -324,6 +324,18 @@ gosterge_to_okey({Color, Value}) ->
        true -> {Color, Value + 1}
     end.
 
+check_win([TopRow, BottomRow], Gosterge) ->
+    FlatList = TopRow ++ [null | BottomRow],
+    Okey = gosterge_to_okey(Gosterge),
+    Normalized = [case E of
+                      Okey -> okey;
+                      false_okey -> okey;
+                       _ -> E
+                  end || E <- FlatList],
+    gas:info(?MODULE,"check_reveal/2 ~n    ~p ~p~n",[Normalized, Gosterge]),
+
+    ok.
+
 %% @spec check_reveal(TashPlaces, Gosterge) -> {RightReveal, WithPairs, SameColor}
 %% @end
 check_reveal([TopRow, BottomRow], Gosterge) ->
@@ -331,7 +343,7 @@ check_reveal([TopRow, BottomRow], Gosterge) ->
     Okey = gosterge_to_okey(Gosterge),
     Normalized = [case E of
                       Okey -> okey;
-                      false_okey -> Okey;
+                      false_okey -> okey;
                        _ -> E
                   end || E <- FlatList],
     gas:info(?MODULE,"check_reveal/2 ~n    ~p ~p~n",[Normalized, Gosterge]), 
@@ -521,10 +533,16 @@ b2c(2) -> blue;
 b2c(3) -> yellow;
 b2c(4) -> black.
 
+run_tests() -> [[F()||{_,F}<-Tests]||{Name,Tests}<-okey_scoring:test_test_()].
 
 %% Tests
 test_test_() ->
-    [{"is_pair",
+    [{"win_reveal",
+      [
+    ?_assertEqual({true,false,true},  check_reveal([[{1,3}, false_okey, {1,4}],[]],{1,3}))
+      ]
+     },
+     {"is_pair",
       [?_assertEqual(true,  is_pair([{1,3}, {1,3}])),
        ?_assertEqual(true,  is_pair([{4,13}, {4,13}])),
        ?_assertEqual(false, is_pair([{4,12}, {4,13}])),
