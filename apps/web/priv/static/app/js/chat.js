@@ -58,6 +58,8 @@ function chatMessage(chatName, id, me, string) {
     var y1 = 0;
     var container = chatName == "Chat" ? "Right-Bar" : "Left-Bar";
     var hover = chatName == "Chat" ? "barHover" : "onlineHover";
+    var chatElement = document.getElementById(chatName);
+    if (null == chatElement) createChat(chatName);
     var translate_y = parseFloat(document.getElementById(chatName).getBBox().height);
     var x2 = 205;
     var textElement = chatText(container,id,me,string);
@@ -170,6 +172,12 @@ function shiftTranslate(name,shiftValue) {
 
 function removeOnlineUser(name) { shiftTranslate(name,-1).remove(); }
 
+function createChat(chatName) {
+    var html = '<g xmlns="http://www.w3.org/2000/svg" id="'+chatName+'" y="0" clip-path="url(#myClip3)" transform="translate(1.000000, 107.000000)"></g>';
+    document.getElementById("Page-1").appendChild(svg(html));
+    document.getElementById(chatName).style.display = 'none';
+}
+
 function openChat(evt) {
     document.getElementById("Online-List").style.display = 'none';
     document.getElementById("onlineChatEdit").style.display = '';
@@ -178,12 +186,10 @@ function openChat(evt) {
     var chatElement = document.getElementById(currentChat);
     if (null == chatElement) {
         // read from local KVS
-        var html = '<g xmlns="http://www.w3.org/2000/svg" id="'+currentChat+'" y="0" clip-path="url(#myClip3)" transform="translate(1.000000, 107.000000)"></g>';
-        document.getElementById("Page-1").appendChild(svg(html));
+        createChat(currentChat);
         chatMessage(currentChat,"1","System","You can chat with\n"+name);
-    } else {
-        document.getElementById(currentChat).style.display = '';
     }
+    document.getElementById(currentChat).style.display = '';
     document.getElementById("onlineChatEdit").setAttribute("xmlns:data",currentChat);
     scroll_left = -1000000;
 

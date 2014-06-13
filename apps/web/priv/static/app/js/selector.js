@@ -7,7 +7,7 @@ var scope = {
     CARD_COLORS: [ "#CE290F", "#3B5998", "#48AF5E", "#F8E81C" ],
     SKIN_NAMES: [ "Alina", "Gabrielo", "Mustafa" ],
     paused: false,
-    version: 1306201401
+    version: 1306201402
 };
 
 var $ = function(_undefind)
