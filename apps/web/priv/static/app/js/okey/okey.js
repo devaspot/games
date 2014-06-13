@@ -233,7 +233,8 @@ function PostLoad()
     var whoPausedGame = false;
 
     $overlay = $("#overlay");
-    $overlay.on("click", function() { whoPausedGame == scope.user && apiProvider.pause(!0); });
+    $overlay.on("click", function() {
+        apiProvider.pause(scope.paused); });
 
     apiProvider.on("game_paused", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
@@ -241,7 +242,7 @@ function PostLoad()
             $overlay.show();
             for (var player in playersMap) playersMap[player].timer.pause();
             var player = playersMap[e.detail[3]];
-            $overlay.find("text").text(player.name + " paused the game");
+            $overlay.find("text").text(player.name + "\n paused the game");
         } else {
             $overlay.hide();
             for (var player in playersMap) playersMap[player].timer.resume();
@@ -287,6 +288,8 @@ function initOkeyScene(x)
                      hand = playersLeftHandsMap[name],
                      j = playerPile.length; j--; ) hand.discard(playerPile[j]);
     }
+
+    scope.paused = e.detail.paused;
 
     e.detail.whos_move && "null" != e.detail.whos_move && 
         (e.detail.next_turn_in && "null" != e.detail.next_turn_in && 

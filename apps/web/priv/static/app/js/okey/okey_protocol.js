@@ -124,7 +124,12 @@ function OkeyApiProviderScope(scope) {
             }))));
         },
         pause: function(resume) {
-            this.socket.send(enc(tuple(atom("client"), tuple(atom("pause_game"), atom("undefined"), this.gameId, atom(resume ? "resume" : "pause")))));
+            console.log(resume ? "resume" : "pause");
+            this.socket.send(enc(tuple(atom("client"),
+                tuple(atom("pause_game"),
+                    atom("undefined"),
+                    this.gameId,
+                    atom(resume ? "resume" : "pause")))));
         }
     }),
 
