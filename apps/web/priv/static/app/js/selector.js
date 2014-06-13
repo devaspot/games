@@ -262,7 +262,9 @@ var $ = function(_undefind)
             $(el).find(".anim, .trf").each(function(anim) {
             anim.endElement(); }), clearTimeout(el.timerId), clearInterval(el.timer); }); },
 
-    fn.pause = function() { return $("svg")[0].pauseAnimations(), this.each(function(el) { el.paused = !0; }); },
+    fn.pause = function() { return 
+        //$("svg")[0].pauseAnimations(), // NOTE: dont' pause animation on pause
+        this.each(function(el) { el.paused = !0; }); },
     fn.resume = function() { return $("svg")[0].unpauseAnimations(), this.each(function(el) { el.paused = !1; }); };
 
     fn.doubletap = function(doubleTapHandler, delay){
