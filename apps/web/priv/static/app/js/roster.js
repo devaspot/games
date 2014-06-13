@@ -45,7 +45,7 @@ function RosterHandlers(scope) {
             names = dec(e.raw).value[0][1].value[0][1].value,
             to = dec(e.raw).value[0][2].value,
             message = dec(e.raw).value[0][3].value;
-        chatMessage(currentChat,"1",from==document.user?"Self":from,utf8decode(message).encodeHTML());
+        chatMessage(currentChat,"1",from==document.user?"Self":from,utf8decode(message));
         onlineHover();
         mouseWheelHandler({'detail':-10000,'wheelDelta':-10000});
         onlineHoverOut();
@@ -58,7 +58,7 @@ function RosterHandlers(scope) {
             message = dec(e.raw).value[0][3];
         if (name != document.names)
         {
-            chatMessage("Chat","1",name==document.user?"Self":name,name+":\n"+utf8decode(message).encodeHTML());
+            chatMessage("Chat","1",name==document.user?"Self":name,name+":\n"+utf8decode(message));
             scroll_right = -10000;
             barHover();
             mouseWheelHandler({'detail':-10000,'wheelDelta':-10000});
