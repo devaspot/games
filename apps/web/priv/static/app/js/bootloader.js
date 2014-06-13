@@ -204,5 +204,25 @@ function initPauseOverlay() {
     var page = document.getElementById("Kakaranet-12-maxim");
     var kakush = document.getElementById("Kakush");
     page.insertBefore(svg(html),kakush);
+}
+
+function showRevealHand(o) {
+
+    var player    = o.value[0][3][0].value[0][1].value,
+        discard   = o.value[0][3][1].value[0][1].value,
+        deck = [];
+
+    deck[0] = o.value[0][3][2].value[0][1][0],
+    deck[1] = o.value[0][3][2].value[0][1][1];
+
+    console.log(player);
+    console.log(discard);
+    console.log(deck);
+
+    if (!document.getElementById("RevealDeck"))
+        $.load("svg/Deck.svg", function(h) { $overlay.append(svg(h)); });
+
+    $overlay.show();
+    $overlay.find("text").text(player + " revealed ");
 
 }

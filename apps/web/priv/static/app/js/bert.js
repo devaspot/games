@@ -19,6 +19,8 @@ ATOM = itoa(100);
 BINARY = itoa(109);
 SINT = itoa(97);
 INT = itoa(98);
+SBIG = itoa(110);
+LBIG = itoa(111);
 FLOAT = itoa(99);
 STR = itoa(107);
 LIST = itoa(108);
@@ -53,12 +55,29 @@ function ltoi(S, Length) {
     }
     if (isNegative) { Num = Num * (0 - 1); }
     return Num; };
+function btol(Int) {
+    var isNegative, Rem, s = "";
+    isNegative = Int < 0;
+    if (isNegative) { Int *= -1; s += itoa(1); } else { s += itoa(0); }
+    while (Int !== 0) { Rem = Int % 256; s += itoa(Rem); Int = Math.floor(Int / 256); }
+    return s; };
+function ltob(S, Count) {
+    var isNegative, i, n, Num = 0;
+    isNegative = (S.charCodeAt(0) === 1);
+    S = S.substring(1);
+    for (i = Count - 1; i >= 0; i--) {
+        n = S.charCodeAt(i);
+        if (Num === 0) { Num = n; } else { Num = Num * 256 + n; } }
+    if (isNegative) { return Num * -1; }
+    return Num; };
 
 function encode(o) { return BERT + en_inner(o); };
 function en_inner(Obj) { if(Obj === undefined) return NIL; var func = 'en_' + typeof(Obj); return eval(func)(Obj); };
 function en_string(Obj) { return STR + itol(Obj.length, 2) + Obj; };
 function en_boolean(Obj) { if (Obj) return en_inner(atom("true")); else return en_inner(atom("false")); };
-function en_number(Obj) { var s, isi = (Obj % 1 === 0); if (!isi) { return en_float(Obj); }
+function en_number(Obj) {
+    var s, isi = (Obj % 1 === 0);
+    if (!isi) { return en_float(Obj); }
     if (isi && Obj >= 0 && Obj < 256) { return SINT + itol(Obj, 1); }
     return INT + itol(Obj, 4); };
 function en_float(Obj) { var s = Obj.toExponential(); while (s.length < 31) { s += ZERO; } return FLOAT + s; };
@@ -100,6 +119,8 @@ function de_inner(S) {
         case BINARY: return de_bin(S);
         case SINT: return de_integer(S, 1);
         case INT: return de_integer(S, 4);
+        case SBIG: return de_big(S, 1);
+        case LBIG: return de_big(S, 4);
         case FLOAT: return de_float(S);
         case STR: return de_string(S);
         case LIST: return de_list(S);
@@ -145,6 +166,12 @@ function de_tuple(S, Count) {
     for (i = 0; i < Size; i++) { El = de_inner(S); Arr.push(El.value); S = El.rest; }
     return { value: tuple(Arr), rest: S }; };
 function de_nil(S) { return { value: [], rest: S }; };
+function de_big(S, Count) {
+    var Size, Value;
+    Size = ltoi(S, Count);
+    S = S.substring(Count);
+    Value = ltob(S, Size);
+    return { value : Value, rest: S.substring(Size + 1) }; };
 
 function utf8toByteArray(str) {
     var byteArray = [];

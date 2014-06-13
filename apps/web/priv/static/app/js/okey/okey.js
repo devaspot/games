@@ -9,6 +9,8 @@ function PostLoad()
     window.deck = scope.deck;
     scope.user = document.user;
 
+    $overlay = $("#overlay");
+
     var centralCard,
         apiProvider = new scope.ApiProvider({url: scope.apiUrl, gameId: scope.gameId });
 
@@ -78,6 +80,7 @@ function PostLoad()
     apiProvider.on("okey_game_info", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         scope.user = document.user;
+        $overlay.hide();
         if (!scope.started) {
             for (var playerInfo, players = e.detail.players, i = 0; i < players.length; i++) 
                 if (playerInfo = players[i].PlayerInfo, playerInfo[0] == scope.user)
@@ -208,10 +211,11 @@ function PostLoad()
 
     apiProvider.on("okey_revealed", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        ended = !0, alert(e.detail.player), deck.fill([]);
+        showRevealHand(dec(e.raw));
+        ended = !0;//, deck.fill([]);
         for (var hand in playersLeftHandsMap) playersLeftHandsMap[hand].clear();
         for (var playerName in playersMap) playersMap[playerName].unselect();
-//        $gosterme.remove();
+        // $gosterme.remove();
     });
 
     apiProvider.on("player_left", function(x) {
@@ -233,7 +237,6 @@ function PostLoad()
 
     var whoPausedGame = false;
 
-    $overlay = $("#overlay");
     $overlay.attr({cursor: "pointer"});
     $overlay.on("click", function sendPause() { apiProvider.pause(true); });
 

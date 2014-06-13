@@ -101,7 +101,7 @@ function OkeyApiProviderScope(scope) {
             return msg;
         },
         emitEvent: function(raw,msg) {
-//            console.log(JSON.stringify(msg));
+            //console.log(String(dec(raw)));
             for (var event, i = eventMap.length; i--; ) event = eventMap[i], msg[event] && this.$socket.trigger(event, {
                 detail: {json:msg[event],bert:raw}
             });
