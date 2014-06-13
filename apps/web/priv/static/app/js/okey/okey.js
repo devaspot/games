@@ -228,22 +228,21 @@ function PostLoad()
         delete playersLeftHandsMap[e.detail.player];
     });
 
-    $("#Pause").on("click", function() { apiProvider.pause(); });
+    $("#Pause").on("click", function sendPause() { apiProvider.pause(false); });
     $("#Pause").attr({cursor: "pointer"});
 
     var whoPausedGame = false;
 
     $overlay = $("#overlay");
     $overlay.attr({cursor: "pointer"});
-    $overlay.on("click", function() {
-        apiProvider.pause(scope.paused); });
+    $overlay.on("click", function sendPause() { apiProvider.pause(true); });
 
-    function unpause() {
+    function unpause(e) {
         $overlay.hide();
         for (var player in playersMap) playersMap[player].timer.resume();
     }
 
-    function pause() {
+    function pause(e) {
         $overlay.show();
         for (var player in playersMap) playersMap[player].timer.pause();
         var player = playersMap[e.detail[3]];
@@ -252,7 +251,7 @@ function PostLoad()
 
     apiProvider.on("game_paused", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        if ("pause" == e.detail[2]) pause(); else unpause();
+        if (whoPausedGame = e.detail[3], "pause" == e.detail[2]) pause(e); else unpause(e);
     });
 
     $("#Table-Oval").droppable({
