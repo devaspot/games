@@ -201,7 +201,7 @@ function initPauseOverlay() {
     var html = '<g xmlns="http://www.w3.org/2000/svg" id="overlay" style="display:none;">'+
         '<rect x="216" y="91" stroke-width="0" stroke="red" width="641" height="367" rx="6" fill="white" opacity="0.7"></rect>'+
         '<g>'+
-        '<text fill="blue" font-family="Exo 2" y="280" x="-116" text-anchor="middle" dx="641" font-size="26pt"> Someone paused the game</text></g>'+
+        '<text fill="#3B5998" font-family="Exo 2" y="280" x="-116" text-anchor="middle" dx="641" font-size="26pt"> Someone paused the game</text></g>'+
         '</g>';
     var page = document.getElementById("Kakaranet-12-maxim");
     var kakush = document.getElementById("Kakush");

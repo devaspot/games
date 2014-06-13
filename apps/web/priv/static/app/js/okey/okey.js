@@ -229,24 +229,30 @@ function PostLoad()
     });
 
     $("#Pause").on("click", function() { apiProvider.pause(); });
+    $("#Pause").attr({cursor: "pointer"});
 
     var whoPausedGame = false;
 
     $overlay = $("#overlay");
+    $overlay.attr({cursor: "pointer"});
     $overlay.on("click", function() {
         apiProvider.pause(scope.paused); });
 
+    function unpause() {
+        $overlay.hide();
+        for (var player in playersMap) playersMap[player].timer.resume();
+    }
+
+    function pause() {
+        $overlay.show();
+        for (var player in playersMap) playersMap[player].timer.pause();
+        var player = playersMap[e.detail[3]];
+        $overlay.find("text").text(player.name + " paused the game");
+    }
+
     apiProvider.on("game_paused", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        if (whoPausedGame = e.detail[3], "pause" == e.detail[2]) {
-            $overlay.show();
-            for (var player in playersMap) playersMap[player].timer.pause();
-            var player = playersMap[e.detail[3]];
-            $overlay.find("text").text(player.name + "\n paused the game");
-        } else {
-            $overlay.hide();
-            for (var player in playersMap) playersMap[player].timer.resume();
-        }
+        if ("pause" == e.detail[2]) pause(); else unpause();
     });
 
     $("#Table-Oval").droppable({
@@ -258,6 +264,7 @@ function PostLoad()
             apiProvider.reveal(target.owner, deck.hand(target.owner));
         }
     });
+
 
 function initOkeyScene(x)
 {
