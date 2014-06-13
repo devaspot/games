@@ -39,7 +39,7 @@ function RosterHandlers(scope) {
         if (currentChat == null) showOnlineList();
         var now = new Date().getTime();
         var page_load_time = now - perfCounter.start;
-        console.log("Roster Loaded: " + page_load_time + "ms");
+        console.log(user_count + " users loaded in " + page_load_time + "ms");
     });
 
     scope.apiProvider.on("chat_message", function (x) {
