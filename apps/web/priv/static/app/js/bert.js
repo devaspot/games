@@ -105,7 +105,7 @@ function de_inner(S) {
         case LIST: return de_list(S);
         case TUPLE: return de_tuple(S, 1);
         case NIL: return de_nil(S);
-        default: throw ("BERT: " + S.charCodeAt(0)); } };
+        default: throw ("BERT: " + S.charCodeAt(0) + " DECODE string: "+S); } };
 function de_atom(S, Count) {
     var Size, Value;
     Size = ltoi(S, Count);
