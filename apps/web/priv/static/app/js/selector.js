@@ -1,3 +1,6 @@
+window.perfCounter = {};
+window.perfCounter.start = nowOffset = Date.now();
+
 var scope = {
     apiUrl: "ws://" + window.location.hostname + ":" + window.location.port + "/ws/",
 //    apiUrl: "ws://srv5.kakaranet.com:8080/ws/",

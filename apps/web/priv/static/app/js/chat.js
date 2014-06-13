@@ -277,10 +277,12 @@ function initChat()
 
     document.getElementById('onlineChatEdit').setAttribute("contentEditable","true");
     document.getElementById('onlineChatEdit').onkeydown = chatEditor;
+    document.getElementById('onlineChatEdit').onfocus = chatEditorClearContent;
     document.getElementById("onlineChatEdit").style.display = 'none';
 
     document.getElementById('edit').setAttribute("contentEditable","true");
     document.getElementById('edit').onkeydown = chatEditor;
+    document.getElementById('edit').onfocus = chatEditorClearContent;
     document.getElementById("edit").style.display = '';
 
     document.getElementById('Page-1').addEventListener(mousewheelevt, mouseWheelHandler, false);
@@ -288,6 +290,12 @@ function initChat()
 }
 
 var mousewheelevt=(/Firefox/i.test(navigator.userAgent))? "DOMMouseScroll" : "mousewheel";
+
+function chatEditorClearContent(evt) {
+    var e = evt.target;
+    var chatContainer = e.getAttribute("xmlns:data");
+    e.innerHTML = '';
+}
 
 function chatEditor(evt) {
     var chatContainer = evt.target.getAttribute("xmlns:data");
@@ -321,6 +329,15 @@ function chatEditor(evt) {
 //        document.execCommand('insertText',false, '\n');
     }
     var scroll = -100000;
-    if (null != currentChat) { left_scroll = scroll; }
-    mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
+    if (chatContainer == "Chat") { 
+        right_scroll = scroll;
+        barHover();
+        mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
+        barHoverOut();
+    } else {
+        left_scroll = scroll;
+        onlineHover();
+        mouseWheelHandler({'detail':scroll,'wheelDelta':scroll});
+        onlineHoverOut();
+    }
 }

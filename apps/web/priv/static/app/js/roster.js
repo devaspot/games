@@ -37,6 +37,9 @@ function RosterHandlers(scope) {
     scope.apiProvider.on("roster_end", function (x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         if (currentChat == null) showOnlineList();
+        var now = new Date().getTime();
+        var page_load_time = now - perfCounter.start;
+        console.log("Roster Loaded: " + page_load_time + "ms");
     });
 
     scope.apiProvider.on("chat_message", function (x) {

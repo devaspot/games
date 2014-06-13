@@ -124,7 +124,6 @@ function OkeyApiProviderScope(scope) {
             }))));
         },
         pause: function(resume) {
-            console.log(resume ? "resume" : "pause");
             this.socket.send(enc(tuple(atom("client"),
                 tuple(atom("pause_game"),
                     atom("undefined"),

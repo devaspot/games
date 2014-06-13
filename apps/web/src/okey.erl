@@ -90,24 +90,27 @@ tash(C,V) -> {wf:to_binary([wf:to_list(C)," ",wf:to_list(V)]), {C, V}}.
 
 main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
-send_roster() ->
+send_roster(Pid) ->
 %    X = [ send_roster_item(User) || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
     X = [ {User#user.id,User#user.names,User#user.surnames} || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
     Lists = split(170,X,[]),
-    [ send_roster_group(List) || List <- Lists],
-    self() ! {server,{roster_end}},
+    [ send_roster_group(Pid,List) || List <- Lists],
+    Pid ! {server,{roster_end,length(Lists)}},
     wf:info(?MODULE,"Users: ~p",[length(X)]).
 
 split(N,[],Result) -> Result; 
 split(N,List,Result) when length(List) < N -> Result ++ [List];
 split(N,List,Result) -> {A,B}=lists:split(N,List), Result ++ [A] ++ split(N,B,Result). 
 
-send_roster_item(User) ->
-    self() ! {server,{roster_item,User#user.id,User#user.names,User#user.surnames}}.
+already_online(Pid) ->
+    [ Pid ! {user_online,User} || {_,_,{_,User}} <- game:online() ].
 
-send_roster_group(List) ->
+send_roster_item(Pid,User) ->
+    Pid ! {server,{roster_item,User#user.id,User#user.names,User#user.surnames}}.
+
+send_roster_group(Pid,List) ->
     wf:info(?MODULE,"User Group: ~p",[List]),
-    self() ! {server,{roster_group,List}}.
+    Pid ! {server,{roster_group,List}}.
 
 body() -> [].
 
@@ -137,8 +140,6 @@ body2() ->
     #button   { id = pause,      body = "Pause",       postback = pause},
     #button   { id = info,       body = "PlayerInfo",  postback = player_info} ].
 
-already_online(Pid) ->
-    [ Pid ! {user_online,User} || {_,_,{_,User}} <- game:online() ].
 
 event(terminate) -> 
     User = user(),
@@ -184,8 +185,6 @@ event(attach) ->
     wf:reg(User#user.id),
     wf:info(?MODULE,"User Attach: ~p",[User]),
     gproc:set_value({p,l,broadcast},{wf:peer(?REQ),User}),
-    wf:send(broadcast,{user_online,User}),
-    send_roster(),
     wf:info(?MODULE,"Games Online: ~p",[game:online()]),
     put(okey_im, User#user.id),
     wf:wire(wf:f("document.user = '~s';document.names = '~s';document.surnames = '~s';",
@@ -196,7 +195,11 @@ event(attach) ->
     Token = auth_server:generate_token(GameId,User),
     wf:wire(protocol:attach(wf:f("'~s'",[Token]))),
     Pid = self(),
-    spawn(fun() -> already_online(Pid) end),
+    spawn(fun() ->
+        send_roster(Pid),
+        already_online(Pid),
+        wf:send(broadcast,{user_online,User})
+    end),
     ok;
 
 event(discard) -> 

@@ -104,8 +104,6 @@ function PatchSVG()
 
 function initChatSample() {
     chatMessage("Chat","0","Maxim","Kakaranet:\nThis is in-game chat");
-
-
     barHover();
     mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
     barHoverOut();
