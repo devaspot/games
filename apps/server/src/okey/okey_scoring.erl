@@ -332,52 +332,14 @@ check_win([TopRow, BottomRow], Gosterge) ->
                       false_okey -> okey;
                        _ -> E
                   end || E <- FlatList],
-    gas:info(?MODULE,"check_reveal/2 ~n    ~p ~p~n",[Normalized, Gosterge]),
-    
-    
+
+    Res = check_win_rec(sets:from_list(Normalized)),
+
+    gas:info(?MODULE,"NEW check_reveal/2 ~p",[Res]),
 
     ok.
 
-reveals() -> [[3,3,3,5], [3,3,4,4], [5,5,4], [2,2,2,2,2,2,2]].
-
-check_5_5_4(_Deck,_Gosterme) ->
-    Deck=[[{4,4},{4,3},{4,6},{4,7},{1,7},null,{3,9},{3,10},{3,11},{3,12},false_okey,null,null,null,null],
-          [{2,6},{3,6},{1,7},{4,6}, null,null, null, null, null, null,   null,      null,null,null,null]],
-    Gosterme = {1,6},
-    Ret = check_reveal(Deck,Gosterme),
-    io:format("Old Check: ~p",[Ret]),
-    Okey = gosterge_to_okey(Gosterme),
-    Normalized = lists:flatten([case E of
-                      Okey -> okey;
-                      false_okey -> okey;
-                      null -> [];
-                       _ -> E
-                  end || E <- lists:flatten(Deck)]),
-    io:format("Normalized: ~p",[Normalized]),
-    X = lists:foldl(
-        fun (okey=C,A) -> {C,VA} = lists:keyfind(C,1,A), game:plist_setkey(C,1,A,{C,[C|VA]});
-            ({C,V},A) ->  {C,VA} = lists:keyfind(C,1,A), game:plist_setkey(C,1,A,{C,[{C,V}|VA]}) end,
-        [{1,[]},{2,[]},{3,[]},{4,[]},{okey,[]}],Normalized),
-
-%      [{1,[{1,6}]},                                    []   [2]    [1]
-%       {2,[{2,6}]},                                    []   []     [1]
-%       {3,[{3,6},{3,12},{3,11},{3,10},{3,9}]},         [1,5] [3,5] [4]
-%       {4,[{4,6},{4,7},{4,6},{4,3},{4,4}]},            [1,3] []    [4]
-%       {okey,[okey,okey]}]                                4  4     4
-
-    %  okey
-    %  0      5 5 4run / 5 5 4set
-    %  1      5 4run 4run / 5 4run 4set
-    %  2      5 5 2run / 5 5 2set 
-    %         5 5 (1,x,x,1+3)run / 5 5 2set
-    %         5 4run 3run / 5 4run 3set
-    %         5 (1,x,x,1+3)run 4run / 5 (1,x,x,1+3)run 3set
-    %         5 (1,x,1+2)run 3run / 5 (1,x,1+2)run 3set
-    %         5 3run 4set / 5 3run 4run
-    %  3
-    %  4
-
-    io:format("Deck: ~p",[X]).
+check_win_rec(Set) -> ok.
 
 %% @spec check_reveal(TashPlaces, Gosterge) -> {RightReveal, WithPairs, SameColor}
 %% @end
