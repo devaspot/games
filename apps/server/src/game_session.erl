@@ -143,7 +143,7 @@ handle_client_request(#stats_action{player_id = PlayerId, game_type = GameModule
 handle_client_request(#chat{game = GameId, who = DisplayName, message = Msg0}, _From,
                       #state{user = User, games = Games} = State) ->
     gas:info(?MODULE,"Chat Message ~n ~p", [Msg0]),
-    Msg = #chat_event{game = GameId, message = Msg0, who = DisplayName },
+    Msg = #chat_event{game = GameId, message = Msg0, player_id = User#'PlayerInfo'.id, who = DisplayName },
     Participation = get_relay(GameId, Games),
     Res = case Participation of
               false ->

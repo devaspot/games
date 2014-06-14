@@ -58,12 +58,13 @@ function RosterHandlers(scope) {
 
     scope.apiProvider.on("chat_event", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        var gameId = dec(e.raw).value[0][1],
-            name = dec(e.raw).value[0][2].value,
-            message = dec(e.raw).value[0][3];
-        if (name != document.names)
+        var gameId  = dec(e.raw).value[0][1];
+        var userId  = dec(e.raw).value[0][2].value;
+        var name    = dec(e.raw).value[0][3].value;
+        var message = dec(e.raw).value[0][4];
+        if (userId != document.user)
         {
-            chatMessage("Chat","1",name==document.user?"Self":name,name+":\n"+utf8decode(message));
+            chatMessage("Chat","1",userId==document.user?"Self":userId,name+":\n"+utf8decode(message));
             scroll_right = -10000;
             barHover();
             mouseWheelHandler({'detail':-10000,'wheelDelta':-10000});

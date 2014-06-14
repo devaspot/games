@@ -320,6 +320,7 @@ function chatEditor(evt) {
                 ws.send(enc(tuple(atom('client'),
                     tuple(atom('chat'),
                          scope.gameId,
+                         bin(document.user),
                          bin(document.names),
                          utf8toByteArray(text)))));
             }

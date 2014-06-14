@@ -206,6 +206,13 @@ function initPauseOverlay() {
     page.insertBefore(svg(html),kakush);
 }
 
+function showRoundEnd(o)
+{
+    $overlay.show();
+    $("#Overlay-Text").text(player + " revealed ");
+
+}
+
 function showRevealHand(o) {
 
     var player    = o.value[0][3][0].value[0][1].value,

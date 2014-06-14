@@ -21,6 +21,7 @@ function OkeyApiProviderScope(scope) {
         // roster protocol
         "online_number",
         "online",
+        "chat",
         "offline",
         "roster_item",
         "roster_group",
@@ -65,6 +66,9 @@ function OkeyApiProviderScope(scope) {
             if (msg.data) { this.emitEvent(msg.data,this.beutify(this.parse(dec(msg.data)))); }
 
         },
+
+        // TODO: remove parse/beautify or make it proper BERT to JSON transformation
+
         parse: function(msg) {
             if (Array.isArray(msg)) {
                 if (msg.every(function(el, i) {
@@ -101,10 +105,12 @@ function OkeyApiProviderScope(scope) {
             return msg;
         },
         emitEvent: function(raw,msg) {
-            //console.log(String(dec(raw)));
-            for (var event, i = eventMap.length; i--; ) event = eventMap[i], msg[event] && this.$socket.trigger(event, {
-                detail: {json:msg[event],bert:raw}
-            });
+            for (var event, i = eventMap.length, obj; i--; ) {
+                event = eventMap[i];
+                found = (event == msg[0] || msg[event] != null);
+                body = event == msg[0] ? msg : msg[event];
+                found && this.$socket.trigger(event, {detail: {json:body,bert:raw} });
+            }
         },
         actionTake: function(card) {
             var from = null != card.value ? 1 : 0;

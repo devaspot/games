@@ -4,10 +4,11 @@
 log_modules() -> [
 %    wf_core,
     n2o_bullet,
-    game_session,
+%    game_session,
     bullet_handler,
-    okey_scoring,
+%    okey_scoring,
     journal,
+    lucky,
 %    n2o_secret,
 %    js_session,
     okey

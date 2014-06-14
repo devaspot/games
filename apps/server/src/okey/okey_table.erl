@@ -16,6 +16,7 @@
 -include_lib("server/include/game_state.hrl").
 -include_lib("server/include/requests.hrl").
 -include_lib("db/include/journal.hrl").
+-include_lib("kvs/include/user.hrl").
 
 %% --------------------------------------------------------------------
 %% External exports
@@ -1284,11 +1285,13 @@ round_results(
 
     Results = [begin
 
-        #player{user_id = UserId,is_bot=IsBot} = get_player_by_seat_num(SeatNum, Players),
+        Player = #player{user_id = UserId,is_bot=IsBot} = get_player_by_seat_num(SeatNum, Players),
         IsWinner = if SeatNum == Revealer -> RevealerWin; true -> not RevealerWin end,
         GoodShot = if SeatNum == Revealer -> RevealerWin; true -> not lists:member(SeatNum, WrongRejects) end,
         {_, PlayerScoreTotal} = lists:keyfind(SeatNum, 1, TotalScore),
         {_, PlayerScoreRound} = lists:keyfind(SeatNum, 1, RoundScore),
+        
+        io:format("XXX Player ~p",[Player]),
 
         RE = #reveal_event{
             id = ?GAME_STATS:timestamp(),
@@ -1304,11 +1307,17 @@ round_results(
             winner = IsWinner,
             score = PlayerScoreRound,
             total = PlayerScoreTotal},
+
+        PlayerInfo = Player#player.info,
+        DisplayName = wf:to_list(PlayerInfo#'PlayerInfo'.name) ++ " " ++
+                      wf:to_list(PlayerInfo#'PlayerInfo'.surname),
+
         case {SeatNum == Revealer,Revealer,IsBot} of
             {_,none,_} -> ?GAME_STATS:reveal_event(UserId,RE,State);
             {true,_,false}  -> ?GAME_STATS:reveal_event(UserId,RE,State);
             _ -> skip end,
-        RE
+
+        {DisplayName,IsWinner,PlayerScoreRound,PlayerScoreTotal}
 
     end || SeatNum <- lists:seq(1, ?SEATS_NUM)],
 
