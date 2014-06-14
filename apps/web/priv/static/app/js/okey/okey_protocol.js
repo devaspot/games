@@ -105,6 +105,7 @@ function OkeyApiProviderScope(scope) {
             return msg;
         },
         emitEvent: function(raw,msg) {
+            console.log(String(dec(raw)));
             for (var event, i = eventMap.length, obj; i--; ) {
                 event = eventMap[i];
                 found = (event == msg[0] || msg[event] != null);

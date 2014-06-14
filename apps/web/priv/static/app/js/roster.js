@@ -72,6 +72,19 @@ function RosterHandlers(scope) {
         }
     });
 
+    scope.apiProvider.on("stats_event", function (x) {
+        var e = {detail: x.detail.json, raw: x.detail.bert};
+        document.getElementById('Player-Statistics').style.display = '';
+        var games    = dec(e.raw).value[0][2],
+            reveals  = dec(e.raw).value[0][3],
+            protocol = dec(e.raw).value[0][4];
+        removeChilds(document.getElementById('Stat-Left'));
+        removeChilds(document.getElementById('Stat-Right'));
+//            for (var i=0;i<games.length;i++) { statsRow(24, i,games); }
+        for (var i=0;i<protocol.length;i++) { statsRow(24,i,protocol); }
+        for (var i=0;i<reveals.length;i++) { statsRow(340,i,reveals); }
+    });
+
     scope.apiProvider.on("roster_group", function (x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         var list = dec(e.raw).value[0][1];

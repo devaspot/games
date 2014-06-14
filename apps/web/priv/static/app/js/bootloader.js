@@ -6,6 +6,17 @@ function isSafari() {
 var svgNS = "http://www.w3.org/2000/svg";
 var color = ['#DE3F26','#606060','#48AF5E','#FFC800'];
 
+function statsRow(start_name,i,games) {
+    var start_score = 200;
+    var name = template_engine(
+        '<tspan xmlns="http://www.w3.org/2000/svg" x="{this.x}" y="{this.y}">{this.body}</tspan>',{
+            x: start_name,
+            y: 180+25*i,
+            body: games[i].value[0][0] + " — " + games[i].value[0][1]});
+    var element1 = svg(name);
+    document.getElementById('Stat-Right').appendChild(element1);
+}
+
 function parseTransformAttribute(aa) {
     var a = aa.split(' ').join('');
     var b={};
@@ -50,7 +61,14 @@ function initDiscards() {
 function PatchSVG()
 {
 
-    $('Player-Statistics').hide();
+//    $('Player-Statistics').hide();
+
+    var playerInifoOnClick = [
+        "Point-Table" ];
+
+       playerInifoOnClick.map(function(x) { 
+            document.getElementById(x).style.cursor = "pointer";
+            document.getElementById(x).onclick = showPlayerInfo; });
 
     var onlineListOnClick = [
         "Online-Users",
@@ -141,6 +159,29 @@ function showRules()
         }
         rules.style.display = 'block';
     });
+}
+
+function showPlayerInfo()
+{
+    ws.send(enc(tuple(atom('client'),
+        tuple(atom('stats_action'),bin(document.user),atom('game_okey')))));
+
+    $.load("svg/Player-Statistics.svg", function(h) {
+        var rules = document.getElementById("Player-Statistics");
+        if (null == rules) {
+            var rulesElement = svg(h);
+            document.getElementById("Kakaranet-12-maxim").appendChild(rulesElement);
+            rules = document.getElementById("Player-Statistics");
+            rules.setAttribute('transform', 'translate(210,86)');
+            rules.setAttribute('onclick', 'onPlayerInfoClose(evt)');
+        }
+        rules.style.display = 'block';
+
+    });
+}
+
+function onPlayerInfoClose(evt) {
+    document.getElementById('Player-Statistics').style.display = 'none';
 }
 
 function onRulesClose(evt) {
