@@ -19,7 +19,8 @@ And open it in browser [http://localhost:8080/static/app/index.htm](http://local
 Licensing
 ---------
 
-Not allowed for commercial use. For licensing Kakaranet Application or its parts for commercial use please contact:
+Not allowed for commercial use.
+For licensing Kakaranet Application or its parts for commercial use please contact:
 
 * Sinan Ustel
 * Ahmet Tez
