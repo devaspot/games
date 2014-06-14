@@ -333,7 +333,7 @@ check_win([TopRow, BottomRow], Gosterge) ->
                        _ -> E
                   end || E <- FlatList],
 
-    Res = check_unordered(sets:from_list(Normalized),#{}),
+    Res = check_unordered(sets:from_list(Normalized),[]),
 
     gas:info(?MODULE,"NEW check_reveal/2 ~p",[Res]),
 
