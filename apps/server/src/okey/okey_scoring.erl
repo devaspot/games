@@ -333,13 +333,18 @@ check_win([TopRow, BottomRow], Gosterge) ->
                        _ -> E
                   end || E <- FlatList],
 
-    Res = check_win_rec(sets:from_list(Normalized)),
+    Res = check_unordered(sets:from_list(Normalized),#{}),
 
     gas:info(?MODULE,"NEW check_reveal/2 ~p",[Res]),
 
     ok.
 
-check_win_rec(Set) -> ok.
+check_unordered(Set,Map) ->
+
+    case sets:size() of
+        0 -> false;
+        _ -> true
+    end.
 
 %% @spec check_reveal(TashPlaces, Gosterge) -> {RightReveal, WithPairs, SameColor}
 %% @end

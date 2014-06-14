@@ -12,26 +12,34 @@ function RosterHandlers(scope) {
         document.getElementById("Users-Online-Number").firstElementChild.textContent = e.detail.toString(); 
     });
 
-
     scope.apiProvider.on("online", function (x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        var msg = e.detail, id = msg[0], name = msg[1], surname = msg[2];
+        var id      = dec(e.raw).value[0][1].value;
+            name    = dec(e.raw).value[0][2].value;
+            surname = dec(e.raw).value[0][3].value;
+            score   = dec(e.raw).value[0][4];
         if (null != document.getElementById(id)) removeOnlineUser(id);
-        addOnlineUser(id,name+" "+surname,"insertTop");
+        addOnlineUser(id,name+" "+surname,score,"insertTop");
         if (currentChat == null) showOnlineList();
     });
 
     scope.apiProvider.on("offline", function (x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        var msg = e.detail, id = msg[0], name = msg[1], surname = msg[2];
+        var id      = dec(e.raw).value[0][1].value;
+            name    = dec(e.raw).value[0][2].value;
+            surname = dec(e.raw).value[0][3].value;
+            score   = dec(e.raw).value[0][4];
         if (null != document.getElementById(id)) removeOnlineUser(id);
-        addOnlineUser(id,name+" "+surname,"appendChild");
+        addOnlineUser(id,name+" "+surname,score,"appendChild");
     });
 
     scope.apiProvider.on("roster_item", function (x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        var msg = e.detail, id = msg[0], name = msg[1], surname = msg[2];
-        addOnlineUser(id,name+" "+surname,"appendChild");
+        var id      = dec(e.raw).value[0][1].value;
+            name    = dec(e.raw).value[0][2].value;
+            surname = dec(e.raw).value[0][3].value;
+            score   = dec(e.raw).value[0][4];
+        addOnlineUser(id,name+" "+surname,score,"appendChild");
     });
 
     scope.apiProvider.on("roster_end", function (x) {
@@ -44,9 +52,9 @@ function RosterHandlers(scope) {
 
     scope.apiProvider.on("chat_message", function (x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        var from = dec(e.raw).value[0][1].value[0][0].value,
-            names = dec(e.raw).value[0][1].value[0][1].value,
-            to = dec(e.raw).value[0][2].value,
+        var from    = dec(e.raw).value[0][1].value[0][0].value,
+            names   = dec(e.raw).value[0][1].value[0][1].value,
+            to      = dec(e.raw).value[0][2].value,
             message = dec(e.raw).value[0][3].value;
         chatMessage("Chat+"+from,"1",from==document.user?"Self":from,utf8decode(message));
         if (null != currentChat) {
@@ -78,11 +86,13 @@ function RosterHandlers(scope) {
         var games    = dec(e.raw).value[0][2],
             reveals  = dec(e.raw).value[0][3],
             protocol = dec(e.raw).value[0][4];
+            score    = dec(e.raw).value[0][5];
         removeChilds(document.getElementById('Stat-Left'));
         removeChilds(document.getElementById('Stat-Right'));
 //            for (var i=0;i<games.length;i++) { statsRow(24, i,games); }
         for (var i=0;i<protocol.length;i++) { statsRow(24,i,protocol); }
         for (var i=0;i<reveals.length;i++) { statsRow(340,i,reveals); }
+        $("#Score").text("Score: " + score).attr({y: 40});
     });
 
     scope.apiProvider.on("roster_group", function (x) {
@@ -90,10 +100,11 @@ function RosterHandlers(scope) {
         var list = dec(e.raw).value[0][1];
         for (var i=0;i<list.length;i++) {
             var item = list[i],
-                id = item.value[0][0].value,
-                names = item.value[0][1].value,
-                surnames = item.value[0][2].value;
-            addOnlineUser(id,names+" "+surnames+" "+user_count++,'appendChild');
+                id       = item.value[0][0].value,
+                names    = item.value[0][1].value,
+                surnames = item.value[0][2].value,
+                score    = item.value[0][3];
+            addOnlineUser(id,names+" "+surnames+" "+user_count++,score,'appendChild');
         }
     });
 

@@ -517,7 +517,8 @@ get_player_info(_,User) ->
         player_id=User,
         games=Games,
         reveals=Reveals#reveal_log.stats,
-        protocol=Protocol#protocol_log.stats}.
+        protocol=Protocol#protocol_log.stats,
+        score=Reveals#reveal_log.score}.
 
 plist_setkey(Name,Pos,List,New) ->
     case lists:keyfind(Name,Pos,List) of

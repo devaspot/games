@@ -36,11 +36,11 @@
                 <text id="Games" font-size="35.1627907" font-weight="normal" fill="#3B5998">
                     <tspan x="0" y="122.014225">Games</tspan>
                 </text>
-                <text id="Score:-722-" fill="#FFFFFF" font-size="35.1627907" font-weight="bold">
+                <text id="Score" font-size="35.1627907" font-weight="bold" fill="#FFFFFF">
                     <tspan x="0" y="36.0284512">Score: 722 </tspan>
                 </text>
-                <text id="Rank:-22-" fill="#FFFFFF" font-size="35.1627922" font-weight="bold">
-                    <tspan x="458" y="38.0284509">Rank: 22 </tspan>
+                <text id="Rank" font-size="35.1627922" font-weight="bold" fill="#48AF5E">
+                    <tspan x="416" y="38.0284509">Rank: 22 </tspan>
                 </text>
             </g>
         </g>

@@ -5,6 +5,7 @@
 -include_lib("server/include/settings.hrl").
 -include_lib("avz/include/avz.hrl").
 -include_lib("kvs/include/user.hrl").
+-include_lib("db/include/journal.hrl").
 
 -define(GAMEID, game_form()).
 
@@ -92,8 +93,12 @@ main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
 send_roster(Pid) ->
 %    X = [ send_roster_item(User) || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
-    X = [ {User#user.id,User#user.names,User#user.surnames} || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
-    Lists = split(170,X,[]),
+    X = [ begin
+        Score = score(User#user.id),
+       {User#user.id,User#user.names,User#user.surnames,Score}
+       end || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
+    XS = lists:sort(fun({_,_,_,S1},{_,_,_,S2}) -> S1 < S2 end,X),
+    Lists = split(170,XS,[]),
     [ send_roster_group(Pid,List) || List <- Lists],
     Pid ! {server,{roster_end,length(Lists)}},
     wf:info(?MODULE,"Users: ~p",[length(X)]).
@@ -102,11 +107,18 @@ split(N,[],Result) -> Result;
 split(N,List,Result) when length(List) < N -> Result ++ [List];
 split(N,List,Result) -> {A,B}=lists:split(N,List), Result ++ [A] ++ split(N,B,Result). 
 
+score(User) ->
+    Score = case kvs:get(reveal_log,User) of
+        {ok,#reveal_log{score=S}} -> S;
+        _ -> wf:info(?MODULE,"Score not found for User ~p",[User]), 0 end.
+
 already_online(Pid) ->
-    [ Pid ! {user_online,User} || {_,_,{_,User}} <- game:online() ].
+    [ begin 
+        Score = score(User#user.id),
+     Pid ! {user_online,User,Score} end || {_,_,{_,User}} <- game:online() ].
 
 send_roster_item(Pid,User) ->
-    Pid ! {server,{roster_item,User#user.id,User#user.names,User#user.surnames}}.
+    Pid ! {server,{roster_item,User#user.id,User#user.names,User#user.surnames,0}}.
 
 send_roster_group(Pid,List) ->
     wf:info(?MODULE,"User Group: ~p",[List]),
@@ -143,7 +155,7 @@ body2() ->
 
 event(terminate) -> 
     User = user(),
-    wf:send(broadcast,{user_offline,User}),
+    wf:send(broadcast,{user_offline,User,0}),
     wf:info(?MODULE,"EXTerminate",[]);
 
 event(init) -> 
@@ -198,7 +210,8 @@ event(attach) ->
     spawn(fun() ->
         send_roster(Pid),
         already_online(Pid),
-        wf:send(broadcast,{user_online,User})
+        Score = score(User#user.id),
+        wf:send(broadcast,{user_online,User,Score})
     end),
     ok;
 
@@ -435,8 +448,8 @@ event({server,terminate}) -> event(terminate);
 event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), kvs:add(User), wf:user(User);
 event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
 event({counter,Res}) -> Pid = self(), spawn(fun() -> Pid ! {server,{online_number,length(game:online())}} end);
-event({user_online,User}) -> wf:info(?MODULE,"User ~p goes Online",[User#user.id]), self() ! {server,{online,User#user.id,User#user.names,User#user.surnames}};
-event({user_offline,User}) -> self() ! {server,{offline,User#user.id,User#user.names,User#user.surnames}};
+event({user_online,User,Score}) -> wf:info(?MODULE,"User ~p goes Online",[User#user.id]), self() ! {server,{online,User#user.id,User#user.names,User#user.surnames,Score}};
+event({user_offline,User,Score}) -> self() ! {server,{offline,User#user.id,User#user.names,User#user.surnames,Score}};
 event(_Event) -> wf:info(?MODULE,"Unknown Event: ~p", [_Event]).
 
 %api_event(X,Y,Z) -> avz:api_event(X,Y,Z).
