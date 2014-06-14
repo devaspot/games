@@ -168,18 +168,16 @@ function DeckScope(scope) {
                         card = new scope.Card({
                             color: scope.CARD_COLORS[tile[1]-1],
                             value: tile[2]
-                        })
-                        card.pos = {x:i, y:j}
-                        card.on('dragstart', this.select)
-                        card.on('dragmove', this.track)
-                        card.$el.doubletap(function(){ 
-                            scope.apiProvider.actionDiscard(card) 
-                        })                     
-                        this.cards[j][i] = card
-                        card.$el.attr('transform', 'translate(' + this.trfs[j][i].x + ' ' + this.trfs[j][i].y + ')')
-                        card.drag()
-                        this.$el.append(card.$el[0])
-                        return false
+                        });
+                        card.pos = {x:i, y:j};
+                        card.on('dragstart', this.select);
+                        card.on('dragmove', this.track);
+                        card.$el.doubletap(function() { scope.apiProvider.actionDiscard(card) });
+                        this.cards[j][i] = card;
+                        card.$el.attr('transform', 'translate(' + this.trfs[j][i].x + ' ' + this.trfs[j][i].y + ')');
+                        card.drag();
+                        this.$el.append(card.$el[0]);
+                        return false;
                     }
                 })
             }

@@ -59,8 +59,8 @@ function PostLoad()
 
     });
 
-    var $gosterme = $("#Gosterme"),
-        ended = !0;
+    var $gosterme = $("#Gosterme");
+    scope.ended = !0;
 
     apiProvider.on("okey_game_started", initOkeyScene);
     apiProvider.on("okey_game_player_state", initOkeyScene);
@@ -80,7 +80,7 @@ function PostLoad()
     apiProvider.on("okey_game_info", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         scope.user = document.user;
-        $overlay.hide();
+        //$overlay.hide();
         if (!scope.started) {
             for (var playerInfo, players = e.detail.players, i = 0; i < players.length; i++) 
                 if (playerInfo = players[i].PlayerInfo, playerInfo[0] == scope.user)
@@ -212,7 +212,7 @@ function PostLoad()
     apiProvider.on("okey_revealed", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         showRevealHand(dec(e.raw));
-        ended = !0;//, deck.fill([]);
+        scope.ended = !0;//, deck.fill([]);
         for (var hand in playersLeftHandsMap) playersLeftHandsMap[hand].clear();
         for (var playerName in playersMap) playersMap[playerName].unselect();
         // $gosterme.remove();
@@ -260,7 +260,7 @@ function PostLoad()
     $("#Table-Oval").droppable({
         accept: function(target) {
             return 1 === apiProvider.socket.readyState && deck.length() > 14 && 
-                target.owner != centralCard && !ended && scope.Card.selected.length <= 1;
+                target.owner != centralCard && !scope.ended && scope.Card.selected.length <= 1;
         },
         drop: function(target) {
             apiProvider.reveal(target.owner, deck.hand(target.owner));
@@ -271,7 +271,7 @@ function PostLoad()
 function initOkeyScene(x)
 {
     var e = {detail: x.detail.json, raw: x.detail.bert};
-    if (ended = !1, 
+    if (scope.ended = !1, 
         scope.deck.fill(e.detail.tiles),
         scope.deck.render(),
         centralCard.dragHandler.disable(),

@@ -199,7 +199,7 @@ function initPauseOverlay() {
     var html = '<g xmlns="http://www.w3.org/2000/svg" id="overlay" style="display:none;">'+
         '<rect x="216" y="91" stroke-width="0" stroke="red" width="641" height="367" rx="6" fill="skyblue" opacity="0.8"></rect>'+
         '<g>'+
-        '<text fill="white" font-family="Exo 2" y="280" x="-116" text-anchor="middle" dx="641" font-size="30pt"> Someone paused the game</text></g>'+
+        '<text id="Overlay-Text" fill="white" font-family="Exo 2" y="280" x="-116" text-anchor="middle" dx="641" font-size="30pt"> Someone paused the game</text></g>'+
         '</g>';
     var page = document.getElementById("Kakaranet-12-maxim");
     var kakush = document.getElementById("Kakush");
@@ -210,19 +210,38 @@ function showRevealHand(o) {
 
     var player    = o.value[0][3][0].value[0][1].value,
         discard   = o.value[0][3][1].value[0][1].value,
-        deck = [];
+        deck      = o.value[0][3][2].value[0][1];
 
-    deck[0] = o.value[0][3][2].value[0][1][0],
-    deck[1] = o.value[0][3][2].value[0][1][1];
+    $.load("svg/Deck.svg", function(h) {
 
-    console.log(player);
-    console.log(discard);
-    console.log(deck);
+        $reveal_deck = $("#RevealDeck");
 
-    if (!document.getElementById("RevealDeck"))
-        $.load("svg/Deck.svg", function(h) { $overlay.append(svg(h)); });
+        if (null == $reveal_deck.$el) {
+            $overlay.append(svg(h));
+            $reveal_deck = $("#RevealDeck");
+            $("#RevealDeckRoot").on("click",function () {
+                $overlay.hide();
+                if (scope.ended) window.deck.fill([]);
+            });
+        }
+
+        $reveal_deck.each(function(card){ card.$el && card.$el.remove(); });
+
+        for (var i=0;i<2;i++)
+        for (var j=0;j<15;j++) {
+            var bin = deck[i][j];
+            if (null != bin.value[0][2]) {
+                var card = new scope.Card({
+                    color: scope.CARD_COLORS[bin.value[0][1]-1],
+                    value: bin.value[0][2] });
+                card.$el.attr('transform', 'translate(' + (5+j*42) + ' ' + (10+i*62) + ')');
+                $reveal_deck.append(card.$el[0]);
+            }
+        }
+
+    });
 
     $overlay.show();
-    $overlay.find("text").text(player + " revealed ");
+    $("#Overlay-Text").text(player + " revealed ");
 
 }
