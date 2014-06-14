@@ -16,8 +16,11 @@ To run just perform on Linux, Windows or Mac
 
 And open it in browser [http://localhost:8080/static/app/index.htm](http://localhost:8080/static/app/index.htm)
 
-Credits
--------
+Licensing
+---------
+
+Not allowed for commercial use.
+For licensing Kakaranet Application or its parts for commercial use please contact:
 
 * Sinan Ustel
 * Ahmet Tez
