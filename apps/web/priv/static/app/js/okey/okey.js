@@ -247,9 +247,10 @@ function PostLoad()
 
     function pause(e) {
         $overlay.show();
+        $("#RevealDeckRoot").hide();
         for (var player in playersMap) playersMap[player].timer.pause();
         var player = playersMap[e.detail[3]];
-        $overlay.find("text").text(player.name + " paused the game");
+        $("#Overlay-Text").text(player.name + " paused the game");
     }
 
     apiProvider.on("game_paused", function(x) {
