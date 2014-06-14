@@ -5,6 +5,8 @@ Kakaranet Application
 
 Stage: [http://srv5.kakaranet.com:8080/static/app/index.htm](http://srv5.kakaranet.com:8080/static/app/index.htm)
 
+![Image](http://synrc.com/lj/svg_clean.png)
+
 Run
 ---
 
