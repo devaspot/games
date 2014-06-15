@@ -215,7 +215,9 @@ event(attach) ->
     spawn(fun() ->
         send_roster(Pid),
         already_online(Pid),
-        wf:send(broadcast,{user_online,User})
+        case kvs:get(user,User#user.id) of
+            {ok,U} -> wf:send(broadcast,{user_online,U});
+             _ -> skip end
     end),
     ok;
 
@@ -450,6 +452,13 @@ event({server,{game_event, _, okey_next_turn, Args}}) ->
 
 event({server,{roster_group,List}}) -> skip;
 event({server,terminate}) -> event(terminate);
+event({server,{update_score,Score}}) -> 
+    User = user(),
+    NewUser = User#user{tokens=game:plist_setkey(score,1,User#user.tokens,{score,Score})},
+    gproc:set_value({p,l,broadcast},{wf:peer(?REQ),NewUser}),
+    wf:info(?MODULE,"User Process Updated Score ~p ~p",[User#user.id,Score]),
+    event({user_online,NewUser}),
+    ok;
 event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), kvs:add(User), wf:user(User);
 event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
 event({counter,Res}) -> Pid = self(), spawn(fun() -> Pid ! {server,{online_number,length(game:online())}} end);

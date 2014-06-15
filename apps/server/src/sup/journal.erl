@@ -14,6 +14,7 @@ start_link() -> gen_server:start_link({local, ?SERVER}, ?MODULE, [], []).
 mypid() -> gen_server:call(?SERVER, mypid).
 clear_history() -> gen_server:cast(?SERVER, clear_history).
 get_history() -> gen_server:call(?SERVER, get_history).
+exit() -> gen_server:call(?SERVER, terminate).
 protocol_event(User,Event,State) -> gen_server:cast(?SERVER, {protocol_event, User, Event, State}).
 series_event(User,Event,State) -> gen_server:cast(?SERVER, {series_event, User, Event, State}).
 reveal_event(User,Event,State) -> gen_server:cast(?SERVER, {reveal_event, User, Event, State}).
@@ -78,7 +79,9 @@ handle_cast({reveal_event, User, Event, GameState}, State) ->
     Skill = case SE#reveal_log.skill of X when is_integer(X) -> X; _ -> 0 end,
     Score = case SE#reveal_log.score of X1 when is_integer(X1) -> X1; _ -> 0 end,
     NewScore = Score+Event#reveal_event.score,
+    wf:send(User,{server,{update_score,NewScore}}),
     kvs:put(SE#reveal_log{skill=Skill+1,score=NewScore}),
+    gas:info(?MODULE, "Reveal Upadtes User Record: ~p ~p", [User,NewScore]),
     case kvs:get(user,User) of
         {ok,U=#user{tokens=Tokens}} ->
             kvs:put(U#user{tokens=game:plist_setkey(score,1,Tokens,{score,NewScore})});
