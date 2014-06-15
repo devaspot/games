@@ -333,17 +333,30 @@ check_win([TopRow, BottomRow], Gosterge) ->
                        _ -> E
                   end || E <- FlatList],
 
-    Res = check_unordered(sets:from_list(Normalized),[]),
+    Res = check_unordered(sets:from_list(Normalized),[],[]),
 
     gas:info(?MODULE,"NEW check_reveal/2 ~p",[Res]),
 
     ok.
 
-check_unordered(Set,Map) ->
+%color_masks(HandSet) -> 
+%    [H|T] = sets:to_list(HandSet),
+%    color_masks_rec(sets:from_list([H]),)
 
-    case sets:size() of
-        0 -> false;
-        _ -> true
+masks(_) -> [].
+
+check_unordered(HandSet,ResultMap,CombinationList) ->
+    case sets:size(HandSet) of
+        0 -> case ResultMap of
+                [{3,3},{5,1}] -> true;
+                      [{2,7}] -> true;
+                [{3,2},{4,2}] -> true;
+                [{4,1},{5,2}] -> true;
+                _ -> false end;
+        _ -> lists:any(fun(X) ->
+                NewSet = ResultMap ++ [{X,1}],
+                check_unordered(HandSet,[],[])
+              end, masks(HandSet))
     end.
 
 %% @spec check_reveal(TashPlaces, Gosterge) -> {RightReveal, WithPairs, SameColor}

@@ -99,12 +99,13 @@ function RosterHandlers(scope) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         var list = dec(e.raw).value[0][1];
         for (var i=0;i<list.length;i++) {
+            user_count++;
             var item = list[i],
                 id       = item.value[0][0].value,
                 names    = item.value[0][1].value,
                 surnames = item.value[0][2].value,
                 score    = item.value[0][3];
-            addOnlineUser(id,names+" "+surnames+" "+user_count++,score,'appendChild');
+            addOnlineUser(id,names+" "+surnames,score,'appendChild');
         }
     });
 
