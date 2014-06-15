@@ -101,7 +101,7 @@ send_roster(Pid) ->
 %    X = [ send_roster_item(User) || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
     X = [ begin
        {User#user.id,User#user.names,User#user.surnames,score(User)}
-       end || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
+       end || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined, proplists:get_value(score,Tokens,0) /= 0],
     XS = lists:sort(fun({_,_,_,S1},{_,_,_,S2}) -> S1 < S2 end,X),
     Lists = split(170,XS,[]),
     [ send_roster_group(Pid,List) || List <- Lists],
