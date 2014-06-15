@@ -10,7 +10,7 @@ var scope = {
     CARD_COLORS: [ "#CE290F", "#3B5998", "#48AF5E", "#F8E81C" ],
     SKIN_NAMES: [ "Alina", "Gabrielo", "Mustafa" ],
     paused: false,
-    version: 1406201404
+    version: 1406201405
 };
 
 var $ = function(_undefind)
@@ -316,10 +316,11 @@ var $ = function(_undefind)
 
     $.timestamp = scope.version,
 
-    $.load = function(url, complete) {
-        url = url + "?q=" + $.timestamp;
+    $.load = function(u, complete) {
+        var url = u + "?q=" + $.timestamp;
         var result = localStorage.getItem(url);
         if (null == result) {
+            if (u == "Kakaranet-Scene.svg") localStorage.clear();
             var xhr = new XMLHttpRequest();
             xhr.open("GET", url, !0), xhr.onload = function() {
                 localStorage.setItem(url, xhr.responseText),
