@@ -93,7 +93,7 @@ main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,body()}]}.
 
 patch_users() ->
     [ begin
-        Score = score(User),
+        Score = score_journal(User),
         kvs:put(User#user{tokens=game:plist_setkey(score,1,Tokens,{score,Score})})
     end|| User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined].
 
