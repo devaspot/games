@@ -307,6 +307,9 @@ handle_table_message(TableId, {player_disconnected, PlayerId},
     gas:info(?MODULE,"TRN_LUCKY <~p> The player_disconnected notification received from "
           "table <~p>. PlayerId: <~p>", [GameId, TableId, PlayerId]),
     case find_seats_by_player_id(PlayerId, Seats) of
+        [#seat{seat_num = SeatNum, is_bot = true}] ->
+            gas:info(?MODULE,"TRN_LUCKY <~p> Bot Replaces the Bot?", [GameId, TableId]),
+            {next_state, ?STATE_PROCESSING, StateData};
         [#seat{seat_num = SeatNum, is_bot = IsBot}] ->
             case real_players_at_table(TableId, Seats) of
                 1 when not IsBot -> %% Last real player gone
