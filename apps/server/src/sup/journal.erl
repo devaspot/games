@@ -1,6 +1,7 @@
 -module(journal).
 -behaviour(gen_server).
 -include_lib("kvs/include/kvs.hrl").
+-include_lib("kvs/include/user.hrl").
 -include_lib("db/include/journal.hrl").
 -include_lib("server/include/game_state.hrl").
 -include_lib("server/include/requests.hrl").
@@ -76,7 +77,12 @@ handle_cast({reveal_event, User, Event, GameState}, State) ->
   	  {ok, RL} -> RL end,
     Skill = case SE#reveal_log.skill of X when is_integer(X) -> X; _ -> 0 end,
     Score = case SE#reveal_log.score of X1 when is_integer(X1) -> X1; _ -> 0 end,
-    kvs:put(SE#reveal_log{skill=Skill+1,score=Score+Event#reveal_event.score}),
+    NewScore = Score+Event#reveal_event.score,
+    kvs:put(SE#reveal_log{skill=Skill+1,score=NewScore}),
+    case kvs:get(user,User) of
+        {ok,U=#user{tokens=Tokens}} ->
+            kvs:put(U#user{tokens=game:plist_setkey(score,1,Tokens,{score,NewScore})});
+        _ -> skip end,
     {noreply, State};
 handle_cast({series_event, User, Event, GameState}, State) ->
     kvs:add(Event),
