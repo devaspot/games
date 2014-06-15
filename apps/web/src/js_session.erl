@@ -78,6 +78,13 @@ new_cookie_value() ->
                  cookie_expire(ttl())])),
     SessionKey.
 
+new_cookie_value(SessionKey) ->
+    wf:info(?MODULE,wf:f("document.cookie='~s=~s; path=/; expires=~s';",
+                [wf:to_list(session_cookie_name()),
+                 wf:to_list(SessionKey),
+                 cookie_expire(ttl())]),[]),
+    SessionKey.
+
 new_state() -> #state{unique=new_cookie_value()}.
 session_cookie_name() -> <<"n2o-sid">>.
 set_value(Key, Value) -> ets:insert(cookies,{{session_id(),Key},Value}), Value.
