@@ -7,11 +7,11 @@ log_modules() -> [
 %    okey_bot,
 %    game_session,
 %    bullet_handler,
-    okey_table,
+%    okey_table,
 %    okey_scoring,
-    journal,
+%    journal,
 %    lucky,
 %    n2o_secret,
-    js_session,
+%    js_session,
     okey
 ].
