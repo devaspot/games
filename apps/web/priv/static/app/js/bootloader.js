@@ -6,12 +6,17 @@ function isSafari() {
 var svgNS = "http://www.w3.org/2000/svg";
 var color = ['#DE3F26','#606060','#48AF5E','#FFC800'];
 
+function parseUInt(x) { return x < 0 ?
+    (x > -128 ? x & 255 >>> 0 : (x > -32768 ? x & 65535 >>> 0 : x >>> 0)) : x; }
+
 function statsRow(start_x,start_y,i,games) {
     var name = template_engine(
         '<tspan xmlns="http://www.w3.org/2000/svg" x="{this.x}" y="{this.y}">{this.body}</tspan>',{
             x: start_x,
             y: start_y+25*i,
-            body: games[i].value[0][0] + " — " + games[i].value[0][1]});
+            body: games[i].value[0][0] + " — " + parseUInt(games[i].value[0][1])});
+    
+    console.log(games[i].value[0][1]);
     var element1 = svg(name);
     document.getElementById('Stat-Right').appendChild(element1);
 }
