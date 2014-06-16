@@ -29,23 +29,21 @@ function PostLoad()
     function removeFadeOut() { $(this).off(document.createTouch ? "touchend" : "mouseup", fadeOut); }
 
     function createCentralCard() {
-        centralCard = new scope.Card(),
-        centralCard.$el.attr({opacity: 0, transform: "translate(298 -115)" })
-        .on(document.createTouch ? "touchstart" : "mousedown", fadeIn)
-        .on(document.createTouch ? "touchend"   : "mouseup",   fadeOut);
+        scope.centralCard = new scope.Card(),
+        scope.centralCard.$el.attr({opacity: 0, transform: "translate(298 -115)" })
+            .on(document.createTouch ? "touchstart" : "mousedown", fadeIn)
+            .on(document.createTouch ? "touchend"   : "mouseup",   fadeOut);
 
-        centralCard.on("dragstart", scope.deck.select).on("dragmove", removeFadeOut)
-                                            .on("dragstop", addFadeOut)
-                                            .on("dragmove", scope.deck.track)
-                                            .on("revert",   fadeOut)
+        scope.centralCard.on("dragstart", scope.deck.select)
+            .on("dragmove", removeFadeOut)
+            .on("dragstop", addFadeOut)
+            .on("dragmove", scope.deck.track)
+            .on("revert",   fadeOut);
 
-        centralCard.$el.doubletap(function(){
-            scope.apiProvider.actionTake(centralCard) 
-        })
-
-        scope.deck.$el.append(centralCard.$el[0]);
-        centralCard.drag();
-        centralCard.dragHandler.enable();
+        scope.centralCard.$el.doubletap(function() { scope.apiProvider.actionTake(scope.centralCard) });
+        scope.deck.$el.append(scope.centralCard.$el[0]);
+        scope.centralCard.drag();
+        scope.centralCard.dragHandler.enable();
     }
 
 
@@ -54,13 +52,12 @@ function PostLoad()
         e.detail.card.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
                          .off(document.createTouch ? "touchend"   : "mouseup",   fadeOut),
 
-        centralCard.off("dragmove", removeFadeOut)
+        scope.centralCard.off("dragmove", removeFadeOut)
                    .off("dragstop", addFadeOut)
                    .off("revert", fadeOut),
 
         ~scope.playersLeftHandsMap[scope.user].cards.indexOf(e.detail.card) &&
         scope.playersLeftHandsMap[scope.user].pop(),
-
         scope.apiProvider.actionTake(e.detail.card);
 
     });
@@ -69,6 +66,7 @@ function PostLoad()
     scope.apiProvider.on("okey_game_player_state", initOkeyScene);
 
     scope.apiProvider.on("okey_game_info", function(x) {
+
 
         var e = {detail: x.detail.json, raw: x.detail.bert};
         var playersPositions = scope.playersPositions;
@@ -138,13 +136,17 @@ function PostLoad()
                     scope.apiProvider.actionTake(card) 
                 });
             }
-            scope.deck.length() < 15 ? (centralCard.dragHandler.enable(), centralCard.$el.on(document.createTouch ? "touchstart" : "mousedown", fadeIn).on(document.createTouch ? "touchend" : "mouseup", fadeOut), 
-            centralCard.on("dragmove", removeFadeOut).on("dragstop", addFadeOut).on("revert", fadeOut)) : (centralCard.dragHandler.disable(), 
-            centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn).off(document.createTouch ? "touchend" : "mouseup", fadeOut));
+            scope.deck.length() < 15 ? 
+            (   scope.centralCard.dragHandler.enable(),
+                scope.centralCard.$el.on(document.createTouch ? "touchstart" : "mousedown", fadeIn).on(document.createTouch ? "touchend" : "mouseup", fadeOut), 
+                scope.centralCard.on("dragmove", removeFadeOut).on("dragstop", addFadeOut).on("revert", fadeOut)
+            ):( scope.centralCard.dragHandler.disable(), 
+                scope.centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn).off(document.createTouch ? "touchend" : "mouseup", fadeOut)
+            );
         } else {
             playerTurn = !1,
-            centralCard.dragHandler.disable(),
-            centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn).off(document.createTouch ? "touchend" : "mouseup", fadeOut);
+            scope.centralCard.dragHandler.disable(),
+            scope.centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn).off(document.createTouch ? "touchend" : "mouseup", fadeOut);
         }
     });
 
@@ -177,8 +179,8 @@ function PostLoad()
         }
 
         if (e.detail.pile && !scope.deck.justTaken && scope.playersLeftHandsMap[e.detail.player].take(), 
-            0 === e.detail.pile && e.detail.player == scope.user && (centralCard.color = scope.CARD_COLORS[e.detail.revealed[1] - 1], 
-            centralCard.value = e.detail.revealed[2], centralCard.render(), createCentralCard()), 
+            0 === e.detail.pile && e.detail.player == scope.user && (scope.centralCard.color = scope.CARD_COLORS[e.detail.revealed[1] - 1], 
+            scope.centralCard.value = e.detail.revealed[2], scope.centralCard.render(), createCentralCard()), 
             0 === e.detail.pile)
         {
 
@@ -194,8 +196,8 @@ function PostLoad()
             // scope.Draggable.revert()
             scope.deck.insert(e.detail.revealed)
         }
-        centralCard.dragHandler.disable()
-        centralCard.$el
+        scope.centralCard.dragHandler.disable()
+        scope.centralCard.$el
             .off(document.createTouch ? 'touchstart' : 'mousedown', fadeIn)
             .off(document.createTouch ? 'touchend' : 'mouseup', fadeOut)
 
@@ -256,10 +258,14 @@ function PostLoad()
         if (whoPausedGame = e.detail[3], "pause" == e.detail[2]) pause(e); else unpause(e);
     });
 
+
     $("#Table-Oval").droppable({
         accept: function(target) {
-            return 1 === scope.apiProvider.socket.readyState && scope.deck.length() > 14 && 
-                target.owner != centralCard && !scope.ended && scope.Card.selected.length <= 1;
+            console.log(target);
+            return 1 === scope.apiProvider.socket.transport().readyState && 
+                scope.deck.length() > 14 && 
+                target.owner != scope.centralCard && 
+                !scope.ended && scope.Card.selected.length <= 1;
         },
         drop: function(target) {
             scope.apiProvider.reveal(target.owner, scope.deck.hand(target.owner));
@@ -275,9 +281,10 @@ function initOkeyScene(x)
     if (scope.ended = !1, 
         scope.deck.fill(e.detail.tiles),
         scope.deck.render(),
-        centralCard.dragHandler.disable(),
-        centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
-                       .off(document.createTouch ? "touchend"   : "mouseup",   fadeOut), 
+        scope.centralCard.dragHandler.disable(),
+        scope.centralCard.$el
+            .off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
+            .off(document.createTouch ? "touchend"   : "mouseup",   fadeOut), 
         e.detail.gosterge && "null" != e.detail.gosterge)
     {
         var gosterme = new scope.Card({

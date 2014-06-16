@@ -137,6 +137,7 @@ function onPlayerInfoClose(evt) { document.getElementById('Player-Statistics').s
 
 function appRun() {
     $.load('Kakaranet-Scene.svg', function(x) { 
+
         var name = "Refined";
         var slot = document.getElementById(name);
         if (slot == null) return;
@@ -271,7 +272,7 @@ function showRevealHand(o) {
             $reveal_deck = $("#RevealDeck");
             $("#RevealDeckRoot").on("click",function () {
                 $overlay.hide();
-                if (scope.ended) window.deck.fill([]);
+                if (scope.ended) scope.deck.fill([]);
             });
         }
 
@@ -303,6 +304,7 @@ function showRevealHand(o) {
           [ "Center", "Left", "Me", "Right" ],
           [ "Right", "Center", "Left", "Me" ]
          ];
+
 
 appRun();
 
