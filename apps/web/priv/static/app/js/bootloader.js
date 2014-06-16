@@ -15,8 +15,6 @@ function statsRow(start_x,start_y,i,games) {
             x: start_x,
             y: start_y+25*i,
             body: games[i].value[0][0] + " — " + parseUInt(games[i].value[0][1])});
-    
-    console.log(games[i].value[0][1]);
     var element1 = svg(name);
     document.getElementById('Stat-Right').appendChild(element1);
 }
@@ -269,12 +267,22 @@ function initPauseOverlay() {
     var page = document.getElementById("Kakaranet-12-maxim");
     var kakush = document.getElementById("Kakush");
     page.insertBefore(svg(html),kakush);
+
+    $("#overlay").on("click", hideOverlay);
+
 }
 
-function showRoundEnd(o)
+function showRoundEnd(e)
 {
     $overlay.show();
-    $("#Overlay-Text").text(player + " revealed ");
+    var reason = dec(e.raw).value[0][3][1].value[0][1].value;
+    var gameres = dec(e.raw).value[0][3][2].value[0][1];
+    $("#Overlay-Results").empty();
+    for (var i=0;i<gameres.length;i++) { gameresultRow(400,130,i,gameres); }
+    if (reason == "tashes_out") {
+        $("#Overlay-Text").text("Tashes out");
+        $("#RevealDeckRoot").hide();
+    }
 
 }
 
@@ -299,7 +307,6 @@ function showRevealHand(o) {
             $overlay.append(svg(h));
             $reveal_deck = $("#RevealDeck");
             $("#RevealDeckRoot").on("click", hideOverlay);
-            $overlay.on("click", hideOverlay);
         }
 
         $reveal_deck.each(function(card){ card.$el && card.$el.remove(); });

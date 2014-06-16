@@ -72,7 +72,7 @@ function PostLoad()
         var playersPositions = scope.playersPositions;
         scope.user = document.user;
 
-        //$overlay.hide();
+        //$overlay.hide(); // give user an ability to see results
 
         if (!scope.started) {
 
@@ -212,7 +212,7 @@ function PostLoad()
     scope.apiProvider.on("okey_revealed", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         showRevealHand(dec(e.raw));
-        scope.ended = !0;//, scope.deck.fill([]);
+//        scope.ended = !0;//, scope.deck.fill([]);
         for (var hand in scope.playersLeftHandsMap) scope.playersLeftHandsMap[hand].clear();
         for (var playerName in scope.playersMap) scope.playersMap[playerName].unselect();
         // $gosterme.remove();
@@ -220,16 +220,18 @@ function PostLoad()
 
     scope.apiProvider.on("okey_round_ended", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
+        showRoundEnd(e);
+        /*
         var reason = dec(e.raw).value[0][3][1].value[0][1].value;
         var gameres = dec(e.raw).value[0][3][2].value[0][1];
         $("#Overlay-Results").empty();
         for (var i=0;i<gameres.length;i++) { gameresultRow(400,130,i,gameres); }
         if (reason == "tashes_out") {
-            $("#Overlay-Results").empty();
             $("#Overlay-Text").text("Tashes out");
             $("#RevealDeckRoot").hide();
         }
-
+        */
+        scope.ended = !0;
     });
 
     scope.apiProvider.on("player_left", function(x) {
