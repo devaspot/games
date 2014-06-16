@@ -278,6 +278,13 @@ function showRoundEnd(o)
 
 }
 
+function hideOverlay()
+{
+    $overlay.hide();
+    $("#Overlay-Results").empty();
+    if (scope.ended) scope.deck.fill([]);
+}
+
 function showRevealHand(o) {
 
     var player    = o.value[0][3][0].value[0][1],
@@ -291,11 +298,8 @@ function showRevealHand(o) {
         if (null == $reveal_deck.$el) {
             $overlay.append(svg(h));
             $reveal_deck = $("#RevealDeck");
-            $("#RevealDeckRoot").on("click",function () {
-                $overlay.hide();
-                $("#Overlay-Results").empty();
-                if (scope.ended) scope.deck.fill([]);
-            });
+            $("#RevealDeckRoot").on("click", hideOverlay);
+            $overlay.on("click", hideOverlay);
         }
 
         $reveal_deck.each(function(card){ card.$el && card.$el.remove(); });

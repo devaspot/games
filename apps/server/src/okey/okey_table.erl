@@ -334,6 +334,7 @@ handle_parent_message(show_round_result, StateName,
     {Reason,Revealer,RevealerWon,WrongRejects} = case FinishInfo of
         {win_reveal, R, Wrong, _Color, _Okey, _Pairs} -> {win_reveal,R,true,Wrong};
         {fail_reveal, R} -> {fail_reveal,R,false,[]};
+%        {fail_reveal, R} -> {tashes_out,none,false,[]}; % check tashes out event
         tashes_out -> {tashes_out,none,false,[]};
         timeout -> {timeout,none,false,[]};
         set_timeout -> {timeout,none,false,[]};
