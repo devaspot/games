@@ -49,7 +49,7 @@ function ltoi(S, Length) {
     isNegative = (S.charCodeAt(0) > 128);
     for (i = 0; i < Length; i++) {
         n = S.charCodeAt(i);
-        if (isNegative) { n = n - 255; }
+        if (isNegative) { n = 255 - n ; }
         if (Num === 0) { Num = n; }
         else { Num = Num * 256 + n; }
     }
