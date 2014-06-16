@@ -17,12 +17,13 @@ function statsRow(start_x,start_y,i,games) {
 }
 
 function gameresultRow(start_x,start_y,i,results) {
-     var round = results[i].value[0][2],
+     var name = results[i].value[0][0],
+         round = results[i].value[0][2],
          total = results[i].value[0][3];
          round = round > 500000 ? -Math.round(round/1000000) : round;
          total = total > 500000 ? -Math.round(total/1000000) : total;
     var name = template_engine(
-        '<tspan xmlns="http://www.w3.org/2000/svg" x="{this.x}" y="{this.y}">{this.body}</tspan>',{
+     '<tspan xmlns="http://www.w3.org/2000/svg" x="{this.x}" y="{this.y}">{this.body}</tspan>',{
             x: start_x,
             y: start_y+30*i,
             body: results[i].value[0][0] + " — " + round + "/" + total}); 
@@ -253,8 +254,9 @@ function manualForeignObjectPositioning()
 function hours() { return (new Date()).getHours(); }
 
 function initPauseOverlay() {
+
     var html = '<g xmlns="http://www.w3.org/2000/svg" id="overlay" style="display:none;">'+
-        '<rect x="216" y="91" stroke-width="0" stroke="red" width="641" height="367" rx="6" fill="skyblue" opacity="0.8"></rect>'+
+        '<rect x="216" y="91" stroke-width="0" stroke="red" width="641" height="367" rx="6" fill="skyblue" opacity="0.9"></rect>'+
         '<g>'+
         '<text id="Overlay-Results" fill="white" font-family="Exo 2" font-size="20pt"></text>'+
         '<text id="Overlay-Text" fill="white" font-family="Exo 2" y="280" x="-116" text-anchor="middle" dx="641" font-size="30pt"> Someone paused the game</text></g>'+
@@ -273,7 +275,7 @@ function showRoundEnd(o)
 
 function showRevealHand(o) {
 
-    var player    = o.value[0][3][0].value[0][1].value,
+    var player    = o.value[0][3][0].value[0][1],
         discard   = o.value[0][3][1].value[0][1].value,
         deck      = o.value[0][3][2].value[0][1];
 

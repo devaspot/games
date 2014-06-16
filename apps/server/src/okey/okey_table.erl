@@ -1354,12 +1354,12 @@ create_okey_tour_result(TurnNum, Results) ->
                       records = Records}.
 
 create_okey_revealed(SeatNum, DiscardedTash, TashPlaces, Players) ->
-    #player{user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
+    #player{user_id = UserId, info = Player} = get_player_by_seat_num(SeatNum, Players),
     TashPlacesExt = [[case T of
                          null -> null;
                          _ -> tash_to_ext(T)
                       end || T <- Row ] || Row <- TashPlaces],
-    #okey_revealed{player = UserId,              %% FIXME: We need reveal message without confirmation
+    #okey_revealed{player = wf:to_list(Player#'PlayerInfo'.name) ++ " " ++ wf:to_list(Player#'PlayerInfo'.surname),
                    discarded = tash_to_ext(DiscardedTash),
                    hand = TashPlacesExt}.
 
