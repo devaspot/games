@@ -12,6 +12,7 @@ function OkeyApiProviderScope(scope) {
         ws = this.socket;
         this.$socket = $(this.socket.transport());
         this.socket.onopen = this.init;
+        this.socket.ondisconnect = this.disconnect;
         this.socket.onmessage = this.handleMessage;
     }
 
@@ -57,14 +58,19 @@ function OkeyApiProviderScope(scope) {
         },
         init: function() {
             if (!initialized) { this.socket.send([ "N2O", "" ]); initialized = true; }
+            console.log("Connected");
+            appRun();
+        },
+        disconnect: function() {
+            console.log("Disconnected");
+            for (var playerName in scope.playersMap) scope.playersMap[playerName].unselect();
+            scope.started = false;
+            initialized = false;
         },
         handleMessage: function(e) {
-
             var msg = JSON.parse(e.data);
-
             if (msg.eval) { try{eval(msg.eval)}catch(ex){console.log(ex);} }
             if (msg.data) { this.emitEvent(msg.data,this.beutify(this.parse(dec(msg.data)))); }
-
         },
 
         // TODO: remove parse/beautify or make it proper BERT to JSON transformation

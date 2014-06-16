@@ -135,16 +135,18 @@ function onPlayerInfoClose(evt) { document.getElementById('Player-Statistics').s
 
 // Run
 
-$.load('Kakaranet-Scene.svg', function(x) { 
-    var name = "Refined";
-    var slot = document.getElementById(name);
-    if (slot == null) return;
-    slot.parentNode.replaceChild(svg(x),slot);
-    $.load("svg/Discarder.svg", function(h) {
-        PatchSVG();
-        StartApp(); 
+function appRun() {
+    $.load('Kakaranet-Scene.svg', function(x) { 
+        var name = "Refined";
+        var slot = document.getElementById(name);
+        if (slot == null) return;
+        slot.parentNode.replaceChild(svg(x),slot);
+        $.load("svg/Discarder.svg", function(h) {
+            PatchSVG();
+            StartApp(); 
+        });
     });
-});
+}
 
 function showRules()
 {
@@ -293,3 +295,14 @@ function showRevealHand(o) {
     $("#Overlay-Text").text(player + " revealed ");
 
 }
+
+    scope.playersPositions = 
+        [
+          [ "Me", "Right", "Center", "Left" ],
+          [ "Left", "Me", "Right", "Center" ],
+          [ "Center", "Left", "Me", "Right" ],
+          [ "Right", "Center", "Left", "Me" ]
+         ];
+
+appRun();
+

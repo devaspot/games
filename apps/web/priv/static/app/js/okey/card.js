@@ -58,15 +58,15 @@ function CardScope(scope) {
             return Math.round(pos.left + width / 2);
         },
         toggle: function(e) {
-            e.stopPropagation(), selStart && deck.contains(this) ? this.nearSelectGroup() ? this.selected && !this.betweenSelected() ? this.uncheck() : this.check() : (Card.uncheckAll(), 
+            e.stopPropagation(), selStart && scope.deck.contains(this) ? this.nearSelectGroup() ? this.selected && !this.betweenSelected() ? this.uncheck() : this.check() : (Card.uncheckAll(), 
             this.check()) : ~Card.selected.indexOf(this) || Card.uncheckAll();
         },
         check: function() {
-            this.$overlay.css("display", ""), this.selected = !0, deck.cards[this.pos.y][this.pos.x] = null, 
+            this.$overlay.css("display", ""), this.selected = !0, scope.deck.cards[this.pos.y][this.pos.x] = null, 
             Card.selected.push(this);
         },
         uncheck: function() {
-            this.$overlay.css("display", "none"), this.selected = !1, deck.cards[this.pos.y][this.pos.x] = this;
+            this.$overlay.css("display", "none"), this.selected = !1, scope.deck.cards[this.pos.y][this.pos.x] = this;
             var i;
             ~(i = Card.selected.indexOf(this)) && Card.selected.splice(i, 1);
         },

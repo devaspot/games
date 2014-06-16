@@ -6,15 +6,22 @@ function PostLoad()
     rightFlag = 1;
     leftFlag = 1;
 
-    window.deck = scope.deck;
     scope.user = document.user;
 
     $overlay = $("#overlay");
 
-    var centralCard,
-        apiProvider = new scope.ApiProvider({url: scope.apiUrl, gameId: scope.gameId });
+    var centralCard;
 
-    scope.apiProvider = apiProvider;
+    scope.apiProvider = new scope.ApiProvider({url: scope.apiUrl, gameId: scope.gameId });
+
+    createCentralCard();
+
+    var $gosterme = $("#Gosterme");
+    scope.ended = !0;
+
+    var playerTurn = !1;
+
+    new scope.Roster(scope);
 
     function fadeOut()       { $(this).animate({ attributeName: "opacity", from: 1, to: 0, dur: .3}); }
     function fadeIn()        { $(this).animate({ attributeName: "opacity", from: 0, to: 1, dur: .3}); }
@@ -27,23 +34,22 @@ function PostLoad()
         .on(document.createTouch ? "touchstart" : "mousedown", fadeIn)
         .on(document.createTouch ? "touchend"   : "mouseup",   fadeOut);
 
-        centralCard.on("dragstart", deck.select).on("dragmove", removeFadeOut)
+        centralCard.on("dragstart", scope.deck.select).on("dragmove", removeFadeOut)
                                             .on("dragstop", addFadeOut)
-                                            .on("dragmove", deck.track)
+                                            .on("dragmove", scope.deck.track)
                                             .on("revert",   fadeOut)
 
         centralCard.$el.doubletap(function(){
             scope.apiProvider.actionTake(centralCard) 
         })
 
-        deck.$el.append(centralCard.$el[0]);
+        scope.deck.$el.append(centralCard.$el[0]);
         centralCard.drag();
         centralCard.dragHandler.enable();
     }
 
-    createCentralCard(),
 
-    deck.on("take", function(e) {
+    scope.deck.on("take", function(e) {
 
         e.detail.card.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
                          .off(document.createTouch ? "touchend"   : "mouseup",   fadeOut),
@@ -52,36 +58,30 @@ function PostLoad()
                    .off("dragstop", addFadeOut)
                    .off("revert", fadeOut),
 
-        ~playersLeftHandsMap[scope.user].cards.indexOf(e.detail.card) &&
-        playersLeftHandsMap[scope.user].pop(),
+        ~scope.playersLeftHandsMap[scope.user].cards.indexOf(e.detail.card) &&
+        scope.playersLeftHandsMap[scope.user].pop(),
 
-        apiProvider.actionTake(e.detail.card);
+        scope.apiProvider.actionTake(e.detail.card);
 
     });
 
-    var $gosterme = $("#Gosterme");
-    scope.ended = !0;
+    scope.apiProvider.on("okey_game_started", initOkeyScene);
+    scope.apiProvider.on("okey_game_player_state", initOkeyScene);
 
-    apiProvider.on("okey_game_started", initOkeyScene);
-    apiProvider.on("okey_game_player_state", initOkeyScene);
+    scope.apiProvider.on("okey_game_info", function(x) {
 
-    var playersPositions = 
-        [
-          [ "Me", "Right", "Center", "Left" ],
-          [ "Left", "Me", "Right", "Center" ],
-          [ "Center", "Left", "Me", "Right" ],
-          [ "Right", "Center", "Left", "Me" ]
-         ];
-
-    var playersMap = {},
-        playersRightHandsMap = {},
-        playersLeftHandsMap = {};
-
-    apiProvider.on("okey_game_info", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
+        var playersPositions = scope.playersPositions;
         scope.user = document.user;
+
         //$overlay.hide();
+
         if (!scope.started) {
+
+            scope.playersMap = {};
+            scope.playersRightHandsMap = {};
+            scope.playersLeftHandsMap = {};
+
             for (var playerInfo, players = e.detail.players, i = 0; i < players.length; i++) 
                 if (playerInfo = players[i].PlayerInfo, playerInfo[0] == scope.user)
             {
@@ -89,59 +89,56 @@ function PostLoad()
                 break;
             }
             for (var playerInfo, i = 0, l = players.length; l > i; i++) {
-                playerInfo = players[i].PlayerInfo, playersMap[playerInfo[0]] = playersMap[playerInfo[0]] || new scope.Player({
+                playerInfo = players[i].PlayerInfo;
+                scope.playersMap[playerInfo[0]] = scope.playersMap[playerInfo[0]] || new scope.Player({
                     position: playersPositions[i],
                     name: [ playerInfo[2], playerInfo[3] ].join(" ")
                 });
                 var prevPlayer = i == players.length - 1 ? players[0] : players[i + 1];
-                for (var prop in playersLeftHandsMap) playersLeftHandsMap[prop].clear();
-                playersLeftHandsMap[prevPlayer.PlayerInfo[0]] = playersRightHandsMap[playerInfo[0]] = new scope.Hand("#" + [ "Player", playersPositions[i], "Hand" ].join("-")), 
-                "Me" == playersPositions[i] && playersRightHandsMap[playerInfo[0]].$el.droppable({
+                for (var prop in scope.playersLeftHandsMap) scope.playersLeftHandsMap[prop].clear();
+                scope.playersLeftHandsMap[prevPlayer.PlayerInfo[0]] = scope.playersRightHandsMap[playerInfo[0]] = new scope.Hand("#" + [ "Player", playersPositions[i], "Hand" ].join("-")), 
+                "Me" == playersPositions[i] && scope.playersRightHandsMap[playerInfo[0]].$el.droppable({
                     accept: function() {
-                        return playerTurn && deck.length() > 14;
+                        return playerTurn && scope.deck.length() > 14;
                     },
                     drop: function(target) {
-                        apiProvider.actionDiscard(target.owner);
+                        scope.apiProvider.actionDiscard(target.owner);
                     }
                 });
+
+
             }
 
-            playersMap[scope.user].timer.on('beforeTimerEnd', function(){ scope.Draggable.revert() })
+            scope.playersMap[scope.user].timer.on('beforeTimerEnd', function(){ scope.Draggable.revert() })
 
             scope.started = !0;
         }
     }),
 
-    window.playersRightHandsMap = playersRightHandsMap;
-    window.playersLeftHandsMap = playersLeftHandsMap;
-
-    var playerTurn = !1;
-
-    new scope.Roster(scope);
-
-    apiProvider.on("okey_next_turn", function(x) {
+    scope.apiProvider.on("okey_next_turn", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        for (var playerName in playersMap) playersMap[playerName].unselect();
-        if (playersMap[e.detail.player].select(), e.detail.player == scope.user)
+        for (var playerName in scope.playersMap) scope.playersMap[playerName].unselect();
+
+        if (scope.playersMap[e.detail.player].select(), e.detail.player == scope.user)
         {
             playerTurn = !0;
-            var cards = playersLeftHandsMap[e.detail.player].cards;
+            var cards = scope.playersLeftHandsMap[e.detail.player].cards;
             if (cards.length)
             {
                 var card = cards[cards.length - 1];
-                deck.$el.append(card.$el[0]), card.$el.attr({
+                scope.deck.$el.append(card.$el[0]), card.$el.attr({
                     transform: "translate(16 -65)"
                 }), 
                 card.dragHandler.enable(), 
                 card
-                    .on("dragstart", deck.select)
-                    .on("dragmove", deck.track)
+                    .on("dragstart", scope.deck.select)
+                    .on("dragmove", scope.deck.track)
                     
                 card.$el.doubletap(function(){
                     scope.apiProvider.actionTake(card) 
                 });
             }
-            deck.length() < 15 ? (centralCard.dragHandler.enable(), centralCard.$el.on(document.createTouch ? "touchstart" : "mousedown", fadeIn).on(document.createTouch ? "touchend" : "mouseup", fadeOut), 
+            scope.deck.length() < 15 ? (centralCard.dragHandler.enable(), centralCard.$el.on(document.createTouch ? "touchstart" : "mousedown", fadeIn).on(document.createTouch ? "touchend" : "mouseup", fadeOut), 
             centralCard.on("dragmove", removeFadeOut).on("dragstop", addFadeOut).on("revert", fadeOut)) : (centralCard.dragHandler.disable(), 
             centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn).off(document.createTouch ? "touchend" : "mouseup", fadeOut));
         } else {
@@ -151,7 +148,7 @@ function PostLoad()
         }
     });
 
-    apiProvider.on("okey_tile_discarded", function(x) {
+    scope.apiProvider.on("okey_tile_discarded", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         if ("object" == typeof e.detail.tile) {
             var c = new scope.Card({
@@ -160,7 +157,8 @@ function PostLoad()
             });
             c.log();
         }
-        e.detail.player == scope.user && deck.remove(e.detail.tile), playersRightHandsMap[e.detail.player].discard(e.detail.tile);
+        e.detail.player == scope.user && scope.deck.remove(e.detail.tile),
+        scope.playersRightHandsMap[e.detail.player].discard(e.detail.tile);
     });
 
     var $pile = $("#Center-Cards"),
@@ -168,7 +166,7 @@ function PostLoad()
         $wholeCards = $("#Stupid-Cards"),
         $fullWholeCards = $("#Stupid-Cards > g").clone();
 
-    apiProvider.on("okey_tile_taken", function(x) {
+    scope.apiProvider.on("okey_tile_taken", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         if ("object" == typeof e.detail.revealed) {
             var c = new scope.Card({
@@ -178,7 +176,7 @@ function PostLoad()
             c.log();
         }
 
-        if (e.detail.pile && !deck.justTaken && playersLeftHandsMap[e.detail.player].take(), 
+        if (e.detail.pile && !scope.deck.justTaken && scope.playersLeftHandsMap[e.detail.player].take(), 
             0 === e.detail.pile && e.detail.player == scope.user && (centralCard.color = scope.CARD_COLORS[e.detail.revealed[1] - 1], 
             centralCard.value = e.detail.revealed[2], centralCard.render(), createCentralCard()), 
             0 === e.detail.pile)
@@ -194,14 +192,14 @@ function PostLoad()
 
         if(e.detail.player == scope.user){
             // scope.Draggable.revert()
-            deck.insert(e.detail.revealed)
+            scope.deck.insert(e.detail.revealed)
         }
         centralCard.dragHandler.disable()
         centralCard.$el
             .off(document.createTouch ? 'touchstart' : 'mousedown', fadeIn)
             .off(document.createTouch ? 'touchend' : 'mouseup', fadeOut)
 
-        var cards = playersLeftHandsMap[scope.user].cards;
+        var cards = scope.playersLeftHandsMap[scope.user].cards;
 
         if (cards.length) {
             var card = cards[cards.length - 1];
@@ -209,69 +207,71 @@ function PostLoad()
         }
     });
 
-    apiProvider.on("okey_revealed", function(x) {
+    scope.apiProvider.on("okey_revealed", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         showRevealHand(dec(e.raw));
-        scope.ended = !0;//, deck.fill([]);
-        for (var hand in playersLeftHandsMap) playersLeftHandsMap[hand].clear();
-        for (var playerName in playersMap) playersMap[playerName].unselect();
+        scope.ended = !0;//, scope.deck.fill([]);
+        for (var hand in scope.playersLeftHandsMap) scope.playersLeftHandsMap[hand].clear();
+        for (var playerName in scope.playersMap) scope.playersMap[playerName].unselect();
         // $gosterme.remove();
     });
 
-    apiProvider.on("player_left", function(x) {
+    scope.apiProvider.on("player_left", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         var playerInfo = e.detail.replacement.PlayerInfo;
-        playersMap[playerInfo[0]] = new scope.Player({
-            position: playersMap[e.detail.player].position,
+        scope.playersMap[playerInfo[0]] = new scope.Player({
+            position: scope.playersMap[e.detail.player].position,
             name: [ playerInfo[2], playerInfo[3] ].join(" "),
             noSkin: !0
         }),
 
-        delete playersMap[e.detail.player], playersRightHandsMap[playerInfo[0]] = playersRightHandsMap[e.detail.player], 
-        delete playersRightHandsMap[e.detail.player], playersLeftHandsMap[playerInfo[0]] = playersLeftHandsMap[e.detail.player], 
-        delete playersLeftHandsMap[e.detail.player];
+        delete scope.playersMap[e.detail.player], scope.playersRightHandsMap[playerInfo[0]] = scope.playersRightHandsMap[e.detail.player], 
+        delete scope.playersRightHandsMap[e.detail.player], scope.playersLeftHandsMap[playerInfo[0]] = scope.playersLeftHandsMap[e.detail.player], 
+        delete scope.playersLeftHandsMap[e.detail.player];
     });
 
-    $("#Pause").on("click", function sendPause() { apiProvider.pause(false); });
+    $("#Pause").on("click", function sendPause() { scope.apiProvider.pause(false); });
     $("#Pause").attr({cursor: "pointer"});
 
     var whoPausedGame = false;
 
     $overlay.attr({cursor: "pointer"});
-    $overlay.on("click", function sendPause() { apiProvider.pause(true); });
+    $overlay.on("click", function sendPause() { scope.apiProvider.pause(true); });
 
     function unpause(e) {
         $overlay.hide();
-        for (var player in playersMap) playersMap[player].timer.resume();
+        for (var player in scope.playersMap) scope.playersMap[player].timer.resume();
     }
 
     function pause(e) {
         $overlay.show();
         $("#RevealDeckRoot").hide();
-        for (var player in playersMap) playersMap[player].timer.pause();
-        var player = playersMap[e.detail[3]];
+        for (var player in scope.playersMap) scope.playersMap[player].timer.pause();
+        var player = scope.playersMap[e.detail[3]];
         $("#Overlay-Text").text(player.name + " paused the game");
     }
 
-    apiProvider.on("game_paused", function(x) {
+    scope.apiProvider.on("game_paused", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         if (whoPausedGame = e.detail[3], "pause" == e.detail[2]) pause(e); else unpause(e);
     });
 
     $("#Table-Oval").droppable({
         accept: function(target) {
-            return 1 === apiProvider.socket.readyState && deck.length() > 14 && 
+            return 1 === scope.apiProvider.socket.readyState && scope.deck.length() > 14 && 
                 target.owner != centralCard && !scope.ended && scope.Card.selected.length <= 1;
         },
         drop: function(target) {
-            apiProvider.reveal(target.owner, deck.hand(target.owner));
+            scope.apiProvider.reveal(target.owner, scope.deck.hand(target.owner));
         }
     });
 
 
 function initOkeyScene(x)
 {
+
     var e = {detail: x.detail.json, raw: x.detail.bert};
+
     if (scope.ended = !1, 
         scope.deck.fill(e.detail.tiles),
         scope.deck.render(),
@@ -295,7 +295,7 @@ function initOkeyScene(x)
         var pile = piles[i];
         for (var name in pile) 
             for (var playerPile = pile[name],
-                     hand = playersLeftHandsMap[name],
+                     hand = scope.playersLeftHandsMap[name],
                      j = playerPile.length; j--; ) hand.discard(playerPile[j]);
     }
 
@@ -303,9 +303,9 @@ function initOkeyScene(x)
 
     e.detail.whos_move && "null" != e.detail.whos_move && 
         (e.detail.next_turn_in && "null" != e.detail.next_turn_in && 
-         playersMap[e.detail.whos_move].timer.from(e.detail.next_turn_in),
-         e.detail.paused && (playersMap[e.detail.whos_move].timer.pause(),$overlay.show()),
-         playersMap[e.detail.whos_move].select());
+         scope.playersMap[e.detail.whos_move].timer.from(e.detail.next_turn_in),
+         e.detail.paused && (scope.playersMap[e.detail.whos_move].timer.pause(),$overlay.show()),
+         scope.playersMap[e.detail.whos_move].select());
 }
 
 function SetupLeftMenu() 
