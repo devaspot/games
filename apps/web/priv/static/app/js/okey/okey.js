@@ -261,7 +261,6 @@ function PostLoad()
 
     $("#Table-Oval").droppable({
         accept: function(target) {
-            console.log(target);
             return 1 === scope.apiProvider.socket.transport().readyState && 
                 scope.deck.length() > 14 && 
                 target.owner != scope.centralCard && 
