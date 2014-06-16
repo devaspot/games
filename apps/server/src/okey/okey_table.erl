@@ -1327,7 +1327,7 @@ round_results(
         results = Results,
         next_action = next_round}.
 
-js_hack(Score) when Score < 0 -> Score * 1000000;
+js_hack(Score) when Score < 0 -> -Score * 1000000;
 js_hack(Score) -> Score.
 
 create_okey_series_ended(Results, Players, Confirm,
