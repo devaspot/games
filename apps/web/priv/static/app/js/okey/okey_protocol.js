@@ -8,11 +8,11 @@ function OkeyApiProviderScope(scope) {
         this.gameId = options.gameId;
         this.proxies = [ "init", "handleMessage", "actionTake" ];
         this.proxyAll();
-        this.socket = new WebSocket(this.url);
+        this.socket = new bullet(this.url);
         ws = this.socket;
-        this.$socket = $(this.socket);
-        this.$socket.on("open", this.init);
-        this.$socket.on("message", this.handleMessage);
+        this.$socket = $(this.socket.transport());
+        this.socket.onopen = this.init;
+        this.socket.onmessage = this.handleMessage;
     }
 
     var eventMap = [
@@ -41,6 +41,7 @@ function OkeyApiProviderScope(scope) {
     ];
 
     $.extend(ApiProvider.prototype, {
+
         proxy: function(func) {
             return func.bind(this);
         },
@@ -55,8 +56,7 @@ function OkeyApiProviderScope(scope) {
             this.$socket.off(eventType, handler);
         },
         init: function() {
-            this.socket.send([ "N2O", "" ]);
-            setInterval(this.proxy(function() { this.socket.send("PING"); }), 4e3);
+            if (!initialized) { this.socket.send([ "N2O", "" ]); initialized = true; }
         },
         handleMessage: function(e) {
 

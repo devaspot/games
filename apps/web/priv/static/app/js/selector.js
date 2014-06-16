@@ -1,5 +1,6 @@
 window.perfCounter = {};
 window.perfCounter.start = nowOffset = Date.now();
+initialized = false;
 
 var scope = {
     apiUrl: "ws://" + window.location.hostname + ":" + window.location.port + "/ws/",
