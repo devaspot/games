@@ -49,11 +49,11 @@ function ltoi(S, Length) {
     isNegative = (S.charCodeAt(0) > 128);
     for (i = 0; i < Length; i++) {
         n = S.charCodeAt(i);
-        if (isNegative) { n = 255 - n; }
+        if (isNegative) { n = n - 255; }
         if (Num === 0) { Num = n; }
         else { Num = Num * 256 + n; }
     }
-    if (isNegative) { Num = Num * (0 - 1); }
+    if (isNegative) { Num = -Num; }
     return Num; };
 function btol(Int) {
     var isNegative, Rem, s = "";
@@ -140,9 +140,20 @@ function de_bin(S) {
     S = S.substring(4);
     return { value: bin(S.substring(0, Size)), rest: S.substring(Size) }; };
 function de_integer(S, Count) {
-    var Value = ltoi(S, Count);
-    S = S.substring(Count);
-    return { value: Value, rest: S }; };
+//    if (Count == 1) {
+//        var n = S.charCodeAt(0);
+//        S = S.substring(Count);
+//        var neg = (n > 128);
+//        n = n>128 ? 255 - n : n;
+//        n = n == 0 ? -1 : (n==-1 ? 0: ( n == 1 ? -2 : n));
+//        return { value: n, rest: S };
+//    } else
+//    {
+        var Value = ltoi(S, Count);
+        S = S.substring(Count);
+        return { value: Value, rest: S };
+//    } 
+    };
 function de_float(S) {
     var Size = 31;
     return { value: parseFloat(S.substring(0, Size)), rest: S.substring(Size) }; };

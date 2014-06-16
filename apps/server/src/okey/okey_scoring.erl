@@ -277,8 +277,9 @@ finish_info(GameMode, FinishReason, Gosterge) ->
         {reveal, Revealer, Tashes, Discarded, ConfirmationList} ->
             {RightReveal, RevealWithPairs, WithColor} = check_reveal(Tashes, Gosterge),
     gas:info(?MODULE,"check_reveal result p~n",[{RightReveal, RevealWithPairs, WithColor}]), 
-            WinReveal = RightReveal orelse lists:all(fun({_, Answer}) -> Answer == true end, ConfirmationList),
-            if WinReveal ->
+            WinReveal = RightReveal orelse (ConfirmationList /= [] andalso lists:all(fun({_, Answer}) -> Answer == true end, ConfirmationList)),
+            TestConfirmation = false,
+            if WinReveal orelse TestConfirmation  ->
                    RevealWithColor = case GameMode of
                                          ?MODE_STANDARD -> false;
                                          ?MODE_EVENODD -> WithColor;
@@ -286,11 +287,14 @@ finish_info(GameMode, FinishReason, Gosterge) ->
                                          ?MODE_COUNTDOWN -> false
                                      end,
                    Okey = gosterge_to_okey(Gosterge),
+                   wf:info(?MODULE,"Confirmation List ~p",[ConfirmationList]),
                    RevealWithOkey = Discarded == Okey,
-                   WrongRejects = if RightReveal ->
+                   
+                   WrongRejects = if RightReveal orelse TestConfirmation ->
                                          [S || {S, Answer} <- ConfirmationList, Answer==false];
                                      true -> []
                                   end,
+                   wf:info(?MODULE,"Wrong Rejects ~p",[WrongRejects]),
                    {win_reveal, Revealer, WrongRejects, RevealWithColor, RevealWithOkey, RevealWithPairs};
                true ->
                    {fail_reveal, Revealer}

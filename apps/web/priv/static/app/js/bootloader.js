@@ -6,15 +6,29 @@ function isSafari() {
 var svgNS = "http://www.w3.org/2000/svg";
 var color = ['#DE3F26','#606060','#48AF5E','#FFC800'];
 
-function statsRow(start_name,i,games) {
-    var start_score = 200;
+function statsRow(start_x,start_y,i,games) {
     var name = template_engine(
         '<tspan xmlns="http://www.w3.org/2000/svg" x="{this.x}" y="{this.y}">{this.body}</tspan>',{
-            x: start_name,
-            y: 180+25*i,
+            x: start_x,
+            y: start_y+25*i,
             body: games[i].value[0][0] + " — " + games[i].value[0][1]});
     var element1 = svg(name);
     document.getElementById('Stat-Right').appendChild(element1);
+}
+
+function gameresultRow(start_x,start_y,i,results) {
+   console.log(results[i].value[0][3]);
+     var round = results[i].value[0][2],
+         total = results[i].value[0][3];
+         round = round > 500000 ? -Math.round(round/1000000) : round;
+         total = total > 500000 ? -Math.round(total/1000000) : total;
+    var name = template_engine(
+        '<tspan xmlns="http://www.w3.org/2000/svg" x="{this.x}" y="{this.y}">{this.body}</tspan>',{
+            x: start_x,
+            y: start_y+30*i,
+            body: results[i].value[0][0] + " — " + round + "/" + total}); 
+    var element1 = svg(name);
+    document.getElementById('Overlay-Results').appendChild(element1);
 }
 
 function parseTransformAttribute(aa) {
@@ -243,6 +257,7 @@ function initPauseOverlay() {
     var html = '<g xmlns="http://www.w3.org/2000/svg" id="overlay" style="display:none;">'+
         '<rect x="216" y="91" stroke-width="0" stroke="red" width="641" height="367" rx="6" fill="skyblue" opacity="0.8"></rect>'+
         '<g>'+
+        '<text id="Overlay-Results" fill="white" font-family="Exo 2" font-size="20pt"></text>'+
         '<text id="Overlay-Text" fill="white" font-family="Exo 2" y="280" x="-116" text-anchor="middle" dx="641" font-size="30pt"> Someone paused the game</text></g>'+
         '</g>';
     var page = document.getElementById("Kakaranet-12-maxim");
@@ -272,6 +287,7 @@ function showRevealHand(o) {
             $reveal_deck = $("#RevealDeck");
             $("#RevealDeckRoot").on("click",function () {
                 $overlay.hide();
+                $("#Overlay-Results").empty();
                 if (scope.ended) scope.deck.fill([]);
             });
         }

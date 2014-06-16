@@ -89,9 +89,9 @@ function RosterHandlers(scope) {
             score    = dec(e.raw).value[0][5];
         removeChilds(document.getElementById('Stat-Left'));
         removeChilds(document.getElementById('Stat-Right'));
-//            for (var i=0;i<games.length;i++) { statsRow(24, i,games); }
-        for (var i=0;i<protocol.length;i++) { statsRow(24,i,protocol); }
-        for (var i=0;i<reveals.length;i++) { statsRow(340,i,reveals); }
+//            for (var i=0;i<games.length;i++) { statsRow(4, i,games); }
+        for (var i=0;i<protocol.length;i++) { statsRow(4,180,i,protocol); }
+        for (var i=0;i<reveals.length;i++) { statsRow(320,180,i,reveals); }
         $("#Score").text("Score: " + score).attr({y: 40});
     });
 

@@ -276,7 +276,8 @@ do_challenge(State) ->
     ZZZ = call_rpc(S, #game_action{
                          game = GameId,
                          action = okey_challenge,
-                         args = [ {challenge, random_bool(0.2)} ]}),
+                         args = [ {challenge, random_bool(0.2)
+                                             } ]}),
     gas:info(?MODULE,"ID: ~p challenge result: ~p", [State#state.uid, ZZZ]),
     ok.
 
@@ -389,8 +390,9 @@ draw_random(List) ->
     {Item, ResList}.
 
 random_bool(Prob) ->
-    Point = crypto:rand_uniform(0, 1000),
-    Prob*1000 > Point.
+%    Point = crypto:rand_uniform(0, 1000),
+%    Prob*1000 > Point,
+    crypto:rand_uniform(0,2) == 0.
 
 get_delay(fast) -> {ok, Val}   = kvs:get(config,"games/okey/robot_delay_fast", 1000), Val;
 get_delay(normal) -> {ok, Val} = kvs:get(config,"games/okey/robot_delay_normal", 9000), Val;

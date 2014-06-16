@@ -951,13 +951,13 @@ handle_log(User,#game_event{}=Event,
 send_to_subscriber_ge(Relay, SubscrId, Msg, #okey_state{players=Players,game_id = GameId} = State) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
-    gas:info(?MODULE,"SUBSCRIBER ~p",[SubscrId]),
+%    gas:info(?MODULE,"SUBSCRIBER ~p",[SubscrId]),
     ?RELAY:table_message(Relay, {to_subscriber, SubscrId, Event}).
 
 send_to_client_ge(Relay, PlayerId, Msg, #okey_state{players=Players,game_id = GameId} = State) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
-    gas:info(?MODULE,"SEND CLIENT ~p",[Event]),
+%    gas:info(?MODULE,"SEND CLIENT ~p",[Event]),
     ?GAME_STATS:protocol_event(table,Event,State),
     case get_player(PlayerId, Players) of
         {ok, #player{user_id=User,is_bot=false}} -> handle_log(User,Event,State);
@@ -967,7 +967,7 @@ send_to_client_ge(Relay, PlayerId, Msg, #okey_state{players=Players,game_id = Ga
 relay_publish_ge(Relay, Msg, #okey_state{players=Players,game_id = GameId} = State) ->
     [Name|List] = tuple_to_list(Msg),
     Event = #game_event{game = GameId, event = Name, args = lists:zip(known_records:fields(Name),List) },
-    gas:info(?MODULE,"RELAYX PUBLISH ~p",[Event]),
+%    gas:info(?MODULE,"RELAYX PUBLISH ~p",[Event]),
     ?GAME_STATS:protocol_event(table,Event,State),
     [ handle_log(UserId,Event,State) 
     || {_,#player{id=Id,user_id=UserId,is_bot=false},_} <- midict:to_list(Players)],
@@ -1281,6 +1281,8 @@ round_results(
         game_id=GameId,
         players=Players}) ->
 
+    wf:info(?MODULE,"Score ~p/~p",[RoundScore,TotalScore]),
+
     {Date,Time} = calendar:local_time(),
 
     Results = [begin
@@ -1290,8 +1292,6 @@ round_results(
         GoodShot = if SeatNum == Revealer -> RevealerWin; true -> not lists:member(SeatNum, WrongRejects) end,
         {_, PlayerScoreTotal} = lists:keyfind(SeatNum, 1, TotalScore),
         {_, PlayerScoreRound} = lists:keyfind(SeatNum, 1, RoundScore),
-        
-        io:format("XXX Player ~p",[Player]),
 
         RE = #reveal_event{
             id = ?GAME_STATS:timestamp(),
@@ -1317,7 +1317,7 @@ round_results(
             {true,_,false}  -> ?GAME_STATS:reveal_event(UserId,RE,State);
             _ -> skip end,
 
-        {DisplayName,IsWinner,PlayerScoreRound,PlayerScoreTotal}
+        {DisplayName,IsWinner,js_hack(PlayerScoreRound),js_hack(PlayerScoreTotal)}
 
     end || SeatNum <- lists:seq(1, ?SEATS_NUM)],
 
@@ -1326,6 +1326,9 @@ round_results(
         reason = Reason,
         results = Results,
         next_action = next_round}.
+
+js_hack(Score) when Score < 0 -> Score * 1000000;
+js_hack(Score) -> Score.
 
 create_okey_series_ended(Results, Players, Confirm,
     #okey_state{tournament_type=GameKind,game_mode=GameMode,speed=Speed,rounds=Rounds}=GameState) ->
