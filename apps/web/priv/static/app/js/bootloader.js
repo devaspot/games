@@ -17,7 +17,6 @@ function statsRow(start_x,start_y,i,games) {
 }
 
 function gameresultRow(start_x,start_y,i,results) {
-   console.log(results[i].value[0][3]);
      var round = results[i].value[0][2],
          total = results[i].value[0][3];
          round = round > 500000 ? -Math.round(round/1000000) : round;

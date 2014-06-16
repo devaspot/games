@@ -220,8 +220,6 @@ function PostLoad()
 
     scope.apiProvider.on("okey_round_ended", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        console.log(String(dec(e.raw)));
-        console.log(e.detail);
         var gameres = dec(e.raw).value[0][3][2].value[0][1];
         $("#Overlay-Results").empty();
         for (var i=0;i<gameres.length;i++) { gameresultRow(400,130,i,gameres); }
