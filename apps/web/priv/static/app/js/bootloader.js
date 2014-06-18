@@ -135,9 +135,6 @@ function PatchSVG()
         $("#City").attr({fill:"#DFF1F4"});
     }
 
-    $("#Flag-tr").on("click", translateScene);
-    $("#Flag-en").on("click", translateScene);
-
 //    document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
     $svg.attr({preserveAspectRatio:"xMidYMid meet",width:"100%",height:"100%"});
 
@@ -146,7 +143,17 @@ function PatchSVG()
 
 function translateScene(e)
 {
-    console.log(e);
+    if (currentLocale == "tr")
+    {
+        $("#Flag-tr").hide();
+        $("#Flag-en").show();
+        currentLocale = "en";
+    } else {
+        $("#Flag-en").hide();
+        $("#Flag-tr").show();
+        currentLocale = "tr";
+    }
+
     document.getElementById("Users-Online-Message").firstElementChild.textContent = i18n("Online");
     document.getElementById("OnlineChatEditor").firstElementChild.textContent = i18n("EditMessage");
     document.getElementById("GameChatEditor").firstElementChild.textContent = i18n("EditMessage");
