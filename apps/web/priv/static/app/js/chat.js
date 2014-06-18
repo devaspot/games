@@ -174,11 +174,14 @@ function removeOnlineUser(name) { shiftTranslate(name,-1).remove(); }
 
 function createChat(chatName) {
     var html = '<g xmlns="http://www.w3.org/2000/svg" id="'+chatName+'" y="0" clip-path="url(#myClip3)" transform="translate(1.000000, 107.000000)"></g>';
-    document.getElementById("Page-1").appendChild(svg(html));
+    var settings = document.getElementById("Settings");
+    document.getElementById("Kakaranet-12-maxim").insertBefore(svg(html),settings);
     document.getElementById(chatName).style.display = 'none';
 }
 
 function openChat(evt) {
+    if (leftFlag) $("#Left-Menu").trigger("click");
+
     document.getElementById("Online-List").style.display = 'none';
     document.getElementById("onlineChatEdit").style.display = '';
     var name = evt.target.getAttribute("xmlns:data");

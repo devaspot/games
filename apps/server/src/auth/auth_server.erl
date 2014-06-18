@@ -13,10 +13,11 @@
 -define(SERVER, ?MODULE).
 
 -define(SPARE_LOGINS, [
-    #'PlayerInfo'{name = <<"Albert">>, surname= <<"Einstein">>, login = <<"quantum">>, robot = true },
-    #'PlayerInfo'{name = <<"Marie">>, surname= <<"Curie">>, login = <<"radio">>, robot = true },
-    #'PlayerInfo'{name = <<"Ilya">>, surname = <<"Prigogine">>, login = <<"synergetics">>, robot = true},
-    #'PlayerInfo'{name = <<"Mother">>, surname = <<"Teresa">>, login = <<"peace">>, robot = true}]).
+    #'PlayerInfo'{name = <<"Hürrem">>, sex = female, surname = <<"Sultan">>, login = <<"peace">>, robot = true},
+    #'PlayerInfo'{name = <<"Albert">>, sex = male, surname= <<"Einstein">>, login = <<"quantum">>, robot = true },
+    #'PlayerInfo'{name = <<"Marie">>, sex = female, surname= <<"Curie">>, login = <<"radio">>, robot = true },
+    #'PlayerInfo'{name = <<"Ilya">>, sex = male, surname = <<"Prigogine">>, login = <<"synergetics">>, robot = true}
+    ]).
 
 -record(state, {spare = ?SPARE_LOGINS,tokens}).
 

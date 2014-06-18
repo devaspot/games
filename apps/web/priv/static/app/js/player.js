@@ -6,7 +6,9 @@ function PlayerScope(scope) {
         this.name = options.name;
         this.position = options.position;
         this.noSkin = options.noSkin;
-        this.skin = options.skin || scope.SKIN_NAMES[$.rand(0, scope.SKIN_NAMES.length - 1)];
+        this.sex = options.sex;
+        var skins = this.sex == "female" ? scope.FEMALE_SKINS : scope.MALE_SKINS;
+        this.skin = options.skin || skins[$.rand(0, skins.length - 1)];
         this.$el = $("#Player-" + this.position);
         this.elements = {
             $timer: "#Timer",

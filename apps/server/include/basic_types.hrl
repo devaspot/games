@@ -15,6 +15,7 @@
     skill :: integer(),
     score :: integer(),
     avatar_url :: string(),
-    robot = false :: boolean() }).
+    robot = false :: boolean(),
+    sex }).
 
 -endif.

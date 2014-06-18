@@ -9,9 +9,10 @@ var scope = {
     CARD_SOURCE: "svg/Card.svg",
     CARD_SMALL_SOURCE: "svg/Card-Small.svg",
     CARD_COLORS: [ "#CE290F", "#3B5998", "#48AF5E", "#F8E81C" ],
-    SKIN_NAMES: [ "Alina", "Gabrielo", "Mustafa" ],
+    MALE_SKINS: [ "Gabrielo", "Mustafa" ],
+    FEMALE_SKINS: [ "Alina" ],
     paused: false,
-    version: 1406201405
+    version: 1806201401
 };
 
 var $ = function(_undefind)

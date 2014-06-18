@@ -71,6 +71,7 @@ function PostLoad()
         var e = {detail: x.detail.json, raw: x.detail.bert};
         var playersPositions = scope.playersPositions;
         scope.user = document.user;
+        var players = dec(e.raw).value[0][3][0].value[0][1];
 
         //$overlay.hide(); // give user an ability to see results
 
@@ -80,22 +81,22 @@ function PostLoad()
             scope.playersRightHandsMap = {};
             scope.playersLeftHandsMap = {};
 
-            for (var playerInfo, players = e.detail.players, i = 0; i < players.length; i++) 
-                if (playerInfo = players[i].PlayerInfo, playerInfo[0] == scope.user)
-            {
-                playersPositions = playersPositions[i];
-                break;
+            for (var i = 0; i < players.length; i++) {
+                var playerName = players[i].value[0][1].value;
+                if (playerName == scope.user) { playersPositions = playersPositions[i]; break; }
             }
+
             for (var playerInfo, i = 0, l = players.length; l > i; i++) {
-                playerInfo = players[i].PlayerInfo;
-                scope.playersMap[playerInfo[0]] = scope.playersMap[playerInfo[0]] || new scope.Player({
+                playerInfo = players[i].value[0];
+                scope.playersMap[playerInfo[1].value] = scope.playersMap[playerInfo[1].value] || new scope.Player({
                     position: playersPositions[i],
-                    name: [ playerInfo[2], playerInfo[3] ].join(" ")
+                    sex: playerInfo[12].value,
+                    name: [ playerInfo[3].value, playerInfo[4].value ].join(" ")
                 });
-                var prevPlayer = i == players.length - 1 ? players[0] : players[i + 1];
+                var prevPlayer = i == players.length - 1 ? players[0].value[0][1].value : players[i + 1].value[0][1].value;
                 for (var prop in scope.playersLeftHandsMap) scope.playersLeftHandsMap[prop].clear();
-                scope.playersLeftHandsMap[prevPlayer.PlayerInfo[0]] = scope.playersRightHandsMap[playerInfo[0]] = new scope.Hand("#" + [ "Player", playersPositions[i], "Hand" ].join("-")), 
-                "Me" == playersPositions[i] && scope.playersRightHandsMap[playerInfo[0]].$el.droppable({
+                scope.playersLeftHandsMap[prevPlayer] = scope.playersRightHandsMap[playerInfo[1].value] = new scope.Hand("#" + [ "Player", playersPositions[i], "Hand" ].join("-")), 
+                "Me" == playersPositions[i] && scope.playersRightHandsMap[playerInfo[1].value].$el.droppable({
                     accept: function() {
                         return playerTurn && scope.deck.length() > 14;
                     },
@@ -334,24 +335,38 @@ function initOkeyScene(x)
 function SetupLeftMenu() 
 {
     $("#Left-Menu").css("cursor", "pointer").on("click", function() {
-        leftFlag ? (    $("#Tournaments").transform({ to: "10 575", from: "44 465" }),
-                        $("#Promos").transform({ to: "10 575", from: "122 538" }),
-                        leftFlag = !1
-                ) : (   $("#Tournaments").transform({ from: "10 575", to: "44 465" }),
-                        $("#Promos").transform({ from: "10 575", to: "122 538" }),
-                        leftFlag = !0 );
+        if (leftFlag) { 
+            if (currentChat != null)
+                $("#OnlineChatEditor")[0].firstElementChild.style.display = "";
+            $("#Tournaments").transform({ to: "10 575", from: "44 465" }),
+            $("#Promos").transform({ to: "10 575", from: "122 538" }),
+            leftFlag = !1
+        } else {
+            if ($("#OnlineChatEditor")[0].firstElementChild.style.display != "none") 
+                $("#OnlineChatEditor")[0].firstElementChild.style.display = "none";
+            $("#Tournaments").transform({ from: "10 575", to: "44 465" }),
+            $("#Promos").transform({ from: "10 575", to: "122 538" }),
+            leftFlag = !0 
+        }
     });
 }
 
 function SetupRightMenu() 
 {
     $("#Right-Menu").css("cursor", "pointer").on("click", function() {
-        rightFlag ? (   $("#Play").transform({to: "975 575", from: "946, 461"}),
-                        $("#Create").transform({to: "975 575",from: "864 526"}),
-                        rightFlag = !1
-                ) : (   $("#Play").transform({from: "975 575",to: "946, 461"}),
-                        $("#Create").transform({from: "975 575",to: "864 526"}),
-                        rightFlag = !0 );
+
+        if (rightFlag) {
+            $("#GameChatEditor")[0].firstElementChild.style.display = "";
+            $("#Play").transform({to: "975 575", from: "946, 461"});
+            $("#Create").transform({to: "975 575",from: "864 526"});
+            rightFlag = !1;
+        } else {
+            if ($("#GameChatEditor")[0].firstElementChild.style.display != "none")
+                $("#GameChatEditor")[0].firstElementChild.style.display = "none";
+            $("#Play").transform({from: "975 575",to: "946, 461"});
+            $("#Create").transform({from: "975 575",to: "864 526"});
+            rightFlag = !0;
+        }
     });
 }
 
