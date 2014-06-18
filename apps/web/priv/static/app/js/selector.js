@@ -12,7 +12,7 @@ var scope = {
     MALE_SKINS: [ "Gabrielo", "Mustafa" ],
     FEMALE_SKINS: [ "Alina" ],
     paused: false,
-    version: 1806201409
+    version: 1806201410
 };
 
 var $ = function(_undefind)
