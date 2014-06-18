@@ -85,7 +85,7 @@ function PatchSVG()
 
        playerInifoOnClick.map(function(x) { 
             document.getElementById(x).style.cursor = "pointer";
-            document.getElementById(x).onclick = showPlayerInfo; });
+            document.getElementById(x).onclick = requestPlayerInfo; });
 
     var onlineListOnClick = [
         "Online-Users",
@@ -135,10 +135,17 @@ function PatchSVG()
 
 //    document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
     $svg.attr({preserveAspectRatio:"xMidYMid meet",width:"100%",height:"100%"});
+    
+    document.getElementById("Users-Online-Message").firstElementChild.textContent = i18n("Online");
+    document.getElementById("OnlineChatEditor").firstElementChild.textContent = i18n("EditMessage");
+    document.getElementById("GameChatEditor").firstElementChild.textContent = i18n("EditMessage");
+    $("#Point-Table").find("text")[0].lastElementChild.textContent = i18n("Statistics");
+    $("#Rules").find("text")[0].lastElementChild.textContent = i18n("Rules");
+    $("#Kakush")[0].lastElementChild.textContent = i18n("Kakush") + ": " + 0;
 }
 
 function initChatSample() {
-    chatMessage("Chat","0","Maxim","Kakaranet:\nThis is in-game chat");
+    chatMessage("Chat","0","Maxim","Kakaranet:\n"+i18n("GameChat"));
     barHover();
     mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
     barHoverOut();
@@ -181,11 +188,8 @@ function showRules()
     });
 }
 
-function showPlayerInfo()
+function displayPlayerInfo(fun)
 {
-    ws.send(enc(tuple(atom('client'),
-        tuple(atom('stats_action'),bin(document.user),atom('game_okey')))));
-
     $.load("svg/Player-Statistics.svg", function(h) {
         var rules = document.getElementById("Player-Statistics");
         if (null == rules) {
@@ -197,7 +201,16 @@ function showPlayerInfo()
         }
         rules.style.display = 'block';
 
+        fun();
+
     });
+
+}
+
+function requestPlayerInfo()
+{
+    ws.send(enc(tuple(atom('client'),
+        tuple(atom('stats_action'),bin(document.user),atom('game_okey')))));
 }
 
 function onPlayerInfoClose(evt) {

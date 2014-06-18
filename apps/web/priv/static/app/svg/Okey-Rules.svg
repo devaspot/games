@@ -24,11 +24,6 @@
                     <tspan x="0" y="29">Winning Deck 3x3+1x5</tspan>
                 </text>
             </g>
-            <g id="Group" transform="translate(32.000000, 17.000000)" font-size="29.3024001" font-family="Exo 2" fill="#FFFFFF" sketch:type="MSTextLayer" font-weight="normal">
-                <text id="Okey-Rules">
-                    <tspan x="0" y="28.5284512">Okey Rules</tspan>
-                </text>
-            </g>
             <g id="Small-Deck" transform="translate(121.000000, 132.000000)">
                 <g id="Deck" sketch:type="MSShapeGroup">
                     <rect id="Rectangle-path" fill="#AF7B58" x="0" y="2" width="495" height="42.4489796"></rect>
@@ -262,6 +257,9 @@
                     <tspan x="45" y="31">Okey Joker</tspan>
                 </text>
             </g>
+            <text id="Okey-Rules-Text" sketch:type="MSTextLayer" font-family="Exo 2" font-size="35" font-weight="bold" fill="#FFFFFF">
+                <tspan x="32" y="45.5284512">Okey Rules</tspan>
+            </text>
         </g>
     </g>
 </svg>

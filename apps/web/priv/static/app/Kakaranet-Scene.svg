@@ -4,17 +4,18 @@
     <title>Kakaranet-Scene</title>
     <desc>Created with Sketch.</desc>
     <defs>
-        <linearGradient x1="50%" y1="23.2979243%" x2="50%" y2="61.110645%" id="linearGradient1">
-            <stop id="grad" stop-color="#FFFFFF" stop-opacity="0" offset="0%"></stop>
-            <stop id="grad" stop-color="#FFFFFF" offset="100%"></stop>
-        </linearGradient>
-        <linearGradient x1="50%" y1="0%" x2="50%" y2="86.2723214%" id="linearGradient2">
-            <stop id="grad" stop-color="#FFFFFF" stop-opacity="0" offset="0%"></stop>
-            <stop id="grad" stop-color="#FFFFFF" offset="100%"></stop>
-        </linearGradient>
     <clipPath id="myClip1"><rect id="Clip-Path-Left" x="0" y="0" width="216" height="400"/></clipPath>
     <clipPath id="myClip2"><rect id="Clip-Path-Right" x="0" y="0" width="216" height="400"/></clipPath>
     <clipPath id="myClip3"><rect id="Clip-Path-Left-Chat" x="0" y="0" width="216" height="400"/></clipPath>
+
+        <linearGradient x1="50%" y1="23.2979243%" x2="50%" y2="61.110645%" id="linearGradient-1">
+            <stop stop-color="#FFFFFF" stop-opacity="0" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" offset="100%"></stop>
+        </linearGradient>
+        <linearGradient x1="50%" y1="0%" x2="50%" y2="86.2723214%" id="linearGradient-2">
+            <stop stop-color="#FFFFFF" stop-opacity="0" offset="0%"></stop>
+            <stop stop-color="#FFFFFF" offset="100%"></stop>
+        </linearGradient>
     </defs>
     <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd" sketch:type="MSPage">
         <g id="Kakaranet-12-maxim" sketch:type="MSLayerGroup" transform="translate(-1.000000, 0.000000)">
@@ -385,18 +386,18 @@
             <g id="Mustafa-Discard" transform="translate(373.000000, 261.000000)" fill="#B5C6D8" sketch:type="MSShapeGroup">
                 <rect id="Shape" x="0" y="0" width="40" height="60" rx="8"></rect>
             </g>
-            <rect id="Left-Bar" opacity="0.64" fill="url(#linearGradient1)" sketch:type="MSShapeGroup" x="3" y="91" width="213" height="456" rx="5"></rect>
+            <rect id="Left-Bar" opacity="0.64" fill="url(#linearGradient-1)" sketch:type="MSShapeGroup" x="3" y="91" width="213" height="456" rx="5"></rect>
             <g id="Have-8-Tashes" transform="translate(649.000000, 614.000000)">
                 <rect id="Rectangle" fill="#48AF5E" sketch:type="MSShapeGroup" x="0" y="0" width="40" height="35" rx="5"></rect>
-                <text id="8" fill="#FFFFFF" sketch:type="MSTextLayer" transform="translate(19.000000, 16.000000) scale(-1, 1) translate(-19.000000, -16.000000) " font-family="Exo 2" font-size="17" font-weight="normal" sketch:alignment="middle">
-                    <tspan x="13.8405" y="23">8</tspan>
+                <text id="8" fill="#FFFFFF" sketch:type="MSTextLayer" transform="translate(21.000000, 16.000000) scale(-1, 1) translate(-21.000000, -16.000000) " font-family="Exo 2" font-size="17" font-weight="normal" sketch:alignment="middle">
+                    <tspan x="15.8405" y="23">8</tspan>
                 </text>
             </g>
-            <rect id="Right-Bar" opacity="0.762360075" fill="url(#linearGradient2)" sketch:type="MSShapeGroup" x="857" y="91" width="214" height="456" rx="5"></rect>
+            <rect id="Right-Bar" opacity="0.762360075" fill="url(#linearGradient-2)" sketch:type="MSShapeGroup" x="857" y="91" width="214" height="456" rx="5"></rect>
             <g id="Okey" transform="translate(696.000000, 614.000000)">
                 <rect id="Rectangle" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="84" height="35" rx="5"></rect>
-                <text fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="17" font-weight="normal">
-                    <tspan x="24.1611328" y="21.5">Okey</tspan>
+                <text fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="17" font-weight="normal" sketch:alignment="middle">
+                    <tspan x="24.096" y="21.5">Okey</tspan>
                 </text>
             </g>
             <g id="Settings" transform="translate(466.000000, 615.000000)" sketch:type="MSShapeGroup">
@@ -408,16 +409,16 @@
                 <path d="M16.281,10.115 L13.473,10.115 C13.131,10.115 12.852,10.391 12.852,10.736 L12.852,24.244 C12.852,24.586 13.131,24.865 13.473,24.865 L16.282,24.865 C16.627,24.865 16.903,24.586 16.903,24.244 L16.903,10.736 C16.903,10.393 16.625,10.115 16.281,10.115" id="Shape" fill="#517ECE"></path>
                 <path d="M23.975,10.115 L21.166,10.115 C20.823,10.115 20.547,10.391 20.547,10.736 L20.547,24.244 C20.547,24.586 20.823,24.865 21.166,24.865 L23.975,24.865 C24.319,24.865 24.596,24.586 24.596,24.244 L24.596,10.736 C24.596,10.393 24.319,10.115 23.975,10.115" id="Shape" fill="#517ECE"></path>
             </g>
-            <g id="Point-Table" transform="translate(292.000000, 615.000000)">
-                <rect id="Rectangle" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="123" height="35" rx="5"></rect>
-                <text fill="#517ECE" sketch:type="MSTextLayer" font-family="Exo 2" font-size="17" font-weight="normal">
-                    <tspan x="21.5935059" y="23">Point Table</tspan>
+            <g id="Point-Table" transform="translate(290.000000, 615.000000)">
+                <rect id="Rectangle" fill="#FFFFFF" sketch:type="MSShapeGroup" x="2" y="0" width="123" height="35" rx="5"></rect>
+                <text fill="#517ECE" sketch:type="MSTextLayer" font-family="Exo 2" font-size="17" font-weight="normal" sketch:alignment="middle">
+                    <tspan x="18.983" y="23">Point Table</tspan>
                 </text>
             </g>
-            <g id="Rules" transform="translate(512.000000, 615.000000)">
-                <rect id="Rules-Rectangle" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="74" height="35" rx="5"></rect>
-                <text id="Rules-Text" fill="#517ECE" sketch:type="MSTextLayer" font-family="Exo 2" font-size="17" font-weight="normal">
-                    <tspan x="14.5935059" y="23">Rules</tspan>
+            <g id="Rules" transform="translate(508.000000, 615.000000)">
+                <rect id="Rules-Rectangle" fill="#FFFFFF" sketch:type="MSShapeGroup" x="4" y="0" width="108.078947" height="35" rx="5"></rect>
+                <text id="Rules-Text" fill="#517ECE" sketch:type="MSTextLayer" font-family="Exo 2" font-size="17" font-weight="normal" sketch:alignment="middle">
+                    <tspan x="32.4555263" y="23">Rules</tspan>
                 </text>
             </g>
             <g id="Create" transform="translate(865.000000, 526.000000)" sketch:type="MSShapeGroup">
@@ -474,6 +475,7 @@
         <path d="M717.82681,16 L698.143994,16 C695.854843,16 694,17.8548426 694,20.1430683 L694,50.1835548 C694,52.4717805 695.854843,54.3266231 698.143994,54.3266231 L717.82681,54.3266231 C720.115036,54.3266231 721.969878,52.4717805 721.969878,50.1835548 L721.969878,20.1430683 C721.968952,17.8548426 720.115036,16 717.82681,16 L717.82681,16 L717.82681,16 Z M707.985865,41.0399123 C704.737344,41.0399123 702.108338,38.4072025 702.108338,35.1623855 C702.108338,31.9147904 704.737344,29.2848588 707.985865,29.2848588 C711.230682,29.2848588 713.863392,31.9147904 713.863392,35.1623855 C713.863392,38.4090546 711.230682,41.0399123 707.985865,41.0399123 L707.985865,41.0399123 L707.985865,41.0399123 Z" id="Okey-Tash-Logo-3" fill="#F6A623" sketch:type="MSShapeGroup"></path>
         <path d="M754.82681,16 L735.143994,16 C732.854843,16 731,17.8548426 731,20.1430683 L731,50.1835548 C731,52.4717805 732.854843,54.3266231 735.143994,54.3266231 L754.82681,54.3266231 C757.115036,54.3266231 758.969878,52.4717805 758.969878,50.1835548 L758.969878,20.1430683 C758.968952,17.8548426 757.115036,16 754.82681,16 L754.82681,16 L754.82681,16 Z M744.985865,41.0399123 C741.737344,41.0399123 739.108338,38.4072025 739.108338,35.1623855 C739.108338,31.9147904 741.737344,29.2848588 744.985865,29.2848588 C748.230682,29.2848588 750.863392,31.9147904 750.863392,35.1623855 C750.863392,38.4090546 748.230682,41.0399123 744.985865,41.0399123 L744.985865,41.0399123 L744.985865,41.0399123 Z" id="Okey-Tash-Logo-4" fill="#517ECE" sketch:type="MSShapeGroup"></path>
     </g>
+
     <foreignObject id="GameChatEditor" x="864" y="504" width="198" height="120" onmouseover="barHover(evt);" onmouseout="barHoverOut(evt);">
         <div xmlns:data="Chat" id="edit" contentEditable="true"
           style="padding:4px;background-color:#FFF687;color:#3B5998;font-family:'Exo 2';font-size:16px;"
@@ -485,4 +487,7 @@
           style="padding:4px;background-color:#FFF687;color:#3B5998;font-family:'Exo 2';font-size:16px;"
          xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div>
     </foreignObject>
+
+
+
 </svg>

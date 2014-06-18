@@ -35,7 +35,7 @@ function HandScope(scope) {
 
         discard: function(tile) {
             var card = new scope.Card({
-                color: scope.CARD_COLORS[tile[1] - 1],
+                color: scope.CARD_COLORS[tile[1]-1],
                 value: tile[2]
             });
             this.cards.push(card), this.render(), card.drag(), card.dragHandler.disable(), this.$topCard.append(card.$el[0]); },

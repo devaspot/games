@@ -9,7 +9,8 @@ function RosterHandlers(scope) {
 
     scope.apiProvider.on("online_number", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        document.getElementById("Users-Online-Number").firstElementChild.textContent = e.detail.toString(); 
+        var number  = dec(e.raw).value[0][1];
+        document.getElementById("Users-Online-Number").firstElementChild.textContent = number; 
     });
 
     scope.apiProvider.on("online", function (x) {
@@ -20,6 +21,8 @@ function RosterHandlers(scope) {
             score   = dec(e.raw).value[0][4];
         if (null != document.getElementById(id)) removeOnlineUser(id);
         addOnlineUser(id,name+" "+surname,score,"insertTop");
+        if ( name == document.names)
+            $("#Quota")[0].lastElementChild.textContent = i18n("Score") + ": " + score;
         if (currentChat == null) showOnlineList();
     });
 
@@ -82,6 +85,7 @@ function RosterHandlers(scope) {
 
     scope.apiProvider.on("stats_event", function (x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
+      displayPlayerInfo(function() {
         document.getElementById('Player-Statistics').style.display = '';
         var games    = dec(e.raw).value[0][2],
             reveals  = dec(e.raw).value[0][3],
@@ -92,7 +96,8 @@ function RosterHandlers(scope) {
 //            for (var i=0;i<games.length;i++) { statsRow(4, i,games); }
         for (var i=0;i<protocol.length;i++) { statsRow(4,180,i,protocol); }
         for (var i=0;i<reveals.length;i++) { statsRow(320,180,i,reveals); }
-        $("#Score").text("Score: " + score).attr({y: 40});
+        $("#Score").text(i18n("Score") + ": " + score).attr({y: 40});
+      });
     });
 
     scope.apiProvider.on("roster_group", function (x) {

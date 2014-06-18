@@ -30,7 +30,7 @@ function DeckScope(scope) {
             var count = 0;
             this.each(function(c, i, j) {
                 if (null != c && (this.cards[j][i] = null, c.$el.remove()), 0 == j && count < tiles.length) {
-                    var tile = tiles[count], card = new scope.Card({
+                    var tile = tiles[count].value[0], card = new scope.Card({
                         color: scope.CARD_COLORS[tile[1] - 1],
                         value: tile[2]
                     });
@@ -57,7 +57,6 @@ function DeckScope(scope) {
             this.each(function(card, i, j) {
                 if (null != card) {
                     card.$el.attr("transform", "translate(" + this.trfs[j][i].x + " " + this.trfs[j][i].y + ")");
-//                    console.log(card.$el[0]);
                     card.drag();
                     this.$el.append(card.$el[0]);
                 }
@@ -127,6 +126,7 @@ function DeckScope(scope) {
         },
 
         place: function(target, x, y) {
+
             var trfs = this.trfs, pos = this.$dropPlace.position(), width = this.$dropPlace.width(), height = this.$dropPlace.height(), placeWidth = Math.round(width / 15), placeHeight = Math.round(height / 2), truePosX = Math.floor((x - pos.left) / placeWidth), posY = Math.floor((y - pos.top) / placeHeight);
             scope.Card.selected.sort(function(a, b) {
                 return (a.pos.x > b.pos.x) - (b.pos.x > a.pos.x);

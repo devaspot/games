@@ -11,9 +11,7 @@ function PostLoad()
     $overlay = $("#overlay");
 
     var centralCard;
-
     scope.apiProvider = new scope.ApiProvider({url: scope.apiUrl, gameId: scope.gameId });
-
     createCentralCard();
 
     var $gosterme = $("#Gosterme");
@@ -62,12 +60,10 @@ function PostLoad()
 
     });
 
-    scope.apiProvider.on("okey_game_started", initOkeyScene);
-    scope.apiProvider.on("okey_game_player_state", initOkeyScene);
+    scope.apiProvider.on("okey_game_started", freshGame);
+    scope.apiProvider.on("okey_game_player_state", inGameJoined);
 
     scope.apiProvider.on("okey_game_info", function(x) {
-
-
         var e = {detail: x.detail.json, raw: x.detail.bert};
         var playersPositions = scope.playersPositions;
         scope.user = document.user;
@@ -86,7 +82,8 @@ function PostLoad()
                 if (playerName == scope.user) { playersPositions = playersPositions[i]; break; }
             }
 
-            for (var playerInfo, i = 0, l = players.length; l > i; i++) {
+            for (var playerInfo, i = 0, l = players.length; l > i; i++)
+            {
                 playerInfo = players[i].value[0];
                 scope.playersMap[playerInfo[1].value] = scope.playersMap[playerInfo[1].value] || new scope.Player({
                     position: playersPositions[i],
@@ -96,46 +93,36 @@ function PostLoad()
                 var prevPlayer = i == players.length - 1 ? players[0].value[0][1].value : players[i + 1].value[0][1].value;
                 for (var prop in scope.playersLeftHandsMap) scope.playersLeftHandsMap[prop].clear();
                 scope.playersLeftHandsMap[prevPlayer] = scope.playersRightHandsMap[playerInfo[1].value] = new scope.Hand("#" + [ "Player", playersPositions[i], "Hand" ].join("-")), 
-                "Me" == playersPositions[i] && scope.playersRightHandsMap[playerInfo[1].value].$el.droppable({
-                    accept: function() {
-                        return playerTurn && scope.deck.length() > 14;
-                    },
-                    drop: function(target) {
-                        scope.apiProvider.actionDiscard(target.owner);
-                    }
+
+                "Me" == playersPositions[i] && 
+                scope.playersRightHandsMap[playerInfo[1].value].$el.droppable({
+                    accept: function() { return playerTurn && scope.deck.length() > 14; },
+                    drop: function(target) { scope.apiProvider.actionDiscard(target.owner); }
                 });
-
-
             }
 
-            scope.playersMap[scope.user].timer.on('beforeTimerEnd', function(){ scope.Draggable.revert() })
-
+            scope.playersMap[scope.user].timer.on('beforeTimerEnd', function(){ scope.Draggable.revert() });
             scope.started = !0;
         }
     }),
 
     scope.apiProvider.on("okey_next_turn", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
+        var player = dec(e.raw).value[0][3][0].value[0][1].value;
         for (var playerName in scope.playersMap) scope.playersMap[playerName].unselect();
 
-        if (scope.playersMap[e.detail.player].select(), e.detail.player == scope.user)
+        if (scope.playersMap[player].select(), player == scope.user)
         {
             playerTurn = !0;
-            var cards = scope.playersLeftHandsMap[e.detail.player].cards;
+            var cards = scope.playersLeftHandsMap[player].cards;
             if (cards.length)
             {
-                var card = cards[cards.length - 1];
-                scope.deck.$el.append(card.$el[0]), card.$el.attr({
-                    transform: "translate(16 -65)"
-                }), 
-                card.dragHandler.enable(), 
-                card
-                    .on("dragstart", scope.deck.select)
+                var card = cards[cards.length-1];
+                scope.deck.$el.append(card.$el[0]), card.$el.attr({ transform: "translate(16 -65)"}),
+                card.dragHandler.enable(),
+                card.on("dragstart", scope.deck.select)
                     .on("dragmove", scope.deck.track)
-                    
-                card.$el.doubletap(function(){
-                    scope.apiProvider.actionTake(card) 
-                });
+                card.$el.doubletap(function(){ scope.apiProvider.actionTake(card) });
             }
             scope.deck.length() < 15 ? 
             (   scope.centralCard.dragHandler.enable(),
@@ -153,15 +140,12 @@ function PostLoad()
 
     scope.apiProvider.on("okey_tile_discarded", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        if ("object" == typeof e.detail.tile) {
-            var c = new scope.Card({
-                color: scope.CARD_COLORS[e.detail.tile[1] - 1],
-                value: e.detail.tile[2]
-            });
-            c.log();
-        }
-        e.detail.player == scope.user && scope.deck.remove(e.detail.tile),
-        scope.playersRightHandsMap[e.detail.player].discard(e.detail.tile);
+        var player = dec(e.raw).value[0][3][0].value[0][1].value;
+        var tile = dec(e.raw).value[0][3][1].value[0][1].value[0];
+        if (null != tile.length)
+            new scope.Card({color:scope.CARD_COLORS[tile[1]-1],value:tile[2]});
+        player == scope.user && scope.deck.remove(tile),
+        scope.playersRightHandsMap[player].discard(tile);
     });
 
     var $pile = $("#Center-Cards"),
@@ -171,18 +155,21 @@ function PostLoad()
 
     scope.apiProvider.on("okey_tile_taken", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        if ("object" == typeof e.detail.revealed) {
-            var c = new scope.Card({
-                color: scope.CARD_COLORS[e.detail.revealed[1] - 1],
-                value: e.detail.revealed[2]
-            });
-            c.log();
+
+        var player = dec(e.raw).value[0][3][0].value[0][1].value;
+        var pile = dec(e.raw).value[0][3][1].value[0][1];
+        var revealed = dec(e.raw).value[0][3][2].value[0][1].value;
+        var pile_heigh = dec(e.raw).value[0][3][3].value[0][1];
+
+        if (revealed != "null") {
+            revealed = revealed[0];
+            new scope.Card({color:scope.CARD_COLORS[revealed[1]-1],value:revealed[2]});
         }
 
-        if (e.detail.pile && !scope.deck.justTaken && scope.playersLeftHandsMap[e.detail.player].take(), 
-            0 === e.detail.pile && e.detail.player == scope.user && (scope.centralCard.color = scope.CARD_COLORS[e.detail.revealed[1] - 1], 
-            scope.centralCard.value = e.detail.revealed[2], scope.centralCard.render(), createCentralCard()), 
-            0 === e.detail.pile)
+        if (pile && !scope.deck.justTaken && scope.playersLeftHandsMap[player].take(), 
+            0 === pile && player == scope.user && (scope.centralCard.color = scope.CARD_COLORS[revealed[1]-1], 
+            scope.centralCard.value = revealed[2], scope.centralCard.render(), createCentralCard()), 
+            0 === pile)
         {
 
             var $topCard = $pile.find("g");
@@ -193,11 +180,13 @@ function PostLoad()
             }
         }
 
-        if(e.detail.player == scope.user){
+        if(player == scope.user){
             // scope.Draggable.revert()
-            scope.deck.insert(e.detail.revealed)
+            scope.deck.insert(revealed)
         }
-        scope.centralCard.dragHandler.disable()
+
+        scope.centralCard.dragHandler.disable();
+
         scope.centralCard.$el
             .off(document.createTouch ? 'touchstart' : 'mousedown', fadeIn)
             .off(document.createTouch ? 'touchend' : 'mouseup', fadeOut)
@@ -214,39 +203,33 @@ function PostLoad()
         var e = {detail: x.detail.json, raw: x.detail.bert};
         showRevealHand(dec(e.raw));
 //        scope.ended = !0;//, scope.deck.fill([]);
-        for (var hand in scope.playersLeftHandsMap) scope.playersLeftHandsMap[hand].clear();
-        for (var playerName in scope.playersMap) scope.playersMap[playerName].unselect();
         // $gosterme.remove();
     });
 
     scope.apiProvider.on("okey_round_ended", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         showRoundEnd(e);
-        /*
-        var reason = dec(e.raw).value[0][3][1].value[0][1].value;
-        var gameres = dec(e.raw).value[0][3][2].value[0][1];
-        $("#Overlay-Results").empty();
-        for (var i=0;i<gameres.length;i++) { gameresultRow(400,130,i,gameres); }
-        if (reason == "tashes_out") {
-            $("#Overlay-Text").text("Tashes out");
-            $("#RevealDeckRoot").hide();
-        }
-        */
+        for (var hand in scope.playersLeftHandsMap) scope.playersLeftHandsMap[hand].clear();
+        for (var playerName in scope.playersMap) scope.playersMap[playerName].unselect();
         scope.ended = !0;
     });
 
     scope.apiProvider.on("player_left", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        var playerInfo = e.detail.replacement.PlayerInfo;
-        scope.playersMap[playerInfo[0]] = new scope.Player({
-            position: scope.playersMap[e.detail.player].position,
-            name: [ playerInfo[2], playerInfo[3] ].join(" "),
+        var player = dec(e.raw).value[0][3][0].value[0][1].value;
+        var playerInfo = dec(e.raw).value[0][3][2].value[0][1].value[0];
+        scope.playersMap[playerInfo[1].value] = new scope.Player({
+            position: scope.playersMap[player].position,
+            name: [ playerInfo[3].value, playerInfo[4].value ].join(" "),
             noSkin: !0
         }),
 
-        delete scope.playersMap[e.detail.player], scope.playersRightHandsMap[playerInfo[0]] = scope.playersRightHandsMap[e.detail.player], 
-        delete scope.playersRightHandsMap[e.detail.player], scope.playersLeftHandsMap[playerInfo[0]] = scope.playersLeftHandsMap[e.detail.player], 
-        delete scope.playersLeftHandsMap[e.detail.player];
+        delete scope.playersMap[player];
+        scope.playersRightHandsMap[playerInfo[1].value] = scope.playersRightHandsMap[player];
+        delete scope.playersRightHandsMap[player];
+        scope.playersLeftHandsMap[playerInfo[1].value] = scope.playersLeftHandsMap[player];
+        delete scope.playersLeftHandsMap[player];
+
     });
 
     $("#Pause").on("click", function sendPause() { scope.apiProvider.pause(false); });
@@ -267,13 +250,16 @@ function PostLoad()
         $("#Overlay-Results").empty();
         $("#RevealDeckRoot").hide();
         for (var player in scope.playersMap) scope.playersMap[player].timer.pause();
-        var player = scope.playersMap[e.detail[3]];
+        var player = scope.playersMap[e.who];
         $("#Overlay-Text").text(player.name + " paused the game");
     }
 
     scope.apiProvider.on("game_paused", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        if (whoPausedGame = e.detail[3], "pause" == e.detail[2]) pause(e); else unpause(e);
+        var who = dec(e.raw).value[0][4].value;
+        var what = dec(e.raw).value[0][3].value;
+        whoPausedGame = who;
+        if ("pause" == what) pause({who:who}); else unpause({});
     });
 
 
@@ -289,47 +275,72 @@ function PostLoad()
         }
     });
 
+function freshGame(x)
+{
+    var e = {detail: x.detail.json, raw: x.detail.bert};
+    initOkeyScene({
+        tiles: dec(e.raw).value[0][3][0].value[0][1],
+        gosterme: dec(e.raw).value[0][3][1].value[0][1].value,
+        cur_round: dec(e.raw).value[0][3][3].value[0][1]
+    });
+
+}
+
+function inGameJoined(x)
+{
+    var e = {detail: x.detail.json, raw: x.detail.bert};
+    initOkeyScene({
+        whos_move: dec(e.raw).value[0][3][0].value[0][1].value,
+        piles: dec(e.raw).value[0][3][2].value[0][1],
+        tiles: dec(e.raw).value[0][3][3].value[0][1],
+        gosterme: dec(e.raw).value[0][3][4].value[0][1].value,
+        cur_round: dec(e.raw).value[0][3][6].value[0][1],
+        next_turn_in: dec(e.raw).value[0][3][8].value[0][1],
+        paused: dec(e.raw).value[0][3][9].value[0][1].value
+    });
+
+}
 
 function initOkeyScene(x)
 {
-
-    var e = {detail: x.detail.json, raw: x.detail.bert};
+    if (x.gosterme && "null" != x.gosterme) x.gosterme = x.gosterme[0];
 
     if (scope.ended = !1, 
-        scope.deck.fill(e.detail.tiles),
+        scope.deck.fill(x.tiles),
         scope.deck.render(),
         scope.centralCard.dragHandler.disable(),
         scope.centralCard.$el
             .off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
             .off(document.createTouch ? "touchend"   : "mouseup",   fadeOut), 
-        e.detail.gosterge && "null" != e.detail.gosterge)
+        x.gosterme && "null" != x.gosterme)
     {
-        var gosterme = new scope.Card({
-            color: scope.CARD_COLORS[e.detail.gosterge[1] - 1],
-            value: e.detail.gosterge[2]
-        });
+        var gosterme = new scope.Card({color:scope.CARD_COLORS[x.gosterme[1]-1],value:x.gosterme[2]});
         gosterme.$el.attr({transform: "translate(16,-60)"}),
         $gosterme.append(gosterme.$el);
     }
 
-    var piles = e.detail.piles;
-
-    if (piles && "null" != piles) for (var i = 0; i < piles.length; i++)
+    if (null != x.piles && null != x.piles.length) for (var i = 0; i < x.piles.length; i++)
     {
-        var pile = piles[i];
-        for (var name in pile) 
-            for (var playerPile = pile[name],
-                     hand = scope.playersLeftHandsMap[name],
-                     j = playerPile.length; j--; ) hand.discard(playerPile[j]);
+        var pile = x.piles[i];
+        var name = pile.value[0][0].value;
+        var playerPiles = pile.value[0][1];
+        var hand = scope.playersLeftHandsMap[name];
+        for (var j=0;j<playerPiles.length;j++)
+        {
+            hand.discard(playerPiles[j].value[0]);
+        }
     }
 
-    scope.paused = e.detail.paused;
+    if (null != x.whos_move    && "null" != x.whos_move &&
+        null != x.next_turn_in && "null" != x.next_turn_in)
+    {
+         scope.playersMap[x.whos_move].timer.from(x.next_turn_in);
+         if (x.paused) { scope.playersMap[x.whos_move].timer.pause(); $overlay.show() } else unpause();
+         scope.playersMap[x.whos_move].select();
+    };
 
-    e.detail.whos_move && "null" != e.detail.whos_move && 
-        (e.detail.next_turn_in && "null" != e.detail.next_turn_in && 
-         scope.playersMap[e.detail.whos_move].timer.from(e.detail.next_turn_in),
-         e.detail.paused && (scope.playersMap[e.detail.whos_move].timer.pause(),$overlay.show()),
-         scope.playersMap[e.detail.whos_move].select());
+    scope.paused = x.paused;
+
 }
 
 function SetupLeftMenu() 

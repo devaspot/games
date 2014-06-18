@@ -135,12 +135,12 @@ function addOnlineUser(name,full_name,score,insertMode) {
     var y = (insertMode == "insertTop") ? 0 : listElement.getBBox().height;
     var html = '<g xmlns="http://www.w3.org/2000/svg" height="60" transform="translate(0, '+y+')">' +
             '<g xmlns:data="'+name+'" fill="#DBEBED" '+eventsColor+'>' +
-            '    <rect cursor="pointer" xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" ' +'></rect></g>' +
+            '    <rect cursor="pointer" xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" ' +'>'+full_name+'</rect></g>' +
             '<text xmlns:data="'+name+'" '+eventsColor+' '+
             'font-family="Exo 2" font-size="18" cursor="pointer" font-weight="normal" line-spacing="18"'+
             ' fill="#3B5998">' +
                 '<tspan xmlns:data="'+name+'" font-weight="normal" fill="'+color+'" x="19" y="22">'+full_name+'</tspan>' + 
-                '<tspan xmlns:data="'+name+'" font-size="14" x="19" y="40">Score: '+score+' </tspan></text>'+
+                '<tspan xmlns:data="'+name+'" font-size="14" x="19" y="40">'+i18n("Score")+': '+score+' </tspan></text>'+
             '<rect '+
             '  x="10" y="48" width="196" height="8"></rect></g>';
     var element = svg(html);
@@ -185,12 +185,13 @@ function openChat(evt) {
     document.getElementById("Online-List").style.display = 'none';
     document.getElementById("onlineChatEdit").style.display = '';
     var name = evt.target.getAttribute("xmlns:data");
+    var full_name = $("#Online-List").find("#"+name)[0].textContent;
     currentChat = "Chat+"+name;
     var chatElement = document.getElementById(currentChat);
     if (null == chatElement) {
         // read from local KVS
         createChat(currentChat);
-        chatMessage(currentChat,"1","System","You can chat with\n"+name);
+        chatMessage(currentChat,"1","System",full_name+" "+i18n("PrivateChat"));
     }
     document.getElementById(currentChat).style.display = '';
     document.getElementById("onlineChatEdit").setAttribute("xmlns:data",currentChat);

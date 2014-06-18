@@ -71,54 +71,19 @@ function OkeyApiProviderScope(scope) {
         handleMessage: function(e) {
             var msg = JSON.parse(e.data);
             if (msg.eval) { try{eval(msg.eval)}catch(ex){console.log(ex);} }
-            if (msg.data) { this.emitEvent(msg.data,this.beutify(this.parse(dec(msg.data)))); }
+            if (msg.data) { this.emitEvent(msg.data); }
         },
 
-        // TODO: remove parse/beautify or make it proper BERT to JSON transformation
+        emitEvent: function(raw) {
+            var msgName = dec(raw).value[0][0].value;
+            if (msgName == "game_event") msgName = dec(raw).value[0][2].value;
 
-        parse: function(msg) {
-            if (Array.isArray(msg)) {
-                if (msg.every(function(el, i) {
-                    return i % 2 == 0 || Object(el.value) === el.value;
-                }) || msg.length % 2 != 0) {
-                    for (var result = [], i = 0, l = msg.length; l > i; i++) result.push(this.parse(msg[i]));
-                    return result;
-                }
-                if (msg.length > 2 && msg.every(function(el) {
-                    return null != el && "object" != typeof el || null != el.value && "object" != typeof el.value;
-                })) {
-                    var result = {};
-                    return result[this.parse(msg[0])] = this.parse(msg.slice(1)), result;
-                }
-                for (var result = {}, i = 0, l = msg.length; l > i; i += 2) {
-                    {
-                        this.parse(msg[i]);
-                    }
-                    result[this.parse(msg[i])] = this.parse(msg[i + 1]);
-                }
-                return result;
-            }
-            return msg.value && Object(msg.value) === msg.value && msg.value[0] && msg.value.length ? this.parse(msg.value[0]) : null != msg.value ? msg.value : msg;
-        },
-        beutify: function(msg) {
-            var result = {};
-            for (var prop in msg) {
-                var tempObj = msg[prop];
-                if (Array.isArray(tempObj)) {
-                    for (var obj, i = tempObj.length; i--; ) if (obj = tempObj[i], Array.isArray(obj)) result[obj[0]] = obj[1]; else if (Object(obj) === obj) for (var p in obj) result[p] = obj[p]; else result[i] = obj;
-                    msg[prop] = result;
-                }
-            }
-            return msg;
-        },
-        emitEvent: function(raw,msg) {
-            console.log(String(dec(raw)));
             for (var event, i = eventMap.length, obj; i--; ) {
                 event = eventMap[i];
-                found = (event == msg[0] || msg[event] != null);
-                body = event == msg[0] ? msg : msg[event];
-                found && this.$socket.trigger(event, {detail: {json:body,bert:raw} });
+                if (eventMap[i] == msgName)
+                    this.$socket.trigger(msgName, {detail: {json:{},bert:raw} });
             }
+
         },
         actionTake: function(card) {
             var from = null != card.value ? 1 : 0;
