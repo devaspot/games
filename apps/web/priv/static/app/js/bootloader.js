@@ -120,6 +120,9 @@ function PatchSVG()
     Core(DeckScope);
     Core(RosterScope);
 
+    $("#Flag-en").hide();
+    translateScene();
+
     initDiscards();
     initChat();
     initChatSample();
@@ -137,9 +140,6 @@ function PatchSVG()
 
 //    document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
     $svg.attr({preserveAspectRatio:"xMidYMid meet",width:"100%",height:"100%"});
-    $("#Flag-en").hide();
-
-    translateScene();
 }
 
 function translateScene(e)
