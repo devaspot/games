@@ -175,7 +175,7 @@ function removeOnlineUser(name) { shiftTranslate(name,-1).remove(); }
 function createChat(chatName) {
     var html = '<g xmlns="http://www.w3.org/2000/svg" id="'+chatName+'" y="0" clip-path="url(#myClip3)" transform="translate(1.000000, 107.000000)"></g>';
     var settings = document.getElementById("Settings");
-    document.getElementById("Kakaranet-12-maxim").insertBefore(svg(html),settings);
+    document.getElementById("Kakaranet-Scene").insertBefore(svg(html),settings);
     document.getElementById(chatName).style.display = 'none';
 }
 
@@ -246,7 +246,7 @@ function initChat()
     var onlineList = '<g id="Online-List"  y="0" clip-path="url(#myClip1)" transform="translate(1.000000, 107.000000)" xmlns="http://www.w3.org/2000/svg" />';
     var onlineChat = '<g id="Online-Chat"  y="0" clip-path="url(#myClip3)" transform="translate(1.000000, 107.000000)" xmlns="http://www.w3.org/2000/svg" />';
 
-    var page = document.getElementById("Kakaranet-12-maxim");
+    var page = document.getElementById("Kakaranet-Scene");
     var settings = document.getElementById("Settings");
 
     page.insertBefore(svg(inGameChat),settings);

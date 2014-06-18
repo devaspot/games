@@ -198,7 +198,7 @@ function showRules()
         var rules = document.getElementById("Okey-Rules");
         if (null == rules) {
             var rulesElement = svg(h);
-            document.getElementById("Kakaranet-12-maxim").appendChild(rulesElement);
+            document.getElementById("Kakaranet-Scene").appendChild(rulesElement);
             rules = document.getElementById("Okey-Rules");
             rules.setAttribute('transform', 'translate(210,86)');
             rules.setAttribute('onclick', 'onRulesClose(evt)');
@@ -213,7 +213,7 @@ function displayPlayerInfo(fun)
         var rules = document.getElementById("Player-Statistics");
         if (null == rules) {
             var rulesElement = svg(h);
-            document.getElementById("Kakaranet-12-maxim").appendChild(rulesElement);
+            document.getElementById("Kakaranet-Scene").appendChild(rulesElement);
             rules = document.getElementById("Player-Statistics");
             rules.setAttribute('transform', 'translate(210,86)');
             rules.setAttribute('onclick', 'onPlayerInfoClose(evt)');
@@ -296,7 +296,7 @@ function initPauseOverlay() {
         '<text id="Overlay-Results" fill="white" font-family="Exo 2" font-size="20pt"></text>'+
         '<text id="Overlay-Text" fill="white" font-family="Exo 2" y="280" x="-116" text-anchor="middle" dx="641" font-size="30pt"> Someone paused the game</text></g>'+
         '</g>';
-    var page = document.getElementById("Kakaranet-12-maxim");
+    var page = document.getElementById("Kakaranet-Scene");
     var kakush = document.getElementById("Kakush");
     page.insertBefore(svg(html),kakush);
 

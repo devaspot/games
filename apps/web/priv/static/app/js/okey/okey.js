@@ -21,6 +21,11 @@ function PostLoad()
 
     new scope.Roster(scope);
 
+    var $pile = $("#Center-Cards"),
+        $fullPile = $pile.find("g").clone(),
+        $wholeCards = $("#Stupid-Cards"),
+        $fullWholeCards = $("#Stupid-Cards > g").clone();
+
     function fadeOut()       { $(this).animate({ attributeName: "opacity", from: 1, to: 0, dur: .3}); }
     function fadeIn()        { $(this).animate({ attributeName: "opacity", from: 0, to: 1, dur: .3}); }
     function addFadeOut()    { $(this).on (document.createTouch ? "touchend" : "mouseup", fadeOut); }
@@ -148,10 +153,6 @@ function PostLoad()
         scope.playersRightHandsMap[player].discard(tile);
     });
 
-    var $pile = $("#Center-Cards"),
-        $fullPile = $pile.find("g").clone(),
-        $wholeCards = $("#Stupid-Cards"),
-        $fullWholeCards = $("#Stupid-Cards > g").clone();
 
     scope.apiProvider.on("okey_tile_taken", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
@@ -159,7 +160,9 @@ function PostLoad()
         var player = dec(e.raw).value[0][3][0].value[0][1].value;
         var pile = dec(e.raw).value[0][3][1].value[0][1];
         var revealed = dec(e.raw).value[0][3][2].value[0][1].value;
-        var pile_heigh = dec(e.raw).value[0][3][3].value[0][1];
+        var pile_height = dec(e.raw).value[0][3][3].value[0][1];
+
+        if (0 == pile) $("#Pile-Height")[0].lastElementChild.textContent = pile_height;
 
         if (revealed != "null") {
             revealed = revealed[0];
@@ -172,12 +175,14 @@ function PostLoad()
             0 === pile)
         {
 
-            var $topCard = $pile.find("g");
-            if ($topCard.length > 1) $topCard.last().remove(); else {
+        var $topCard = $pile.find("g");
+        if ($topCard.length > 1) $topCard.last().remove(); /*else {
                 $topCard.last().remove(), $pile.append($fullPile);
                 var $miniPile = $wholeCards.find("g");
-                $miniPile.length ? $miniPile.first().remove() : $wholeCards.append($fullWholeCards);
+//                $miniPile.length ? $miniPile.first().remove() : $wholeCards.append($fullWholeCards);
+                $miniPile.first().remove();
             }
+            */
         }
 
         if(player == scope.user){
@@ -281,9 +286,17 @@ function freshGame(x)
     initOkeyScene({
         tiles: dec(e.raw).value[0][3][0].value[0][1],
         gosterme: dec(e.raw).value[0][3][1].value[0][1].value,
+        pile_height: dec(e.raw).value[0][3][2].value[0][1],
         cur_round: dec(e.raw).value[0][3][3].value[0][1]
     });
 
+}
+
+function reminder(pile_height)
+{
+    var pile_rem = pile_height % 5;
+    for (var i=0;i<9-Math.floor(pile_height/5);i++) $wholeCards.find("g").first().remove();
+    if (pile_rem != 0) for (var i=0;i<5-pile_rem;i++) $pile.find("g").last().remove();
 }
 
 function inGameJoined(x)
@@ -294,6 +307,7 @@ function inGameJoined(x)
         piles: dec(e.raw).value[0][3][2].value[0][1],
         tiles: dec(e.raw).value[0][3][3].value[0][1],
         gosterme: dec(e.raw).value[0][3][4].value[0][1].value,
+        pile_height: dec(e.raw).value[0][3][5].value[0][1],
         cur_round: dec(e.raw).value[0][3][6].value[0][1],
         next_turn_in: dec(e.raw).value[0][3][8].value[0][1],
         paused: dec(e.raw).value[0][3][9].value[0][1].value
@@ -304,6 +318,11 @@ function inGameJoined(x)
 function initOkeyScene(x)
 {
     if (x.gosterme && "null" != x.gosterme) x.gosterme = x.gosterme[0];
+
+    if (null != x.pile_height && "null" != x.pile_height)
+        $("#Pile-Height")[0].lastElementChild.textContent = x.pile_height;
+
+    reminder(x.pile_height);
 
     if (scope.ended = !1, 
         scope.deck.fill(x.tiles),
