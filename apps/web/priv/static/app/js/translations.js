@@ -15,7 +15,7 @@ locale.tr.GameChat    = "Oyun sohbet";
 locale.en.PrivateChat = "is waiting for chat with you";
 locale.tr.PrivateChat = "seninle sohbet için bekliyor";
 
-currentLocale = "tr";
+currentLocale = "en";
 
 function i18n(word) {
     var translation = locale[currentLocale][word];
