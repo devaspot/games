@@ -177,7 +177,7 @@ function PostLoad()
             new scope.Card({color:scope.CARD_COLORS[revealed[1]-1],value:revealed[2]});
         }
 
-        if (scope.deck.justTaken && player == scope.user) {
+        if (player == scope.user) {
             $("#Gabrielo-Discard-Shape").hide();
             $("#Center-Card-Selection").hide();
             $("#You-Discard-Shape").show();
