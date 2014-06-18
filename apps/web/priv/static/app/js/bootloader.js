@@ -156,12 +156,20 @@ function translateScene(e)
     }
 
     document.getElementById("Users-Online-Message").firstElementChild.textContent = i18n("Online");
+    try {
     document.getElementById("OnlineChatEditor").firstElementChild.textContent = i18n("EditMessage");
     document.getElementById("GameChatEditor").firstElementChild.textContent = i18n("EditMessage");
+    } catch (e) { console.log("Please add foreignObjects to schene from SVG.txt"); }
     $("#Point-Table").find("text")[0].lastElementChild.textContent = i18n("Statistics");
     $("#Rules").find("text")[0].lastElementChild.textContent = i18n("Rules");
     $("#Login-Text")[0].lastElementChild.textContent = i18n("Login");
     $("#Kakush")[0].lastElementChild.textContent = i18n("Kakush") + ": " + 0;
+    
+    $("#Gabrielo-Discard-Shape").hide();
+    $("#Center-Card-Selection").hide();
+    $("#You-Discard-Shape").hide();
+    
+
 }
 
 function initChatSample() {

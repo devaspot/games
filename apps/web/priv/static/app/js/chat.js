@@ -278,7 +278,7 @@ function initChat()
     document.getElementById("Right-Bar").onmouseout = barHoverOut;
     document.getElementById("Left-Bar").onmouseover = onlineHover;
     document.getElementById("Left-Bar").onmouseout = onlineHoverOut;
-
+try {
     document.getElementById('onlineChatEdit').setAttribute("contentEditable","true");
     document.getElementById('onlineChatEdit').onkeydown = chatEditor;
     document.getElementById('onlineChatEdit').onfocus = chatEditorClearContent;
@@ -288,7 +288,7 @@ function initChat()
     document.getElementById('edit').onkeydown = chatEditor;
     document.getElementById('edit').onfocus = chatEditorClearContent;
     document.getElementById("edit").style.display = '';
-
+} catch (e) { console.log("foreignObjects missing from SVG.txt"); }
     document.getElementById('Page-1').addEventListener(mousewheelevt, mouseWheelHandler, false);
 
 }

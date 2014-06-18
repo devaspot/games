@@ -173,29 +173,10 @@
                 </g>
             </g>
             <g id="Table" transform="translate(219.000000, 310.000000)" sketch:type="MSShapeGroup">
-                <path d="M634.171,146.66 L-0.36,146.66 L115.967,0.23 L524.45,0.23 L634.171,146.66 L634.171,146.66 Z" id="Shape" fill="#48AF5E"></path>
+                <path d="M-0.36,146.66 L115.967,0.23 L524.45,0.23 L634.171,146.66 L-0.36,146.66 Z" id="Shape" fill="#48AF5E"></path>
                 <path d="M475.849,63.473 C484.752,87.426 414.057,108.909 317,108.909 C219.942,108.909 149.248,87.428 158.15,63.473 C166.156,41.932 236.962,26 317,26 C397.037,26 467.843,41.932 475.849,63.473 L475.849,63.473 L475.849,63.473 Z" id="Table-Oval" fill="#5CBF6F"></path>
             </g>
-            <g id="Player-Me" transform="translate(398.000000, 413.000000)">
-                <g id="Name" transform="translate(43.000000, 0.000000)">
-                    <rect id="Player-Me-Pad" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="89" height="39" rx="8"></rect>
-                    <text id="Player-Me-Name" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal">
-                        <tspan x="26.9998" y="28.7344">Me</tspan>
-                    </text>
-                </g>
-                <g id="Timer">
-                    <path d="M5.558,38 C2.492,38 0,35.504 0,32.436 L0,5.564 C0,2.496 2.492,0 5.558,0 L32.439,0 C35.505,0 38,2.496 38,5.564 L38,32.436 C38,35.504 35.505,38 32.439,38 L5.558,38 L5.558,38 Z" id="Timer-Pad" fill="#517ECE" sketch:type="MSShapeGroup"></path>
-                    <rect id="progress" fill="#5CBF6F" sketch:type="MSShapeGroup" x="2" y="2" width="34" height="33" rx="3"></rect>
-                    <text id="value" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20.7143027" font-weight="normal">
-                        <tspan x="9" y="27">12</tspan>
-                    </text>
-                </g>
-            </g>
-            <g id="Mustafa-Deck" transform="translate(421.000000, 269.000000)" sketch:type="MSShapeGroup">
-                <path d="M234.674,19.765 L1.715,19.765 L0.218,23.232 L236.245,23.232 L234.674,19.765 L234.674,19.765 Z" id="Shape" fill="#AA6F48"></path>
-                <path d="M234.598,2.849 L1.993,2.849 L3.456,-0.404 L233.049,-0.404 L234.598,2.849 L234.598,2.849 Z" id="Shape" fill="#BC8864"></path>
-                <path d="M234.598,23.232 L234.598,2.849 L1.993,2.849 L1.993,23.232 L0.218,23.232 L0.218,46.726 L236.245,46.726 L236.245,23.232 L234.598,23.232 L234.598,23.232 Z" id="Shape" fill="#AF7B58"></path>
-            </g>
+            <path d="M522.000212,339 C519.790956,339 517.895287,340.781814 517.765678,342.987277 L516,373.032413 L516,407.008564 C516,409.212973 517.781851,411 519.994844,411 L550.005156,411 C552.211447,411 554,409.206998 554,407.008564 L553.999998,373.032413 L552.234321,342.987277 C552.104908,340.785165 550.207967,339 547.999786,339 L522.000212,339 Z" id="Center-Card-Selection" stroke="#F8E81C" stroke-width="5" fill="#F8E81C" sketch:type="MSShapeGroup"></path>
             <g id="Center-Cards" transform="translate(518.000000, 341.000000)" sketch:type="MSShapeGroup">
                 <g id="Group" transform="translate(0.000000, 31.000000)">
                     <path d="M33.973,35.172 C34.029,36.361 32.806,37.329 31.24,37.329 L2.957,37.329 C1.394,37.329 0.168,36.361 0.222,35.172 L1.55,5.65 C1.595,4.65 2.784,3.845 4.207,3.845 L29.936,3.845 C31.36,3.845 32.551,4.65 32.598,5.65 L33.973,35.172 L33.973,35.172 Z" id="Shape" fill="#AFD5D8"></path>
@@ -217,6 +198,26 @@
                     <path d="M33.973,35.475 C34.029,36.663 32.806,37.632 31.24,37.632 L2.957,37.632 C1.394,37.632 0.168,36.663 0.222,35.475 L1.55,5.954 C1.595,4.954 2.784,4.146 4.207,4.146 L29.936,4.146 C31.36,4.146 32.551,4.954 32.598,5.954 L33.973,35.475 L33.973,35.475 Z" id="Shape" fill="#AFD5D8"></path>
                     <path d="M33.714,30.496 C33.768,31.652 32.561,32.596 31.017,32.596 L3.118,32.596 C1.575,32.596 0.366,31.655 0.419,30.496 L1.715,1.734 C1.759,0.758 2.934,-0.026 4.34,-0.026 L29.748,-0.026 C31.155,-0.026 32.332,0.758 32.377,1.734 L33.714,30.496 L33.714,30.496 Z" id="Shape" fill="#FFFFFF"></path>
                 </g>
+            </g>
+            <g id="Player-Me" transform="translate(398.000000, 413.000000)">
+                <g id="Name" transform="translate(43.000000, 0.000000)">
+                    <rect id="Player-Me-Pad" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="89" height="39" rx="8"></rect>
+                    <text id="Player-Me-Name" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal">
+                        <tspan x="26.9998" y="28.7344">Me</tspan>
+                    </text>
+                </g>
+                <g id="Timer">
+                    <path d="M5.558,38 C2.492,38 0,35.504 0,32.436 L0,5.564 C0,2.496 2.492,0 5.558,0 L32.439,0 C35.505,0 38,2.496 38,5.564 L38,32.436 C38,35.504 35.505,38 32.439,38 L5.558,38 L5.558,38 Z" id="Timer-Pad" fill="#517ECE" sketch:type="MSShapeGroup"></path>
+                    <rect id="progress" fill="#5CBF6F" sketch:type="MSShapeGroup" x="2" y="2" width="34" height="33" rx="3"></rect>
+                    <text id="value" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20.7143027" font-weight="normal">
+                        <tspan x="9" y="27">12</tspan>
+                    </text>
+                </g>
+            </g>
+            <g id="Mustafa-Deck" transform="translate(421.000000, 269.000000)" sketch:type="MSShapeGroup">
+                <path d="M234.674,19.765 L1.715,19.765 L0.218,23.232 L236.245,23.232 L234.674,19.765 L234.674,19.765 Z" id="Shape" fill="#AA6F48"></path>
+                <path d="M234.598,2.849 L1.993,2.849 L3.456,-0.404 L233.049,-0.404 L234.598,2.849 L234.598,2.849 Z" id="Shape" fill="#BC8864"></path>
+                <path d="M234.598,23.232 L234.598,2.849 L1.993,2.849 L1.993,23.232 L0.218,23.232 L0.218,46.726 L236.245,46.726 L236.245,23.232 L234.598,23.232 L234.598,23.232 Z" id="Shape" fill="#AF7B58"></path>
             </g>
             <g id="Gosterme" transform="translate(621.000000, 397.000000)" font-size="18" font-family="Exo 2" fill="#FFFFFF" sketch:type="MSTextLayer" font-weight="normal">
                 <text>
@@ -438,11 +439,13 @@
                 <path d="M60.445,81.92 L68.778,93.579 L65.409,93.579 L60.445,81.92 L60.445,81.92 Z" id="Shape" fill="#BB8764"></path>
                 <path d="M68.778,93.579 L65.409,93.579 L54.231,67.33 L47.091,67.33 L47.091,121.374 L78.109,121.374 L68.778,93.579 L68.778,93.579 Z" id="Shape" fill="#C2906E"></path>
             </g>
-            <g id="Gabrielo-Discard" transform="translate(233.000000, 391.000000)" fill="#B5C6D8" sketch:type="MSShapeGroup">
-                <rect id="Shape" x="0" y="-0.0465116279" width="40" height="59.8006645" rx="8"></rect>
+            <rect id="Gabrielo-Discard-Shape" stroke="#F8E81C" stroke-width="10" sketch:type="MSShapeGroup" x="231" y="391" width="42" height="63.012453" rx="8"></rect>
+            <g id="Gabrielo-Discard" transform="translate(233.000000, 392.000000)" fill="#D8D8D8" sketch:type="MSShapeGroup">
+                <rect id="Gabrielo-Discard-Shape" x="0" y="-0.0465116279" width="39" height="59.8006645" rx="8"></rect>
             </g>
-            <g id="You-Discard" transform="translate(800.000000, 393.000000)" fill="#B5C6D8" sketch:type="MSShapeGroup">
-                <rect id="Shape" x="0" y="0" width="40" height="60" rx="8"></rect>
+            <rect id="You-Discard-Shape" stroke="#F8E81C" stroke-width="10" sketch:type="MSShapeGroup" x="798" y="391" width="42" height="63" rx="8"></rect>
+            <g id="You-Discard" transform="translate(800.000000, 393.000000)" fill="#D8D8D8" sketch:type="MSShapeGroup">
+                <rect id="You-Discard-Shape" x="0" y="0" width="38" height="60" rx="8"></rect>
             </g>
             <g id="Alina-Discard" transform="translate(667.000000, 261.000000)" fill="#B5C6D8" sketch:type="MSShapeGroup">
                 <rect id="Shape" x="0" y="0" width="40" height="60" rx="8"></rect>

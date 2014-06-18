@@ -132,11 +132,19 @@ function PostLoad()
             scope.deck.length() < 15 ? 
             (   scope.centralCard.dragHandler.enable(),
                 scope.centralCard.$el.on(document.createTouch ? "touchstart" : "mousedown", fadeIn).on(document.createTouch ? "touchend" : "mouseup", fadeOut), 
-                scope.centralCard.on("dragmove", removeFadeOut).on("dragstop", addFadeOut).on("revert", fadeOut)
-            ):( scope.centralCard.dragHandler.disable(), 
+                scope.centralCard.on("dragmove", removeFadeOut).on("dragstop", addFadeOut).on("revert", fadeOut),
+                $("#Gabrielo-Discard-Shape").show(),
+                $("#Center-Card-Selection").show()
+
+            ):( $("#You-Discard-Shape").show(),
+                scope.centralCard.dragHandler.disable(), 
                 scope.centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn).off(document.createTouch ? "touchend" : "mouseup", fadeOut)
             );
+
         } else {
+
+            $("#You-Discard-Shape").hide();
+
             playerTurn = !1,
             scope.centralCard.dragHandler.disable(),
             scope.centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn).off(document.createTouch ? "touchend" : "mouseup", fadeOut);
@@ -167,6 +175,12 @@ function PostLoad()
         if (revealed != "null") {
             revealed = revealed[0];
             new scope.Card({color:scope.CARD_COLORS[revealed[1]-1],value:revealed[2]});
+        }
+
+        if (scope.deck.justTaken && player == scope.user) {
+            $("#Gabrielo-Discard-Shape").hide();
+            $("#Center-Card-Selection").hide();
+            $("#You-Discard-Shape").show();
         }
 
         if (pile && !scope.deck.justTaken && scope.playersLeftHandsMap[player].take(), 
