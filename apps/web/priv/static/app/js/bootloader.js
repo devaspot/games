@@ -98,6 +98,8 @@ function PatchSVG()
             document.getElementById(x).style.cursor = "pointer";
             document.getElementById(x).onclick = showOnlineList; });
 
+    [ "Flag-tr", "Flag-en" ].map(function(x) { document.getElementById(x).onclick = translateScene; });
+
     var rulesOnClick = [
         "Rules",
         "Rules-Text",
@@ -133,14 +135,24 @@ function PatchSVG()
         $("#City").attr({fill:"#DFF1F4"});
     }
 
+    $("#Flag-tr").on("click", translateScene);
+    $("#Flag-en").on("click", translateScene);
+
 //    document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
     $svg.attr({preserveAspectRatio:"xMidYMid meet",width:"100%",height:"100%"});
-    
+
+    translateScene({target:null});
+}
+
+function translateScene(e)
+{
+    console.log(e);
     document.getElementById("Users-Online-Message").firstElementChild.textContent = i18n("Online");
     document.getElementById("OnlineChatEditor").firstElementChild.textContent = i18n("EditMessage");
     document.getElementById("GameChatEditor").firstElementChild.textContent = i18n("EditMessage");
     $("#Point-Table").find("text")[0].lastElementChild.textContent = i18n("Statistics");
     $("#Rules").find("text")[0].lastElementChild.textContent = i18n("Rules");
+    $("#Login-Text")[0].lastElementChild.textContent = i18n("Login");
     $("#Kakush")[0].lastElementChild.textContent = i18n("Kakush") + ": " + 0;
 }
 
