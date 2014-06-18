@@ -8,25 +8,22 @@
 
 start_link() -> supervisor:start_link({local, ?MODULE}, ?MODULE, []).
 
--define(USERS, [#user{id="maxim",email="maxim@synrc.com"},
-                #user{id="doxtop",email="doxtop@synrc.com"},
-                #user{id="roman",email="roman@github.com"}]).
-
 init([]) ->
 
     {ok, _} = cowboy:start_http(http, 100, [{port, wf:config(n2o,transition_port,8080)}],
                                            [{env, [{dispatch, dispatch_rules()}]}]),
 
-    PrivDir = code:priv_dir(?APP),
-
-    {ok, _} = cowboy:start_https(https, 100, [
+    case file:read_file("/home/kakauser/cert/2014/startssl.ca") of
+      {error,_} -> skip;
+      {ok,_} ->
+        {ok, _} = cowboy:start_https(https, 100, [
         {port, wf:config(n2o,port,8443)},
-        {cacertfile, PrivDir ++ "/ssl/cowboy-ca.crt"},
-        {certfile, PrivDir ++ "/ssl/server.crt"},
-        {keyfile, PrivDir ++ "/ssl/server.key"} ], [{env, [{dispatch, dispatch_rules()}]}]),
+        {cacertfile, "/home/kakauser/cert/2014/startssl.ca"},
+        {certfile, "/home/kakauser/cert/2014/kakaranet.com.crt"},
+        {keyfile, "/home/kakauser/cert/2014/kakaranet.dec.key"} ],
+             [{env, [{dispatch, dispatch_rules()}]}])
+     end,
 
-%    users:init(),
-%    users:populate(?USERS),
 
     {ok, {{one_for_one, 5, 10}, []}}.
 
