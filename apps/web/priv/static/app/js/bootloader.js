@@ -137,8 +137,8 @@ function PatchSVG()
 
 //    document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
     $svg.attr({preserveAspectRatio:"xMidYMid meet",width:"100%",height:"100%"});
+    $("#Flag-en").hide();
 
-    translateScene({target:null});
 }
 
 function translateScene(e)

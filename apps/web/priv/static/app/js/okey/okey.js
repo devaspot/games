@@ -115,7 +115,7 @@ function PostLoad()
         {
             playerTurn = !0;
             var cards = scope.playersLeftHandsMap[player].cards;
-//            if (cards.length)
+            if (cards.length)
             {
                 var card = cards[cards.length-1];
                 scope.deck.$el.append(card.$el[0]), card.$el.attr({ transform: "translate(16 -65)"}),
