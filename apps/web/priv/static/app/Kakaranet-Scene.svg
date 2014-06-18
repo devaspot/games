@@ -218,9 +218,11 @@
                     <path d="M33.714,30.496 C33.768,31.652 32.561,32.596 31.017,32.596 L3.118,32.596 C1.575,32.596 0.366,31.655 0.419,30.496 L1.715,1.734 C1.759,0.758 2.934,-0.026 4.34,-0.026 L29.748,-0.026 C31.155,-0.026 32.332,0.758 32.377,1.734 L33.714,30.496 L33.714,30.496 Z" id="Shape" fill="#FFFFFF"></path>
                 </g>
             </g>
-            <text id="Gosterme" sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" fill="#FFFFFF">
-                <tspan x="621" y="415">Gosterme</tspan>
-            </text>
+            <g id="Gosterme" transform="translate(621.000000, 397.000000)" font-size="18" font-family="Exo 2" fill="#FFFFFF" sketch:type="MSTextLayer" font-weight="normal">
+                <text>
+                    <tspan x="0" y="18">Gosterme</tspan>
+                </text>
+            </g>
             <text id="Pile-Height" sketch:type="MSTextLayer" font-family="Exo 2" font-size="18" font-weight="normal" fill="#FFFFFF">
                 <tspan x="564" y="379">48</tspan>
             </text>
@@ -545,6 +547,5 @@
           style="padding:4px;background-color:#FFF687;color:#3B5998;font-family:'Exo 2';font-size:16px;"
          xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div>
     </foreignObject>
-
 
 </svg>
