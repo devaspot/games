@@ -132,10 +132,12 @@ function PatchSVG()
     if ((hours() < 6 || hours() >= 18)) {
         $("#Sky").attr({fill:"#0E4B69"});
         $("#City").attr({fill:"#3B5998"});
+        $("body").css({'background-color': "#0E4B69"});
     } else
     {
         $("#Sky").attr({fill:"#EDF9FF"});
         $("#City").attr({fill:"#DFF1F4"});
+        $("body").css({'background-color': "#EDF9FF"});
     }
 
 //    document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
