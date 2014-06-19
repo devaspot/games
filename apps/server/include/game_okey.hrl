@@ -155,7 +155,8 @@
 
 -record(okey_next_turn, {
           player                :: 'PlayerId'(),
-          can_challenge = false :: boolean()
+          can_challenge = false :: boolean(),
+          okey_button
           }).
 
 -record(okey_enable, {

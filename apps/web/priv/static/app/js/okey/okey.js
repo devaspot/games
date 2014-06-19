@@ -114,7 +114,10 @@ function PostLoad()
     scope.apiProvider.on("okey_next_turn", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         var player = dec(e.raw).value[0][3][0].value[0][1].value;
+         var enabled = dec(e.raw).value[0][3][2].value[0][1].value;
         for (var playerName in scope.playersMap) scope.playersMap[playerName].unselect();
+
+        updateOkeyButton(player, enabled);
 
         if (scope.playersMap[player].select(), player == scope.user)
         {
@@ -235,16 +238,7 @@ function PostLoad()
         var e = {detail: x.detail.json, raw: x.detail.bert};
         var player = dec(e.raw).value[0][3][0].value[0][1].value;
         var enabled = dec(e.raw).value[0][3][1].value[0][1].value;
-        if (enabled) {
-            // $("#Okey").show();
-            $("#Okey").find("rect").attr("fill","red");
-        } else {
-            // $("#Okey").hide();
-            $("#Okey").find("rect").attr("fill","#517ECE");
-            $("#Gabrielo-Discard-Shape").hide();
-            var cards = scope.playersLeftHandsMap[scope.user].cards;
-            if (cards.length) cards[cards.length-1].dragHandler.disable();
-        }
+        updateOkeyButton(player, enabled);
     });
 
     scope.apiProvider.on("okey_round_ended", function(x) {
@@ -315,6 +309,20 @@ function PostLoad()
             scope.apiProvider.reveal(target.owner, scope.deck.hand(target.owner));
         }
     });
+
+function updateOkeyButton(player, enabled)
+{
+        if (enabled) {
+            // $("#Okey").show();
+            $("#Okey").find("rect").attr("fill","red");
+        } else {
+            // $("#Okey").hide();
+            $("#Okey").find("rect").attr("fill","#517ECE");
+            $("#Gabrielo-Discard-Shape").hide();
+            var cards = scope.playersLeftHandsMap[scope.user].cards;
+            if (cards.length) cards[cards.length-1].dragHandler.disable();
+        }
+}
 
 function freshGame(x)
 {

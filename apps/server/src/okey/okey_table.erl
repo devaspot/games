@@ -328,7 +328,7 @@ handle_parent_message(start_round, StateName,
          send_to_client_ge(Relay, PlayerId, GameStartedMsg, NewStateData)
      end || #player{id = PlayerId, seat_num = SeatNum} <- find_connected_players(Players)],
     CurSeatNum = DeskState#desk_state.cur_seat,
-    relay_publish_ge(Relay, create_okey_next_turn(CurSeatNum, Players), NewStateData),
+    relay_publish_ge(Relay, create_okey_next_turn(CurSeatNum, Players, false), NewStateData),
     {next_state, ?STATE_PLAYING, NewStateData};
 
 handle_parent_message(show_round_result, StateName,
@@ -855,14 +855,16 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
                 DeskState;
             {next_player, SeatNum, EnableOkey} ->
                 #player{id = PlayerId, user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
-                case EnableOkey of
-                    true -> 
-                        MsgOkey = create_okey_enabled(SeatNum, CurSeatNum, Players),
-                        relay_publish_ge(Relay, MsgOkey, StateData);
-                        %send_to_client_ge(Relay, PlayerId, MsgOkey, StateData);
-                    false -> skip
-                end,
-                Msg = create_okey_next_turn(SeatNum, Players),
+%                case EnableOkey of
+%                    true -> 
+%                        MsgOkey = create_okey_enabled(SeatNum, CurSeatNum, Players),
+%                        relay_publish_ge(Relay, MsgOkey, StateData);
+%                        %send_to_client_ge(Relay, PlayerId, MsgOkey, StateData);
+%                    false ->
+%                        MsgOkey2 = create_okey_disable_okey(SeatNum, CurSeatNum, Players),
+%                        relay_publish_ge(Relay, MsgOkey2, StateData)
+%                end,
+                Msg = create_okey_next_turn(SeatNum, Players, EnableOkey),
                 relay_publish_ge(Relay, Msg, StateData),
                 DeskState#desk_state{cur_seat = SeatNum, state = state_take};
             no_winner_finish ->
@@ -1245,9 +1247,9 @@ create_okey_game_started(SeatNum, DeskState, CurRound,
                        set_timeout = SetTimeout}.
 
 
-create_okey_next_turn(CurSeat, Players) ->
+create_okey_next_turn(CurSeat, Players, OkeyEnabled) ->
     #player{user_id = UserId} = get_player_by_seat_num(CurSeat, Players),
-    #okey_next_turn{player = UserId}.
+    #okey_next_turn{player = UserId, okey_button = OkeyEnabled}.
 
 
 create_player_left(SeatNum, UserInfo, Players) ->
