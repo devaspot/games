@@ -1,4 +1,4 @@
 <rect fill="#FFFFFF" x="0" y="0" width="40" height="60" rx="8"></rect>
-<text dx="20" x="0" y="26" font-family="Exo 2" font-size="26" font-weight="normal" text-anchor="middle" fill="#48AF5E">1</text>
+<text dx="20" x="0" y="26" font-family="Exo 2" font-size="24" font-weight="normal" text-anchor="middle" fill="#48AF5E">1</text>
 <circle cx="20" cy="43" r="7" fill="#48AF5E"></circle>
 <rect class="overlay" fill-opacity="0.6" fill="#3B5998" x="0" y="0" width="40" height="60" rx="8" style="display:none;"></rect>
