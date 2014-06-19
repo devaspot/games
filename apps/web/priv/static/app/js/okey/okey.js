@@ -361,6 +361,7 @@ function inGameJoined(x)
 
 function initOkeyScene(x)
 {
+    new Audio("mp3/ding.mp3").play();
     if (x.gosterme && "null" != x.gosterme) x.gosterme = x.gosterme[0];
 
     $pile.empty();
