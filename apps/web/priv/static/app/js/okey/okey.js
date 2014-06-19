@@ -174,7 +174,9 @@ function PostLoad()
         var revealed = dec(e.raw).value[0][3][2].value[0][1].value;
         var pile_height = dec(e.raw).value[0][3][3].value[0][1];
 
-        if (0 == pile) $("#Pile-Height")[0].lastElementChild.textContent = pile_height;
+        if (0 == pile)
+            $("#Pile-Height")[0].lastElementChild.textContent = 
+                pile_height == 0 ? "" : pile_height;
 
         if (revealed != "null") {
             revealed = revealed[0];
@@ -196,7 +198,8 @@ function PostLoad()
             var $topCard = $pile.find("g");
             if ($topCard.length > 1) $topCard.last().remove();
             else { 
-                $topCard.last().remove(), $pile.append($fullPile); 
+                $topCard.last().remove();
+                if (pile_height > 0) $pile.append($fullPile); 
                 var $miniPile = $wholeCards.find("g");
 //                $miniPile.length ? $miniPile.first().remove() : $wholeCards.append($fullWholeCards);
                 $miniPile.first().remove();
