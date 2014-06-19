@@ -337,6 +337,7 @@ function freshGame(x)
         cur_round: dec(e.raw).value[0][3][3].value[0][1]
     });
 
+
 }
 
 function reminder(pile_height)
@@ -360,11 +361,12 @@ function inGameJoined(x)
         paused: dec(e.raw).value[0][3][9].value[0][1].value
     });
 
+    new Audio("mp3/ding.mp3").play();
+
 }
 
 function initOkeyScene(x)
 {
-    new Audio("mp3/ding.mp3").play();
     if (x.gosterme && "null" != x.gosterme) x.gosterme = x.gosterme[0];
 
     $pile.empty();
