@@ -581,7 +581,15 @@ do_action(SeatNum, #okey_reveal{discarded = ExtDiscarded, hand = ExtHand}, From,
     Hand = [[if ExtTash == null -> null;
                 true -> ext_to_tash(ExtTash)
              end || ExtTash <- Row] || Row <- ExtHand],
-    do_game_action(SeatNum, {reveal, Discarded, Hand}, From, StateName, StateData);
+
+    DeskState = StateData#okey_state.desk_state,
+    Gosterme = DeskState#desk_state.gosterge,
+    {Revealed,_,_} = ?SCORING:check_reveal(Hand,Gosterme),
+    wf:info(?MODULE,"REVEAL STATE DATA ~p",[StateData]),
+    case Revealed of
+        true -> do_game_action(SeatNum, {reveal, Discarded, Hand}, From, StateName, StateData);
+        false -> do_game_action(SeatNum, wrong_reveal, From, StateName, StateData)
+    end;
 
 do_action(_SeatNum, #okey_reveal{}, _From, StateName, StateData) ->
     {reply, {error, message_not_valid_for_a_current_state}, StateName, StateData};
@@ -629,7 +637,9 @@ do_timeout_moves(#okey_state{desk_rule_pid = Desk, desk_state = DeskState} = Sta
                 state = DeskStateName} = DeskState,
     case DeskStateName of
         state_take ->
-            {ok, Events1} = desk_player_action(Desk, CurSeatNum, take_from_table),
+            Events1 = case desk_player_action(Desk, CurSeatNum, take_from_table) of
+                {ok,E} -> E;
+                _ -> [] end,
             [Tash] = [Tash || {taked_from_table, S, Tash} <- Events1, S==CurSeatNum],
             {ok, Events2} = desk_player_action(Desk, CurSeatNum, {discard, Tash}),
             Events2_1 = [case E of
@@ -641,7 +651,10 @@ do_timeout_moves(#okey_state{desk_rule_pid = Desk, desk_state = DeskState} = Sta
             process_game_events(Events, StateData);
         state_discard ->
             {_, [Tash | _]} = lists:keyfind(CurSeatNum, 1, Hands),
-            {ok, Events1} = desk_player_action(Desk, CurSeatNum, {discard, Tash}),
+            Res = desk_player_action(Desk, CurSeatNum, {discard, Tash}),
+            Events1 = case Res of
+                {ok,E} -> E;
+                _ -> [] end,
             Events1_1 = [case E of
                              {tash_discarded, SeatNum, Tash} ->
                                  {tash_discarded_timeout, SeatNum, Tash};
@@ -674,6 +687,7 @@ do_game_action(SeatNum, GameAction, From, StateName,
             gen_fsm:reply(From, Response),
             process_game_events(Events, StateData);
         {error, Reason} ->
+            wf:info(?MODULE,"do game action error: ~p",[{Reason,GameAction}]),
             ExtError = desk_error_to_ext(Reason),
             {reply, ExtError, StateName, StateData}
     end.
@@ -847,7 +861,13 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
             no_winner_finish ->
                 DeskState#desk_state{state = state_finished,
                                      finish_reason = tashes_out};
+            {wrong_reveal,SeatNum} ->
+                #player{id = PlayerId, user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
+                Msg = create_deny_wrong_reveal(),
+                send_to_client_ge(Relay, PlayerId, Msg, StateData),
+                DeskState;
             {reveal, SeatNum, RevealedTashes, DiscardedTash} ->
+                #player{id = PlayerId, user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
                 Msg = create_okey_revealed(SeatNum, DiscardedTash, RevealedTashes, Players),
                 relay_publish_ge(Relay, Msg, StateData),
                 DeskState#desk_state{state = state_finished,
@@ -859,6 +879,8 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
                                      finish_info = SeatNum}
         end,
     handle_desk_events(Events, NewDeskState, Players, Relay, StateData).
+
+create_deny_wrong_reveal() -> #okey_deny_wrong_reveal{}.
 
 %%===================================================================
 init_scoring(GameType, PlayersInfo, Rounds) ->

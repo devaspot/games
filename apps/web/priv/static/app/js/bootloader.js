@@ -334,6 +334,11 @@ function hideOverlay()
     if (scope.ended) scope.deck.fill([]);
 }
 
+function denyWrongReveal() {
+    $overlay.show();
+    $("#Overlay-Text").text("Wrong reveal. Try next time.");
+}
+
 function showRevealHand(o) {
 
     var player    = o.value[0][3][0].value[0][1],

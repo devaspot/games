@@ -227,6 +227,7 @@
 %%%%%
 -record(okey_debug, {}).
 
+-record(okey_deny_wrong_reveal, {}).
 
 -record(okey_player, {
           pid                      :: pid(),

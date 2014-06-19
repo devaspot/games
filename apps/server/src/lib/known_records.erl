@@ -39,6 +39,7 @@ fields(okey_has_gosterge) ->       record_info(fields, okey_has_gosterge);
 fields(okey_discard) ->            record_info(fields, okey_discard);
 fields(okey_reveal) ->             record_info(fields, okey_reveal);
 fields(okey_surrender) ->          record_info(fields, okey_surrender);
+fields(okey_deny_wrong_reveal) ->  record_info(fields, okey_deny_wrong_reveal);
 fields(okey_take) ->               record_info(fields, okey_take);
 fields(okey_i_saw_okey) ->         record_info(fields, okey_i_saw_okey);
 fields(okey_i_have_8_tashes) ->    record_info(fields, okey_i_have_8_tashes);

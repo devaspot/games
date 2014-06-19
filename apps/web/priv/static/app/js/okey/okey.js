@@ -226,6 +226,10 @@ function PostLoad()
         // $gosterme.remove();
     });
 
+    scope.apiProvider.on("okey_deny_wrong_reveal", function(x) {
+        denyWrongReveal();
+    });
+
     scope.apiProvider.on("okey_round_ended", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         showRoundEnd(e);

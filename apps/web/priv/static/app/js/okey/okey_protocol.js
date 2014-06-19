@@ -34,6 +34,7 @@ function OkeyApiProviderScope(scope) {
         "okey_game_started",
         "okey_game_player_state",
         "okey_next_turn",
+        "okey_deny_wrong_reveal",
         "okey_tile_discarded",
         "okey_tile_taken",
         "okey_round_ended",

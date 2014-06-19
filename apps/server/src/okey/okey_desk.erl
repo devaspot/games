@@ -351,11 +351,14 @@ handle_player_action(PlayerId, take_from_table, ?STATE_TAKE,
     end;
 
 
-handle_player_action(PlayerId, {discard, Tash}, ?STATE_DISCARD,
+handle_player_action(PlayerId, {discard, Tash}, StateName,
                      #state{cur_player = CurPlayerId,
                             players = Players,
-                            deck = Deck} = StateData) ->
-    if PlayerId == CurPlayerId ->
+                            deck = Deck} = StateData) when
+    StateName == ?STATE_DISCARD ->
+
+    case {PlayerId,StateName} of
+        {CurPlayerId,?STATE_DISCARD} ->
            case discard_tash(Tash, PlayerId, Players) of
                error ->
                    gas:info(?MODULE,"OKEY_NG_DESK Discard error. SeatNum: ~p. Tash: ~p", [PlayerId, Tash]),
@@ -374,14 +377,22 @@ handle_player_action(PlayerId, {discard, Tash}, ?STATE_DISCARD,
                             StateData#state{players = NewPlayers, cur_player = NextPlayerId}}
                    end
             end;
-       true ->
+       {_,?STATE_DISCARD} ->
            {error, not_your_order}
     end;
 
-handle_player_action(PlayerId, {reveal, Tash, TashPlaces}, ?STATE_DISCARD,
+handle_player_action(PlayerId, wrong_reveal, StateName, #state{cur_player = CurPlayerId} = State) ->
+    case PlayerId == CurPlayerId of
+        true -> {ok, [{wrong_reveal,PlayerId}], StateName, State};
+        false -> {error, not_your_order} end;
+
+handle_player_action(PlayerId, {reveal, Tash, TashPlaces}, StateName = ?STATE_DISCARD,
                      #state{cur_player = CurPlayerId,
                             players = Players
                            } = StateData) ->
+    wf:info(?MODULE,"DESK PLAYER ACTION REVEAL STATE ~p",[StateName]),
+
+
     if PlayerId == CurPlayerId ->
            case discard_tash(Tash, PlayerId, Players) of
                error ->
