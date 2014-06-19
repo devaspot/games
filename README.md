@@ -3,7 +3,7 @@ Kakaranet Application
 
 [![Build Status](https://travis-ci.org/kakaranet/games.svg?branch=master)](https://travis-ci.org/kakaranet/games)
 
-Public Page: [https://kakaranet.com](https://kakaranet.com)
+Globally Available Public Page: [https://kakaranet.com](https://kakaranet.com)
 
 ![Image](http://synrc.com/lj/svg_clean.png)
 
