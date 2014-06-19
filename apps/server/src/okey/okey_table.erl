@@ -880,7 +880,7 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
         end,
     handle_desk_events(Events, NewDeskState, Players, Relay, StateData).
 
-create_deny_wrong_reveal() -> #okey_deny_wrong_reveal{}.
+create_deny_wrong_reveal() -> #wrong_reveal{}.
 
 %%===================================================================
 init_scoring(GameType, PlayersInfo, Rounds) ->
