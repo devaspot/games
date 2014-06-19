@@ -338,6 +338,11 @@ function initOkeyScene(x)
 {
     if (x.gosterme && "null" != x.gosterme) x.gosterme = x.gosterme[0];
 
+    $pile.empty();
+    $pile.append($fullPile);
+    $wholeCards.empty();
+    $wholeCards.append($fullWholeCards);
+
     if (null != x.pile_height && "null" != x.pile_height) {
         $("#Pile-Height")[0].lastElementChild.textContent = x.pile_height;
         reminder(x.pile_height);
