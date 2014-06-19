@@ -447,11 +447,11 @@
             <g id="You-Discard" transform="translate(800.000000, 393.000000)" fill="#D8D8D8" sketch:type="MSShapeGroup">
                 <rect id="You-Discard-Shape" x="0" y="0" width="38" height="60" rx="8"></rect>
             </g>
-            <g id="Alina-Discard" transform="translate(667.000000, 261.000000)" fill="#B5C6D8" sketch:type="MSShapeGroup">
-                <rect id="Shape" x="0" y="0" width="40" height="60" rx="8"></rect>
+            <g id="Alina-Discard" transform="translate(669.000000, 261.000000)" fill="#B5C6D8" sketch:type="MSShapeGroup">
+                <rect id="Shape" x="0" y="0" width="38" height="60" rx="8"></rect>
             </g>
-            <g id="Mustafa-Discard" transform="translate(373.000000, 261.000000)" fill="#B5C6D8" sketch:type="MSShapeGroup">
-                <rect id="Shape" x="0" y="0" width="40" height="60" rx="8"></rect>
+            <g id="Mustafa-Discard" transform="translate(370.000000, 261.000000)" fill="#B5C6D8" sketch:type="MSShapeGroup">
+                <rect id="Shape" x="0" y="0" width="38" height="60" rx="8"></rect>
             </g>
             <rect id="Left-Bar" opacity="0.64" fill="url(#linearGradient-3)" sketch:type="MSShapeGroup" x="3" y="91" width="213" height="456" rx="5"></rect>
             <g id="Have-8-Tashes" transform="translate(649.000000, 615.000000)">
