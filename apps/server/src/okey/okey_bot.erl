@@ -209,7 +209,7 @@ okey_client_loop(State) ->
             Delay = get_delay(fast),
             ST = #'OkeySetState'{round_cur = 1, round_max = RM, set_cur = SC, set_max = SM},
             okey_client_loop(State#state{set_state = ST, delay = Delay, mode = Mode});
-        #game_event{event = okey_disable_okey, args = Args} = Msg ->
+        #game_event{event = okey_enable, args = Args} = Msg ->
             gas:info(?MODULE,"OKEY_BOT <~p> : Received message: ~p", [Id, Msg]),
             okey_client_loop(State#state{okey_disable = true});
         #game_event{event = okey_game_started, args = Args} = Msg ->

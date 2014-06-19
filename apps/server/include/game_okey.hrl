@@ -158,9 +158,10 @@
           can_challenge = false :: boolean()
           }).
 
--record(okey_disable_okey, {
+-record(okey_enable, {
           player :: 'PlayerId'(),
-          who_disabled :: list('PlayerId'())
+          enabled,
+          who :: list('PlayerId'())
          }).
 
 -record(okey_tile_taken, {

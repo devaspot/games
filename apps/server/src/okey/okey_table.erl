@@ -853,7 +853,14 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
                 Msg = create_okey_turn_timeout(UserId, null, Tash),
                 send_to_client_ge(Relay, PlayerId, Msg, StateData),
                 DeskState;
-            {next_player, SeatNum} ->
+            {next_player, SeatNum, EnableOkey} ->
+                #player{id = PlayerId, user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
+                case not EnableOkey of
+                    true -> 
+                        MsgOkey = create_okey_enabled(SeatNum, CurSeatNum, Players),
+                        send_to_client_ge(Relay, PlayerId, MsgOkey, StateData);
+                    false -> skip
+                end,
                 Msg = create_okey_next_turn(SeatNum, Players),
                 relay_publish_ge(Relay, Msg, StateData),
                 DeskState#desk_state{cur_seat = SeatNum, state = state_take};
@@ -1259,12 +1266,19 @@ create_okey_player_has_8_tashes(SeatNum, Value, Players) ->
     #okey_player_has_8_tashes{player = UserId,
                               value = Value}.
 
+create_okey_enabled(SeatNum, CurSeatNum, Players) ->
+    #player{user_id = Who} = get_player_by_seat_num(SeatNum, Players),
+    #player{user_id = Whom} = get_player_by_seat_num(CurSeatNum, Players),
+    #okey_enable{player = Whom,
+                 enabled = true,
+                 who = Who}.
+
 create_okey_disable_okey(SeatNum, CurSeatNum, Players) ->
     #player{user_id = Who} = get_player_by_seat_num(SeatNum, Players),
     #player{user_id = Whom} = get_player_by_seat_num(CurSeatNum, Players),
-    #okey_disable_okey{player = Whom,
-                       who_disabled = Who}.
-
+    #okey_enable{player = Whom,
+                 enabled = false,
+                 who = Who}.
 
 create_okey_tile_taken_discarded(SeatNum, Tash, PileHeight, Players) ->
     #player{user_id = UserId} = get_player_by_seat_num(SeatNum, Players),

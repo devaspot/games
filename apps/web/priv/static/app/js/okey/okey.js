@@ -230,6 +230,12 @@ function PostLoad()
         denyWrongReveal();
     });
 
+    scope.apiProvider.on("okey_enable", function(x) {
+        var e = {detail: x.detail.json, raw: x.detail.bert};
+        var enabled = dec(e.raw).value[0][3][1].value[0][1].value;
+        if (enabled) $("#Okey").show();
+    });
+
     scope.apiProvider.on("okey_round_ended", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         showRoundEnd(e);

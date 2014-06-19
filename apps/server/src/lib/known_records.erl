@@ -53,7 +53,7 @@ fields(okey_player_has_gosterge) ->record_info(fields, okey_player_has_gosterge)
 fields(okey_player_has_8_tashes) ->record_info(fields, okey_player_has_8_tashes);
 fields(okey_next_turn) ->          record_info(fields, okey_next_turn);
 fields(okey_tile_taken) ->         record_info(fields, okey_tile_taken);
-fields(okey_disable_okey) ->       record_info(fields, okey_disable_okey);
+fields(okey_enable) ->             record_info(fields, okey_enable);
 fields(okey_turn_timeout) ->       record_info(fields, okey_turn_timeout);
 fields(okey_tile_discarded) ->     record_info(fields, okey_tile_discarded);
 fields(okey_revealed) ->           record_info(fields, okey_revealed);

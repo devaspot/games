@@ -354,6 +354,7 @@ handle_player_action(PlayerId, take_from_table, ?STATE_TAKE,
 handle_player_action(PlayerId, {discard, Tash}, StateName,
                      #state{cur_player = CurPlayerId,
                             players = Players,
+                            okey = Okey,
                             deck = Deck} = StateData) when
     StateName == ?STATE_DISCARD ->
 
@@ -372,7 +373,14 @@ handle_player_action(PlayerId, {discard, Tash}, StateName,
                             StateData#state{players = NewPlayers}};
                        _ ->
                            NextPlayerId = next_id(CurPlayerId),
-                           Events = [{next_player, NextPlayerId} | Events1],
+
+        #player{discarded = Discarded} = get_player(CurPlayerId, Players),
+        wf:info(?MODULE,"Looking for Okey in Discarded Tower for Player ~p",[Discarded]),
+
+        EnableOkey = if Discarded /= [] ->
+            case deck:get(1, Discarded) of {Okey, _} -> true; _ -> false end; true -> false end,
+
+                           Events = [{next_player,NextPlayerId,EnableOkey} | Events1],
                            {ok, Events, ?STATE_TAKE,
                             StateData#state{players = NewPlayers, cur_player = NextPlayerId}}
                    end

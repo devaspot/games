@@ -169,7 +169,16 @@ function translateScene(e)
     $("#Center-Card-Selection").hide();
     $("#You-Discard-Shape").hide();
     
+    $("#Okey").hide();
+    $("#Okey").on("click", sendSawOkey);
+    $("#Have-8-Tashes").hide();
 
+}
+
+function sendSawOkey()
+{
+    ws.send(enc(tuple(atom('client'),tuple(atom('game_action'),scope.gameId,
+        atom('okey_i_saw_okey'),[]))));
 }
 
 function initChatSample() {
