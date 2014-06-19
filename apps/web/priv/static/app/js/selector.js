@@ -8,10 +8,10 @@ var scope = {
     gameId: 1000001,
     CARD_SOURCE: "svg/Card.svg",
     CARD_SMALL_SOURCE: "svg/Card-Small.svg",
-     //                       BLUE // "#3B5998" // too saturated "#434C5F"
+     //                       BLUE // "#3B5998" // too saturated "#434C5F" // "#606A7E"
 //                            GREEN /// original "#48AF5E" // poisoned "#7ED321"
 //                            YELLOW // ori "#F8E81C"//
-    CARD_COLORS: [ "#CE290F", "#606A7E"  , "#7ED321" , "#FDC600"  ],
+    CARD_COLORS: [ "#CE290F", "#4F5563", "#7ED321" , "#FDC600"  ],
     MALE_SKINS: [ "Gabrielo", "Mustafa" ],
     FEMALE_SKINS: [ "Alina" ],
     paused: false,
