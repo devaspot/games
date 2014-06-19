@@ -193,6 +193,11 @@ handle_info({timeout, Magic}, ?STATE_PLAYING,
     gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Move timeout. Do an automatic move(s).", [GameId, TableId]),
     do_timeout_moves(StateData);
 
+handle_info({timeout, Magic}, State,
+            #okey_state{timeout_magic = Magic, game_id = GameId, table_id = TableId} = StateData) ->
+    gas:info(?MODULE,"OKEY_NG_TABLE_TRN <~p,~p> Move timeout. Do an automatic move(s). UNKNOWN STATE ~p", [GameId, TableId,State]),
+    do_timeout_moves(StateData);
+
 handle_info({round_timeout, Round}, ?STATE_PLAYING,
             #okey_state{cur_round = Round, desk_state = DeskState, game_id = GameId,
                    table_id = TableId, timeout_timer = TRef} = StateData) ->
@@ -636,9 +641,7 @@ do_timeout_moves(#okey_state{desk_rule_pid = Desk, desk_state = DeskState} = Sta
                 state = DeskStateName} = DeskState,
     case DeskStateName of
         state_take ->
-            Events1 = case desk_player_action(Desk, CurSeatNum, take_from_table) of
-                {ok,E} -> E;
-                _ -> [] end,
+            {ok,Events1} = desk_player_action(Desk, CurSeatNum, take_from_table),
             [Tash] = [Tash || {taked_from_table, S, Tash} <- Events1, S==CurSeatNum],
             {ok, Events2} = desk_player_action(Desk, CurSeatNum, {discard, Tash}),
             Events2_1 = [case E of
@@ -650,10 +653,7 @@ do_timeout_moves(#okey_state{desk_rule_pid = Desk, desk_state = DeskState} = Sta
             process_game_events(Events, StateData);
         state_discard ->
             {_, [Tash | _]} = lists:keyfind(CurSeatNum, 1, Hands),
-            Res = desk_player_action(Desk, CurSeatNum, {discard, Tash}),
-            Events1 = case Res of
-                {ok,E} -> E;
-                _ -> [] end,
+            {ok,Events1} = desk_player_action(Desk, CurSeatNum, {discard, Tash}),
             Events1_1 = [case E of
                              {tash_discarded, SeatNum, Tash} ->
                                  {tash_discarded_timeout, SeatNum, Tash};
@@ -704,7 +704,7 @@ process_game_events(Events, #okey_state{desk_state = DeskState, players = Player
             erlang:cancel_timer(OldTRef),
             on_game_finish(StateData#okey_state{desk_state = NewDeskState});
         state_take ->
-            case [E || {next_player, _} = E <- Events] of %% Find a next player event
+            case [E || {next_player, _, _} = E <- Events] of %% Find a next player event
                 [] ->
                     {next_state, ?STATE_PLAYING, StateData#okey_state{desk_state = NewDeskState}};
                 [_|_] ->
@@ -855,7 +855,7 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
                 DeskState;
             {next_player, SeatNum, EnableOkey} ->
                 #player{id = PlayerId, user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
-                case not EnableOkey of
+                case EnableOkey of
                     true -> 
                         MsgOkey = create_okey_enabled(SeatNum, CurSeatNum, Players),
                         send_to_client_ge(Relay, PlayerId, MsgOkey, StateData);
