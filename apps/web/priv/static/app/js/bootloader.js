@@ -295,14 +295,14 @@ function manualForeignObjectPositioning()
         shiftY = (innerHeight - realY) / 2;
     }
 
-    $("#GameChatEditor").attr({x: 864 * realX / svgWidth + shiftX,
+    $("#GameChatEditor").attr({x: 866 * realX / svgWidth + shiftX,
                                y: 504 * realY / svgHeight + shiftY,
-                               width: 198 * realX / svgWidth,
+                               width: 194 * realX / svgWidth,
                                height: 120 * realY / svgHeight});
 
     $("#OnlineChatEditor").attr({x: 10 * realX / svgWidth + shiftX,
                                y: 504 * realY / svgHeight + shiftY,
-                               width: 198 * realX / svgWidth,
+                               width: 194 * realX / svgWidth,
                                height: 120 * realY / svgHeight});
 }
 
