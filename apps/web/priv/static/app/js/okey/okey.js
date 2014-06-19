@@ -125,7 +125,7 @@ function PostLoad()
                 var card = cards[cards.length-1];
                 scope.deck.$el.append(card.$el[0]);
                 card.$el.attr({ transform: "translate(16 -65)"});
-                if ("none" != $("#Okey")[0].style.display) card.dragHandler.enable();
+                card.dragHandler.enable();
                 card.on("dragstart", scope.deck.select)
                     .on("dragmove", scope.deck.track);
                 card.$el.doubletap(function(){ scope.apiProvider.actionTake(card) });
@@ -235,8 +235,13 @@ function PostLoad()
         var e = {detail: x.detail.json, raw: x.detail.bert};
         var player = dec(e.raw).value[0][3][0].value[0][1].value;
         var enabled = dec(e.raw).value[0][3][1].value[0][1].value;
-        if (enabled) $("#Okey").show(); else {
-            $("#Okey").hide();
+        if (enabled) {
+            // $("#Okey").show();
+            $("#Okey").find("rect").attr("fill","red");
+        } else {
+            // $("#Okey").hide();
+            $("#Okey").find("rect").attr("fill","#517ECE");
+            $("#Gabrielo-Discard-Shape").hide();
             var cards = scope.playersLeftHandsMap[scope.user].cards;
             if (cards.length) cards[cards.length-1].dragHandler.disable();
         }

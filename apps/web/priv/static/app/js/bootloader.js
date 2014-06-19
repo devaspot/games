@@ -171,9 +171,9 @@ function translateScene(e)
     $("#Center-Card-Selection").hide();
     $("#You-Discard-Shape").hide();
     
-    $("#Okey").hide();
+//    $("#Okey").hide();
     $("#Okey").on("click", sendSawOkey);
-    $("#Have-8-Tashes").hide();
+//    $("#Have-8-Tashes").hide();
 
 }
 
