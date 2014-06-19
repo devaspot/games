@@ -374,11 +374,6 @@ handle_player_action(PlayerId, {discard, Tash}, StateName,
                        _ ->
                            NextPlayerId = next_id(CurPlayerId),
 
-%        #player{discarded = Discarded} = get_player(CurPlayerId, Players),
-%        VisibleTower = lists:sublist([Tash|Discarded],3),
-%        wf:info(?MODULE,"Looking for ~p in Discarded Tower for Player ~p",[Okey,VisibleTower]),
-%        EnableOkey = lists:any(fun(X)->X==Okey end,VisibleTower),
-
                             EnableOkey = Tash == Okey,
 
                            Events = [{next_player,NextPlayerId,EnableOkey} | Events1],
