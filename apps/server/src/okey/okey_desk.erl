@@ -375,10 +375,10 @@ handle_player_action(PlayerId, {discard, Tash}, StateName,
                            NextPlayerId = next_id(CurPlayerId),
 
         #player{discarded = Discarded} = get_player(CurPlayerId, Players),
-        wf:info(?MODULE,"Looking for Okey in Discarded Tower for Player ~p",[Discarded]),
+        VisibleTower = lists:sublist([Tash|Discarded],3),
+        wf:info(?MODULE,"Looking for ~p in Discarded Tower for Player ~p",[Okey,VisibleTower]),
 
-        EnableOkey = if Discarded /= [] ->
-            case deck:get(1, Discarded) of {Okey, _} -> true; _ -> false end; true -> false end,
+        EnableOkey = lists:any(fun(X)->X==Okey end,VisibleTower),
 
                            Events = [{next_player,NextPlayerId,EnableOkey} | Events1],
                            {ok, Events, ?STATE_TAKE,

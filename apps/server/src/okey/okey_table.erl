@@ -858,7 +858,8 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
                 case EnableOkey of
                     true -> 
                         MsgOkey = create_okey_enabled(SeatNum, CurSeatNum, Players),
-                        send_to_client_ge(Relay, PlayerId, MsgOkey, StateData);
+                        relay_publish_ge(Relay, MsgOkey, StateData);
+                        %send_to_client_ge(Relay, PlayerId, MsgOkey, StateData);
                     false -> skip
                 end,
                 Msg = create_okey_next_turn(SeatNum, Players),
