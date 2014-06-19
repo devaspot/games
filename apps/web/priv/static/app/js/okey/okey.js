@@ -226,7 +226,7 @@ function PostLoad()
         // $gosterme.remove();
     });
 
-    scope.apiProvider.on("okey_deny_wrong_reveal", function(x) {
+    scope.apiProvider.on("wrong_reveal", function(x) {
         denyWrongReveal();
     });
 
