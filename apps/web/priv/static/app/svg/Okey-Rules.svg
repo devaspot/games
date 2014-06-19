@@ -245,7 +245,7 @@
                     <tspan x="46" y="32">Gosterme</tspan>
                 </text>
             </g>
-            <g id="Okey" transform="translate(298.000000, 303.000000)">
+            <g id="Okey-Joker" transform="translate(298.000000, 303.000000)">
                 <g id="Slot-1,1-12">
                     <rect id="Shape" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="32" height="46" rx="8"></rect>
                     <path d="M15.1794872,39.6551724 C18.1250058,39.6551724 20.5128205,37.3471231 20.5128205,34.5 C20.5128205,31.6528769 18.1250058,29.3448276 15.1794872,29.3448276 C12.2339685,29.3448276 9.8461538,31.6528769 9.8461538,34.5 C9.8461538,37.3471231 12.2339685,39.6551724 15.1794872,39.6551724 L15.1794872,39.6551724 Z" id="Oval-23" fill="#CE290F" sketch:type="MSShapeGroup"></path>
@@ -253,7 +253,7 @@
                         <tspan x="6.74003405" y="20.1361222">10</tspan>
                     </text>
                 </g>
-                <text id="Okey-Joker" sketch:type="MSTextLayer" font-family="Exo 2" font-size="26" font-weight="normal" fill="#3B5998">
+                <text sketch:type="MSTextLayer" font-family="Exo 2" font-size="26" font-weight="normal" fill="#3B5998">
                     <tspan x="45" y="31">Okey Joker</tspan>
                 </text>
             </g>
