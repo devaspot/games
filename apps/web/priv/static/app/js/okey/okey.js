@@ -360,6 +360,8 @@ function initOkeyScene(x)
     $wholeCards.empty();
     $wholeCards.append($fullWholeCards);
 
+    $("#Okey").find("rect").attr("fill","#517ECE");
+
     if (null != x.pile_height && "null" != x.pile_height) {
         $("#Pile-Height")[0].lastElementChild.textContent = x.pile_height;
         reminder(x.pile_height);
