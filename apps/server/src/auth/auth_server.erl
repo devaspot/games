@@ -13,7 +13,7 @@
 -define(SERVER, ?MODULE).
 
 -define(SPARE_LOGINS, [
-    #'PlayerInfo'{name = <<"Hürrem">>, sex = female, surname = <<"Sultan">>, login = <<"peace">>, robot = true},
+    #'PlayerInfo'{name = <<"Hürrem"/utf8>>, sex = female, surname = <<"Sultan">>, login = <<"peace">>, robot = true},
     #'PlayerInfo'{name = <<"Ilya">>, sex = male, surname = <<"Prigogine">>, login = <<"synergetics">>, robot = true},
     #'PlayerInfo'{name = <<"Albert">>, sex = male, surname= <<"Einstein">>, login = <<"quantum">>, robot = true },
     #'PlayerInfo'{name = <<"Marie">>, sex = female, surname= <<"Curie">>, login = <<"radio">>, robot = true }
