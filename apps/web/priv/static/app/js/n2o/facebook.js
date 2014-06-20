@@ -1,6 +1,8 @@
 //      {fb_id,"154227314626053"},
 //      {fb_secret,"cf9d49958ee536dd75f15bf8ca541965"},
 
+utf8 = { toByteArray: utf8toByteArray };
+
   window.fbAsyncInit = function() {
   FB.init({ appId: "154227314626053", channelUrl: 'http://kakaranet.com/channel.html', status: true, cookie: true, xfbml: true, oauth: true });
 

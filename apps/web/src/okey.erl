@@ -133,7 +133,6 @@ body() -> [].
 
 body2() -> 
     wf:wire(#api{name=plusLogin, tag=plus}),
-    wf:wire(#api{name="", tag=fb}),
   [ #panel    { id = history },
     #button   { id = pluslogin,  body = "Login",       postback = login_button },
     #label    { id = nothing,    body = " Google"},    #br{}, #br{},
@@ -181,6 +180,7 @@ event(init) ->
 event(login_button) -> wf:wire(protocol:logout());
 event(join) -> 
     GameId = get(okey_game_id),
+    wf:wire(#api{name=fbLogin, tag=fb}),
     wf:wire(protocol:join(wf:to_list(GameId)));
 event(take) -> 
     GameId = get(okey_game_id),
@@ -451,6 +451,7 @@ event({server,{game_event, _, okey_next_turn, Args}}) ->
     select(LabelId),
     put(okey_turn_mark, LabelId);
 
+
 event({server,{roster_group,List}}) -> skip;
 event({server,terminate}) -> event(terminate);
 event({server,{update_score,Score}}) -> 
@@ -460,11 +461,15 @@ event({server,{update_score,Score}}) ->
     wf:info(?MODULE,"User Process Updated Score ~p ~p",[User#user.id,Score]),
     event({user_online,NewUser}),
     ok;
-event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), kvs:add(User), wf:user(User);
-event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), kvs:put(User), wf:user(User), event(init);
 event({counter,Res}) -> Pid = self(), spawn(fun() -> Pid ! {server,{online_number,length(game:online())}} end);
 event({user_online,User}) -> wf:info(?MODULE,"User ~p goes Online",[User#user.id]), self() ! {server,{online,User#user.id,User#user.names,User#user.surnames,score(User)}};
 event({user_offline,User}) -> self() ! {server,{offline,User#user.id,User#user.names,User#user.surnames,score(User)}};
+
+event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), kvs:add(User#user{id=wf:to_binary(User#user.id)}), wf:user(User);
+event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), kvs:put(User#user{id=wf:to_binary(User#user.id)}), wf:user(User), event(init);
+
+
 event(_Event) -> wf:info(?MODULE,"Unknown Event: ~p", [_Event]).
 
-%api_event(X,Y,Z) -> avz:api_event(X,Y,Z).
+
+api_event(X,Y,Z) -> avz:api_event(X,Y,Z).
