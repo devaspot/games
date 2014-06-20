@@ -590,7 +590,7 @@ do_action(SeatNum, #okey_reveal{discarded = ExtDiscarded, hand = ExtHand}, From,
     DeskState = StateData#okey_state.desk_state,
     Gosterme = DeskState#desk_state.gosterge,
     {Revealed,_,_} = ?SCORING:check_reveal(Hand,Gosterme),
-    case Revealed orelse true of
+    case Revealed of
         true -> do_game_action(SeatNum, {reveal, Discarded, Hand}, From, StateName, StateData);
         false -> do_game_action(SeatNum, wrong_reveal, From, StateName, StateData)
     end;
