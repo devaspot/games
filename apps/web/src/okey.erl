@@ -170,6 +170,7 @@ event({server,terminate}) -> event(terminate);
 event({server,{update_score,Score}}) -> 
     User = user(),
     NewUser = User#user{tokens=game:plist_setkey(score,1,User#user.tokens,{score,Score})},
+    wf:user(NewUser),
     gproc:set_value({p,l,broadcast},{wf:peer(?REQ),NewUser}),
     wf:info(?MODULE,"User Process Updated Score ~p ~p",[User#user.id,Score]),
     wf:send(broadcast,{user_online,NewUser}),
