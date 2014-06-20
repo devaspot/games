@@ -34,8 +34,18 @@ new_user() ->
         surnames = Surname},
     wf:wire(wf:f("document.cookie='~s=~s; path=/; expires=~s';",
         ["n2o-name",wf:to_list(FakeId),js_session:cookie_expire(js_session:ttl())])),
-    kvs:put(X),
+    kvs:add(X),
     X.
+
+new_facebook_user(User) ->
+    ExistingUser = user(),
+    Score = proplists:get_value(score,ExistingUser#user.tokens,0),
+    U1 = User#user{tokens=game:plist_setkey(score,1,User#user.tokens,{score,Score})},
+    U2 = U1#user{tokens=game:plist_setkey(n2o,1,U1#user.tokens,{n2o,get(session_id)})},
+    wf:wire(wf:f("document.cookie='~s=~s; path=/; expires=~s';",
+        ["n2o-name",wf:to_list(User#user.id),js_session:cookie_expire(js_session:ttl())])),
+    kvs:add(U2),
+    U2.
 
 user() -> 
     case wf:user() of
@@ -465,7 +475,7 @@ event({counter,Res}) -> Pid = self(), spawn(fun() -> Pid ! {server,{online_numbe
 event({user_online,User}) -> wf:info(?MODULE,"User ~p goes Online",[User#user.id]), self() ! {server,{online,User#user.id,User#user.names,User#user.surnames,score(User)}};
 event({user_offline,User}) -> self() ! {server,{offline,User#user.id,User#user.names,User#user.surnames,score(User)}};
 
-event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]);%, kvs:add(User#user{id=wf:to_binary(User#user.id)}), wf:user(User);
+event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), new_facebook_user(User);%, kvs:add(User#user{id=wf:to_binary(User#user.id)}), wf:user(User);
 event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]);%, kvs:put(User#user{id=wf:to_binary(User#user.id)}), wf:user(User), event(init);
 
 
