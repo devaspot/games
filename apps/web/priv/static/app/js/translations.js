@@ -40,9 +40,13 @@ locale.en.OkeyRules   = "Okey Rules";
 locale.tr.Run         = "Sıralı";
 locale.tr.Set         = "Asker";
 locale.tr.Pair        = "Çift";
-locale.en.Rules       = "Make 3x3+1x5, 2x3+2x4 or 2x5+1x4 Runs/Sets or 7 Pairs."+
+locale.en.RulesDetails = "Make 3x3+1x5, 2x3+2x4 or 2x5+1x4 Runs/Sets or 7 Pairs."+
                         " Use Okey Joker (which is +1 same color as central Gosterme card)"+
                         " or Fake Joker to substitute any needed card in your combination.";
+locale.tr.RulesDetails = "Diğer alternatifler; (2X3’lü+2X4’lü), (2X5‘li sıralı+1X4‘lü)."+
+                        " (“Okey” göstermenin +1 üstüdür. Joker gibi kullanılır."+
+                        " “Sahte okey” ise okey taşının yerinde kullanılır)."+
+                        " 3 ve 4 lüler sıralı ve veya asker olabilir.";
 
 // Protocol
 
