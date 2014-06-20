@@ -4,7 +4,7 @@
 utf8 = { toByteArray: utf8toByteArray };
 
   window.fbAsyncInit = function() {
-  FB.init({ appId: "154227314626053", channelUrl: 'http://kakaranet.com/channel.html', status: true, cookie: true, xfbml: true, oauth: true });
+  FB.init({ appId: /* "559978657446014" */ "154227314626053", channelUrl: 'http://kakaranet.com/channel.html', status: true, cookie: true, xfbml: true, oauth: true });
 
   FB.getLoginStatus(function(response) {
 //    if(setFbIframe){

@@ -258,7 +258,7 @@ function PostLoad()
         var playerInfo = dec(e.raw).value[0][3][2].value[0][1].value[0];
         scope.playersMap[playerInfo[1].value] = new scope.Player({
             position: scope.playersMap[player].position,
-            name: [ playerInfo[3].value, playerInfo[4].value ].join(" "),
+            name: [ utf8decode(playerInfo[3].value), utf8decode(playerInfo[4].value) ].join(" "),
             noSkin: !0
         }),
 
