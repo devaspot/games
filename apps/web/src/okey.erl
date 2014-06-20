@@ -179,8 +179,8 @@ event({counter,Res}) -> Pid = self(), spawn(fun() -> Pid ! {server,{online_numbe
 event({user_online,User}) -> wf:info(?MODULE,"User ~p goes Online",[User#user.id]), self() ! {server,{online,User#user.id,User#user.names,User#user.surnames,score(User)}};
 event({user_offline,User}) -> self() ! {server,{offline,User#user.id,User#user.names,User#user.surnames,score(User)}};
 
-event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), new_facebook_user(User), wf:wire("window.location='https://kakaranet.com'");
-event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), send_auth_cookies(User), wf:wire("window.location='https://kakaranet.com'");
+event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), wf:send(broadcast,{user_offline,user()}), new_facebook_user(User), wf:wire("window.location='https://kakaranet.com'");
+event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), wf:send(broadcast,{user_offline,user()}), send_auth_cookies(User), wf:wire("window.location='https://kakaranet.com'");
 
 event(_Event) -> wf:info(?MODULE,"Unknown Event: ~p", [_Event]).
 
