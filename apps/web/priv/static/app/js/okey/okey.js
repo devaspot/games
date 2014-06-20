@@ -289,7 +289,7 @@ function PostLoad()
         $("#RevealDeckRoot").hide();
         for (var player in scope.playersMap) scope.playersMap[player].timer.pause();
         var player = scope.playersMap[e.who];
-        $("#Overlay-Text").text(player.name + " paused the game");
+        $("#Overlay-Text").text(player.name + " paused");
     }
 
     scope.apiProvider.on("game_paused", function(x) {

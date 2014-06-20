@@ -10,9 +10,9 @@ log_modules() -> [
     okey_table,
     okey_desk,
 %    okey_scoring,
-%    journal,
+    journal,
 %    lucky,
 %    n2o_secret,
-%    js_session,
+    js_session,
     okey
 ].

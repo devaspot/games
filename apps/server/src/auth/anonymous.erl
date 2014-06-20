@@ -51,7 +51,7 @@ virtual_users() ->
     case kvs:get(user,<<"maxim@synrc.com">>) of
         {aborted,_} -> kvs:join(), kvs:init_db(),
                 create_users(1,100), kvs:put(#user{id= <<"maxim@synrc.com">>});
-        {ok,_} -> skip end,
+        _ -> skip end,
 
     AllUsers = imagionary_users(),
     F = fun({UserId,_,_}, Acc) ->

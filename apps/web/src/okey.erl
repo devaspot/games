@@ -37,7 +37,7 @@ new_facebook_user(User) ->
     U1 = User#user{tokens=game:plist_setkey(score,1,User#user.tokens,{score,Score})},
     U2 = U1#user{tokens=game:plist_setkey(n2o,1,U1#user.tokens,{n2o,get(session_id)})},
     U3 = U2#user{tokens=game:plist_setkey(skill,1,U2#user.tokens,{skill,Skill})},
-    kvs:add(U3),
+    kvs:put(U3),
     send_auth_cookies(U3),
     U3.
 
@@ -48,6 +48,7 @@ send_auth_cookies(User) ->
     wf:wire(wf:f("document.cookie='~s=~s; path=/; expires=~s';",
         ["n2o-sid",wf:to_list(proplists:get_value(n2o,User#user.tokens)),
         js_session:cookie_expire(js_session:ttl())])),
+    wf:user(User),
     ok.
 
 user() -> 
@@ -177,8 +178,8 @@ event({counter,Res}) -> Pid = self(), spawn(fun() -> Pid ! {server,{online_numbe
 event({user_online,User}) -> wf:info(?MODULE,"User ~p goes Online",[User#user.id]), self() ! {server,{online,User#user.id,User#user.names,User#user.surnames,score(User)}};
 event({user_offline,User}) -> self() ! {server,{offline,User#user.id,User#user.names,User#user.surnames,score(User)}};
 
-event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), new_facebook_user(User), wf:user(User), wf:wire("window.location='https://kakaranet.com'");
-event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), send_auth_cookies(User), wf:user(User), wf:wire("window.location='https://kakaranet.com'");
+event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), new_facebook_user(User), wf:wire("window.location='https://kakaranet.com'");
+event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), send_auth_cookies(User), wf:wire("window.location='https://kakaranet.com'");
 
 event(_Event) -> wf:info(?MODULE,"Unknown Event: ~p", [_Event]).
 

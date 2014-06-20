@@ -77,7 +77,8 @@ handle_cast({reveal_event, User, Event, GameState}, State) ->
   	  {error,_} -> #reveal_log{};
   	  {ok, RL} -> RL end,
     Skill = case SE#reveal_log.skill of X when is_integer(X) -> X; _ -> 0 end,
-    Score = case SE#reveal_log.score of X1 when is_integer(X1) -> X1; _ -> 0 end,
+    LogScore = case SE#reveal_log.score of X1 when is_integer(X1) -> X1; _ -> 0 end,
+    Score = Event#reveal_event.score,
     NewScore = case kvs:get(user,User) of
         {ok,U=#user{tokens=Tokens}} ->
             ScoreFromUser = Score+proplists:get_value(score,U#user.tokens,0),
@@ -85,7 +86,7 @@ handle_cast({reveal_event, User, Event, GameState}, State) ->
             wf:send(User,{server,{update_score,ScoreFromUser}}),
             ScoreFromUser;
         _ ->
-            ScoreFromLog = Score+Event#reveal_event.score,
+            ScoreFromLog = Score+LogScore,
             wf:send(User,{server,{update_score,ScoreFromLog}}),
             ScoreFromLog
     end,
