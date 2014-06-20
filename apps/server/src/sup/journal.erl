@@ -78,14 +78,19 @@ handle_cast({reveal_event, User, Event, GameState}, State) ->
   	  {ok, RL} -> RL end,
     Skill = case SE#reveal_log.skill of X when is_integer(X) -> X; _ -> 0 end,
     Score = case SE#reveal_log.score of X1 when is_integer(X1) -> X1; _ -> 0 end,
-    NewScore = Score+Event#reveal_event.score,
-    wf:send(User,{server,{update_score,NewScore}}),
-    kvs:put(SE#reveal_log{skill=Skill+1,score=NewScore}),
-    gas:info(?MODULE, "Reveal Upadtes User Record: ~p ~p", [User,NewScore]),
-    case kvs:get(user,User) of
+    NewScore = case kvs:get(user,User) of
         {ok,U=#user{tokens=Tokens}} ->
-            kvs:put(U#user{tokens=game:plist_setkey(score,1,Tokens,{score,NewScore})});
-        _ -> skip end,
+            ScoreFromUser = Score+proplists:get_value(score,U#user.tokens,0),
+            kvs:put(U#user{tokens=game:plist_setkey(score,1,Tokens,{score,ScoreFromUser})}),
+            wf:send(User,{server,{update_score,ScoreFromUser}}),
+            ScoreFromUser;
+        _ ->
+            ScoreFromLog = Score+Event#reveal_event.score,
+            wf:send(User,{server,{update_score,ScoreFromLog}}),
+            ScoreFromLog
+    end,
+    gas:info(?MODULE, "Reveal Upadtes User Record: ~p ~p", [User,NewScore]),
+    kvs:put(SE#reveal_log{skill=Skill+1,score=NewScore}),
     {noreply, State};
 handle_cast({series_event, User, Event, GameState}, State) ->
     kvs:add(Event),
