@@ -172,6 +172,8 @@ function translateScene(e)
     $("#You-Discard-Shape").hide();
 
     $('#Facebook-Login').on('click',function(x) { fb_login(); });
+    $('#Facebook-Login').attr({cursor:'pointer'});
+    $('#Login-Text')[0].style.cursor = 'pointer';
 
 //    $("#Okey").hide();
     $("#Okey").on("click", sendSawOkey);
