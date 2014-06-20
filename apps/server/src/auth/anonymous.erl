@@ -48,9 +48,9 @@ create_users(A,B) ->
                     birth={1981,9,29} }, kvs:put(U) end || N <- lists:seq(A, B) ].
 
 virtual_users() ->
-    case kvs:get(user,"maxim@synrc.com") of
+    case kvs:get(user,<<"maxim@synrc.com">>) of
         {aborted,_} -> kvs:join(), kvs:init_db(),
-                create_users(1,100), kvs:put(#user{id="maxim@synrc.com"});
+                create_users(1,100), kvs:put(#user{id= <<"maxim@synrc.com">>});
         {ok,_} -> skip end,
 
     AllUsers = imagionary_users(),

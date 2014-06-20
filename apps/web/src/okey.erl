@@ -34,7 +34,7 @@ new_user() ->
         surnames = Surname},
     wf:wire(wf:f("document.cookie='~s=~s; path=/; expires=~s';",
         ["n2o-name",wf:to_list(FakeId),js_session:cookie_expire(js_session:ttl())])),
-    kvs:add(X),
+    kvs:put(X),
     X.
 
 new_facebook_user(User) ->
@@ -183,7 +183,7 @@ event(init) ->
     okey:update(games_ids,#dropdown{id = games_ids, value = ?GAMEID, options = 
       [#option{label = wf:to_list(GameId), value = wf:to_list(GameId)} || GameId <- GamesIds]}),
 
-    wf:info(?MODULE,"Istaka on Started:"),
+    wf:info(?MODULE,"Istaka on Started:",[]),
     event(attach),
     event(join);
 
@@ -220,7 +220,8 @@ event(attach) ->
     wf:info(?MODULE,"Session User: ~p",[User]),
     GameId = case wf:q(games_ids) of undefined -> ?GAMEID; Res -> Res end,
     put(okey_game_id, GameId),
-    Token = auth_server:generate_token(GameId,User),
+    Token = auth_server:generate_token(GameId,User#user.id),
+    wf:info(?MODULE,"Game Token: ~p",[Token]),
     wf:wire(protocol:attach(wf:f("'~s'",[Token]))),
     Pid = self(),
     spawn(fun() ->
