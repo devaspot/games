@@ -166,11 +166,13 @@ function translateScene(e)
     $("#Rules").find("text")[0].lastElementChild.textContent = i18n("Rules");
     $("#Login-Text")[0].lastElementChild.textContent = i18n("Login");
     $("#Kakush")[0].lastElementChild.textContent = i18n("Kakush") + ": " + 0;
-    
+
     $("#Gabrielo-Discard-Shape").hide();
     $("#Center-Card-Selection").hide();
     $("#You-Discard-Shape").hide();
-    
+
+    $('#Facebook-Login').on('click',function(x) { fb_login(); });
+
 //    $("#Okey").hide();
     $("#Okey").on("click", sendSawOkey);
 //    $("#Have-8-Tashes").hide();

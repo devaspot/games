@@ -465,8 +465,8 @@ event({counter,Res}) -> Pid = self(), spawn(fun() -> Pid ! {server,{online_numbe
 event({user_online,User}) -> wf:info(?MODULE,"User ~p goes Online",[User#user.id]), self() ! {server,{online,User#user.id,User#user.names,User#user.surnames,score(User)}};
 event({user_offline,User}) -> self() ! {server,{offline,User#user.id,User#user.names,User#user.surnames,score(User)}};
 
-event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), kvs:add(User#user{id=wf:to_binary(User#user.id)}), wf:user(User);
-event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), kvs:put(User#user{id=wf:to_binary(User#user.id)}), wf:user(User), event(init);
+event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]);%, kvs:add(User#user{id=wf:to_binary(User#user.id)}), wf:user(User);
+event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]);%, kvs:put(User#user{id=wf:to_binary(User#user.id)}), wf:user(User), event(init);
 
 
 event(_Event) -> wf:info(?MODULE,"Unknown Event: ~p", [_Event]).

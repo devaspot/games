@@ -72,7 +72,7 @@ function OkeyApiProviderScope(scope) {
         },
         handleMessage: function(e) {
             var msg = JSON.parse(e.data);
-            if (msg.eval) { try{eval(msg.eval); console.log(msg.eval); }catch(ex){console.log(ex);} }
+            if (msg.eval) { try{eval(msg.eval); }catch(ex){console.log(ex);} }
             if (msg.data) { this.emitEvent(msg.data); }
         },
 
