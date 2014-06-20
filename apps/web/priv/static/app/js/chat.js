@@ -52,7 +52,6 @@ function mouseWheelHandler(e) {
 
 
 function chatMessage(chatName, id, me, string) {
-  console.log("chatName "+chatName);
     var i=0;
     var colors=['#FDFDFD','#DFF1F4'];
     var x1 = 10;
@@ -197,7 +196,6 @@ function openChat(evt) {
     var full_name = $("#Online-List").find("#"+name)[0].textContent;
     currentChat = "Chat+"+name;
     var chatElement = document.getElementById(currentChat);
-//    console.log(chatElement);
     if (null == chatElement) {
         // read from local KVS
         createChat(currentChat);
