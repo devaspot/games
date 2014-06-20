@@ -135,11 +135,11 @@ function addOnlineUser(name,full_name,score,insertMode) {
     var y = (insertMode == "insertTop") ? 0 : listElement.getBBox().height;
     var html = '<g xmlns="http://www.w3.org/2000/svg" height="60" transform="translate(0, '+y+')">' +
             '<g xmlns:data="'+name+'" fill="#DBEBED" '+eventsColor+'>' +
-            '    <rect cursor="pointer" xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" ' +'>'+full_name+'</rect></g>' +
+            '    <rect cursor="pointer" xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" ' +'>'+utf8decode(full_name)+'</rect></g>' +
             '<text xmlns:data="'+name+'" '+eventsColor+' '+
             'font-family="Exo 2" font-size="18" cursor="pointer" font-weight="normal" line-spacing="18"'+
             ' fill="#3B5998">' +
-                '<tspan xmlns:data="'+name+'" font-weight="normal" fill="'+color+'" x="19" y="22">'+full_name+'</tspan>' + 
+                '<tspan xmlns:data="'+name+'" font-weight="normal" fill="'+color+'" x="19" y="22">'+utf8decode(full_name)+'</tspan>' + 
                 '<tspan xmlns:data="'+name+'" font-size="14" x="19" y="40">'+i18n("Score")+': '+score+' </tspan></text>'+
             '<rect '+
             '  x="10" y="48" width="196" height="8"></rect></g>';
