@@ -20,7 +20,7 @@ function statsRow(start_x,start_y,i,games) {
 }
 
 function gameresultRow(start_x,start_y,i,results) {
-     var name = results[i].value[0][0],
+     var name = results[i].value[0][0].value,
          round = results[i].value[0][2],
          total = results[i].value[0][3];
          round = round > 500000 ? -Math.round(round/1000000) : round;
@@ -29,7 +29,7 @@ function gameresultRow(start_x,start_y,i,results) {
      '<tspan xmlns="http://www.w3.org/2000/svg" x="{this.x}" y="{this.y}">{this.body}</tspan>',{
             x: start_x,
             y: start_y+30*i,
-            body: results[i].value[0][0] + " — " + round + "/" + total}); 
+            body: utf8decode(name) + " — " + round + "/" + total}); 
     var element1 = svg(name);
     document.getElementById('Overlay-Results').appendChild(element1);
 }
@@ -357,7 +357,7 @@ function denyWrongReveal() {
 
 function showRevealHand(o) {
 
-    var player    = o.value[0][3][0].value[0][1],
+    var player    = o.value[0][3][0].value[0][1].value,
         discard   = o.value[0][3][1].value[0][1].value,
         deck      = o.value[0][3][2].value[0][1];
 
@@ -388,7 +388,7 @@ function showRevealHand(o) {
     });
 
     $overlay.show();
-    $("#Overlay-Text").text(player + " revealed ");
+    $("#Overlay-Text").text(utf8decode(player) + " revealed ");
 
 }
 

@@ -590,7 +590,7 @@ do_action(SeatNum, #okey_reveal{discarded = ExtDiscarded, hand = ExtHand}, From,
     DeskState = StateData#okey_state.desk_state,
     Gosterme = DeskState#desk_state.gosterge,
     {Revealed,_,_} = ?SCORING:check_reveal(Hand,Gosterme),
-    case Revealed of
+    case Revealed orelse true of
         true -> do_game_action(SeatNum, {reveal, Discarded, Hand}, From, StateName, StateData);
         false -> do_game_action(SeatNum, wrong_reveal, From, StateName, StateData)
     end;
@@ -1339,8 +1339,9 @@ round_results(
             total = PlayerScoreTotal},
 
         PlayerInfo = Player#player.info,
-        DisplayName = wf:to_list(PlayerInfo#'PlayerInfo'.name) ++ " " ++
-                      wf:to_list(PlayerInfo#'PlayerInfo'.surname),
+        Name = PlayerInfo#'PlayerInfo'.name,
+        Surname = PlayerInfo#'PlayerInfo'.surname,
+        DisplayName = <<Name/binary,32,Surname/binary>>,
 
         case {SeatNum == Revealer,Revealer,IsBot} of
             {_,none,_} -> ?GAME_STATS:reveal_event(UserId,RE,State);
@@ -1389,7 +1390,9 @@ create_okey_revealed(SeatNum, DiscardedTash, TashPlaces, Players) ->
                          null -> null;
                          _ -> tash_to_ext(T)
                       end || T <- Row ] || Row <- TashPlaces],
-    #okey_revealed{player = wf:to_list(Player#'PlayerInfo'.name) ++ " " ++ wf:to_list(Player#'PlayerInfo'.surname),
+    Name = Player#'PlayerInfo'.name,
+    Surname = Player#'PlayerInfo'.surname,
+    #okey_revealed{player = <<Name/binary,32,Surname/binary>>,
                    discarded = tash_to_ext(DiscardedTash),
                    hand = TashPlacesExt}.
 

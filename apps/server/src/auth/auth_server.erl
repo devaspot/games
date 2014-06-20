@@ -81,8 +81,8 @@ player_name(#'PlayerInfo'{login = Id, name = Name, surname = Surname}) ->
 user_info(#user{}=UserData) ->
 %    gas:info(?MODULE,"PlayerInfo by #user: ~p",[UserData]),
     #'PlayerInfo'{id = wf:to_binary(UserData#user.id),
-        login = wf:to_binary(UserData#user.username),
-        name = wf:to_binary(UserData#user.names),
+        login = UserData#user.username,
+        name = UserData#user.names,
         avatar_url = wf:to_binary(UserData#user.avatar),
         skill = 0,
         score = 0,
