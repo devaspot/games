@@ -79,7 +79,7 @@ function OkeyApiProviderScope(scope) {
         emitEvent: function(raw) {
             var msgName = dec(raw).value[0][0].value;
             if (msgName == "game_event") msgName = dec(raw).value[0][2].value;
-            console.log(String(dec(raw)));
+            //console.log(String(dec(raw)));
             for (var event, i = eventMap.length, obj; i--; ) {
                 event = eventMap[i];
                 if (eventMap[i] == msgName)

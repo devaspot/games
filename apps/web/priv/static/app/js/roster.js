@@ -19,7 +19,7 @@ function RosterHandlers(scope) {
             name    = dec(e.raw).value[0][2].value;
             surname = dec(e.raw).value[0][3].value;
             score   = dec(e.raw).value[0][4];
-        if (null != document.getElementById(id)) removeOnlineUser(id);
+        if (null != document.getElementById(id.entag())) removeOnlineUser(id);
         addOnlineUser(id,name+" "+surname,score,"insertTop");
         if ( name == document.names)
             $("#Quota")[0].lastElementChild.textContent = i18n("Score") + ": " + score;
@@ -32,7 +32,7 @@ function RosterHandlers(scope) {
             name    = dec(e.raw).value[0][2].value;
             surname = dec(e.raw).value[0][3].value;
             score   = dec(e.raw).value[0][4];
-        if (null != document.getElementById(id)) removeOnlineUser(id);
+        if (null != document.getElementById(id.entag())) removeOnlineUser(id);
         addOnlineUser(id,name+" "+surname,score,"appendChild");
     });
 
@@ -59,7 +59,7 @@ function RosterHandlers(scope) {
             names   = dec(e.raw).value[0][1].value[0][1].value,
             to      = dec(e.raw).value[0][2].value,
             message = dec(e.raw).value[0][3].value;
-        chatMessage("Chat+"+from,"1",from==document.user?"Self":from,utf8decode(message));
+        chatMessage("Chat+"+from.entag(),"1",from==document.user?"Self":from,utf8decode(message));
         if (null != currentChat) {
             onlineHover();
             mouseWheelHandler({'detail':-10000,'wheelDelta':-10000});

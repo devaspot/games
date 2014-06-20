@@ -52,6 +52,7 @@ function mouseWheelHandler(e) {
 
 
 function chatMessage(chatName, id, me, string) {
+  console.log("chatName "+chatName);
     var i=0;
     var colors=['#FDFDFD','#DFF1F4'];
     var x1 = 10;
@@ -126,7 +127,15 @@ if (!String.prototype.encodeHTML) {
   };
 }
 
+if (!String.prototype.entag) {
+  String.prototype.entag = function () {
+    return (this[0]!="_"?"_":"")+this.replace(/\./g, '-dot-').replace(/@/g, '-at-'); }; }
+
+if (!String.prototype.detag) {
+  String.prototype.detag = function () { return this.substr(1).replace(/-at-/g,'@').replace(/-dot-/g,'.').replace(/tag-/,''); }; }
+
 function addOnlineUser(name,full_name,score,insertMode) {
+    name = name.entag();
     var listElement = document.getElementById("Online-List");
     var clickEvent = ' onclick="openChat(evt);" '; 
     var events = ' onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);" ' + clickEvent;
@@ -135,7 +144,7 @@ function addOnlineUser(name,full_name,score,insertMode) {
     var y = (insertMode == "insertTop") ? 0 : listElement.getBBox().height;
     var html = '<g xmlns="http://www.w3.org/2000/svg" height="60" transform="translate(0, '+y+')">' +
             '<g xmlns:data="'+name+'" fill="#DBEBED" '+eventsColor+'>' +
-            '    <rect cursor="pointer" xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" ' +'>'+utf8decode(full_name)+'</rect></g>' +
+            '    <rect cursor="pointer" xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" ' +'>'+full_name+'</rect></g>' +
             '<text xmlns:data="'+name+'" '+eventsColor+' '+
             'font-family="Exo 2" font-size="18" cursor="pointer" font-weight="normal" line-spacing="18"'+
             ' fill="#3B5998">' +
@@ -170,7 +179,7 @@ function shiftTranslate(name,shiftValue) {
     return rect.parentNode.parentNode;
 }
 
-function removeOnlineUser(name) { shiftTranslate(name,-1).remove(); }
+function removeOnlineUser(name) { shiftTranslate(name.entag(),-1).remove(); }
 
 function createChat(chatName) {
     var html = '<g xmlns="http://www.w3.org/2000/svg" id="'+chatName+'" y="0" clip-path="url(#myClip3)" transform="translate(1.000000, 107.000000)"></g>';
@@ -188,10 +197,11 @@ function openChat(evt) {
     var full_name = $("#Online-List").find("#"+name)[0].textContent;
     currentChat = "Chat+"+name;
     var chatElement = document.getElementById(currentChat);
+//    console.log(chatElement);
     if (null == chatElement) {
         // read from local KVS
         createChat(currentChat);
-        chatMessage(currentChat,"1","System",full_name+" "+i18n("PrivateChat"));
+        chatMessage(currentChat,"1","System",utf8decode(full_name)+" "+i18n("PrivateChat"));
     }
     document.getElementById(currentChat).style.display = '';
     document.getElementById("onlineChatEdit").setAttribute("xmlns:data",currentChat);
@@ -315,7 +325,7 @@ function chatEditor(evt) {
                     tuple(atom('message'),
                          bin(document.user),
                          bin(document.names),
-                         bin(chatContainer.substr(5)),
+                         bin(chatContainer.substr(5).detag()),
                          utf8toByteArray(text)))));
             }
             else
