@@ -118,6 +118,8 @@ function PostLoad()
         for (var playerName in scope.playersMap) scope.playersMap[playerName].unselect();
 
         updateOkeyButton(player, enabled);
+        
+        whosMove = player;
 
         if (scope.playersMap[player].select(), player == scope.user)
         {
@@ -254,13 +256,14 @@ function PostLoad()
 
     scope.apiProvider.on("player_left", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
+        console.log(String(dec(e.raw)));
         var player = dec(e.raw).value[0][3][0].value[0][1].value;
         var playerInfo = dec(e.raw).value[0][3][2].value[0][1].value[0];
         scope.playersMap[playerInfo[1].value] = new scope.Player({
             position: scope.playersMap[player].position,
             name: [ utf8decode(playerInfo[3].value), utf8decode(playerInfo[4].value) ].join(" "),
             noSkin: !0
-        }),
+        });
 
         delete scope.playersMap[player];
         scope.playersRightHandsMap[playerInfo[1].value] = scope.playersRightHandsMap[player];
@@ -268,12 +271,15 @@ function PostLoad()
         scope.playersLeftHandsMap[playerInfo[1].value] = scope.playersLeftHandsMap[player];
         delete scope.playersLeftHandsMap[player];
 
+        var x; x = scope.playersMap[whosMove], x && x.select();
+
     });
 
     $("#Pause").on("click", function sendPause() { scope.apiProvider.pause(false); });
     $("#Pause").attr({cursor: "pointer"});
 
-    var whoPausedGame = false;
+    var whoPausedGame = false,
+        whosMove;
 
     $overlay.attr({cursor: "pointer"});
     $overlay.on("click", function sendPause() { scope.apiProvider.pause(true); });
