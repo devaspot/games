@@ -272,10 +272,7 @@ function PostLoad()
         delete scope.playersLeftHandsMap[player];
 
         var x = scope.playersMap[whosMove];
-//        for (var playerName in scope.playersMap) scope.playersMap[playerName].unselect();
-        if (x) {
-           x.select();
-        }
+        if (x) { x.$timer.show(); }
 
     });
 
