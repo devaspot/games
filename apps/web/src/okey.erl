@@ -133,6 +133,7 @@ body() -> [].
 
 body2() -> 
     wf:wire(#api{name=plusLogin, tag=plus}),
+    wf:wire(#api{name="", tag=fb}),
   [ #panel    { id = history },
     #button   { id = pluslogin,  body = "Login",       postback = login_button },
     #label    { id = nothing,    body = " Google"},    #br{}, #br{},
