@@ -271,7 +271,11 @@ function PostLoad()
         scope.playersLeftHandsMap[playerInfo[1].value] = scope.playersLeftHandsMap[player];
         delete scope.playersLeftHandsMap[player];
 
-        var x; x = scope.playersMap[whosMove], x && x.select();
+        var x = scope.playersMap[whosMove];
+//        for (var playerName in scope.playersMap) scope.playersMap[playerName].unselect();
+        if (x) {
+           x.select();
+        }
 
     });
 
@@ -419,6 +423,8 @@ function initOkeyScene(x)
          scope.playersMap[x.whos_move].timer.from(x.next_turn_in);
          if (x.paused) { scope.playersMap[x.whos_move].timer.pause(); $overlay.show() } else unpause();
          scope.playersMap[x.whos_move].select();
+
+         whosMove = x.whos_move;
     };
 
     scope.paused = x.paused;
