@@ -214,13 +214,13 @@ var $ = function(_undefind)
     var defaultTrf = {
         "class": "trf",
         type: "translate",
-        dur: "0.3",
+        dur: "0.2", // 0.3
         calcMode: "spline",
         keySplines: "0.215 0.61 0.355 1",
         additive: "replace",
         attributeName: "transform",
         begin: "indefinite",
-        keyTimes: "0; 1" },
+        keyTimes: "0; 0.1" }, // 0; 1
         trf = function(trf) { return $("<animateTransform/>").attr(trf); };
 
     fn.transform = function(trfs) {
