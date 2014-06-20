@@ -93,7 +93,7 @@ function PostLoad()
                 scope.playersMap[playerInfo[1].value] = scope.playersMap[playerInfo[1].value] || new scope.Player({
                     position: playersPositions[i],
                     sex: playerInfo[12].value,
-                    name: [ playerInfo[3].value, playerInfo[4].value ].join(" ")
+                    name: [ utf8decode(playerInfo[3].value), utf8decode(playerInfo[4].value) ].join(" ")
                 });
                 var prevPlayer = i == players.length - 1 ? players[0].value[0][1].value : players[i + 1].value[0][1].value;
                 for (var prop in scope.playersLeftHandsMap) scope.playersLeftHandsMap[prop].clear();
