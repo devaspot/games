@@ -30,6 +30,7 @@ function OkeyApiProviderScope(scope) {
         "chat_message",
         "chat_event",
         // okey game protocol
+        "logout",
         "okey_game_info",
         "okey_game_started",
         "okey_game_player_state",

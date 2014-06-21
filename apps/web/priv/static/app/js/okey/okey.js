@@ -55,6 +55,9 @@ function PostLoad()
         e.detail.card.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
                          .off(document.createTouch ? "touchend"   : "mouseup",   fadeOut),
 
+        e.detail.card.$el.doubletap(function() { 
+            scope.apiProvider.actionDiscard(e.detail.card) }),
+
         scope.centralCard.off("dragmove", removeFadeOut)
                    .off("dragstop", addFadeOut)
                    .off("revert", fadeOut),
