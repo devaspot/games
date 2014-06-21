@@ -148,7 +148,7 @@ function addOnlineUser(name,full_name,score,insertMode) {
             'font-family="Exo 2" font-size="18" cursor="pointer" font-weight="normal" line-spacing="18"'+
             ' fill="#3B5998">' +
                 '<tspan xmlns:data="'+name+'" font-weight="normal" fill="'+color+'" x="19" y="22">'+utf8decode(full_name)+'</tspan>' + 
-                '<tspan xmlns:data="'+name+'" font-size="14" x="19" y="40">'+i18n("Score")+': '+score+' </tspan></text>'+
+                '<tspan xmlns:data="'+name+'" font-size="14" x="19" y="40">'+i18n("Score")+': '+parseUInt(score)+' </tspan></text>'+
             '<rect '+
             '  x="10" y="48" width="196" height="8"></rect></g>';
     var element = svg(html);
