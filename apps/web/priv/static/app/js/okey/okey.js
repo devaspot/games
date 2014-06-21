@@ -256,7 +256,6 @@ function PostLoad()
 
     scope.apiProvider.on("player_left", function(x) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
-        console.log(String(dec(e.raw)));
         var player = dec(e.raw).value[0][3][0].value[0][1].value;
         var playerInfo = dec(e.raw).value[0][3][2].value[0][1].value[0];
         scope.playersMap[playerInfo[1].value] = new scope.Player({
