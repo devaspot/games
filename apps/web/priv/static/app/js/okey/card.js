@@ -8,7 +8,8 @@ function CardScope(scope) {
         this.pos = {},
         this.elements = {
             $circle: "circle",
-            $text: "text",
+            $text: ".value",
+            $joker: ".joker",
             $overlay: ".overlay"
         },
         this.proxies = [ "toggle", "selectGroup", "dragGroup", "clearGroup", "revertGroup" ], 
@@ -43,12 +44,27 @@ function CardScope(scope) {
             }).html(result), this.__super__.constructor.call(this), this.render();
         },
         render: function() {
-            null == this.value && null == this.color ? (this.$circle.hide(), this.$text.hide()) : 0 == this.value ? (this.$circle.hide(), 
-            this.$text.show().attr({
-                fill: this.color,
-                "font-size": "26pt",
-                y: 42
-            }).text("❦")) : (this.$circle.show().attr("fill", this.color), this.$text.show().attr("fill", this.color).text(this.value));
+            this.$joker.hide();
+            if (null == this.value && null == this.color)
+            {
+                this.$circle.hide();
+                this.$text.hide();
+            } else if (0 == this.value) {
+                this.$circle.hide();
+                this.$text.show().attr({fill: this.color,"font-size":"26pt",y:42}).text("❦");
+            } else if (scope.gosterme != null && scope.gosterme.color == this.color &&
+                (scope.gosterme.value == this.value-1 ||
+                 (scope.gosterme.value == 13 && this.value == 1)))
+            {
+                this.$circle.hide();
+                this.$joker.show().attr({fill: this.color,"font-size":"20pt",y:52}).text("❦");
+//                this.$circle.show().attr("fill", this.color);
+                this.$text.show().attr("fill", this.color).text(this.value);
+//                this.$text.show().attr({fill: this.color,"font-size":"16pt",y:26}).text("❦");
+            } else {
+                this.$circle.show().attr("fill", this.color);
+                this.$text.show().attr("fill", this.color).text(this.value);
+            };
         },
         drag: function() {
             this.dragHandler = new scope.Draggable(this.$el), this.dragHandler.owner = this;

@@ -85,7 +85,11 @@ function HandScope(scope) {
         render: function() {
             var history = this.cards.slice(0, this.cards.length - 1);
             this.$cards.empty(), this.shown && this.hide(), history.reverse().forEach(function(card) {
-                card = card.clone(), card.template(scope.CARD_SMALL_SOURCE), card.$el.attr("transform", "translate(" + defCardTrf + ")"), 
+                card = card.clone(), card.template(scope.CARD_SMALL_SOURCE),
+                card.render(),
+                (card.value == 0 && card.$text.attr({"font-size":"20pt",y:33})),
+                card.$joker.attr({"font-size":"16pt",y:40,x:0}),
+                card.$el.attr("transform", "translate(" + defCardTrf + ")"), 
                 this.$cards.append(card.$el[0]);
             }, this); },
 

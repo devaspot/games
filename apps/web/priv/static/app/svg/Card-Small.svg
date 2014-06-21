@@ -1,3 +1,4 @@
 <rect fill="#FFFFFF" x="0" y="0" width="32" height="46" rx="8"></rect>
-<text dx="16" x="0" y="21" font-family="Exo 2" font-size="20" font-weight="normal" text-anchor="middle" fill="#48AF5E">1</text>
+<text class="value" dx="16" x="0" y="21" font-family="Exo 2" font-size="20" font-weight="normal" text-anchor="middle" fill="#48AF5E">a</text>
 <circle cx="16" cy="33" r="5" fill="#48AF5E"></circle>
+<text class="joker" dx="16" x="0" y="26" font-family="Exo 2" font-size="20" font-weight="normal" text-anchor="middle" fill="#48AF5E">b</text>

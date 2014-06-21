@@ -388,17 +388,19 @@ function initOkeyScene(x)
     }
 
     if (scope.ended = !1, 
-        scope.deck.fill(x.tiles),
-        scope.deck.render(),
         scope.centralCard.dragHandler.disable(),
         scope.centralCard.$el
             .off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
             .off(document.createTouch ? "touchend"   : "mouseup",   fadeOut), 
         x.gosterme && "null" != x.gosterme)
     {
-        var gosterme = new scope.Card({color:scope.CARD_COLORS[x.gosterme[1]-1],value:x.gosterme[2]});
-        gosterme.$el.attr({transform: "translate(16,-60)"}),
-        $gosterme.append(gosterme.$el);
+        scope.gosterme = new scope.Card({color:scope.CARD_COLORS[x.gosterme[1]-1],value:x.gosterme[2]});
+        scope.gosterme.$el.attr({transform: "translate(16,-60)"}),
+        $gosterme.append(scope.gosterme.$el);
+
+        scope.deck.fill(x.tiles);
+        scope.deck.render();
+
     }
 
     if (null != x.piles && null != x.piles.length) for (var i = 0; i < x.piles.length; i++)
