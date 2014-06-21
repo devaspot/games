@@ -333,7 +333,7 @@ function chatEditor(evt) {
                     tuple(atom('chat'),
                          scope.gameId,
                          bin(document.user),
-                         bin(document.names),
+                         utf8toByteArray(document.names),
                          utf8toByteArray(text)))));
             }
             e.innerHTML = '';

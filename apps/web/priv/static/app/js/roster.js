@@ -71,11 +71,11 @@ function RosterHandlers(scope) {
         var e = {detail: x.detail.json, raw: x.detail.bert};
         var gameId  = dec(e.raw).value[0][1];
         var userId  = dec(e.raw).value[0][2].value;
-        var name    = dec(e.raw).value[0][3].value;
+        var name    = dec(e.raw).value[0][3];
         var message = dec(e.raw).value[0][4];
         if (userId != document.user)
         {
-            chatMessage("Chat","1",userId==document.user?"Self":userId,name+":\n"+utf8decode(message));
+            chatMessage("Chat","1",userId==document.user?"Self":userId,utf8decode(name)+":\n"+utf8decode(message));
             scroll_right = -10000;
             barHover();
             mouseWheelHandler({'detail':-10000,'wheelDelta':-10000});
