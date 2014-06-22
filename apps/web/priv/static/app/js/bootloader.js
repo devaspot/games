@@ -23,10 +23,8 @@ function statsRow(start_x,start_y,i,games,iter,check) {
 
 function gameresultRow(start_x,start_y,i,results) {
      var name = results[i].value[0][0].value,
-         round = results[i].value[0][2],
-         total = results[i].value[0][3];
-         round = round > 500000 ? -Math.round(round/1000000) : round;
-         total = total > 500000 ? -Math.round(total/1000000) : total;
+         round = results[i].value[0][2].value,
+         total = results[i].value[0][3].value;
     var name = template_engine(
      '<tspan xmlns="http://www.w3.org/2000/svg" x="{this.x}" y="{this.y}">{this.body}</tspan>',{
             x: start_x,

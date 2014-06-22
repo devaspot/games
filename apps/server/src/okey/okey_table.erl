@@ -1358,8 +1358,8 @@ round_results(
         results = Results,
         next_action = next_round}.
 
-js_hack(Score) when Score < 0 -> -Score * 1000000;
-js_hack(Score) -> Score.
+%js_hack(Score) when Score < 0 -> -Score * 1000000;
+js_hack(Score) -> integer_to_binary(Score).
 
 create_okey_series_ended(Results, Players, Confirm,
     #okey_state{tournament_type=GameKind,game_mode=GameMode,speed=Speed,rounds=Rounds}=GameState) ->
