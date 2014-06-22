@@ -83,6 +83,7 @@ user_info(#user{}=UserData) ->
     #'PlayerInfo'{id = wf:to_binary(UserData#user.id),
         login = UserData#user.username,
         name = UserData#user.names,
+        sex = UserData#user.sex,
         avatar_url = wf:to_binary(UserData#user.avatar),
         skill = 0,
         score = 0,

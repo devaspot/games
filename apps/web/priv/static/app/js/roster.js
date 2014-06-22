@@ -22,7 +22,7 @@ function RosterHandlers(scope) {
         if (null != document.getElementById(id.entag())) removeOnlineUser(id);
         addOnlineUser(id,name+" "+surname,score,"insertTop");
         if ( name == document.names)
-            $("#Quota")[0].lastElementChild.textContent = i18n("Score") + ": " + score;
+            $("#Quota")[0].lastElementChild.textContent = i18n("Score") + ": " + parseUInt(score);
         if (currentChat == null) showOnlineList();
     });
 

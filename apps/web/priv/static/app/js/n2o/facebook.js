@@ -11,7 +11,7 @@ utf8 = { toByteArray: utf8toByteArray };
       var inIframe= top!=self;
   //    setFbIframe(inIframe);
       if(inIframe && response.status == 'connected' && fbLogin)
-        FB.api("/me?fields=id,username,first_name,last_name,email,birthday", function(response){ fbLogin(response);});
+        FB.api("/me?fields=id,username,first_name,gender,last_name,email,birthday", function(response){ fbLogin(response);});
   //  }
   });
 };
@@ -19,9 +19,9 @@ utf8 = { toByteArray: utf8toByteArray };
 function fb_login(){
   FB.getLoginStatus(function(response){
     if(response.status == 'connected'){
-      if(fbLogin) FB.api("/me?fields=id,username,first_name,last_name,email,birthday", function(response){fbLogin(response);});
+      if(fbLogin) FB.api("/me?fields=id,username,gender,first_name,last_name,email,birthday", function(response){fbLogin(response);});
     } else FB.login(function(r){
-        if(r.authResponse && fbLogin) FB.api("/me?fields=id,username,first_name,last_name,email,birthday", function(response){fbLogin(response);});
+        if(r.authResponse && fbLogin) FB.api("/me?fields=id,gender,username,first_name,last_name,email,birthday", function(response){fbLogin(response);});
       }, {scope: 'email,user_birthday'});
   });
 }
