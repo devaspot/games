@@ -77,7 +77,11 @@ main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,[]}]}.
 patch_users() ->
     [ begin
         Score = score_journal(User),
-        kvs:put(User#user{tokens=game:plist_setkey(score,1,Tokens,{score,Score})})
+        Sex = case User#user.sex of undefined -> male; S -> S end,
+        case Score of
+           0 -> kvs:delete(user,User#user.id);
+           _ -> kvs:put(User#user{sex=Sex,
+                   tokens=game:plist_setkey(score,1,Tokens,{score,Score})}) end
     end|| User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined].
 
 send_roster(Pid) ->
