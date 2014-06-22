@@ -18,11 +18,11 @@ function RosterHandlers(scope) {
         var id      = dec(e.raw).value[0][1].value;
             name    = dec(e.raw).value[0][2].value;
             surname = dec(e.raw).value[0][3].value;
-            score   = dec(e.raw).value[0][4];
+            score   = dec(e.raw).value[0][4].value;
         if (null != document.getElementById(id.entag())) removeOnlineUser(id);
         addOnlineUser(id,name+" "+surname,score,"insertTop");
         if ( name == document.names)
-            $("#Quota")[0].lastElementChild.textContent = i18n("Score") + ": " + parseUInt(score);
+            $("#Quota")[0].lastElementChild.textContent = i18n("Score") + ": " + score;
         if (currentChat == null) showOnlineList();
     });
 
@@ -31,7 +31,7 @@ function RosterHandlers(scope) {
         var id      = dec(e.raw).value[0][1].value;
             name    = dec(e.raw).value[0][2].value;
             surname = dec(e.raw).value[0][3].value;
-            score   = dec(e.raw).value[0][4];
+            score   = dec(e.raw).value[0][4].value;
         if (null != document.getElementById(id.entag())) removeOnlineUser(id);
         addOnlineUser(id,name+" "+surname,score,"appendChild");
     });
@@ -41,7 +41,7 @@ function RosterHandlers(scope) {
         var id      = dec(e.raw).value[0][1].value;
             name    = dec(e.raw).value[0][2].value;
             surname = dec(e.raw).value[0][3].value;
-            score   = dec(e.raw).value[0][4];
+            score   = dec(e.raw).value[0][4].value;
         addOnlineUser(id,name+" "+surname,score,"appendChild");
     });
 
@@ -90,12 +90,13 @@ function RosterHandlers(scope) {
         var games    = dec(e.raw).value[0][2],
             reveals  = dec(e.raw).value[0][3],
             protocol = dec(e.raw).value[0][4];
-            score    = dec(e.raw).value[0][5];
+            score    = dec(e.raw).value[0][5].value;
         removeChilds(document.getElementById('Stat-Left'));
         removeChilds(document.getElementById('Stat-Right'));
+        
      // for (var i=0,iter=0;i<games.length;   i++,iter=statsRow(4,  160,i,games,iter));
-        for (var i=0,iter=0;i<protocol.length;iter=statsRow(4,  160,i,protocol,iter),i++);
-//        for (var i=0,iter=0;i<reveals.length; i++,iter=statsRow(320,160,i,reveals,iter));
+        for (var i=0,iter=0;i<protocol.length;iter=statsRow(4,  160,i,protocol,iter,true),i++);
+        for (var i=0,iter=0;i<reveals.length;iter=statsRow(340,160,i,reveals,iter,false),i++);
         translateScene();
         $("#Score").text(i18n("Score") + ": " + score).attr({y: 40});
       });
@@ -110,7 +111,7 @@ function RosterHandlers(scope) {
                 id       = item.value[0][0].value,
                 names    = item.value[0][1].value,
                 surnames = item.value[0][2].value,
-                score    = item.value[0][3];
+                score    = item.value[0][3].value;
             addOnlineUser(id,names+" "+surnames,score,'appendChild');
         }
     });

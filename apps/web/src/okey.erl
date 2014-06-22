@@ -87,7 +87,7 @@ patch_users() ->
 send_roster(Pid) ->
 %    X = [ send_roster_item(User) || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined],
     X = [ begin
-       {User#user.id,User#user.names,User#user.surnames,score(User)}
+       {User#user.id,User#user.names,User#user.surnames,integer_to_binary(score(User))}
        end || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined, proplists:get_value(score,Tokens,0) /= 0],
     XS = lists:sort(fun({_,_,_,S1},{_,_,_,S2}) -> S1 > S2 end,X),
     Lists = [lists:sublist(XS,100)], %split(170,XS,[]),
@@ -157,7 +157,6 @@ event(attach) ->
     end),
     ok;
 
-
 event({client,{message,From,Name,To,Message}}) ->
     wf:info(?MODULE,"Online Chat Message from ~p(~p) to ~p:~n ~p~n",[From,Name,To,Message]),
     wf:send(To,{server,{chat_message,{From,Name},To,wf:to_binary(Message)}}),
@@ -181,11 +180,32 @@ event({server,{update_score,Score}}) ->
     wf:send(broadcast,{user_online,NewUser}),
     ok;
 event({counter,Res}) -> Pid = self(), spawn(fun() -> Pid ! {server,{online_number,length(game:online())}} end);
-event({user_online,User}) -> wf:info(?MODULE,"User ~p goes Online",[User#user.id]), self() ! {server,{online,User#user.id,User#user.names,User#user.surnames,score(User)}};
-event({user_offline,User}) -> self() ! {server,{offline,User#user.id,User#user.names,User#user.surnames,score(User)}};
+event({user_online,User}) ->
+    wf:info(?MODULE,"User ~p goes Online",[User#user.id]),
+    Id = User#user.id,
+    Names = User#user.names,
+    Surnames = User#user.surnames,
+    Score = score(User),
+    self() ! {server,{online,Id,Names,Surnames,integer_to_binary(Score)}};
 
-event({register,User}) -> wf:info(?MODULE,"Register: ~p",[User]), wf:send(broadcast,{user_offline,user()}), new_facebook_user(User), wf:wire("window.location='https://kakaranet.com'");
-event({login,User}) -> wf:info(?MODULE,"Login: ~p",[User]), wf:send(broadcast,{user_offline,user()}), send_auth_cookies(User), wf:wire("window.location='https://kakaranet.com'");
+event({user_offline,User}) ->
+    Id = User#user.id,
+    Names = User#user.names,
+    Surnames = User#user.surnames,
+    Score = score(User),
+    self() ! {server,{online,Id,Names,Surnames,integer_to_binary(Score)}};
+
+event({register,User}) ->
+    wf:info(?MODULE,"Register: ~p",[User]),
+    wf:send(broadcast,{user_offline,user()}),
+    new_facebook_user(User),
+    wf:wire("window.location='https://kakaranet.com'");
+
+event({login,User}) ->
+    wf:info(?MODULE,"Login: ~p",[User]),
+    wf:send(broadcast,{user_offline,user()}),
+    send_auth_cookies(User),
+    wf:wire("window.location='https://kakaranet.com'");
 
 event(_Event) -> wf:info(?MODULE,"Unknown Event: ~p", [_Event]).
 
