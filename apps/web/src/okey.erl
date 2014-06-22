@@ -16,10 +16,11 @@ game_form() ->
 
 new_user() ->
     Imagionary = anonymous:imagionary_users(),
-    {Id,Name,Surname} = lists:nth(crypto:rand_uniform(1,length(Imagionary)),Imagionary),
+    {Id,Name,Surname,Sex} = lists:nth(crypto:rand_uniform(1,length(Imagionary)),Imagionary),
     FakeId = anonymous:fake_id(Id),
     X = #user{
         id = FakeId,
+        sex = Sex,
         tokens=[{n2o,get(session_id)}],
         names = Name,
         surnames = Surname},

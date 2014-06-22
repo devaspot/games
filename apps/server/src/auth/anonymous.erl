@@ -3,31 +3,59 @@
 -include_lib("db/include/config.hrl").
 -include_lib("kvs/include/user.hrl").
 
-names() ->
-   ["pinar","betul","eda","lale","ilgin","alp","ayberk","mehmet","ozan","doruk",
-    "duman","boran","dursun","taner","uzay","ali","musa","halit","yusuf","isa",
-    "asena","aysu","konca","ceren","oylum","filiz","ezgi","ece","sevil","damla",
-    "bahar","arzu","dilara","esra","leyla","jale","fatma","irem","yasmin","zeynep",
-    "magnolia","jenifer","roksolana","tsering","suomi"].
+males() ->
+  [ "alp","ayberk","doruk","mehmet","ozan","ali","musa","boran","isa",
+    "dursun","uzay","taner","halit","yusuf","duman","serdar","halil",
+    "emre","kadir","hasan","zeki","ihsan","rıza","kasım","ılgın" ].
 
-surnames() ->
-   ["ozcelik","acar","ozgur","ozkan","tez","ustel",
-    "vural","akbulut","arslan","avci","ayhan","basturk","caglar","celik","cetinkaya","demir",
-    "dikmen","acar","dogan","ekinci","elmas","erdem","erdogan","guler","gunes","ilhan",
-    "inan","karaca","karadag","kaya","kemal","keskin","koc","korkmaz","mestafa","osman",
-    "ozbek","ozcan","ozdemir","ozden","ozturk","pasa","polat","sezer","sahin","sen",
-    "simsek","tekin","tosun","tunc","turan","unal","yalcin","yazici","yildirim","yilmaz"].
+females() ->
+  [ "betül","eda","lale","pınar","filiz","ezgi","aysu","damla","konca",
+    "oylum","ceren","ece","sevil","asena","jale","fatma","arzu","zeynep",
+    "dilara","leyla","esra","irem","yasemin","bahar" ].
 
-ima_gio(N) -> {Id,Name,Surname} = lists:nth(N,imagionary_users()), Id.
-ima_gio(N,L) -> {Id,Name,Surname} = lists:nth(N,L), Id.
+malesex() -> [ {male,X} || X <- males()].
+femalesex() -> [ {female,X} || X <- females()].
+names() -> malesex() ++ femalesex().
+
+surnames() -> 
+  [ "özçelik","acar","özgür","özkan","tez","vural",
+    "akbulut","arslan","avcı","ayhan","baştürk","çağlar","çelik",
+    "çetinkaya","demir","dikmen","acar","doğan","ekinci","elmas",
+    "erdem","erdoğan","güler","güneş","ilhan","inan","karaca",
+    "karadağ","kaya","kemal","keskin","koç","korkmaz","mustafa",
+    "osman","özbek","özcan","özdemir","özden","öztürk","paşa",
+    "polat","sezer","şahin","sen","şimşek","tekin","tosun","tunç",
+    "turan","ünal","yalçın","yazıcı","yıldırım","yılmaz" ].
+
+ima_gio(N) -> {Id,Name,Surname,Sex} = lists:nth(N,imagionary_users()), Id.
+ima_gio(N,L) -> {Id,Name,Surname,Sex} = lists:nth(N,L), Id.
 
 imagionary_users() ->
     List = [ begin
-        [HX|TX] = X, NX = [string:to_upper(HX)] ++ TX,
-        [HY|TY] = Y, NY = [string:to_upper(HY)] ++ TY,
-        {wf:to_binary(X++"_"++Y),wf:to_binary(NX),wf:to_binary(NY)}
-    end || X<-names(), Y<-surnames()],
+        {Sex,X} = SX,
+        [HX|TX] = X, NX = [tru(HX)] ++ TX,
+        [HY|TY] = Y, NY = [tru(HY)] ++ TY,
+        {wf:to_binary([ tr2en(Char) || Char <- unicode:characters_to_list(X++"_"++Y) ]),
+         unicode:characters_to_binary(NX),
+         unicode:characters_to_binary(NY),Sex}
+    end || SX<-names(), Y<-surnames()],
     lists:keysort(1,List).
+
+tru($ü) -> $Ü;
+tru($ş) -> $Ş;
+tru($ö) -> $Ö;
+tru($ı) -> $İ;
+tru($ğ) -> $Ğ;
+tru($ç) -> $Ç;
+tru(Ch) -> string:to_upper(Ch).
+
+tr2en($ü) -> $u;
+tr2en($ö) -> $o;
+tr2en($ç) -> $c;
+tr2en($ı) -> $i;
+tr2en($ş) -> $u;
+tr2en($ğ) -> $g;
+tr2en(Sym) -> Sym.
 
 fake_id() ->
     FakeUsers = imagionary_users(),
@@ -40,21 +68,21 @@ fake_id(Login) -> wf:to_binary(wf:to_list(Login) ++ wf:to_list(id_generator:get_
 create_users(A,B) ->
     ImagioUsers = imagionary_users(),
     [ begin 
-        {Id,Name,Surname} = lists:nth(N,ImagioUsers),
+        {Id,Name,Surname,Sex} = lists:nth(N,ImagioUsers),
         U = #user{  username = Id,
                     id = Id,
                     names = Name,
+                    sex = Sex,
                     surnames = Surname,
                     birth={1981,9,29} }, kvs:put(U) end || N <- lists:seq(A, B) ].
 
 virtual_users() ->
-    case kvs:get(user,<<"maxim@synrc.com">>) of
-        {aborted,_} -> kvs:join(), kvs:init_db(),
-                create_users(1,100), kvs:put(#user{id= <<"maxim@synrc.com">>});
-        _ -> skip end,
+    case kvs:get(user,<<"imam@synrc.com">>) of
+        {ok,_} -> skip;
+        _ -> kvs:join(), create_users(1,100), kvs:put(#user{id= <<"imam@synrc.com">>}) end,
 
     AllUsers = imagionary_users(),
-    F = fun({UserId,_,_}, Acc) ->
+    F = fun({UserId,_,_,Sex}, Acc) ->
         User = auth_server:get_user_info_by_user_id(UserId),
         case User of
                     {error,_} -> Acc;

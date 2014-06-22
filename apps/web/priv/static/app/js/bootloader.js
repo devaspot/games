@@ -9,14 +9,16 @@ var color = ['#DE3F26','#606060','#48AF5E','#FFC800'];
 function parseUInt(x) { return x < 0 ?
     (x > -128 ? x & 255 >>> 0 : (x > -32768 ? x & 65535 >>> 0 : x >>> 0)) : x; }
 
-function statsRow(start_x,start_y,i,games) {
+function statsRow(start_x,start_y,i,games,iter) {
     var name = template_engine(
         '<tspan xmlns="http://www.w3.org/2000/svg" x="{this.x}" y="{this.y}">{this.body}</tspan>',{
             x: start_x,
-            y: start_y+25*i,
-            body: games[i].value[0][0] + " — " + parseUInt(games[i].value[0][1])});
+            y: start_y+25*iter,
+            body: i18n(games[i].value[0][0].value) + " — " + parseUInt(games[i].value[0][1])});
     var element1 = svg(name);
-    document.getElementById('Stat-Right').appendChild(element1);
+    if (locale.tr[games[i].value[0][0].value]) {
+        document.getElementById('Stat-Right').appendChild(element1); 
+        return iter+1; } else return iter;
 }
 
 function gameresultRow(start_x,start_y,i,results) {
@@ -29,7 +31,7 @@ function gameresultRow(start_x,start_y,i,results) {
      '<tspan xmlns="http://www.w3.org/2000/svg" x="{this.x}" y="{this.y}">{this.body}</tspan>',{
             x: start_x,
             y: start_y+30*i,
-            body: utf8decode(name) + " — " + round + "/" + total}); 
+            body: utf8decode(name) + "  " + round + "/" + total}); 
     var element1 = svg(name);
     document.getElementById('Overlay-Results').appendChild(element1);
 }
@@ -98,7 +100,9 @@ function PatchSVG()
             document.getElementById(x).style.cursor = "pointer";
             document.getElementById(x).onclick = showOnlineList; });
 
-    [ "Flag-tr", "Flag-en" ].map(function(x) { document.getElementById(x).onclick = translateScene; });
+    [ "Flag-tr", "Flag-en" ].map(function(x) {
+        document.getElementById(x).onclick = function() {
+            switchLanguage(); translateScene(); } });
 
     var rulesOnClick = [
         "Rules",
@@ -120,7 +124,8 @@ function PatchSVG()
     Core(DeckScope);
     Core(RosterScope);
 
-    $("#Flag-en").hide();
+    if (currentLanguage() != "en") $("#Flag-en").hide();
+
     translateScene();
 
     initDiscards();
@@ -142,43 +147,6 @@ function PatchSVG()
 
 //    document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
     $svg.attr({preserveAspectRatio:"xMidYMid meet",width:"100%",height:"100%"});
-}
-
-function translateScene(e)
-{
-    if (currentLocale == "tr")
-    {
-        $("#Flag-tr").hide();
-        $("#Flag-en").show();
-        currentLocale = "en";
-    } else {
-        $("#Flag-en").hide();
-        $("#Flag-tr").show();
-        currentLocale = "tr";
-    }
-
-    document.getElementById("Users-Online-Message").firstElementChild.textContent = i18n("Online");
-    try {
-    document.getElementById("OnlineChatEditor").firstElementChild.textContent = i18n("EditMessage");
-    document.getElementById("GameChatEditor").firstElementChild.textContent = i18n("EditMessage");
-    } catch (e) { console.log("Please add foreignObjects to schene from SVG.txt"); }
-    $("#Point-Table").find("text")[0].lastElementChild.textContent = i18n("Statistics");
-    $("#Rules").find("text")[0].lastElementChild.textContent = i18n("Rules");
-    $("#Login-Text")[0].lastElementChild.textContent = i18n("Login");
-    $("#Kakush")[0].lastElementChild.textContent = i18n("Kakush") + ": " + 0;
-
-    $("#Gabrielo-Discard-Shape").hide();
-    $("#Center-Card-Selection").hide();
-    $("#You-Discard-Shape").hide();
-
-    $('#Facebook-Login').on('click',function(x) { fb_login(); });
-    $('#Facebook-Login').attr({cursor:'pointer'});
-    $('#Login-Text')[0].style.cursor = 'pointer';
-
-//    $("#Okey").hide();
-    $("#Okey").on("click", sendSawOkey);
-//    $("#Have-8-Tashes").hide();
-
 }
 
 function sendSawOkey()
@@ -227,6 +195,7 @@ function showRules()
             rules.setAttribute('transform', 'translate(210,86)');
             rules.setAttribute('onclick', 'onRulesClose(evt)');
         }
+        translateScene();
         rules.style.display = 'block';
     });
 }
@@ -318,7 +287,7 @@ function initPauseOverlay() {
         '<rect x="216" y="91" stroke-width="0" stroke="red" width="641" height="367" rx="6" fill="skyblue" opacity="0.9"></rect>'+
         '<g>'+
         '<text id="Overlay-Results" fill="white" font-family="Exo 2" font-size="20pt"></text>'+
-        '<text id="Overlay-Text" fill="white" font-family="Exo 2" y="280" x="-116" text-anchor="middle" dx="641" font-size="30pt"> Someone paused the game</text></g>'+
+        '<text id="Overlay-Text" fill="white" font-family="Exo 2" y="280" x="-116" text-anchor="middle" dx="641" font-size="30pt"> Someone '+i18n("Paused")+'</text></g>'+
         '</g>';
     var page = document.getElementById("Kakaranet-Scene");
     var kakush = document.getElementById("Kakush");
@@ -352,7 +321,7 @@ function hideOverlay()
 function denyWrongReveal() {
     $overlay.show();
     $("#RevealDeck").empty();
-    $("#Overlay-Text").text("Wrong reveal. Try next time.");
+    $("#Overlay-Text").text(i18n("WrongReveal"));
 }
 
 function showRevealHand(o) {
@@ -388,7 +357,7 @@ function showRevealHand(o) {
     });
 
     $overlay.show();
-    $("#Overlay-Text").text(utf8decode(player) + " revealed ");
+    $("#Overlay-Text").text(utf8decode(player) + " " + i18n("Revealed"));
 
 }
 

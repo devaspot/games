@@ -48,7 +48,7 @@ handle_call({get_user_info, Token}, _From, #state{tokens = E} = State) ->
             Reply = case user_info(UserId) of
                 {error, not_found} ->
                     gas:info(?MODULE,"User is not in DB", []),
-                    user_info(#user{id = UserId });
+                    user_info(#user{id = UserId, names= UserId, surnames = <<>> });
                 UserInfo ->
                     gas:info(?MODULE,"Registered User", []),
                     UserInfo
@@ -80,14 +80,14 @@ player_name(#'PlayerInfo'{login = Id, name = Name, surname = Surname}) ->
 
 user_info(#user{}=UserData) ->
 %    gas:info(?MODULE,"PlayerInfo by #user: ~p",[UserData]),
-    #'PlayerInfo'{id = wf:to_binary(UserData#user.id),
+    #'PlayerInfo'{id = UserData#user.id,
         login = UserData#user.username,
         name = UserData#user.names,
         sex = UserData#user.sex,
-        avatar_url = wf:to_binary(UserData#user.avatar),
-        skill = 0,
-        score = 0,
-        surname = wf:to_binary(UserData#user.surnames)};
+        avatar_url = UserData#user.avatar,
+        skill = proplists:get_value(skill,UserData#user.tokens,0),
+        score = proplists:get_value(score,UserData#user.tokens,0),
+        surname = UserData#user.surnames};
 
 
 user_info(UserId) ->
