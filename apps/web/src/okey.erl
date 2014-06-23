@@ -194,7 +194,7 @@ event({user_offline,User}) ->
     Names = User#user.names,
     Surnames = User#user.surnames,
     Score = score(User),
-    self() ! {server,{online,Id,Names,Surnames,integer_to_binary(Score)}};
+    self() ! {server,{offline,Id,Names,Surnames,integer_to_binary(Score)}};
 
 event({register,User}) ->
     wf:info(?MODULE,"Register: ~p",[User]),
