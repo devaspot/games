@@ -32,7 +32,6 @@ function PostLoad()
     function removeFadeOut() { $(this).off(document.createTouch ? "touchend" : "mouseup", fadeOut); }
     function pileClick(e) {
         e.stopPropagation();
-        scope.centralCard.off("dblclick", pileClick);
         scope.centralCard.dragHandler.disable(),
         scope.centralCard.$el
           .off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
@@ -168,7 +167,9 @@ function PostLoad()
 
             playerTurn = !1,
             scope.centralCard.dragHandler.disable(),
-            scope.centralCard.$el.off(document.createTouch ? "touchstart" : "mousedown", fadeIn).off(document.createTouch ? "touchend" : "mouseup", fadeOut);
+            scope.centralCard.$el
+              .off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
+              .off(document.createTouch ? "touchend" : "mouseup", fadeOut);
         }
     });
 
