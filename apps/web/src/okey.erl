@@ -89,7 +89,8 @@ send_roster(Pid) ->
     X = [ begin
        {User#user.id,User#user.names,User#user.surnames,integer_to_binary(score(User))}
        end || User=#user{tokens=Tokens} <- kvs:all(user), Tokens /= [], Tokens /= undefined, proplists:get_value(score,Tokens,0) /= 0],
-    XS = lists:sort(fun({_,_,_,S1},{_,_,_,S2}) -> S1 > S2 end,X),
+    XS = lists:sort(fun({_,_,_,S1},{_,_,_,S2}) -> 
+         binary_to_integer(S1) > binary_to_integer(S2) end,X),
     Lists = [lists:sublist(XS,100)], %split(170,XS,[]),
     [ send_roster_group(Pid,List) || List <- Lists],
     Pid ! {server,{roster_end,length(Lists)}},
