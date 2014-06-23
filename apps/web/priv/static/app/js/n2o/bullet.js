@@ -13,64 +13,8 @@ function bullet(url) {
             if (window.MozWebSocket) { transport = window.MozWebSocket; }
             if (transport) { return {'heart': true, 'transport': transport}; }
             return null;
-        },
-
-        xhrPolling: function() {
-            var timeout;
-            var xhr;
-
-            nextPoll();
-
-            var fake = {
-                readyState: CONNECTING,
-
-                receive: function(data) {
-                    if (fake.readyState == CONNECTING) { fake.readyState = OPEN; fake.onopen(fake); }
-                    if (data.length != 0) { fake.onmessage({'data': data }); }
-                    if (fake.readyState == OPEN) { nextPoll(); }
-                },
-
-                send: function(data) {
-                    if (this.readyState != CONNECTING && this.readyState != OPEN) return false;
-                    var fakeurl = url.replace('ws:', 'http:').replace('wss:', 'https:');
-                    var request = new XMLHttpRequest();
-                    request.open('POST',fakeurl,true);
-                    request.setRequestHeader('Content-Type',
-                        'application/x-www-form-urlencoded; charset=utf-8');
-                    request.setRequestHeader('X-Socket-Transport','xhrPolling');
-                    request.onload = function() { fake.receive(request.response); }
-                    request.send(data);
-                    return true;
-                },
-                close: function(){
-                    this.readyState = CLOSED;
-                    xhr.abort();
-                    clearTimeout(timeout);
-                    fake.onclose();
-                },
-                onopen: function(){},
-                onmessage: function(){},
-                onerror: function(){},
-                onclose: function(){}
-            };
-
-            function poll(pooling){
-                var fakeurl = url.replace('ws:', 'http:').replace('wss:', 'https:');
-                var request = new XMLHttpRequest();
-                request.open('GET',fakeurl,true);
-                request.setRequestHeader('Content-Type',
-                    'application/x-www-form-urlencoded; charset=utf-8');
-                request.setRequestHeader('X-Socket-Transport','xhrPolling');
-                request.onload = function() { fake.receive(request.response); }
-                request.onerror = function() { fake.onerror(); }
-                request.send({});
-            }
-
-            function nextPoll() { timeout = setTimeout(function(){poll();}, 1000); }
-
-
-            return {'heart': false, 'transport': function(){ return fake; fake.nextPoll(); }};
         }
+
     };
 
     var tn = 0;
