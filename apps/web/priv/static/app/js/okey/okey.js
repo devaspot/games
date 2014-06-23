@@ -31,7 +31,6 @@ function PostLoad()
     function addFadeOut()    { $(this).on (document.createTouch ? "touchend" : "mouseup", fadeOut); }
     function removeFadeOut() { $(this).off(document.createTouch ? "touchend" : "mouseup", fadeOut); }
     function pileClick() {
-        scope.centralCard.$el.off("dblclick", pileClick);
         scope.apiProvider.actionTake(scope.centralCard);
     }
 
@@ -63,8 +62,9 @@ function PostLoad()
             scope.apiProvider.actionDiscard(e.detail.card) }),
 
         scope.centralCard.off("dragmove", removeFadeOut)
-                   .off("dragstop", addFadeOut)
-                   .off("revert", fadeOut),
+                         .off("dragstop", addFadeOut)
+                         .off("revert", fadeOut)
+                         .off("dblclick", pileClick),
 
         ~scope.playersLeftHandsMap[scope.user].cards.indexOf(e.detail.card) &&
         scope.playersLeftHandsMap[scope.user].pop(),
