@@ -83,6 +83,7 @@ function translateScene(e)
         $("#Okey-Rules-Text")[0].lastElementChild.textContent = i18n("OkeyRules");
         $("#Pair")[0].lastElementChild.textContent = i18n("Pair");
         $("#Set")[0].lastElementChild.textContent = i18n("Set");
+        $("#Fake-Joker")[0].lastElementChild.textContent = i18n("FakeJoker");
         $("#Run")[0].lastElementChild.textContent = i18n("Run");
         $("#Winning-Deck")[0].lastElementChild.textContent = i18n("WinningDeck");
     if (currentLanguage() == "en") { $("#Turkish-Rules").hide(); $("#English-Rules").show(); } 
