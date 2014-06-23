@@ -370,7 +370,7 @@ check_reveal([TopRow, BottomRow], Gosterge) ->
     Okey = gosterge_to_okey(Gosterge),
     Normalized = [case E of
                       Okey -> okey;
-                      false_okey -> okey;
+                      false_okey -> Okey;
                        _ -> E
                   end || E <- FlatList],
     gas:info(?MODULE,"check_reveal/2 ~n    ~p ~p~n",[Normalized, Gosterge]), 

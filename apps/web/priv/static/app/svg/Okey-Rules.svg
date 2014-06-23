@@ -88,24 +88,24 @@
                 <g id="1x5-Red-Run" transform="translate(321.000000, 1.000000)">
                     <g id="Slot-1,1-17" transform="translate(66.000000, 0.000000)">
                         <rect id="Shape" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="32" height="46" rx="8"></rect>
-                        <path d="M16.1794872,38.6551724 C19.1250058,38.6551724 21.5128205,36.3471231 21.5128205,33.5 C21.5128205,30.6528769 19.1250058,28.3448276 16.1794872,28.3448276 C13.2339685,28.3448276 10.8461538,30.6528769 10.8461538,33.5 C10.8461538,36.3471231 13.2339685,38.6551724 16.1794872,38.6551724 L16.1794872,38.6551724 Z" id="Oval-23" fill="#48AF5E" sketch:type="MSShapeGroup"></path>
-                        <text id="11" sketch:type="MSTextLayer" font-family="Exo 2" font-size="16.0113717" font-weight="bold" fill="#48AF5E">
+                        <path d="M16.1794872,38.6551724 C19.1250058,38.6551724 21.5128205,36.3471231 21.5128205,33.5 C21.5128205,30.6528769 19.1250058,28.3448276 16.1794872,28.3448276 C13.2339685,28.3448276 10.8461538,30.6528769 10.8461538,33.5 C10.8461538,36.3471231 13.2339685,38.6551724 16.1794872,38.6551724 L16.1794872,38.6551724 Z" id="Oval-23" fill="#CE290F" sketch:type="MSShapeGroup"></path>
+                        <text id="11" sketch:type="MSTextLayer" font-family="Exo 2" font-size="16.0113717" font-weight="bold" fill="#D0011B">
                             <tspan x="8.74003405" y="20.1361222">11</tspan>
                         </text>
                     </g>
                     <g id="Slot-1,1-14" transform="translate(33.000000, 0.000000)">
                         <rect id="Shape" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="32" height="46" rx="8"></rect>
-                        <path d="M15.1794872,39.6551724 C18.1250058,39.6551724 20.5128205,37.3471231 20.5128205,34.5 C20.5128205,31.6528769 18.1250058,29.3448276 15.1794872,29.3448276 C12.2339685,29.3448276 9.8461538,31.6528769 9.8461538,34.5 C9.8461538,37.3471231 12.2339685,39.6551724 15.1794872,39.6551724 L15.1794872,39.6551724 Z" id="Oval-23" fill="#48AF5E" sketch:type="MSShapeGroup"></path>
-                        <text id="12" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="16.0113717" font-weight="bold" fill="#48AF5E">
+                        <path d="M15.1794872,39.6551724 C18.1250058,39.6551724 20.5128205,37.3471231 20.5128205,34.5 C20.5128205,31.6528769 18.1250058,29.3448276 15.1794872,29.3448276 C12.2339685,29.3448276 9.8461538,31.6528769 9.8461538,34.5 C9.8461538,37.3471231 12.2339685,39.6551724 15.1794872,39.6551724 L15.1794872,39.6551724 Z" id="Oval-23" fill="#CE290F" sketch:type="MSShapeGroup"></path>
+                        <text id="12" sketch:type="MSTextLayer" font-family="Lucida Grande" font-size="16.0113717" font-weight="bold" fill="#D0011B">
                             <tspan x="4.62586344" y="20.1361222">12</tspan>
                         </text>
                     </g>
                     <g id="Slot-1,1-18">
                         <rect id="Shape" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="32" height="46" rx="8"></rect>
-                        <text id="13" sketch:type="MSTextLayer" font-family="Exo 2" font-size="16.0113717" font-weight="bold" fill="#48AF5E">
+                        <text id="13" sketch:type="MSTextLayer" font-family="Exo 2" font-size="16.0113717" font-weight="bold" fill="#D0011B">
                             <tspan x="7.74003405" y="20.1361222">13</tspan>
                         </text>
-                        <path d="M16.1794872,38.6551724 C19.1250058,38.6551724 21.5128205,36.3471231 21.5128205,33.5 C21.5128205,30.6528769 19.1250058,28.3448276 16.1794872,28.3448276 C13.2339685,28.3448276 10.8461538,30.6528769 10.8461538,33.5 C10.8461538,36.3471231 13.2339685,38.6551724 16.1794872,38.6551724 L16.1794872,38.6551724 Z" id="Oval-23" fill="#48AF5E" sketch:type="MSShapeGroup"></path>
+                        <path d="M16.1794872,38.6551724 C19.1250058,38.6551724 21.5128205,36.3471231 21.5128205,33.5 C21.5128205,30.6528769 19.1250058,28.3448276 16.1794872,28.3448276 C13.2339685,28.3448276 10.8461538,30.6528769 10.8461538,33.5 C10.8461538,36.3471231 13.2339685,38.6551724 16.1794872,38.6551724 L16.1794872,38.6551724 Z" id="Oval-23" fill="#CE290F" sketch:type="MSShapeGroup"></path>
                     </g>
                     <g id="Slot-1,1-15" transform="translate(99.000000, 0.000000)">
                         <rect id="Shape" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="32" height="46" rx="8"></rect>
@@ -116,12 +116,12 @@
                     </g>
                     <g id="Slot-1,1-16" transform="translate(132.000000, 0.000000)">
                         <rect id="Shape" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="32" height="46" rx="8"></rect>
-                        <path d="M16.1794872,39.6551724 C19.1250058,39.6551724 21.5128205,37.3471231 21.5128205,34.5 C21.5128205,31.6528769 19.1250058,29.3448276 16.1794872,29.3448276 C13.2339685,29.3448276 10.8461539,31.6528769 10.8461539,34.5 C10.8461539,37.3471231 13.2339685,39.6551724 16.1794872,39.6551724 L16.1794872,39.6551724 Z" id="Oval-23" fill="#48AF5E" sketch:type="MSShapeGroup"></path>
-                        <text id="9" sketch:type="MSTextLayer" font-family="Exo 2" font-size="16.0113717" font-weight="bold" fill="#48AF5E">
+                        <path d="M16.1794872,39.6551724 C19.1250058,39.6551724 21.5128205,37.3471231 21.5128205,34.5 C21.5128205,31.6528769 19.1250058,29.3448276 16.1794872,29.3448276 C13.2339685,29.3448276 10.8461539,31.6528769 10.8461539,34.5 C10.8461539,37.3471231 13.2339685,39.6551724 16.1794872,39.6551724 L16.1794872,39.6551724 Z" id="Oval-23" fill="#CE290F" sketch:type="MSShapeGroup"></path>
+                        <text id="9" sketch:type="MSTextLayer" font-family="Exo 2" font-size="16.0113717" font-weight="bold" fill="#D0011B">
                             <tspan x="11.6648888" y="19.7657996">9</tspan>
                         </text>
                     </g>
-                    <g id="Jocker-Run" transform="translate(33.000000, 0.000000)">
+                    <g id="Jocker-Run" transform="translate(99.000000, 0.000000)">
                         <rect id="Shape" fill="#FFFFFF" sketch:type="MSShapeGroup" x="0" y="0" width="32" height="46" rx="8"></rect>
                         <text id="❦" sketch:type="MSTextLayer" font-family="Zapf Dingbats" font-size="26" font-weight="normal" fill="#517ECE">
                             <tspan x="5.7101375" y="31.2222222">❦</tspan>
