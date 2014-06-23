@@ -54,13 +54,11 @@ function CardScope(scope) {
                 this.$text.show().attr({fill: this.color,"font-size":"26pt",y:42}).text("❦");
             } else if (scope.gosterme != null && scope.gosterme.color == this.color &&
                 (scope.gosterme.value == this.value-1 ||
-                 (scope.gosterme.value == 13 && this.value == 1)))
+                 (scope.gosterme.value == 13 && this.value == 1)) && localStorage.getItem("showRealJoker") == "true")
             {
                 this.$circle.hide();
                 this.$joker.show().attr({fill: this.color,"font-size":"20pt",y:52}).text("❦");
-//                this.$circle.show().attr("fill", this.color);
                 this.$text.show().attr("fill", this.color).text(this.value);
-//                this.$text.show().attr({fill: this.color,"font-size":"16pt",y:26}).text("❦");
             } else {
                 this.$circle.show().attr("fill", this.color);
                 this.$text.show().attr("fill", this.color).text(this.value);
