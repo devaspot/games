@@ -47,7 +47,7 @@ ensure_sid(State, Ctx) ->
     wf:info(?MODULE,"State: ~p",[SessionCookie]),
     {ok, State, Ctx#context{session=SessionCookie}}.
 
-expired(_Issued,{_TTL,Till}) -> Till < calendar:now_to_datetime(now()).
+expired(_Issued,{_TTL,Till}) -> false. % Till < calendar:now_to_datetime(now()).
 
 lookup_ets(Key) ->
     Res = ets:lookup(cookies,Key),
