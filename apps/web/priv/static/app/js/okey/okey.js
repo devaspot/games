@@ -30,7 +30,13 @@ function PostLoad()
     function fadeIn()        { $(this).animate({ attributeName: "opacity", from: 0, to: 1, dur: .3}); }
     function addFadeOut()    { $(this).on (document.createTouch ? "touchend" : "mouseup", fadeOut); }
     function removeFadeOut() { $(this).off(document.createTouch ? "touchend" : "mouseup", fadeOut); }
-    function pileClick() {
+    function pileClick(e) {
+        e.stopPropagation();
+        scope.centralCard.off("dblclick", pileClick);
+        scope.centralCard.dragHandler.disable(),
+        scope.centralCard.$el
+          .off(document.createTouch ? "touchstart" : "mousedown", fadeIn)
+          .off(document.createTouch ? "touchend" : "mouseup", fadeOut);
         scope.apiProvider.actionTake(scope.centralCard);
     }
 
@@ -46,10 +52,13 @@ function PostLoad()
             .on("dragmove", scope.deck.track)
             .on("revert",   fadeOut);
 
-        scope.centralCard.$el.doubletap(pileClick);
+  
         scope.deck.$el.append(scope.centralCard.$el[0]);
         scope.centralCard.drag();
         scope.centralCard.dragHandler.enable();
+
+        scope.centralCard.$el.doubletap(pileClick);
+
     }
 
 
@@ -63,8 +72,7 @@ function PostLoad()
 
         scope.centralCard.off("dragmove", removeFadeOut)
                          .off("dragstop", addFadeOut)
-                         .off("revert", fadeOut)
-                         .off("dblclick", pileClick),
+                         .off("revert", fadeOut),
 
         ~scope.playersLeftHandsMap[scope.user].cards.indexOf(e.detail.card) &&
         scope.playersLeftHandsMap[scope.user].pop(),

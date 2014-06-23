@@ -9,7 +9,7 @@ utf8 = { toByteArray: utf8toByteArray };
             status: true, cookie: true, xfbml: true, oauth: true });
 
   FB.getLoginStatus(function(response) {
-    if(setFbIframe){
+    if(typeof setFbIframe == "function"){
       var inIframe= top!=self;
       setFbIframe(inIframe);
       if(inIframe && response.status == 'connected' && fbLogin)
