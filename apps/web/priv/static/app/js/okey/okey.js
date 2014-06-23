@@ -30,6 +30,10 @@ function PostLoad()
     function fadeIn()        { $(this).animate({ attributeName: "opacity", from: 0, to: 1, dur: .3}); }
     function addFadeOut()    { $(this).on (document.createTouch ? "touchend" : "mouseup", fadeOut); }
     function removeFadeOut() { $(this).off(document.createTouch ? "touchend" : "mouseup", fadeOut); }
+    function pileClick() {
+        scope.centralCard.$el.off("dblclick", pileClick);
+        scope.apiProvider.actionTake(scope.centralCard);
+    }
 
     function createCentralCard() {
         scope.centralCard = new scope.Card(),
@@ -43,7 +47,7 @@ function PostLoad()
             .on("dragmove", scope.deck.track)
             .on("revert",   fadeOut);
 
-        scope.centralCard.$el.doubletap(function() { scope.apiProvider.actionTake(scope.centralCard) });
+        scope.centralCard.$el.doubletap(pileClick);
         scope.deck.$el.append(scope.centralCard.$el[0]);
         scope.centralCard.drag();
         scope.centralCard.dragHandler.enable();
