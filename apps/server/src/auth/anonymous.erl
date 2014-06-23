@@ -41,21 +41,42 @@ imagionary_users() ->
     end || SX<-names(), Y<-surnames()],
     lists:keysort(1,List).
 
-tru($ü) -> $Ü;
-tru($ş) -> $Ş;
-tru($ö) -> $Ö;
-tru($ı) -> $İ;
-tru($ğ) -> $Ğ;
-tru($ç) -> $Ç;
+% Erlang R16
+
+tru(252) -> 220; % $ü -> $Ü
+tru(351) -> 350; % $ş -> $Ş
+tru(246) -> 214; % $ö -> $Ö
+tru(305) -> 304; % $ı -> $İ
+tru(287) -> 286; % $ğ -> $Ğ
+tru(231) -> 199; % $ç -> $Ç
 tru(Ch) -> string:to_upper(Ch).
 
-tr2en($ü) -> $u;
-tr2en($ö) -> $o;
-tr2en($ç) -> $c;
-tr2en($ı) -> $i;
-tr2en($ş) -> $u;
-tr2en($ğ) -> $g;
+tr2en(252) -> $u;
+tr2en(246) -> $o;
+tr2en(231) -> $c;
+tr2en(305) -> $i;
+tr2en(351) -> $s;
+tr2en(252) -> $u;
+tr2en(287) -> $g;
 tr2en(Sym) -> Sym.
+
+% Erlang R17
+
+%tru($ü) -> $Ü;
+%tru($ş) -> $Ş;
+%tru($ö) -> $Ö;
+%tru($ı) -> $İ;
+%tru($ğ) -> $Ğ;
+%tru($ç) -> $Ç;
+%tru(Ch) -> string:to_upper(Ch).
+
+%tr2en($ü) -> $u;
+%tr2en($ö) -> $o;
+%tr2en($ç) -> $c;
+%tr2en($ı) -> $i;
+%tr2en($ş) -> $u;
+%tr2en($ğ) -> $g;
+%tr2en(Sym) -> Sym.
 
 fake_id() ->
     FakeUsers = imagionary_users(),

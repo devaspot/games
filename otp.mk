@@ -16,7 +16,7 @@ relx     := "{release,{$(RELEASE),\"$(VER)\"},[$(RELEASE)]}.\\n{include_erts,tru
 \\n{vm_args,\"$(VM)\"}.\\n{overlay,[{mkdir,\"log/sasl\"}]}."
 
 test: eunit ct
-compile: get-deps static-link
+compile: get-deps
 delete-deps get-deps compile update-deps:
 	rebar $@
 clean:
