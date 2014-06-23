@@ -318,7 +318,7 @@ function hideOverlay()
 
 function denyWrongReveal() {
     $overlay.show();
-    $("#RevealDeck").empty();
+    $("#RevealDeck").hide();
     $("#Overlay-Text").text(i18n("WrongReveal"));
 }
 
