@@ -413,15 +413,15 @@ function relayout()
 
 //        $("#Chat")           .attr({x:0,transform:"translate("+(rightPosition)+" 0)",width:barwidth+206});
         $("#Right-Bar")      .attr({x:0,transform:"translate("+(rightPosition)+" 0)",width:barwidth+218});
-        $("#Clip-Path-Right").attr({x:0,transform:"translate("+(rightPosition)+" 0)",width:"100%"});
+        $("#Clip-Path-Right").attr({x:0,transform:"translate("+(rightPosition)+" 0)",width:barwidth+206});
 
         $("#Online-Users").attr({transform:"translate("+(-globalShiftX+10)+" 20)"});
         $("#Facebook-Login").attr({transform:"translate("+(rightPosition+(barwidth+216)-150)+" 20)"});
 
 //        $("#Online-List").attr({x:0,transform:"translate("+(-globalShiftX)+" 100)",width:barwidth+206});
         $("#Left-Bar")           .attr({x:0,transform:"translate("+(-globalShiftX)+" 0)",  width:barwidth+216});
-        $("#Clip-Path-Left")     .attr({x:0,transform:"translate("+(-globalShiftX)+" 100)",width:"100%"});
-        $("#Clip-Path-Left-Chat").attr({x:0,transform:"translate("+(-globalShiftX)+" 0)",width:"100%"});
+        $("#Clip-Path-Left")     .attr({x:0,transform:"translate("+(-globalShiftX)+" 100)",width:barwidth+206});
+        $("#Clip-Path-Left-Chat").attr({x:0,transform:"translate("+(-globalShiftX)+" 0)",width:barwidth+206});
 
         onlineHover();
         mouseWheelHandler({'detail':0,'wheelDelta':0});
