@@ -124,6 +124,8 @@ function PatchSVG()
 
     if (currentLanguage() != "en") $("#Flag-en").hide();
 
+    localStorage.setItem("adaptiveDesign","true");
+
     translateScene();
 
     initDiscards();
@@ -447,9 +449,11 @@ function relayout()
 
 }
 
+
 if (adaptiveDesign())
 {
     $(window).on("orientationchange", relayout);
     $(window).on("resize", relayout);
     relayout();
 }
+
