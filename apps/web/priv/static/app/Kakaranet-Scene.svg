@@ -536,13 +536,13 @@
         </g>
     </g>
 
-    <foreignObject id="GameChatEditor" x="864" y="504" width="198" height="120" onmouseover="barHover(evt);" onmouseout="barHoverOut(evt);">
+    <foreignObject id="GameChatEditor" x="864" y="504" width="196" height="120" onmouseover="barHover(evt);" onmouseout="barHoverOut(evt);">
         <div xmlns:data="Chat" id="edit" contentEditable="true"
           style="min-height:21px;padding:4px;background-color:#FFF687;color:#3B5998;font-family:'Exo 2';font-size:16px;"
         xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div>
     </foreignObject>
 
-    <foreignObject id="OnlineChatEditor" x="10" y="504" width="198" height="120" onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);">
+    <foreignObject id="OnlineChatEditor" x="10" y="504" width="196" height="120" onmouseover="onlineHover(evt);" onmouseout="onlineHoverOut(evt);">
         <div xmlns:data="Chat+xxx" contentEditable="true" id="onlineChatEdit"
           style="min-height:21px;padding:4px;background-color:#FFF687;color:#3B5998;font-family:'Exo 2';font-size:16px;"
          xmlns="http://www.w3.org/1999/xhtml">Write here some text.</div>

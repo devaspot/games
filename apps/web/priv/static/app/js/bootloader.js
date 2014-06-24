@@ -362,9 +362,9 @@ function manualForeignObjectPositioning()
         shiftY = 0;
         shiftX = (innerWidth - realX) / 2;
 
-        globalShiftX = shiftX > 30 ? shiftX - 20 : 0;
+        globalShiftX = adaptiveDesign() ? (shiftX > 30 ? shiftX - 20 : 0) : 0;
         barwidth = scope.fixedChatBars ? 0 : globalShiftX;
-        rightPosition = svgWidth+globalShiftX-(barwidth+206);
+        rightPosition = adaptiveDesign() ? (svgWidth+globalShiftX-(barwidth+206)) : 866 ;
 
     } else  {
 //      console.log("Top and Bottom White Spaces. Do reorient, or adopt the Height.");
@@ -374,13 +374,13 @@ function manualForeignObjectPositioning()
 
     $("#GameChatEditor").attr({x: rightPosition * realX / svgWidth + shiftX,
                                y: 504 * realY / svgHeight + shiftY,
-                               width: 198 * realX / svgWidth,
+                               width: 196 * realX / svgWidth,
                                height: 120 * realY / svgHeight});
 
-    $("#OnlineChatEditor").attr({x: 7 * realX / svgWidth + shiftX - 
+    $("#OnlineChatEditor").attr({x: 10 * realX / svgWidth + shiftX - 
                                    globalShiftX * realX / svgWidth,
                                y: 504 * realY / svgHeight + shiftY,
-                               width: 198 * realX / svgWidth,
+                               width: 196 * realX / svgWidth,
                                height: 120 * realY / svgHeight});
 }
 
@@ -412,16 +412,16 @@ function relayout()
         globalRightPosition = rightPosition;
 
 //        $("#Chat")           .attr({x:0,transform:"translate("+(rightPosition)+" 0)",width:barwidth+206});
-        $("#Right-Bar")      .attr({x:0,transform:"translate("+(rightPosition)+" 0)",width:barwidth+218});
-        $("#Clip-Path-Right").attr({x:0,transform:"translate("+(rightPosition)+" 0)",width:barwidth+206});
+        $("#Right-Bar")      .attr({x:0,transform:"translate("+(rightPosition)+" 0)",width:barwidth+216});
+        $("#Clip-Path-Right").attr({x:0,transform:"translate("+(rightPosition)+" 0)",width:barwidth+216});
 
         $("#Online-Users").attr({transform:"translate("+(-globalShiftX+10)+" 20)"});
         $("#Facebook-Login").attr({transform:"translate("+(rightPosition+(barwidth+216)-150)+" 20)"});
 
 //        $("#Online-List").attr({x:0,transform:"translate("+(-globalShiftX)+" 100)",width:barwidth+206});
         $("#Left-Bar")           .attr({x:0,transform:"translate("+(-globalShiftX)+" 0)",  width:barwidth+216});
-        $("#Clip-Path-Left")     .attr({x:0,transform:"translate("+(-globalShiftX)+" 100)",width:barwidth+206});
-        $("#Clip-Path-Left-Chat").attr({x:0,transform:"translate("+(-globalShiftX)+" 0)",width:barwidth+206});
+        $("#Clip-Path-Left")     .attr({x:0,transform:"translate("+(-globalShiftX)+" 100)",width:barwidth+216});
+        $("#Clip-Path-Left-Chat").attr({x:0,transform:"translate("+(-globalShiftX)+" 0)",width:barwidth+216});
 
         onlineHover();
         mouseWheelHandler({'detail':0,'wheelDelta':0});
@@ -432,8 +432,8 @@ function relayout()
         barHoverOut();
         
         if (!isSafari()) {
-            $("#GameChatEditor").attr({x: 7+rightPosition});
-            $("#OnlineChatEditor").attr({x: 7-globalShiftX});
+            $("#GameChatEditor").attr({x: 10+rightPosition});
+            $("#OnlineChatEditor").attr({x: 10-globalShiftX});
         }
 
     } else  {

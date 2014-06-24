@@ -54,8 +54,9 @@ function mouseWheelHandler(e) {
 
 function chatMessage(chatName, id, me, string) {
     var i=0;
+    var d=10;
     var colors=['#FDFDFD','#DFF1F4'];
-    var x1 = 7;
+    var x1 = d;
     var y1 = 0;
     var container = chatName == "Chat" ? "Right-Bar" : "Left-Bar";
     var hover = chatName == "Chat" ? "barHover" : "onlineHover";
@@ -66,7 +67,7 @@ function chatMessage(chatName, id, me, string) {
     var x2 = 206; //$("#"+container).width();
     var textElement = chatText(container,id,me,string);
 //    var textElement = chatText(chatName,id,me,string);
-    var dy = translate_y == 0 ? 0 : translate_y + 10;
+    var dy = translate_y == 0 ? 0 : translate_y + d;
     var html = "<g xmlns='http://www.w3.org/2000/svg' " + 
         "id='Message-"+id+"' transform='translate("+
          0
@@ -80,13 +81,13 @@ function chatMessage(chatName, id, me, string) {
     var box = "<path xmlns:data='"+container+"' xmlns='http://www.w3.org/2000/svg' d='M"+x1+","+y1+
                 " L"+x2+","+y1+
             ((me == document.user) ?
-                (" L"+x2+","+parseFloat(y2-7)+
-                " L"+parseFloat(x2+7)+","+y2+
+                (" L"+x2+","+parseFloat(y2-d)+
+                " L"+parseFloat(x2+d)+","+y2+
                 " L"+x1+","+y2)
             :
                 (" L"+x2+","+y2+
                 " L"+0+","+y2+
-                " L"+x1+","+parseFloat(y2-7)))
+                " L"+x1+","+parseFloat(y2-d)))
         + " L"+x1+","+y1+"' fill='"+colors[me==document.user?1:0]+"'></path>";
     var boxElement = svg(box);
 //    textElement.setAttribute("xmlns:data",container);
