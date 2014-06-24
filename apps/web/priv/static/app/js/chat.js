@@ -8,21 +8,20 @@ var scroll_right = -10000;
 var currentChat = null;
 var user_count = 0;
 
-function barHover(evt) { document.getElementById("Right-Bar").setAttribute("fill","skyblue"); }
-function barHoverOut(evt) { document.getElementById("Right-Bar").setAttribute("fill","lightblue"); }
-function onlineHover(evt) { document.getElementById("Left-Bar").setAttribute("fill","skyblue"); }
-function onlineHoverOut(evt) { document.getElementById("Left-Bar").setAttribute("fill","lightblue"); }
+function barHover(evt)       { $("#Right-Bar").attr("fill","skyblue"); }
+function barHoverOut(evt)    { $("#Right-Bar").attr("fill","lightblue"); }
+function onlineHover(evt)    { $("#Left-Bar") .attr("fill","skyblue"); }
+function onlineHoverOut(evt) { $("#Left-Bar") .attr("fill","lightblue"); }
+
 function onlineHoverColor(evt) {
     onlineHover(evt);
     var name = evt.target.getAttribute("xmlns:data");
-    if (null != name) document.getElementById(name).setAttribute("fill","#FFF687");
-}
+    if (null != name) document.getElementById(name).setAttribute("fill","#FFF687"); }
+
 function onlineHoverOutColor(evt) { 
     onlineHoverOut(evt);
     var name = evt.target.getAttribute("xmlns:data");
-    if (null != name) document.getElementById(name).setAttribute("fill","#DBEBED");
-}
-
+    if (null != name) document.getElementById(name).setAttribute("fill","#DBEBED"); }
 
 function mouseWheelHandler(e) {
 
@@ -40,7 +39,9 @@ function mouseWheelHandler(e) {
     var scroll = parseFloat(scroll_dy) + parseFloat(ori);
     var selectedBar = leftActive ? (currentChat == null ? "Online-List" : currentChat) : "Chat";
     var selectedClip = leftActive ? (currentChat == null ? "Clip-Path-Left" : "Clip-Path-Left-Chat") : "Clip-Path-Right";
-    var selectedBarShift = leftActive ? -globalShiftX : 857;
+    var selectedBarShift = leftActive ? 
+        (adaptiveDesign()?-globalShiftX:0) :
+        (adaptiveDesign()?globalRightPosition:857);
     var limit = parseFloat(document.getElementById(selectedBar).getBBox().height) - 400;
     if (scroll > 5) scroll = 5;
     if (scroll < -limit) scroll = -limit;
@@ -54,18 +55,22 @@ function mouseWheelHandler(e) {
 function chatMessage(chatName, id, me, string) {
     var i=0;
     var colors=['#FDFDFD','#DFF1F4'];
-    var x1 = 10;
+    var x1 = 7;
     var y1 = 0;
     var container = chatName == "Chat" ? "Right-Bar" : "Left-Bar";
     var hover = chatName == "Chat" ? "barHover" : "onlineHover";
     var chatElement = document.getElementById(chatName);
     if (null == chatElement) createChat(chatName);
     var translate_y = parseFloat(document.getElementById(chatName).getBBox().height);
-    var x2 = 205; //$("#"+container).width()+25;
+    var containerX = $("#"+container).position().left;
+    var x2 = 206; //$("#"+container).width();
     var textElement = chatText(container,id,me,string);
+//    var textElement = chatText(chatName,id,me,string);
     var dy = translate_y == 0 ? 0 : translate_y + 10;
     var html = "<g xmlns='http://www.w3.org/2000/svg' " + 
-        "id='Message-"+id+"' transform='translate(0,"+dy+")'></g>";
+        "id='Message-"+id+"' transform='translate("+
+         0
+        +","+dy+")'></g>";
     var messageElement = svg(html);
     messageElement.appendChild(textElement);
     document.getElementById(chatName).appendChild(messageElement);
@@ -84,7 +89,8 @@ function chatMessage(chatName, id, me, string) {
                 " L"+x1+","+parseFloat(y2-7)))
         + " L"+x1+","+y1+"' fill='"+colors[me==document.user?1:0]+"'></path>";
     var boxElement = svg(box);
-    textElement.setAttribute("xmlns:data",container)
+//    textElement.setAttribute("xmlns:data",container);
+    textElement.setAttribute("xmlns:data",chatName);
     messageElement.insertBefore(boxElement,textElement);
     boxElement.setAttribute("mouseover",hover+"(evt);");
     boxElement.setAttribute("mouseout",hover+"Out(evt);");
@@ -144,7 +150,10 @@ function addOnlineUser(name,full_name,score,insertMode) {
     var y = (insertMode == "insertTop") ? 0 : listElement.getBBox().height;
     var html = '<g xmlns="http://www.w3.org/2000/svg" height="60" transform="translate(0, '+y+')">' +
             '<g xmlns:data="'+name+'" fill="#DBEBED" '+eventsColor+'>' +
-            '    <rect cursor="pointer" xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="'+(adaptiveDesign()?"100%":196)+'" height="48" ' +'>'+full_name+'</rect></g>' +
+            '    <rect cursor="pointer" xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'"'+
+            ' x="10" y="0" width="'+
+        (adaptiveDesign()?(scope.fixedChatBars?196:"100%"):196)+
+        '" height="48" ' +'>'+full_name+'</rect></g>' +
             '<text xmlns:data="'+name+'" '+eventsColor+' '+
             'font-family="Exo 2" font-size="18" cursor="pointer" font-weight="normal" line-spacing="18"'+
             ' fill="#3B5998">' +
@@ -182,7 +191,8 @@ function shiftTranslate(name,shiftValue) {
 function removeOnlineUser(name) { shiftTranslate(name.entag(),-1).remove(); }
 
 function createChat(chatName) {
-    var html = '<g xmlns="http://www.w3.org/2000/svg" id="'+chatName+'" y="0" clip-path="url(#myClip3)" transform="translate(1.000000, 107.000000)"></g>';
+    var html = '<g xmlns="http://www.w3.org/2000/svg" id="'+chatName+
+    '" y="0" clip-path="url(#myClip3)" transform="translate(1, 107.000000)"></g>';
     var settings = document.getElementById("Settings");
     document.getElementById("Kakaranet-Scene").insertBefore(svg(html),settings);
     document.getElementById(chatName).style.display = 'none';
@@ -209,6 +219,17 @@ function openChat(evt) {
     onlineHover();
     mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
     onlineHoverOut();
+}
+
+function openGameChat()
+{
+    chatMessage("Chat","0","Maxim","Kakaranet:\n"+i18n("GameChat"));
+    scroll_left = -1000000;
+
+    barHover();
+    mouseWheelHandler({'detail':-100000,'wheelDelta':-100000});
+    barHoverOut();
+
 }
 
 function create_multiline(target) {
@@ -251,16 +272,14 @@ function create_multiline(target) {
 function initChat()
 {
 
-    var inGameChat = '<g id="Chat"         y="0" clip-path="url(#myClip2)" transform="translate(857.000000, 107.000000)" xmlns="http://www.w3.org/2000/svg" />';
+    var inGameChat = '<g id="Chat"         x="10" y="0" clip-path="url(#myClip2)" transform="translate('+globalRightPosition+', 107.000000)" xmlns="http://www.w3.org/2000/svg" />';
     var onlineList = '<g id="Online-List"  x="10" y="0" clip-path="url(#myClip1)" transform="translate(7.000000, 107.000000)" xmlns="http://www.w3.org/2000/svg" />';
-    var onlineChat = '<g id="Online-Chat"  x="10" y="0" clip-path="url(#myClip3)" transform="translate(7.000000, 107.000000)" xmlns="http://www.w3.org/2000/svg" />';
 
     var page = document.getElementById("Kakaranet-Scene");
     var settings = document.getElementById("Settings");
 
     page.insertBefore(svg(inGameChat),settings);
     page.insertBefore(svg(onlineList),settings);
-    page.insertBefore(svg(onlineChat),settings);
 
     $("#Right-Bar").attr("fill","lightblue");
     $("#Right-Bar").attr("xmlns:data","Right-Bar");
