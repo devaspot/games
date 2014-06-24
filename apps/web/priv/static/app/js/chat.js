@@ -40,7 +40,7 @@ function mouseWheelHandler(e) {
     var scroll = parseFloat(scroll_dy) + parseFloat(ori);
     var selectedBar = leftActive ? (currentChat == null ? "Online-List" : currentChat) : "Chat";
     var selectedClip = leftActive ? (currentChat == null ? "Clip-Path-Left" : "Clip-Path-Left-Chat") : "Clip-Path-Right";
-    var selectedBarShift = leftActive ? 0 : 857;
+    var selectedBarShift = leftActive ? -globalShiftX : 857;
     var limit = parseFloat(document.getElementById(selectedBar).getBBox().height) - 400;
     if (scroll > 5) scroll = 5;
     if (scroll < -limit) scroll = -limit;
@@ -61,7 +61,7 @@ function chatMessage(chatName, id, me, string) {
     var chatElement = document.getElementById(chatName);
     if (null == chatElement) createChat(chatName);
     var translate_y = parseFloat(document.getElementById(chatName).getBBox().height);
-    var x2 = 205;
+    var x2 = 205; //$("#"+container).width()+25;
     var textElement = chatText(container,id,me,string);
     var dy = translate_y == 0 ? 0 : translate_y + 10;
     var html = "<g xmlns='http://www.w3.org/2000/svg' " + 
@@ -71,6 +71,7 @@ function chatMessage(chatName, id, me, string) {
     document.getElementById(chatName).appendChild(messageElement);
     create_multiline(textElement);
     var y2 = textElement.getBBox().height + 5;
+    var rec = "<rect xmlns:data='"+container+"' xmlns='http://www.w3.org/2000/svg' >";
     var box = "<path xmlns:data='"+container+"' xmlns='http://www.w3.org/2000/svg' d='M"+x1+","+y1+
                 " L"+x2+","+y1+
             ((me == document.user) ?
@@ -143,7 +144,7 @@ function addOnlineUser(name,full_name,score,insertMode) {
     var y = (insertMode == "insertTop") ? 0 : listElement.getBBox().height;
     var html = '<g xmlns="http://www.w3.org/2000/svg" height="60" transform="translate(0, '+y+')">' +
             '<g xmlns:data="'+name+'" fill="#DBEBED" '+eventsColor+'>' +
-            '    <rect cursor="pointer" xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="196" height="48" ' +'>'+full_name+'</rect></g>' +
+            '    <rect cursor="pointer" xmlns:data="'+name+'" fill="#DBEBED" id="'+name+'" x="10" y="0" width="'+(adaptiveDesign()?"100%":196)+'" height="48" ' +'>'+full_name+'</rect></g>' +
             '<text xmlns:data="'+name+'" '+eventsColor+' '+
             'font-family="Exo 2" font-size="18" cursor="pointer" font-weight="normal" line-spacing="18"'+
             ' fill="#3B5998">' +
@@ -261,9 +262,9 @@ function initChat()
     page.insertBefore(svg(onlineList),settings);
     page.insertBefore(svg(onlineChat),settings);
 
-    var clipPath1 = svg('<clipPath id="myClip1"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left" x="0" y="0" width="216" height="400"/></clipPath>');
-    var clipPath2 = svg('<clipPath id="myClip2"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Right" x="0" y="0" width="216" height="400"/></clipPath>');
-    var clipPath3 = svg('<clipPath id="myClip3"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left-Chat" x="0" y="0" width="216" height="400"/></clipPath>');
+    var clipPath1 = svg('<clipPath id="myClip1"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left" x="0" y="0" width="'+216+globalShiftX+'" height="400"/></clipPath>');
+    var clipPath2 = svg('<clipPath id="myClip2"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Right" x="0" y="0" width="'+216+globalShiftX+'" height="400"/></clipPath>');
+    var clipPath3 = svg('<clipPath id="myClip3"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left-Chat" x="0" y="0" width="'+216+globalShiftX+'" height="400"/></clipPath>');
 
     document.getElementsByTagName('defs').item(0).appendChild(clipPath1);
     document.getElementsByTagName('defs').item(0).appendChild(clipPath2);

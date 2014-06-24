@@ -18,6 +18,8 @@ var scope = {
     version: 2306201401
 };
 
+function adaptiveDesign() { return localStorage.getItem("adaptiveDesign"); }
+
 var $ = function(_undefind)
 {
     var isIE = window.navigator.msPointerEnabled

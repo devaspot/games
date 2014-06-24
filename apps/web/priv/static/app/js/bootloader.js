@@ -143,8 +143,9 @@ function PatchSVG()
         $("body").css({'background-color': "#EDF9FF"});
     }
 
-//    document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
+    document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
     $svg.attr({preserveAspectRatio:"xMidYMid meet",width:"100%",height:"100%"});
+
 }
 
 function sendSawOkey()
@@ -233,7 +234,8 @@ function onRulesClose(evt) {
 
 function initEditorsSafari()
 {
-    if (isSafari()) {
+    if (isSafari()) 
+    {
         $("#edit").css({position:"relative"});
         $("#onlineChatEdit").css({position:"relative"});
         $(window).on("resize", manualForeignObjectPositioning);
@@ -367,6 +369,64 @@ function showRevealHand(o) {
           [ "Right", "Center", "Left", "Me" ]
          ];
 
+globalShiftX = 0;
+
 
 appRun();
 
+
+function relayout()
+{
+
+    var svgWidth = $svg[0].viewBox.baseVal.width,
+        svgHeight = $svg[0].viewBox.baseVal.height;
+
+    var sizeX = svgWidth / innerWidth,
+        sizeY = svgHeight / innerHeight,
+        size = Math.max(sizeX, sizeY) || 1;
+
+    var realX, realY, scale, shiftX, shiftY;
+
+    realX = 1/size * svgWidth;
+    realY = 1/size * svgHeight;
+
+    if (sizeX < sizeY) {
+        //console.log("Left and Right White Spaces. Do stretch the Width "+svgWidth);
+
+        shiftY = 0;
+        shiftX = (innerWidth - realX) / 2;
+
+        globalShiftX = shiftX - 10;
+
+        $("#Chat").attr({width:globalShiftX+206});
+        $("#Right-Bar").attr({width:215+globalShiftX});
+        $("#Clip-Path-Right").attr({width:globalShiftX+206});
+
+        $("#Online-Users").attr({transform:"translate("+(-globalShiftX+10)+" 20)"});
+        $("#Facebook-Login").attr({transform:"translate("+(parseInt($("#Right-Bar")[0].getAttribute("x"))+206+globalShiftX-140)+" 20)"});
+
+        $("#Online-List").attr({x:0,transform:"translate("+(-globalShiftX)+" 100)",width:globalShiftX+206});
+        $("#Left-Bar").attr({x:0,transform:"translate("+(-globalShiftX)+" 0)",width:215+globalShiftX});
+        $("#Clip-Path-Left").attr({x:0,transform:"translate("+(-globalShiftX)+" 100)",width:globalShiftX+206});
+
+        onlineHover();
+        mouseWheelHandler({'detail':0,'wheelDelta':0});
+        onlineHoverOut();
+
+    } else  {
+//      console.log("Top and Bottom White Spaces. Do reorient, or adopt the Height.");
+        shiftX = 0;
+        shiftY = (innerHeight - realY) / 2;
+
+        // do nothing with Vertical Layout
+        // possible changing orientation
+    }
+
+}
+
+if (adaptiveDesign())
+{
+    $(window).on("orientationchange", relayout);
+    $(window).on("resize", relayout);
+    relayout();
+}

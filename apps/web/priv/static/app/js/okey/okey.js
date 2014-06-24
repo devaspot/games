@@ -3,6 +3,7 @@ function StartApp() { $.load(scope.CARD_SOURCE, PostLoad); }
 
 function PostLoad()
 {
+
     rightFlag = 1;
     leftFlag = 1;
 
@@ -487,5 +488,7 @@ function SetupRightMenu()
     SetupRightMenu();
     $("#Right-Menu").trigger("click");
     $("#Left-Menu").trigger("click");
+
+//    relayout();
 
 }

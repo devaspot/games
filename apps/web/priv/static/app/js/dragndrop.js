@@ -1,6 +1,8 @@
 
 function DragScope(scope) {
 
+    var currentDragTarget = null
+
     function calcShift()
     {
         var svgWidth = $svg[0].viewBox.baseVal.width;
@@ -9,9 +11,11 @@ function DragScope(scope) {
         sizeX = svgWidth / innerWidth;
         sizeY = svgHeight / innerHeight;
         size = Math.max(sizeX, sizeY) || 1;
+
     }
 
-    var currentDragTarget = null
+    $(window).on("resize", calcShift);
+    $(window).on("orientationchange", calcShift);
 
     function Draggable(root, options)
     {
@@ -36,9 +40,6 @@ function DragScope(scope) {
         $svg = $("svg");
 
     calcShift();
-
-    $(window).on("resize", calcShift);
-    $(window).on("orientationchange", calcShift);
 
     $.inherit(Draggable, scope.Controller);
 
