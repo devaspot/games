@@ -15,6 +15,7 @@ var scope = {
     MALE_SKINS: [ "Gabrielo", "Mustafa" ],
     FEMALE_SKINS: [ "Alina" ],
     paused: false,
+    fixedChatBars: true,
     version: 2306201401
 };
 

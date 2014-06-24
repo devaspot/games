@@ -397,17 +397,20 @@ function relayout()
         shiftX = (innerWidth - realX) / 2;
 
         globalShiftX = shiftX - 10;
+        
+        var barwidth = scope.fixedChatBars ? 0 : globalShiftX;
+        var rightPosition = svgWidth+globalShiftX-(barwidth+216);
 
-        $("#Chat").attr({width:globalShiftX+206});
-        $("#Right-Bar").attr({width:215+globalShiftX});
-        $("#Clip-Path-Right").attr({width:globalShiftX+206});
+        $("#Chat").attr({width:barwidth+206});
+        $("#Right-Bar").attr({x:0,transform:"translate("+(rightPosition)+" 0)",width:barwidth+215});
+        $("#Clip-Path-Right").attr({width:barwidth+206});
 
         $("#Online-Users").attr({transform:"translate("+(-globalShiftX+10)+" 20)"});
-        $("#Facebook-Login").attr({transform:"translate("+(parseInt($("#Right-Bar")[0].getAttribute("x"))+206+globalShiftX-140)+" 20)"});
+        $("#Facebook-Login").attr({transform:"translate("+(rightPosition+(barwidth+216)-150)+" 20)"});
 
-        $("#Online-List").attr({x:0,transform:"translate("+(-globalShiftX)+" 100)",width:globalShiftX+206});
-        $("#Left-Bar").attr({x:0,transform:"translate("+(-globalShiftX)+" 0)",width:215+globalShiftX});
-        $("#Clip-Path-Left").attr({x:0,transform:"translate("+(-globalShiftX)+" 100)",width:globalShiftX+206});
+        $("#Online-List").attr({x:0,transform:"translate("+(-globalShiftX)+" 100)",width:barwidth+206});
+        $("#Left-Bar").attr({x:0,transform:"translate("+(-globalShiftX)+" 0)",width:barwidth+215});
+        $("#Clip-Path-Left").attr({x:0,transform:"translate("+(-globalShiftX)+" 100)",width:barwidth+206});
 
         onlineHover();
         mouseWheelHandler({'detail':0,'wheelDelta':0});

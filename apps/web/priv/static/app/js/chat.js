@@ -262,43 +262,32 @@ function initChat()
     page.insertBefore(svg(onlineList),settings);
     page.insertBefore(svg(onlineChat),settings);
 
-    var clipPath1 = svg('<clipPath id="myClip1"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left" x="0" y="0" width="'+216+globalShiftX+'" height="400"/></clipPath>');
-    var clipPath2 = svg('<clipPath id="myClip2"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Right" x="0" y="0" width="'+216+globalShiftX+'" height="400"/></clipPath>');
-    var clipPath3 = svg('<clipPath id="myClip3"><rect xmlns="http://www.w3.org/2000/svg" id="Clip-Path-Left-Chat" x="0" y="0" width="'+216+globalShiftX+'" height="400"/></clipPath>');
+    $("#Right-Bar").attr("fill","lightblue");
+    $("#Right-Bar").attr("xmlns:data","Right-Bar");
+    $("#Left-Bar").attr("fill","lightblue");
+    $("#Left-Bar").attr("xmlns:data","Left-Bar");
 
-    document.getElementsByTagName('defs').item(0).appendChild(clipPath1);
-    document.getElementsByTagName('defs').item(0).appendChild(clipPath2);
-    document.getElementsByTagName('defs').item(0).appendChild(clipPath3);
+    $("#Right-Bar").on("mouseover", barHover);
+    $("#Right-Bar").on("mouseout", barHoverOut);
+    $("#Left-Bar").on("mouseover", onlineHover);
+    $("#Left-Bar").on("mouseout", onlineHoverOut);
 
-     document.getElementById("Online-List").setAttribute("clip-path","url(#myClip1)");
-     document.getElementById("Chat").setAttribute("clip-path","url(#myClip2)");
-     document.getElementById("Online-Chat").setAttribute("clip-path","url(#myClip1)");
-
-    document.getElementById("Clip-Path-Left").setAttribute("transform", "translate(0,0)");
-    document.getElementById("Clip-Path-Right").setAttribute("transform", "translate(0,0)");
-    document.getElementById("Clip-Path-Left-Chat").setAttribute("transform", "translate(0,0)");
-
-    document.getElementById("Right-Bar").setAttribute("fill","lightblue");
-    document.getElementById("Right-Bar").setAttribute("xmlns:data","Right-Bar");
-    document.getElementById("Left-Bar").setAttribute("fill","lightblue");
-    document.getElementById("Left-Bar").setAttribute("xmlns:data","Left-Bar");
-
-    document.getElementById("Right-Bar").onmouseover = barHover;
-    document.getElementById("Right-Bar").onmouseout = barHoverOut;
-    document.getElementById("Left-Bar").onmouseover = onlineHover;
-    document.getElementById("Left-Bar").onmouseout = onlineHoverOut;
 try {
-    document.getElementById('onlineChatEdit').setAttribute("contentEditable","true");
-    document.getElementById('onlineChatEdit').onkeydown = chatEditor;
-    document.getElementById('onlineChatEdit').onfocus = chatEditorClearContent;
-    document.getElementById("onlineChatEdit").style.display = 'none';
 
-    document.getElementById('edit').setAttribute("contentEditable","true");
-    document.getElementById('edit').onkeydown = chatEditor;
-    document.getElementById('edit').onfocus = chatEditorClearContent;
-    document.getElementById("edit").style.display = '';
+    $('#onlineChatEdit').attr("contentEditable","true");
+    $('#onlineChatEdit').on("keydown", chatEditor);
+    $('#onlineChatEdit').on("focus", chatEditorClearContent);
+    $("#onlineChatEdit").hide();
+
+    $('#edit').attr("contentEditable","true");
+    $('#edit').on("keydown",chatEditor);
+    $('#edit').on("focus",chatEditorClearContent);
+    $("#edit").show();
+
 } catch (e) { console.log("foreignObjects missing from SVG.txt"); }
-    document.getElementById('Page-1').addEventListener(mousewheelevt, mouseWheelHandler, false);
+
+    document.getElementById('Page-1').addEventListener(mousewheelevt,
+        mouseWheelHandler, false);
 
 }
 
