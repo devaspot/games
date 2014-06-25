@@ -3,6 +3,7 @@ function StartApp() { $.load(scope.CARD_SOURCE, PostLoad); }
 
 function PostLoad()
 {
+    if (adaptiveDesign()) relayout();
 
     rightFlag = 1;
     leftFlag = 1;

@@ -124,15 +124,14 @@ function PatchSVG()
 
     if (currentLanguage() != "en") $("#Flag-en").hide();
 
-    localStorage.setItem("adaptiveDesign","true");
 
     translateScene();
 
     initDiscards();
     initChat();
     initChatSample();
-    initEditorsSafari();
     initPauseOverlay();
+    initEditorsSafari();
 
     if ((hours() < 6 || hours() >= 18)) {
         $("#Sky").attr({fill:"#0E4B69"});
@@ -338,10 +337,16 @@ function showRevealHand(o) {
          ];
 
 globalShiftX = 0;
-globalRightPosition = 0;
+globalRightPosition = 857;
+
 
 appRun();
 
+if (adaptiveDesign())
+{
+    $(window).on("orientationchange", relayout);
+    $(window).on("resize", relayout);
+}
 
 function manualForeignObjectPositioning()
 {
@@ -432,7 +437,7 @@ function relayout()
         barHover();
         mouseWheelHandler({'detail':0,'wheelDelta':0});
         barHoverOut();
-        
+
         if (!isSafari()) {
             $("#GameChatEditor").attr({x: 10+rightPosition});
             $("#OnlineChatEditor").attr({x: 10-globalShiftX});
@@ -449,11 +454,4 @@ function relayout()
 
 }
 
-
-if (adaptiveDesign())
-{
-    $(window).on("orientationchange", relayout);
-    $(window).on("resize", relayout);
-    relayout();
-}
 

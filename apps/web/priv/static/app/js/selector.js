@@ -16,10 +16,15 @@ var scope = {
     FEMALE_SKINS: [ "Alina" ],
     paused: false,
     fixedChatBars: true,
-    version: 2306201401
+    version: 2506201401
 };
 
-function adaptiveDesign() { return localStorage.getItem("adaptiveDesign"); }
+function adaptiveDesign() {
+    var yes = "true";
+    var itemName = "adaptiveLayout";
+    var item = localStorage.getItem(itemName);
+    var value = null == item ? (localStorage.setItem(itemName,yes),yes) : item;
+    return value == yes; }
 
 var $ = function(_undefind)
 {
