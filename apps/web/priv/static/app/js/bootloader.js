@@ -361,13 +361,13 @@ function manualForeignObjectPositioning()
 
     realX = 1/size * svgWidth;
     realY = 1/size * svgHeight;
-    
+
     var barwidth=0,rightPosition=866,globalShiftX=0;
 
     if (sizeX < sizeY) {
 //      console.log("Left and Right White Spaces. Do stretch the Width ");
         shiftY = 0;
-        shiftX = (innerWidth - realX) / 2;
+        shiftX = (innerWidth - realX) / 2 * sizeX;
 
         globalShiftX = adaptiveDesign() ? (shiftX > 30 ? shiftX - 20 : 0) : 0;
         barwidth = scope.fixedChatBars ? 0 : globalShiftX;
@@ -379,12 +379,12 @@ function manualForeignObjectPositioning()
         shiftY = (innerHeight - realY) / 2;
     }
 
-    $("#GameChatEditor").attr({x: rightPosition * realX / svgWidth + shiftX,
+    $("#GameChatEditor").attr({x: (rightPosition * realY / svgHeight + shiftX / sizeX),
                                y: 504 * realY / svgHeight + shiftY,
                                width: 196 * realX / svgWidth,
                                height: 120 * realY / svgHeight});
 
-    $("#OnlineChatEditor").attr({x: 10 * realX / svgWidth + shiftX - 
+    $("#OnlineChatEditor").attr({x: 10 * realX / svgWidth + shiftX / sizeX - 
                                    globalShiftX * realX / svgWidth,
                                y: 504 * realY / svgHeight + shiftY,
                                width: 196 * realX / svgWidth,
