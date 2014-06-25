@@ -324,6 +324,11 @@ function PostLoad()
         if ("pause" == what) pause({who:who}); else unpause({});
     });
 
+    scope.apiProvider.on("logout", function(x) {
+        console.log("Logout");
+        scope.ended = !0;
+    });
+
 
     $("#Table-Oval").droppable({
         accept: function(target) {

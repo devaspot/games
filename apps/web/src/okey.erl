@@ -158,6 +158,9 @@ event(attach) ->
     end),
     ok;
 
+event(logout) ->
+    wf:wire(protocol:logout());
+
 event({client,{message,From,Name,To,Message}}) ->
     wf:info(?MODULE,"Online Chat Message from ~p(~p) to ~p:~n ~p~n",[From,Name,To,Message]),
     wf:send(To,{server,{chat_message,{From,Name},To,wf:to_binary(Message)}}),
@@ -206,6 +209,9 @@ event({login,User}) ->
     wf:info(?MODULE,"Login: ~p",[User]),
     wf:send(broadcast,{user_offline,user()}),
     send_auth_cookies(User),
+%    event(logout),
+%    event(attach),
+%    event(join),
     wf:wire("window.location='https://kakaranet.com'");
 
 event(_Event) -> wf:info(?MODULE,"Unknown Event: ~p", [_Event]).
