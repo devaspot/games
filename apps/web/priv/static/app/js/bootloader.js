@@ -410,7 +410,7 @@ function relayout()
         //console.log("Left and Right White Spaces. Do stretch the Width "+svgWidth);
 
         shiftY = 0;
-        shiftX = (innerWidth - realX) / 2;
+        shiftX = (innerWidth - realX) / 2 * sizeX;
 
         globalShiftX = shiftX > 30 ? shiftX - 20 : 0;
 
