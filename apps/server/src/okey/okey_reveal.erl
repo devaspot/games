@@ -1,4 +1,5 @@
 -module(okey_reveal).
+-author('Vitaly Voronov').
 -compile(export_all).
 
 main() ->
@@ -17,7 +18,7 @@ main() ->
     L3 = [{1,1},{2,1},{3,1},
           {1,3},{2,3},{3,3},
           {1,5},{2,5},{3,5},
-          okey,okey,{2,8},{2,5},
+          okey,okey,{2,8},{2,3},
           {2,9}],
 
     L4 = [{1,1},{2,1},{3,1},
@@ -26,7 +27,8 @@ main() ->
         okey,okey,{2,10},{2,6},
         {2,9}],
     Tests = [L0,L1,L2,L4,L3],
-    [ io:format("~p~n",[check_reveal(L)]) ||L <- Tests].
+    [ check_reveal(L) ||L <- Tests],
+    check_reveal(L3).
 
 check_reveal(L1) -> 
     L11 = element(1, lists:mapfoldl(fun(X, Acc) when is_atom(X) -> {{okey, okey, Acc}, Acc+1};
@@ -112,7 +114,8 @@ check2x7(L2) ->
     L2comb=lists:filter(fun(X) -> length(X) > 2 end,combs_clb(L2, [], 7)),
     case length(L2comb) > 0 of
         true -> {true, [ lists:map(fun({okey,okey,_}) -> okey;
-                                   ({X,Y,Z}) -> {X,Y} end,L)
+                                    ({C,14,X}) -> {C,1};
+                                   ({C,V,_}) -> {C,V} end,L)
                            || L <- lists:nth(length(L2comb)-1,L2comb)]};
         false-> {false,[]} end.
 
@@ -132,7 +135,8 @@ check_list(X, [H|T]) ->
     case checkuniq(myflatten(X), myflatten(H)) of
         true -> 
             {true, [ lists:map(fun({okey,_,_}) -> okey;
-                ({X,Y,Z}) -> {X,Y} end,L) || L <- lists:merge(norm(X),norm(H)) ]};
+                                    ({C,14,X}) -> {C,1};
+                ({C,V,_}) -> {C,V} end,L) || L <- lists:merge(norm(X),norm(H)) ]};
         false -> check_list(X, T) end.
 
 series([]) -> false;

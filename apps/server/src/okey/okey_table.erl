@@ -589,9 +589,14 @@ do_action(SeatNum, #okey_reveal{discarded = ExtDiscarded, hand = ExtHand}, From,
 
     DeskState = StateData#okey_state.desk_state,
     Gosterme = DeskState#desk_state.gosterge,
-    {Revealed,_,_} = ?SCORING:check_reveal(Hand,Gosterme),
+
+%    CheckHand = [[{3,12},{2,12},{1,12},{2,9},{2,7},{2,8},{2,6},{2,4},
+%                    {4,8},{4,7},{4,9},{3,12},{3,13},{3,1}],[]],
+%    {Revealed,_,_,NormalizedHand} = ?SCORING:check_reveal(CheckHand,{2,3}),
+
+    {Revealed,_,_,Denormalized} = ?SCORING:check_reveal(Hand,Gosterme),
     case Revealed of
-        true -> do_game_action(SeatNum, {reveal, Discarded, Hand}, From, StateName, StateData);
+        true -> do_game_action(SeatNum, {reveal, Discarded, Denormalized}, From, StateName, StateData);
         false -> do_game_action(SeatNum, wrong_reveal, From, StateName, StateData)
     end;
 

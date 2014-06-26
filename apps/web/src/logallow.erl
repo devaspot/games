@@ -9,7 +9,7 @@ log_modules() -> [
 %    bullet_handler,
     okey_table,
     okey_desk,
-%    okey_scoring,
+    okey_scoring,
     journal,
 %    lucky,
 %    n2o_secret,

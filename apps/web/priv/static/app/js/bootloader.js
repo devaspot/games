@@ -310,7 +310,7 @@ function showRevealHand(o) {
         $reveal_deck.each(function(card){ card.$el && card.$el.remove(); });
 
         for (var i=0;i<2;i++)
-        for (var j=0;j<15;j++) {
+        for (var j=0;j<deck[i].length;j++) {
             var bin = deck[i][j];
             if (null != bin.value[0][2]) {
                 var card = new scope.Card({

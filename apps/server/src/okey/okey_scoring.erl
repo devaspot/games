@@ -275,8 +275,7 @@ finish_info(GameMode, FinishReason, Gosterge) ->
         timeout -> timeout;
         set_timeout -> set_timeout;
         {reveal, Revealer, Tashes, Discarded, ConfirmationList} ->
-            {RightReveal, RevealWithPairs, WithColor} = check_reveal(Tashes, Gosterge),
-    gas:info(?MODULE,"check_reveal result p~n",[{RightReveal, RevealWithPairs, WithColor}]), 
+            {RightReveal, RevealWithPairs, WithColor, Hand} = check_reveal(Tashes, Gosterge),
             WinReveal = RightReveal orelse (ConfirmationList /= [] andalso lists:all(fun({_, Answer}) -> Answer == true end, ConfirmationList)),
             TestConfirmation = false,
             if WinReveal orelse TestConfirmation  ->
@@ -328,44 +327,7 @@ gosterge_to_okey({Color, Value}) ->
        true -> {Color, Value + 1}
     end.
 
-check_win([TopRow, BottomRow], Gosterge) ->
-    FlatList = TopRow ++ [null | BottomRow],
-    Okey = gosterge_to_okey(Gosterge),
-    Normalized = [case E of
-                      Okey -> okey;
-                      false_okey -> okey;
-                       _ -> E
-                  end || E <- FlatList],
-
-    Res = check_unordered(sets:from_list(Normalized),[],[]),
-
-    gas:info(?MODULE,"NEW check_reveal/2 ~p",[Res]),
-
-    ok.
-
-%color_masks(HandSet) -> 
-%    [H|T] = sets:to_list(HandSet),
-%    color_masks_rec(sets:from_list([H]),)
-
-masks(_) -> [].
-
-check_unordered(HandSet,ResultMap,CombinationList) ->
-    case sets:size(HandSet) of
-        0 -> case ResultMap of
-                [{3,3},{5,1}] -> true;
-                      [{2,7}] -> true;
-                [{3,2},{4,2}] -> true;
-                [{4,1},{5,2}] -> true;
-                _ -> false end;
-        _ -> lists:any(fun(X) ->
-                NewSet = ResultMap ++ [{X,1}],
-                check_unordered(HandSet,[],[])
-              end, masks(HandSet))
-    end.
-
-%% @spec check_reveal(TashPlaces, Gosterge) -> {RightReveal, WithPairs, SameColor}
-%% @end
-check_reveal([TopRow, BottomRow], Gosterge) ->
+normalize_reveal([TopRow, BottomRow], Gosterge) ->
     FlatList = TopRow ++ [null | BottomRow],
     Okey = gosterge_to_okey(Gosterge),
     Normalized = [case E of
@@ -373,11 +335,43 @@ check_reveal([TopRow, BottomRow], Gosterge) ->
                       false_okey -> Okey;
                        _ -> E
                   end || E <- FlatList],
-    gas:info(?MODULE,"check_reveal/2 ~n    ~p ~p~n",[Normalized, Gosterge]), 
     Sets = split_by_delimiter(null, Normalized),
+    {Sets,Normalized}.
+
+% test [{3,13},{3,11},{1,9},{2,8},{2,13},{3,10},null,{3,8},{4,12},{1,6},{2,12},{1,3},{4,5},{3,5},null,null,{3,2},null,null,null,null,null,null,null,null,null,null,null,null,null,null]
+
+denormalize_reveal(RevealHand, Gosterge) ->
+    Okey = gosterge_to_okey(Gosterge),
+    Den = [ [ case Tash of
+        okey -> Okey;
+        _ -> Tash end || Tash <- [null|Series] ] || Series <- RevealHand ],
+    {L1,L2}=lists:split(2,Den),
+    [lists:flatten(L1),lists:flatten(L2)].
+
+check_reveal(Tashes, Gosterge) ->
+    {Sets,Normalized} = normalize_reveal(Tashes, Gosterge),
+    {RR, RP, RC} = check_manual_reveal({Sets,Normalized}, Gosterge),
+    gas:info(?MODULE,"Manual Reveal ~n",[RR]),
+    {RightReveal, RevealWithPairs, WithColor, Hand} = case RR of
+        false -> gas:info(?MODULE,"Ok We Will Help You~n",[]),
+            case okey_reveal:check_reveal(lists:flatten(Sets)) of
+                [] -> {false,false,false, []};
+                X -> case hd(X) of
+                    {x2x7,Pairs} -> {true,true,false, Pairs};
+                    {How,Comb} -> 
+                        gas:info(?MODULE,"Automatic Reveal ~p ~p~n",[How,Comb]),
+                    Denormalized = okey_scoring:denormalize_reveal(Comb,Gosterge),
+                   wf:info(?MODULE,"Denormalized Reveal ~p",[Denormalized]),
+                        {true,false,false, Denormalized} end end;
+        true -> {RR, RP, RC, Sets} end.
+
+%% @spec check_reveal(TashPlaces, Gosterge) -> {RightReveal, WithPairs, SameColor}
+%% @end
+check_manual_reveal({Sets,Normalized}, Gosterge) ->
+    gas:info(?MODULE,"check_reveal/2 ~n    ~p ~p~n",[Sets, Gosterge]), 
     ProperHand = lists:all(fun(S) -> is_set(S) orelse is_run(S) end, Sets),
     Pairs = lists:all(fun(S) -> is_pair(S) end, Sets),
-    [Color | Rest] = [C || {C, _} <- Normalized],
+    [Color | Rest] = [C || {C, _} <- lists:flatten(Normalized)],
     SameColor = lists:all(fun(C) -> C==Color end, Rest),
     {ProperHand orelse Pairs, Pairs, ProperHand andalso SameColor}.
 
