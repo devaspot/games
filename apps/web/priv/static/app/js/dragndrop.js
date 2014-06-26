@@ -101,13 +101,24 @@ function DragScope(scope) {
             // detect drop
             if(moved){
                 var dropList = scope.Droppable.list, 
+                    dropTargets =[],
+                    intersection,
                     droped
                 for(var i = 0, l = dropList.length, item; i < l; i++){
                     item = dropList[i]
-                    if(item.intersect(this.curX, this.curY)){
-                        droped = item.drop(this, this.curX, this.curY)
-                        break
+                    if((intersection = item.intersect(this.$el)).res){
+                        dropTargets.push({
+                            square: intersection.square,
+                            item: item
+                        })
                     }
+                }
+
+                dropTargets = dropTargets.sort(function(a,b){ 
+                    return (a.square < b.square) - (b.square < a.square) 
+                })
+                if(dropTargets.length){
+                    droped = dropTargets[0].item.drop(this, this.curX, this.curY)
                 }
 
                 // revert

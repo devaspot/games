@@ -20,9 +20,25 @@ function ControllerScope(scope) {
         off: function(eventType, handler) { return this.$el.off(eventType, handler), this; },
         clientX: function(e) { return isIE ? e.pageX : document.createTouch ? e.changedTouches[0].clientX : e.clientX; },
         clientY: function(e) { return isIE ? e.pageY : document.createTouch ? e.changedTouches[0].clientY : e.clientY; },
-        intersect: function(x, y) {
-            var pos = this.$el.position();
-            return pos.top < y && pos.bottom > y && pos.left < x && pos.right > x;
+        intersect: function($el) {
+            // var pos = this.$el.position();
+            // return pos.top < y && pos.bottom > y && pos.left < x && pos.right > x;
+            var d0 = this.$el.position()
+            ,   d1 = $el.position()
+            ,   x11 = d0.left
+            ,   y11 = d0.top
+            ,   x12 = d0.left + this.$el.width()
+            ,   y12 = d0.top + this.$el.height()
+            ,   x21 = d1.left
+            ,   y21 = d1.top
+            ,   x22 = d1.left + $el.width()
+            ,   y22 = d1.top + $el.height()
+            ,   x_overlap = Math.max(0, Math.min(x12,x22) - Math.max(x11,x21))
+            ,   y_overlap = Math.max(0, Math.min(y12,y22) - Math.max(y11,y21))
+            return {
+                square: x_overlap * y_overlap
+            ,   res : x_overlap * y_overlap > $el.width() * $el.height() * .25
+            }   
         }
     }),
 

@@ -65,7 +65,7 @@ function DeckScope(scope) {
 
         track: function(e) {
             this.each(function(card, i, j) {
-                if (card && card.$el[0] != e.target && card.intersect(e.detail.x, e.detail.y) && !card.$el.attr("animated") && scope.Card.selected.length < 2) {
+                if (card && card.$el[0] != e.target && card.intersect($(e.target)).res && !card.$el.attr("animated") && scope.Card.selected.length < 2) {
                     var shift = e.detail.x > card.centerX() ? i - 1 : i + 1
                     shift = shift > 14 ? shift - 2 : shift
                     shift = 0 > shift ? shift + 2 : shift
@@ -131,31 +131,35 @@ function DeckScope(scope) {
         },
 
         place: function(target, x, y) {
-
-            var trfs = this.trfs, pos = this.$dropPlace.position(), width = this.$dropPlace.width(), height = this.$dropPlace.height(), placeWidth = Math.round(width / 15), placeHeight = Math.round(height / 2), truePosX = Math.floor((x - pos.left) / placeWidth), posY = Math.floor((y - pos.top) / placeHeight);
-            scope.Card.selected.sort(function(a, b) {
-                return (a.pos.x > b.pos.x) - (b.pos.x > a.pos.x);
-            });
-            var dropResult, idx = scope.Card.selected.indexOf(target.owner), cards = scope.Card.selected.length ? scope.Card.selected.concat() : [ target.owner ];
-            if (cards.every(function(card, i) {
-                return posX = truePosX + (i - idx) * (card != target.owner), null == this.cards[posY][posX] || this.cards[posY][posX] == card;
-            }, this)) for (var card, i = 0, l = cards.length; l > i; i++) card = cards[i], posX = truePosX + (i - idx) * (card != target.owner), 
-            (dropResult = null == this.cards[posY][posX] || this.cards[posY][posX] == selected) && (this.cards[posY][posX] != card && (null != card.pos.x && null != card.pos.y ? this.cards[card.pos.y][card.pos.x] = this.cards[card.pos.y][card.pos.x] == card ? null : this.cards[card.pos.y][card.pos.x] : (this.$el.trigger("take", {
-                detail: {
-                    card: card
-                }
-            }), this.justTaken = !0), (this.cards[posY][posX] = card).pos = {
-                x: posX,
-                y: posY
-            }), function(card) {
-                card.$el.transform({
-                    from: card.$el.attr("transform").slice(10, -1),
-                    to: [ trfs[posY][posX].x, trfs[posY][posX].y ].join(" ")
-                }).then(function() {
-                    card.dragHandler.storeTrf();
+            try{
+                var trfs = this.trfs, pos = this.$dropPlace.position(), width = this.$dropPlace.width(), height = this.$dropPlace.height(), placeWidth = Math.round(width / 15), placeHeight = Math.round(height / 2), truePosX = Math.floor((x - pos.left) / placeWidth), posY = Math.floor((y - pos.top) / placeHeight);
+                scope.Card.selected.sort(function(a, b) {
+                    return (a.pos.x > b.pos.x) - (b.pos.x > a.pos.x);
                 });
-            }(card));
-            return dropResult;
+                var dropResult, idx = scope.Card.selected.indexOf(target.owner), cards = scope.Card.selected.length ? scope.Card.selected.concat() : [ target.owner ];
+                if (cards.every(function(card, i) {
+                    return posX = truePosX + (i - idx) * (card != target.owner), null == this.cards[posY][posX] || this.cards[posY][posX] == card;
+                }, this)) for (var card, i = 0, l = cards.length; l > i; i++) card = cards[i], posX = truePosX + (i - idx) * (card != target.owner), 
+                (dropResult = null == this.cards[posY][posX] || this.cards[posY][posX] == selected) && (this.cards[posY][posX] != card && (null != card.pos.x && null != card.pos.y ? this.cards[card.pos.y][card.pos.x] = this.cards[card.pos.y][card.pos.x] == card ? null : this.cards[card.pos.y][card.pos.x] : (this.$el.trigger("take", {
+                    detail: {
+                        card: card
+                    }
+                }), this.justTaken = !0), (this.cards[posY][posX] = card).pos = {
+                    x: posX,
+                    y: posY
+                }), function(card) {
+                    card.$el.transform({
+                        from: card.$el.attr("transform").slice(10, -1),
+                        to: [ trfs[posY][posX].x, trfs[posY][posX].y ].join(" ")
+                    }).then(function() {
+                        card.dragHandler.storeTrf();
+                    });
+                }(card));
+                return dropResult;
+            }
+            catch(e){
+                return false
+            }
         },
 
         remove: function(tile) {
