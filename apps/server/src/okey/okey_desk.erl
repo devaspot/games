@@ -51,7 +51,7 @@
 %%  {gosterge_finish, SeatNum}
 
 -module(okey_desk).
-
+-compile(export_all).
 -behaviour(gen_fsm).
 %% --------------------------------------------------------------------
 %% Include files
@@ -392,6 +392,7 @@ handle_player_action(PlayerId, wrong_reveal, StateName, #state{cur_player = CurP
 
 handle_player_action(PlayerId, {reveal, Tash, TashPlaces}, StateName = ?STATE_DISCARD,
                      #state{cur_player = CurPlayerId,
+                            okey = Okey,
                             players = Players
                            } = StateData) ->
     wf:info(?MODULE,"DESK PLAYER ACTION REVEAL STATE ~p",[StateName]),
@@ -404,12 +405,14 @@ handle_player_action(PlayerId, {reveal, Tash, TashPlaces}, StateName = ?STATE_DI
                NewPlayers ->
                    RevealHand = tash_places_to_hand(TashPlaces),
                    #player{hand = PlayerHand} = get_player(PlayerId, NewPlayers),
-                   case is_same_hands(RevealHand, PlayerHand) of
+                   case is_same_hands(RevealHand, PlayerHand, Okey) of
                        true ->
                            Events = [{reveal, PlayerId, TashPlaces, Tash}],
                            {ok, Events, ?STATE_FINISHED,
                             StateData#state{players = NewPlayers}};
                        false ->
+                          wf:info(?MODULE,"Revealed Hand ~p",[RevealHand]),
+                          wf:info(?MODULE,"Real Hand ~p",[PlayerHand]),
                            {error, hand_not_match}
                    end
             end;
@@ -525,9 +528,13 @@ update_player(#player{id = Id} = Player, Players) ->
 
 
 %% is_same_hands(Hand1, Hand2) -> boolean()
-is_same_hands(Hand1, Hand2) ->
-    L1 = lists:sort(deck:to_list(Hand1)),
-    L2 = lists:sort(deck:to_list(Hand2)),
+is_same_hands(Hand1, Hand2, Okey) ->
+    L1 = lists:sort(lists:map(fun(false_okey)->Okey;
+                                 (okey)->Okey;
+                                 (A)->A end,deck:to_list(Hand1))),
+    L2 = lists:sort(lists:map(fun(false_okey)->Okey;
+                                 (okey)->Okey;
+                                 (A)->A end,deck:to_list(Hand2))),
     L1 == L2.
 
 %% find_8_tashes(Hand) -> {ok, Value} | not_found

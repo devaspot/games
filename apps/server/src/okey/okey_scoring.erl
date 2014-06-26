@@ -344,11 +344,13 @@ denormalize_reveal(RevealHand, Gosterge) ->
     Okey = gosterge_to_okey(Gosterge),
     Den = [ [ case Tash of
         okey -> Okey;
+        Okey -> false_okey;
         _ -> Tash end || Tash <- [null|Series] ] || Series <- RevealHand ],
     {L1,L2}=lists:split(2,Den),
     [lists:flatten(L1),lists:flatten(L2)].
 
 check_reveal(Tashes, Gosterge) ->
+    wf:info(?MODULE,"Check Reveal ~p ~p",[Tashes,Gosterge]),
     {Sets,Normalized} = normalize_reveal(Tashes, Gosterge),
     {RR, RP, RC} = check_manual_reveal({Sets,Normalized}, Gosterge),
     gas:info(?MODULE,"Manual Reveal ~n",[RR]),
@@ -360,9 +362,7 @@ check_reveal(Tashes, Gosterge) ->
                     {x2x7,Pairs} -> {true,true,false, Pairs};
                     {How,Comb} -> 
                         gas:info(?MODULE,"Automatic Reveal ~p ~p~n",[How,Comb]),
-                    Denormalized = okey_scoring:denormalize_reveal(Comb,Gosterge),
-                   wf:info(?MODULE,"Denormalized Reveal ~p",[Denormalized]),
-                        {true,false,false, Denormalized} end end;
+                        {true,false,false, Comb} end end;
         true -> {RR, RP, RC, Sets} end.
 
 %% @spec check_reveal(TashPlaces, Gosterge) -> {RightReveal, WithPairs, SameColor}

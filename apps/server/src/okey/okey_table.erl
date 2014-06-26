@@ -43,6 +43,7 @@
          deck               :: list(tash()),
          cur_seat           :: integer(),
          gosterge           :: tash(),
+         okey               :: tash(),
          has_gosterge       :: undefined | integer(), %% Seat num of a player who has gosterge
          have_8_tashes      :: list(integer()), %% Seats of players who show 8 tashes combination
          finish_reason      :: tashes_out | reveal | gosterge_finish, %% Defined only when state = state_finished
@@ -594,9 +595,15 @@ do_action(SeatNum, #okey_reveal{discarded = ExtDiscarded, hand = ExtHand}, From,
 %                    {4,8},{4,7},{4,9},{3,12},{3,13},{3,1}],[]],
 %    {Revealed,_,_,NormalizedHand} = ?SCORING:check_reveal(CheckHand,{2,3}),
 
-    {Revealed,_,_,Denormalized} = ?SCORING:check_reveal(Hand,Gosterme),
+    {Revealed,_,_,Normalized} = ?SCORING:check_reveal(Hand,Gosterme),
+
     case Revealed of
-        true -> do_game_action(SeatNum, {reveal, Discarded, Denormalized}, From, StateName, StateData);
+        true -> 
+            Denormalized = case Normalized of
+                [] -> Hand;
+                _ -> okey_scoring:denormalize_reveal(Normalized,Gosterme) end,
+            wf:info(?MODULE,"Denormalized Reveal ~p",[Denormalized]),
+            do_game_action(SeatNum, {reveal, Discarded, Denormalized}, From, StateName, StateData);
         false -> do_game_action(SeatNum, wrong_reveal, From, StateName, StateData)
     end;
 
@@ -671,7 +678,9 @@ do_timeout_moves(#okey_state{desk_rule_pid = Desk, desk_state = DeskState} = Sta
 %%===================================================================
 
 do_game_action(SeatNum, GameAction, From, StateName,
-               #okey_state{desk_rule_pid = Desk} = StateData) ->
+               #okey_state{
+              desk_state = #desk_state{okey=Okey},
+              desk_rule_pid = Desk} = StateData) ->
     gas:info(?MODULE,"OKEY_NG_TABLE_TRN do_game_action SeatNum: ~p  GameAction: ~p", [SeatNum, GameAction]),
     case desk_player_action(Desk, SeatNum, GameAction) of
         {ok, Events} ->
@@ -682,10 +691,10 @@ do_game_action(SeatNum, GameAction, From, StateName,
                                true;
                            take_from_table ->
                                [Tash] = [Tash || {taked_from_table, S, Tash} <- Events, S==SeatNum],
-                               tash_to_ext(Tash);
+                               tash_to_ext(Tash,Okey);
                            take_from_discarded ->
                                [Tash] = [Tash || {taked_from_discarded, S, Tash} <- Events, S==SeatNum],
-                               tash_to_ext(Tash);
+                               tash_to_ext(Tash,Okey);
                            _ -> ok
                        end,
             gen_fsm:reply(From, Response),
@@ -799,6 +808,7 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
     #desk_state{cur_seat = CurSeatNum,
                 hands = Hands,
                 discarded = Discarded,
+                okey = Okey,
                 deck = Deck,
                 have_8_tashes = Have8Tashes} = DeskState,
     NewDeskState =
@@ -818,7 +828,7 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
             {taked_from_discarded, SeatNum, Tash} ->
                 PrevSeatNum = prev_seat_num(SeatNum),
                 {_, [Tash | NewPile]} = lists:keyfind(PrevSeatNum, 1, Discarded),
-                Msg = create_okey_tile_taken_discarded(SeatNum, Tash, length(NewPile), Players),
+                Msg = create_okey_tile_taken_discarded(SeatNum, Tash, length(NewPile), Players, Okey),
                 relay_publish_ge(Relay, Msg, StateData),
                 NewDiskarded = lists:keyreplace(PrevSeatNum, 1, Discarded, {PrevSeatNum, NewPile}),
                 {_, Hand} = lists:keyfind(SeatNum, 1, Hands),
@@ -827,13 +837,13 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
             {taked_from_table, SeatNum, Tash} ->
                 [Tash | NewDeck] = Deck,
                 [ send_to_client_ge(Relay, Id,
-                    create_okey_tile_taken_table(CSN, CurSeatNum, Tash, length(NewDeck), Players), StateData)
+                    create_okey_tile_taken_table(CSN, CurSeatNum, Tash, length(NewDeck), Players, Okey), StateData)
                 || #player{id = Id,seat_num = CSN} <- find_connected_players(Players) ],
                 {_, Hand} = lists:keyfind(SeatNum, 1, Hands),
                 NewHands = lists:keyreplace(SeatNum, 1, Hands, {SeatNum, [Tash | Hand]}),
                 DeskState#desk_state{hands = NewHands, deck = NewDeck, state = state_discard};
             {tash_discarded, SeatNum, Tash} ->
-                Msg = create_okey_tile_discarded(SeatNum, Tash, false, Players),
+                Msg = create_okey_tile_discarded(SeatNum, Tash, false, Players, Okey),
                 relay_publish_ge(Relay, Msg, StateData),
                 {_, Hand} = lists:keyfind(SeatNum, 1, Hands),
                 NewHands = lists:keyreplace(SeatNum, 1, Hands, {SeatNum, lists:delete(Tash, Hand)}),
@@ -841,7 +851,7 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
                 NewDiscarded = lists:keyreplace(SeatNum, 1, Discarded, {SeatNum, [Tash | Pile]}),
                 DeskState#desk_state{hands = NewHands, discarded = NewDiscarded, state = state_take};
             {tash_discarded_timeout, SeatNum, Tash} -> %% Injected event
-                Msg = create_okey_tile_discarded(SeatNum, Tash, true, Players),
+                Msg = create_okey_tile_discarded(SeatNum, Tash, true, Players, Okey),
                 relay_publish_ge(Relay, Msg, StateData),
                 {_, Hand} = lists:keyfind(SeatNum, 1, Hands),
                 NewHands = lists:keyreplace(SeatNum, 1, Hands, {SeatNum, lists:delete(Tash, Hand)}),
@@ -850,12 +860,12 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
                 DeskState#desk_state{hands = NewHands, discarded = NewDiscarded, state = state_take};
             {auto_take_discard, SeatNum, Tash} ->    %% Injected event
                 #player{id = PlayerId, user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
-                Msg = create_okey_turn_timeout(UserId, Tash, Tash),
+                Msg = create_okey_turn_timeout(UserId, Tash, Tash, Okey),
                 send_to_client_ge(Relay, PlayerId, Msg, StateData),
                 DeskState;
             {auto_discard, SeatNum, Tash} ->         %% Injected event
                 #player{id = PlayerId, user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
-                Msg = create_okey_turn_timeout(UserId, null, Tash),
+                Msg = create_okey_turn_timeout(UserId, null, Tash, Okey),
                 send_to_client_ge(Relay, PlayerId, Msg, StateData),
                 DeskState;
             {next_player, SeatNum, EnableOkey} ->
@@ -873,7 +883,7 @@ handle_desk_events([Event | Events], DeskState, Players, Relay, #okey_state{} = 
                 DeskState;
             {reveal, SeatNum, RevealedTashes, DiscardedTash} ->
                 #player{id = PlayerId, user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
-                Msg = create_okey_revealed(SeatNum, DiscardedTash, RevealedTashes, Players),
+                Msg = create_okey_revealed(SeatNum, DiscardedTash, RevealedTashes, Players, Okey),
                 relay_publish_ge(Relay, Msg, StateData),
                 DeskState#desk_state{state = state_finished,
                                      finish_reason = reveal,
@@ -1117,15 +1127,16 @@ create_okey_game_player_state(PlayerId, ?STATE_PLAYING,
                 discarded = Discarded,
                 gosterge = Gosterge,
                 deck = DeskDeck,
+                okey = Okey,
                 cur_seat = CurSeatNum} = DeskState,
     {_, PlayerHand} = lists:keyfind(SeatNum, 1, Hands),
-    Hand = [tash_to_ext(Tash) || Tash <- PlayerHand],
+    Hand = [tash_to_ext(Tash,Okey) || Tash <- PlayerHand],
     #player{user_id = CurUserId} = get_player_by_seat_num(CurSeatNum, Players),
     Timeout = calc_timeout(TRef),
     F = fun(_, N) ->
                 #player{user_id = UserId} = get_player_by_seat_num(N, Players),
                 {_, Tahes} = lists:keyfind(N, 1, Discarded),
-                {{UserId, [tash_to_ext(Tash) || Tash <- Tahes]}, next_seat_num(N)}
+                {{UserId, [tash_to_ext(Tash,Okey) || Tash <- Tahes]}, next_seat_num(N)}
         end,
     {Piles, _} = lists:mapfoldl(F, prev_seat_num(SeatNum), lists:seq(1, ?SEATS_NUM)),
     GameState = statename_to_api_string(DeskStateName),
@@ -1159,15 +1170,16 @@ create_okey_game_player_state(PlayerId, ?STATE_REVEAL_CONFIRMATION,
                 discarded = Discarded,
                 gosterge = Gosterge,
                 deck = DeskDeck,
+                okey = Okey,
                 cur_seat = CurSeatNum} = DeskState,
     {_, PlayerHand} = lists:keyfind(SeatNum, 1, Hands),
-    Hand = [tash_to_ext(Tash) || Tash <- PlayerHand],
+    Hand = [tash_to_ext(Tash,Okey) || Tash <- PlayerHand],
     #player{user_id = CurUserId} = get_player_by_seat_num(CurSeatNum, Players),
     Timeout = calc_timeout(TRef),
     F = fun(_, N) ->
                 Pile = case lists:keyfind(N, 1, Discarded) of
                            {_, []} -> null;
-                           {_, [Tash|_]} -> tash_to_ext(Tash)
+                           {_, [Tash|_]} -> tash_to_ext(Tash,Okey)
                        end,
                 {Pile, next_seat_num(N)}
         end,
@@ -1224,9 +1236,10 @@ create_okey_game_started(SeatNum, DeskState, CurRound,
     Chanak = ?SCORING:chanak(ScoringState),
     #desk_state{hands = Hands,
                 gosterge = Gosterge,
+                okey = Okey,
                 deck = DeskDeck} = DeskState,
     {_, PlayerHand} = lists:keyfind(SeatNum, 1, Hands),
-    Hand = [tash_to_ext(Tash) || Tash <- PlayerHand],
+    Hand = [tash_to_ext(Tash,Okey) || Tash <- PlayerHand],
     RoundTimeout = if RoundTimeout1 == infinity -> null;
                       true -> RoundTimeout1 - 2000
                    end,
@@ -1279,26 +1292,26 @@ create_okey_disable_okey(SeatNum, CurSeatNum, Players) ->
                  enabled = false,
                  who = Who}.
 
-create_okey_tile_taken_discarded(SeatNum, Tash, PileHeight, Players) ->
+create_okey_tile_taken_discarded(SeatNum, Tash, PileHeight, Players, Okey) ->
     #player{user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
     #okey_tile_taken{player = UserId,
                      pile = 1, %% From discarded tashes of the previous player
-                     revealed = tash_to_ext(Tash),
+                     revealed = tash_to_ext(Tash, Okey),
                      pile_height = PileHeight}.
 
 
-create_okey_tile_taken_table(CSN, SeatNum, Tash, PileHeight, Players) ->
+create_okey_tile_taken_table(CSN, SeatNum, Tash, PileHeight, Players, Okey) ->
     #player{user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
     #okey_tile_taken{player = UserId,
                      pile = 0, %% From the deck on the table
-                     revealed = case CSN == SeatNum of true -> tash_to_ext(Tash); _ -> null end,
+                     revealed = case CSN == SeatNum of true -> tash_to_ext(Tash, Okey); _ -> null end,
                      pile_height = PileHeight}.
 
 
-create_okey_tile_discarded(SeatNum, Tash, Timeouted, Players) ->
+create_okey_tile_discarded(SeatNum, Tash, Timeouted, Players, Okey) ->
     #player{user_id = UserId} = get_player_by_seat_num(SeatNum, Players),
     #okey_tile_discarded{player = UserId,
-                         tile = tash_to_ext(Tash),
+                         tile = tash_to_ext(Tash, Okey),
                          timeouted = Timeouted}.
 
 % OKEY GAME RESULTS
@@ -1389,27 +1402,27 @@ create_okey_tour_result(TurnNum, Results) ->
     #okey_turn_result{turn_num = TurnNum,
                       records = Records}.
 
-create_okey_revealed(SeatNum, DiscardedTash, TashPlaces, Players) ->
+create_okey_revealed(SeatNum, DiscardedTash, TashPlaces, Players, Okey) ->
     #player{user_id = UserId, info = Player} = get_player_by_seat_num(SeatNum, Players),
     TashPlacesExt = [[case T of
                          null -> null;
-                         _ -> tash_to_ext(T)
+                         _ -> tash_to_ext(T,Okey)
                       end || T <- Row ] || Row <- TashPlaces],
     Name = Player#'PlayerInfo'.name,
     Surname = Player#'PlayerInfo'.surname,
     #okey_revealed{player = <<Name/binary,32,Surname/binary>>,
-                   discarded = tash_to_ext(DiscardedTash),
+                   discarded = tash_to_ext(DiscardedTash, Okey),
                    hand = TashPlacesExt}.
 
 
-create_okey_turn_timeout(UserId, null, TashDiscarded) ->
+create_okey_turn_timeout(UserId, null, TashDiscarded, Okey) ->
     #okey_turn_timeout{player = UserId,
                        tile_taken = null,
-                       tile_discarded = tash_to_ext(TashDiscarded)};
-create_okey_turn_timeout(UserId, TashTaken, TashDiscarded) ->
+                       tile_discarded = tash_to_ext(TashDiscarded, Okey)};
+create_okey_turn_timeout(UserId, TashTaken, TashDiscarded, Okey) ->
     #okey_turn_timeout{player = UserId,
-                       tile_taken = tash_to_ext(TashTaken),
-                       tile_discarded = tash_to_ext(TashDiscarded)}.
+                       tile_taken = tash_to_ext(TashTaken, Okey),
+                       tile_discarded = tash_to_ext(TashDiscarded, Okey)}.
 
 create_game_paused_pause(UserId, GameId) ->
     #game_paused{game = GameId,
@@ -1429,7 +1442,11 @@ create_okey_playing_tables(Num) ->
 tash_to_ext(false_okey) -> #'OkeyPiece'{color = 2, value = 0};
 tash_to_ext({Color, Value}) ->  #'OkeyPiece'{color = Color, value = Value}.
 
-ext_to_tash(#'OkeyPiece'{color = 2, value = 0}) -> false_okey;
+tash_to_ext(false_okey,{Color,Value}) -> #'OkeyPiece'{color = Color, value = 0};
+tash_to_ext(okey,{Color,Value}) -> #'OkeyPiece'{color = Color, value = Value};
+tash_to_ext({Color, Value},_) ->  #'OkeyPiece'{color = Color, value = Value}.
+
+ext_to_tash(#'OkeyPiece'{value = 0}) -> false_okey;
 ext_to_tash(#'OkeyPiece'{color = Color, value = Value}) -> {Color, Value}.
 
 %statename_to_api_string(state_wait) -> do_okey_ready;
@@ -1499,6 +1516,7 @@ init_desk_state(Desk) ->
                 deck = ?DESK:get_deck(Desk),
                 cur_seat = ?DESK:get_cur_seat(Desk),
                 gosterge = ?DESK:get_gosterge(Desk),
+                okey = ?DESK:gosterge_to_okey(?DESK:get_gosterge(Desk)),
                 have_8_tashes = ?DESK:get_have_8_tashes(Desk),
                 has_gosterge = ?DESK:get_has_gosterge(Desk)}.
 
