@@ -3,6 +3,8 @@ function DragScope(scope) {
 
     var currentDragTarget = null
 
+    var isIE = window.navigator.msPointerEnabled
+
     function calcShift()
     {
         var svgWidth = $svg[0].viewBox.baseVal.width;
@@ -64,15 +66,20 @@ function DragScope(scope) {
             e.preventDefault(), moved || (moved = !1, this.$el.attr("style", "cursor: -moz-grabbing; cursor: -webkit-grabbing; cursor: grabbing;"), 
             this.$el[0].parentNode.appendChild(this.$el[0]), this.x = this.clientX(e), this.y = this.clientY(e), 
             this.trf = this.$el.attr("transform"), this.trf && (this.trf = this.trf.slice(10, -1).split(/\s+/)), 
-            this.storeTrf(), silent || (document.createTouch ? (this.$el.on("touchmove", this.onMove), 
+            this.storeTrf(), silent || (document.createTouch || isIE ? (this.$el.on("touchmove", this.onMove), 
             this.$el.on("touchend", this.onUp)) : ($("body").on("mousemove", this.onMove), $("body").on("mouseup", this.onUp)), 
             this.$el.trigger("dragstart")));
         },
 
         onMove: function(e, silent) {
-            e.preventDefault(), moved = !0, currentDragTarget = this, this.dx = ((this.curX = this.clientX(e)) - this.x) * size, 
-            this.dy = ((this.curY = this.clientY(e)) - this.y) * size, this.trf && (this.dx += 0 | this.trf[0], 
-            this.dy += 0 | this.trf[1]), this.$el.attr("transform", "translate(" + this.dx + " " + this.dy + ")"), 
+            e.preventDefault()
+            moved = !0
+            currentDragTarget = this
+            this.dx = ((this.curX = this.clientX(e)) - this.x) * size, 
+            this.dy = ((this.curY = this.clientY(e)) - this.y) * size
+            this.trf && (this.dx += 0 | this.trf[0], 
+            this.dy += 0 | this.trf[1])
+            this.$el.attr("transform", "translate(" + this.dx + " " + this.dy + ")") 
             silent || this.$el.trigger("dragmove", {
                 detail: {
                     x: this.curX,
@@ -119,7 +126,7 @@ function DragScope(scope) {
                 moved = false
             }
 
-            if(document.createTouch){
+            if(document.createTouch || isIE){
                 this.$el.off('touchmove', this.onMove)
                 this.$el.off('touchend', this.onUp)
             }

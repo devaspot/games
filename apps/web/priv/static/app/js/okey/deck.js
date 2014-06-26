@@ -66,9 +66,14 @@ function DeckScope(scope) {
         track: function(e) {
             this.each(function(card, i, j) {
                 if (card && card.$el[0] != e.target && card.intersect(e.detail.x, e.detail.y) && !card.$el.attr("animated") && scope.Card.selected.length < 2) {
-                    var shift = e.detail.x > card.centerX() ? i + 1 : i - 1;
-                    return shift = shift > 14 ? shift - 2 : shift, shift = 0 > shift ? shift + 2 : shift, 
-                    prevX = i, prevY = j, this.move({ i: i, j: j}, {i: shift, j: j}), !1;
+                    var shift = e.detail.x > card.centerX() ? i - 1 : i + 1
+                    shift = shift > 14 ? shift - 2 : shift
+                    shift = 0 > shift ? shift + 2 : shift
+                    this.move({ i: i, j: j}, {i: shift, j: j})
+                    moved = true
+                    prevX = e.detail.x
+                    prevY = e.detail.y
+                    return !1;
                 }
             });
         },

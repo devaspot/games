@@ -30,6 +30,15 @@ var $ = function(_undefind)
 {
     var isIE = window.navigator.msPointerEnabled
 
+    var ieEventsMap = {
+        'mousedown': 'MSPointerDown',
+        'touchstart': 'MSPointerDown',
+        'mousemove': 'MSPointerMove',
+        'touchmove': 'MSPointerMove',
+        'mouseup': 'MSPointerUp',
+        'touchend': 'MSPointerUp'
+    }
+
     function Selector(elements) {
         this.length = elements.length;
         for (var i = 0, l = this.length; l > i; i++) this[i] = elements[i];
@@ -51,8 +60,22 @@ var $ = function(_undefind)
     var fn = Selector.prototype;
 
     fn.each = function(callback) { for (var i = 0, l = this.length; l > i; i++) callback(this[i], i); return this; },
-    fn.on = function(eventName, eventHandler) { return this.each(function(el) { el.addEventListener(eventName, eventHandler); }); },
-    fn.off = function(eventName, eventHandler) { return this.each(function(el) { el.removeEventListener(eventName, eventHandler); }); },
+    fn.on = function(eventName, eventHandler) {
+        return this.each(function(el) { 
+            if(isIE && ieEventsMap[eventName]){
+                eventName = ieEventsMap[eventName]
+            }
+            el.addEventListener(eventName, eventHandler); 
+        }); 
+    },
+    fn.off = function(eventName, eventHandler) { 
+        return this.each(function(el) {
+            if(isIE && ieEventsMap[eventName]){
+                eventName = ieEventsMap[eventName]
+            }
+            el.removeEventListener(eventName, eventHandler); 
+        }); 
+    },
     fn.trigger = function(eventName, data, raw) { 
         data = data || {}
         return this.each(function(el) {
