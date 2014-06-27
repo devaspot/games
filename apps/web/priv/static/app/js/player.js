@@ -36,12 +36,12 @@ function PlayerScope(scope) {
 
             var $result = $("<g/>").html(result);
             var element = $result[0].firstChild;
-            var xform = parseTransformAttribute(element.getAttribute("transform"));
+/*            var xform = parseTransformAttribute(element.getAttribute("transform"));
             var ori   = parseTransformAttribute(this.$el[0].getAttribute("transform"));
             var shift = "translate("+(-parseFloat(ori.translate[0])+parseFloat(xform.translate[0]))+","+
                                      (-parseFloat(ori.translate[1])+parseFloat(xform.translate[1]))+")";
             element.setAttribute("transform",shift);
-            this.$el.append(element);
+*/            this.$el.append(element);
             this.unselect(); },
 
         initTimer: function() {

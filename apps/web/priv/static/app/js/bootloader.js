@@ -147,6 +147,15 @@ function PatchSVG()
     document.addEventListener('touchmove',function(e) {e.preventDefault();},false);
     $svg.attr({preserveAspectRatio:"xMidYMid meet",width:"100%",height:"100%"});
 
+    $("#Player-Left").attr({transform:""});
+    $("#Player-Left-Timer").attr({transform:"translate(214, 151)"});
+    $("#Player-Left-Display").attr({transform:"translate(256, 151)"});
+    $("#Player-Right").attr({transform:""});
+    $("#Player-Right-Timer").attr({transform:"translate(628, 161)"});
+    $("#Player-Right-Display").attr({transform:"translate(670, 161)"});
+    $("#Player-Center").attr({transform:""});
+    $("#Player-Center-Timer").attr({transform:"translate(444, 92)"});
+    $("#Player-Center-Display").attr({transform:"translate(486, 92)"});
 }
 
 function sendSawOkey()
