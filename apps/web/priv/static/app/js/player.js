@@ -11,10 +11,10 @@ function PlayerScope(scope) {
         this.skin = options.skin || skins[$.rand(0, skins.length - 1)];
         this.$el = $("#Player-" + this.position);
         this.elements = {
-            $timer: "#Timer",
-            $name: "#Name",
-            $nameWrapper: "#Name rect",
-            $nameText: "#Name text" };
+            $timer:       "#Player-" + this.position + "-Timer",
+            $name:        "#Player-" + this.position + "-Display",
+            $nameWrapper: "#Player-" + this.position + "-Display rect",
+            $nameText:    "#Player-" + this.position + "-Display text" };
         this.proxies = [ "loadSkin" ];
         this.__super__.constructor.call(this);
         this.$el.show();
