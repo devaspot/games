@@ -26,9 +26,12 @@ main() ->
         {1,5},{2,5},{3,5},
         okey,okey,{2,10},{2,6},
         {2,9}],
-    Tests = [L0,L1,L2,L4,L3],
-    [ check_reveal(L) ||L <- Tests],
-    check_reveal(L3).
+        
+    L5 = [{3,13},{3,13},{4,11},{4,11},{1,7},{1,2},{2,11},{4,13},{4,10},{4,10},{1,7},{1,2},{2,11},{4,13}],
+    
+    Tests = [L0,L1,L2,L4,L3,L5],
+    [ check_reveal(L) || L <- Tests].
+%    check_reveal(L5).
 
 check_reveal(L1) -> 
     L11 = element(1, lists:mapfoldl(fun(X, Acc) when is_atom(X) -> {{okey, okey, Acc}, Acc+1};
@@ -116,7 +119,7 @@ check2x7(L2) ->
         true -> {true, [ lists:map(fun({okey,okey,_}) -> okey;
                                     ({C,14,X}) -> {C,1};
                                    ({C,V,_}) -> {C,V} end,L)
-                           || L <- lists:nth(length(L2comb)-1,L2comb)]};
+                           || L <- lists:nth(length(L2comb),L2comb)]};
         false-> {false,[]} end.
 
 check3x3_5x1(L3, L5) -> check_comb(combs_clb(L3, [], 3), L5).

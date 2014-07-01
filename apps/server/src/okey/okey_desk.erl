@@ -537,6 +537,11 @@ is_same_hands(Hand1, Hand2, Okey) ->
                                  (A)->A end,deck:to_list(Hand2))),
     L1 == L2.
 
+sorted_hand(Hand,Okey) ->
+    lists:sort(lists:map(fun(false_okey)->Okey;
+                                 (okey)->Okey;
+                                 (A)->A end,deck:to_list(Hand))).
+
 %% find_8_tashes(Hand) -> {ok, Value} | not_found
 find_8_tashes(Hand) -> find_8_tashes2(deck:to_list(Hand)).
 

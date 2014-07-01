@@ -346,7 +346,7 @@ denormalize_reveal(RevealHand, Gosterge) ->
         okey -> Okey;
         Okey -> false_okey;
         _ -> Tash end || Tash <- [null|Series] ] || Series <- RevealHand ],
-    {L1,L2}=lists:split(2,Den),
+    {L1,L2}=lists:split(length(RevealHand) div 2,Den),
     [lists:flatten(L1),lists:flatten(L2)].
 
 check_reveal(Tashes, Gosterge) ->
