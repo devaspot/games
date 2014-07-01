@@ -16,7 +16,7 @@ var scope = {
     FEMALE_SKINS: [ "Alina" ],
     paused: false,
     fixedChatBars: true,
-    version: 2706201401
+    version: 0107201401
 };
 
 function adaptiveDesign() {

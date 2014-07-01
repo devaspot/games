@@ -200,13 +200,13 @@
                 </g>
             </g>
             <g id="Player-Me" transform="translate(398.000000, 413.000000)">
-                <g id="Name" transform="translate(43.000000, 0.000000)">
+                <g id="Player-Me-Display" transform="translate(43.000000, 0.000000)">
                     <rect id="Player-Me-Pad" fill="#517ECE" sketch:type="MSShapeGroup" x="0" y="0" width="121" height="39" rx="8"></rect>
                     <text id="Player-Me-Name" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="24" font-weight="normal">
                         <tspan x="36.7075933" y="28.7344">Me</tspan>
                     </text>
                 </g>
-                <g id="Timer">
+                <g id="Player-Me-Timer">
                     <path d="M5.558,38 C2.492,38 0,35.504 0,32.436 L0,5.564 C0,2.496 2.492,0 5.558,0 L32.439,0 C35.505,0 38,2.496 38,5.564 L38,32.436 C38,35.504 35.505,38 32.439,38 L5.558,38 L5.558,38 Z" id="Timer-Pad" fill="#517ECE" sketch:type="MSShapeGroup"></path>
                     <rect id="progress" fill="#5CBF6F" sketch:type="MSShapeGroup" x="2" y="2" width="34" height="33" rx="3"></rect>
                     <text id="value" fill="#FFFFFF" sketch:type="MSTextLayer" font-family="Exo 2" font-size="20.7143027" font-weight="normal">
