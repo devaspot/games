@@ -1,5 +1,5 @@
-N2O SVG Rich SPA Client Example
-===============================
+N2O Based Game
+==============
 
 [![Build Status](https://travis-ci.org/synrc/games.svg?branch=master)](https://travis-ci.org/synrc/games)
 
