@@ -18,7 +18,7 @@ Licensing
 ---------
 
 Not allowed for commercial use.
-For licensing Kakaranet Application or its parts for commercial use please contact:
+For licensing N2O SVG Example or its parts for commercial use please contact:
 
 * Maxim Sokhatsky
 
