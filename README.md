@@ -1,5 +1,5 @@
-Kakaranet Application
-=====================
+N2O SVG Rich SPA Client Example
+===============================
 
 [![Build Status](https://travis-ci.org/kakaranet/games.svg?branch=master)](https://travis-ci.org/kakaranet/games)
 
