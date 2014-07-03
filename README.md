@@ -1,7 +1,7 @@
 N2O SVG Rich SPA Client Example
 ===============================
 
-[![Build Status](https://travis-ci.org/kakaranet/games.svg?branch=master)](https://travis-ci.org/kakaranet/games)
+[![Build Status](https://travis-ci.org/synrc/games.svg?branch=master)](https://travis-ci.org/synrc/games)
 
 ![Image](http://synrc.com/lj/svg_clean.png)
 
