@@ -4,6 +4,5 @@ otp_release:
 notifications:
   email: 
     - maxim@synrc.com
-    - sustel@kakaranet.com
 install: "make"
 script: "make ct"

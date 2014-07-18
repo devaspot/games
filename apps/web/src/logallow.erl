@@ -5,7 +5,7 @@ log_modules() -> [
 %    wf_core,
     n2o_bullet,
 %    okey_bot,
-%    game_session,
+    game_session,
 %    bullet_handler,
     okey_table,
     okey_desk,
