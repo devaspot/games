@@ -219,13 +219,8 @@ function DeckScope(scope) {
         place: function(target, x, y) {
             try{
                 var trfs = this.trfs,
-                    pos = this.$dropPlace.position(),
-                    width = this.$dropPlace.width(),
-                    height = this.$dropPlace.height(),
-                    placeWidth = Math.round(width / 15),
-                    placeHeight = Math.round(height / 2),
-                    truePosX = Math.floor((x - pos.left) / placeWidth),
-                    posY = Math.floor((y - pos.top) / placeHeight)
+                    posX = this.getSelectedPos().x,
+                    posY = this.getSelectedPos().y
 
                 scope.Card.selected.sort(function (a, b){
                     return (a.pos.x > b.pos.x) - (b.pos.x > a.pos.x)
@@ -236,13 +231,11 @@ function DeckScope(scope) {
                     dropResult
 
                 if(cards.every(function (card, i){
-                    posX = truePosX + (i - idx) * (card != target.owner)
                     return this.cards[posY][posX] == null || this.cards[posY][posX] == card
                 }, this)){
 
                     for(var i = 0, l = cards.length, card; i < l; i++){
                         card = cards[i]
-                        posX = truePosX + (i - idx) * (card != target.owner)
 
                         if(dropResult = (this.cards[posY][posX] == null || this.cards[posY][posX] == selected)){
 
