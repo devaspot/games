@@ -71,6 +71,12 @@ function CardScope(scope) {
             var pos = this.$el.position(), width = this.$el.width();
             return Math.round(pos.left + width / 2);
         },
+
+        centerY: function(){
+            var pos = this.$el.position(), height = this.$el.height();
+            return Math.round(pos.bottom + height / 2);
+        },
+
         toggle: function(e) {
             e.stopPropagation(), selStart && scope.deck.contains(this) ? this.nearSelectGroup() ? this.selected && !this.betweenSelected() ? this.uncheck() : this.check() : (Card.uncheckAll(), 
             this.check()) : ~Card.selected.indexOf(this) || Card.uncheckAll();
@@ -126,7 +132,9 @@ function CardScope(scope) {
         tile: function(){
             return [, scope.CARD_COLORS.indexOf(this.color), card.value]
         },
-        log: function() {}
+        log: function() {
+            console.log('%c'+this.value, 'color: '+this.color)
+        }
     });
 
     scope.Card = Card;

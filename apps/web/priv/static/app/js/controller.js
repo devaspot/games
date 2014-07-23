@@ -37,7 +37,7 @@ function ControllerScope(scope) {
             ,   y_overlap = Math.max(0, Math.min(y12,y22) - Math.max(y11,y21))
             return {
                 square: x_overlap * y_overlap
-            ,   res : x_overlap * y_overlap > $el.width() * $el.height() * .25
+            ,   res : x_overlap * y_overlap > $el.width() * $el.height() * .4
             }   
         }
     }),
