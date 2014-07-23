@@ -4,12 +4,13 @@ function DeckScope(scope) {
         options = options || {};
         this.$el = $(root);
         this.elements = { $dropPlace: "#Deck" };
-        this.proxies = [ "select", "track", "place" ];
+        this.proxies = [ "select", "track", "place", 'restoreCards' ];
         this.cards = [ [], [] ];
         this.trfs = [ [], [] ];
         this.__super__.constructor.call(this),
         this.$dropPlace.droppable({ accept: this.place });
-        // this.move = $.debounce(this.move, 25)
+
+        this.track = $.debounce(this.track, 25)
 
         this.restoredCards = [[], []]
         this.selectedPos = {}
@@ -44,6 +45,7 @@ function DeckScope(scope) {
                     },
                     card.on("dragstart", this.select),
                     card.on("dragmove", this.track),
+                    card.$el.on('revert', this.restoreCards)
                     card.$el.doubletap(function(){ 
                         scope.apiProvider.actionDiscard(card) 
                     }),
