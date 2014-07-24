@@ -213,16 +213,19 @@ function DeckScope(scope) {
         },
 
         select: function(e) {
-            selected = null, this.each(function(card) {
-                if(card && card.$el[0] == e.target){
-                    selected = card
-                    this.restoredCards = this.cards.map(function (row){ return row.concat() })
-                    return !1 
-                }
-                else {
-                    return !0
-                }
-            });
+            selected = null;
+            selected = e.detail.target.owner
+            this.restoredCards = this.cards.map(function (row){ return row.concat() })
+            // this.each(function(card) {
+            //     if(card && card.$el[0] == e.target){
+            //         selected = card
+            //         this.restoredCards = this.cards.map(function (row){ return row.concat() })
+            //         return !1 
+            //     }
+            //     else {
+            //         return !0
+            //     }
+            // });
         },
 
         place: function(target, x, y) {
