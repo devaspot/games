@@ -10,7 +10,8 @@ function DeckScope(scope) {
         this.__super__.constructor.call(this),
         this.$dropPlace.droppable({ accept: this.place });
 
-        this.track = $.debounce(this.track, 25)
+        // this.track = $.debounce(this.track, 25)
+        // this.restoreCards = $.throttle(this.restoreCards, 200)
 
         this.restoredCards = [[], []]
         this.selectedPos = {}
@@ -109,14 +110,22 @@ function DeckScope(scope) {
         },
 
         track: function(e) {
-
+            var selectedPos = this.getSelectedPos()
             for(var i = 0; i < 15; i++){
                 for(var j = 0; j < 2; j++){
                     var card = this.cards[j][i]
-                    if (card && card.$el[0] != e.target && card.intersect($(e.target)).res && !card.$el.attr("animated") && scope.Card.selected.length < 2) {
+                    if (card && card.$el[0] != e.target && (selectedPos.x == i && selectedPos.y == j) && !card.$el.attr("animated") && scope.Card.selected.length < 2) {
                         var shift = e.detail.x > card.centerX() ? i - 1 : i + 1
-                        shift = shift > 14 ? shift - 2 : shift
-                        shift = 0 > shift ? shift + 2 : shift
+                        if(shift > 14 || shift < 0){
+                            shift = shift > 14 ? shift - 2 : shift
+                            shift = 0 > shift ? shift + 2 : shift
+                        }
+                        else if(shift < i && this.leftDeadEnd(j, i)){
+                            shift = i + 1
+                        }
+                        else if(shift > i && this.rightDeadEnd(j, i)){
+                            shift = i - 1
+                        }
                         this.move({ i: i, j: j}, {i: shift, j: j})
                         this.needRestore = true
                         moved = true
@@ -127,7 +136,7 @@ function DeckScope(scope) {
                     }
                 }
             }
-            var selectedPos = this.getSelectedPos()
+            
             if((this.selectedPos.x != selectedPos.x || this.selectedPos.y != selectedPos.y)){
                 this.restoreCards()
             } 
@@ -341,7 +350,7 @@ function DeckScope(scope) {
                     posX = Math.floor((x - pos.left) / placeWidth),
                     posY = Math.floor((y - pos.top) / placeHeight) - 1
 
-                console.log(posX, posY)
+                // console.log(posX, posY)
                 return {
                     x: posX,
                     y: posY
@@ -353,6 +362,24 @@ function DeckScope(scope) {
                     y: -1
                 }
             }
+        },
+
+        leftDeadEnd: function(row, from){
+            for(var i = from; i >= 0; i--){
+                if(!this.cards[row][i] || this.cards[row][i] == selected){
+                    return false
+                }
+            }
+            return true
+        },
+
+        rightDeadEnd: function(row, from){
+            for(var i = from+1; i < 15; i++){
+                if(!this.cards[row][i] || this.cards[row][i] == selected){
+                    return false
+                }
+            }
+            return true
         },
 
         dir: function(){
