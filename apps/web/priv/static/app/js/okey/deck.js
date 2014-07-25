@@ -84,6 +84,7 @@ function DeckScope(scope) {
                 this.needRestore = false
                 this.cards = this.restoredCards.map(function (row){ return row.concat() })
                 this.normalizeCards()
+                this.dropDiraction()
             }
         },
 
@@ -105,6 +106,10 @@ function DeckScope(scope) {
             for(var i = 0; i < 15; i++){
                 for(var j = 0; j < 2; j++){
                     var card = this.cards[j][i]
+                    if(card){
+                        card.direction = null
+                    }
+                    card = this.restoredCards[j][i]
                     if(card){
                         card.direction = null
                     }
