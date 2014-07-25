@@ -76,6 +76,8 @@ function DeckScope(scope) {
                                 x: i,
                                 y: j
                             }
+
+                            card.direction = null
                         }
                     }
                 }
@@ -99,6 +101,17 @@ function DeckScope(scope) {
             }
         },
 
+        dropDiraction: function(){
+            for(var i = 0; i < 15; i++){
+                for(var j = 0; j < 2; j++){
+                    var card = this.cards[j][i]
+                    if(card){
+                        card.direction = null
+                    }
+                }
+            }
+        },
+
         render: function() {
             this.each(function(card, i, j) {
                 if (null != card) {
@@ -115,7 +128,7 @@ function DeckScope(scope) {
                 for(var j = 0; j < 2; j++){
                     var card = this.cards[j][i]
                     if (card && card.$el[0] != e.target && (selectedPos.x == i && selectedPos.y == j) && !card.$el.attr("animated") && scope.Card.selected.length < 2) {
-                        var shift = e.detail.x > card.centerX() ? i - 1 : i + 1
+                        var shift = e.detail.x > card.centerX() ? i - 1 : i + 1                        
                         if(shift > 14 || shift < 0){
                             shift = shift > 14 ? shift - 2 : shift
                             shift = 0 > shift ? shift + 2 : shift
@@ -125,6 +138,9 @@ function DeckScope(scope) {
                         }
                         else if(shift > i && this.rightDeadEnd(j, i)){
                             shift = i - 1
+                        }
+                        else if(card.direction == this.direction(i, shift)){
+                            shift = card.direction == 'left' ? i - 1 : i + 1
                         }
                         this.move({ i: i, j: j}, {i: shift, j: j})
                         this.needRestore = true
@@ -171,11 +187,13 @@ function DeckScope(scope) {
 
                                 var self = this
 
-                                ;(function (card, fst_j, j, dir_j){                                 
+                                ;(function (card, fst_j, j, dir_j, deck){                                 
                                     card.$el.transform({
                                         from: [trfs[fst_j][j].x, trfs[fst_j][j].y].join(' '),
                                         to: [trfs[fst_j][dir_j].x, trfs[fst_j][dir_j].y].join(' ')
                                     })
+
+                                    card.direction = deck.direction(j, dir_j)
 
                                     // card.restoreCardHandler = function(){
                                     //     var selectedPos = self.getSelectedPos()
@@ -195,7 +213,7 @@ function DeckScope(scope) {
                                     //     }
                                     // }
                                     // self.restoredCards.push(card)
-                                }(card, fst.j, j, direction(j)))
+                                }(card, fst.j, j, direction(j), this))
 
                                 // if(selected){
                                 //     selected.dragHandler.initTrf = [trfs[fst.j][j].x, trfs[fst.j][j].y]
@@ -261,6 +279,7 @@ function DeckScope(scope) {
                                 }
                                 ;(this.cards[posY][posX] = card).pos = {x:posX,y:posY}
                                 this.normalizeCards()
+                                this.dropDiraction()
                                 this.restoredCards = null
                                 selected = null
                             }
@@ -383,6 +402,10 @@ function DeckScope(scope) {
                 }
             }
             return true
+        },
+
+        direction: function(from, to){
+            return from < to ? 'left' : 'right'
         },
 
         dir: function(){
