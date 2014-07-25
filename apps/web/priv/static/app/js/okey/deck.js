@@ -109,9 +109,11 @@ function DeckScope(scope) {
                     if(card){
                         card.direction = null
                     }
-                    card = this.restoredCards[j][i]
-                    if(card){
-                        card.direction = null
+                    if(this.restoredCards){
+                        card = this.restoredCards[j][i]
+                        if(card){
+                            card.direction = null
+                        }
                     }
                 }
             }
@@ -284,7 +286,6 @@ function DeckScope(scope) {
                                 }
                                 ;(this.cards[posY][posX] = card).pos = {x:posX,y:posY}
                                 this.normalizeCards()
-                                this.dropDiraction()
                                 this.restoredCards = null
                                 selected = null
                             }
@@ -299,6 +300,7 @@ function DeckScope(scope) {
                             }(card))
                         }
                     }
+                    this.dropDiraction()
                 }
                 return dropResult
             }
