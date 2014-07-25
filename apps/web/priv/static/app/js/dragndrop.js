@@ -68,7 +68,7 @@ function DragScope(scope) {
             this.trf = this.$el.attr("transform"), this.trf && (this.trf = this.trf.slice(10, -1).split(/\s+/)), 
             this.storeTrf(), silent || (document.createTouch || isIE ? (this.$el.on("touchmove", this.onMove), 
             this.$el.on("touchend", this.onUp)) : ($("body").on("mousemove", this.onMove), $("body").on("mouseup", this.onUp)), 
-            this.$el.trigger("dragstart")));
+            this.$el.trigger("dragstart", {detail: {target:this}})));
         },
 
         onMove: function(e, silent) {
