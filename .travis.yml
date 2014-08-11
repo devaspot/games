@@ -5,4 +5,3 @@ notifications:
   email: 
     - maxim@synrc.com
 install: "make"
-script: "make ct"

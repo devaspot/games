@@ -4,6 +4,7 @@
 log_modules() -> [
 %    wf_core,
     n2o_bullet,
+    routes,
 %    okey_bot,
     game_session,
 %    bullet_handler,

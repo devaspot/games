@@ -72,7 +72,7 @@ user() ->
 
 player_name(PI) -> auth_server:player_name(PI).
 
-main() -> #dtl{file="index", bindings=[{title,<<"N2O">>},{body,[]}]}.
+main() -> []. %#dtl{file="index", bindings=[{title,<<"N2O">>},{body,[]}]}.
 
 patch_users() ->
     [ begin
