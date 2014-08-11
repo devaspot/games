@@ -10,3 +10,4 @@ apps/**/ebin/**
 rels/web/devbox
 index.js
 protocol.js
+.rebar
