@@ -11,6 +11,7 @@ Run
 To run just perform on Linux, Windows or Mac
 
     $ make && make console
+    > kvs:join().
 
 And open it in browser [http://localhost:8080/static/app/index.htm](http://localhost:8080/static/app/index.htm)
 
