@@ -18,7 +18,7 @@ relx     := "{release,{$(RELEASE),\"$(VER)\"},[$(RELEASE)]}.\\n{include_erts,tru
 test: eunit ct
 compile: get-deps
 delete-deps get-deps compile update-deps:
-	./mad $@
+	rebar $@
 clean:
 	rm -f .applist
 	rebar $@
