@@ -3,7 +3,7 @@ N2O Based Game
 
 [![Build Status](https://travis-ci.org/synrc/games.svg?branch=master)](https://travis-ci.org/synrc/games)
 
-![Image](http://synrc.com/lj/svg_clean.png)
+![Image](http://synrc.com/images/kakaranet.png)
 
 Run
 ---
