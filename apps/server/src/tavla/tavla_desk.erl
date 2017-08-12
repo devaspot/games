@@ -90,7 +90,7 @@
         {home_hit_and_run_enabled    :: boolean(),
          bearoff_waste_moves_enabled :: boolean(),
          first_move                  :: black | white,
-         board                       :: dict(),
+         board,
          pips_list                   :: undefined | list(integer()),
          hitted_home_positions       :: list(),
          current                     :: black | white,

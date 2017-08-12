@@ -1,11 +1,11 @@
 -module(okey).
 -compile(export_all).
 -include_lib("n2o/include/wf.hrl").
--include_lib("server/include/requests.hrl").
--include_lib("server/include/settings.hrl").
+-include("requests.hrl").
+-include("settings.hrl").
 -include_lib("avz/include/avz.hrl").
 -include_lib("kvs/include/user.hrl").
--include_lib("db/include/journal.hrl").
+-include("journal.hrl").
 
 -define(GAMEID, game_form()).
 
