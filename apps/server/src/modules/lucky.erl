@@ -52,9 +52,9 @@
          seats,            %% Stores relation between players and tables seats
          player_id_counter :: pos_integer(),
          table_id_counter  :: pos_integer(),
-         cr_tab_requests   :: dict(), %% {TableId, PlayersIds}
-         reg_requests      :: dict(),  %% {PlayerId, From}
-         tab_requests      :: dict()   %% {RequestId, RequestContext}
+         cr_tab_requests,
+         reg_requests,
+         tab_requests
         }).
 
 -record(player,

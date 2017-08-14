@@ -65,9 +65,9 @@
          player_id_counter :: pos_integer(),
          cur_table         :: pos_integer(),
          tour              :: pos_integer(),
-         cr_tab_requests   :: dict(),  %% {TableId, PlayersIds}
-         reg_requests      :: dict(),  %% {PlayerId, From}
-         tab_requests      :: dict(),  %% {RequestId, RequestContext}
+         cr_tab_requests,
+         reg_requests,
+         tab_requests,
          timer             :: undefined | reference(),
          timer_magic       :: undefined | reference(),
          tables_wl         :: list(), %% Tables waiting list
